@@ -17,6 +17,7 @@ import {
   getUpgradeCost,
 } from "./gameLogic";
 import { clearSave, loadSave, saveGame } from "./save";
+import { MVP_IDS } from "./types";
 import type { CareerStageDefinition, UpgradeId } from "./types";
 import "./styles.css";
 
@@ -56,6 +57,7 @@ function App() {
       prefix: "",
     },
   ];
+  const isMvpComplete = game.careerStage === MVP_IDS.careerStages.middleQa;
 
   useEffect(() => {
     saveGame(game);
@@ -171,9 +173,7 @@ function App() {
 
       <section className="hero">
         <div>
-          <p className="eyebrow">
-            {game.careerStage === "middle" ? "MVP complete" : "Stage 1"}
-          </p>
+          <p className="eyebrow">{isMvpComplete ? "MVP complete" : "Stage 1"}</p>
           <h1>{currentStage?.label ?? "Junior QA"}</h1>
           <p className="stage-focus">{currentStage?.description}</p>
         </div>
@@ -207,7 +207,7 @@ function App() {
           </button>
         ) : (
           <p className="stage-requirement">
-            {game.careerStage === "middle"
+            {isMvpComplete
               ? "The MVP endpoint has been reached."
               : currentStage?.requirementText}
           </p>
@@ -326,7 +326,7 @@ function App() {
         </div>
         <div className="career-progress">
           <span>
-            {game.careerStage === "middle"
+            {isMvpComplete
               ? "Promotion completed. No additional systems are active in this MVP."
               : currentStage?.requirementText}
           </span>

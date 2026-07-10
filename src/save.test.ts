@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SAVE_KEY, initialState } from "./gameData";
 import { clearSave, loadSave, saveGame } from "./save";
+import { MVP_IDS } from "./types";
 
 describe("save storage", () => {
   beforeEach(() => {
@@ -36,10 +37,11 @@ describe("save storage", () => {
       totalBugsFound: 0,
       totalMoneyEarned: 250,
       lastPlayedAt: Date.now(),
-      careerStage: "junior",
+      careerStage: MVP_IDS.careerStages.juniorQa,
       upgrades: {
-        checklist: 1,
-        coffee: 0,
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+        [MVP_IDS.upgrades.coffee]: 0,
       },
     });
   });

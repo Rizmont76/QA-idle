@@ -6,10 +6,13 @@ import {
   getPromotionStage,
   getUpgradeCost,
 } from "./gameLogic";
+import { MVP_IDS } from "./types";
 
 describe("game logic", () => {
   it("scales upgrade costs by owned level", () => {
-    const checklist = upgrades.find((upgrade) => upgrade.id === "checklist");
+    const checklist = upgrades.find(
+      (upgrade) => upgrade.id === MVP_IDS.upgrades.betterChecklist,
+    );
 
     if (!checklist) {
       throw new Error("Checklist upgrade is missing.");
@@ -30,8 +33,9 @@ describe("game logic", () => {
       getDerivedStats({
         ...initialState,
         upgrades: {
-          checklist: 2,
-          coffee: 1,
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 2,
+          [MVP_IDS.upgrades.coffee]: 1,
         },
       }),
     ).toEqual({
@@ -47,11 +51,12 @@ describe("game logic", () => {
         totalBugsFound: 100,
         totalMoneyEarned: 150,
         upgrades: {
-          checklist: 2,
-          coffee: 1,
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 2,
+          [MVP_IDS.upgrades.coffee]: 1,
         },
       })?.id,
-    ).toBe("middle");
+    ).toBe(MVP_IDS.careerStages.middleQa);
   });
 
   it("does not promote before requirements are met", () => {

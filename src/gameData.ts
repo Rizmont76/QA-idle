@@ -1,3 +1,4 @@
+import { MVP_IDS } from "./types";
 import type { CareerStageDefinition, GameState, Upgrade } from "./types";
 
 export const SAVE_KEY = "qa-idle-save-v1";
@@ -9,8 +10,8 @@ export const PROMOTION_REQUIRED_UPGRADES = 3;
 
 export const upgrades: Upgrade[] = [
   {
-    id: "checklist",
-    group: "manual",
+    id: MVP_IDS.upgrades.betterChecklist,
+    group: MVP_IDS.uiSurfaces.manualTesting,
     name: "Better Checklist",
     description: "+1 bug per click.",
     flavor: "Sharper test cases make every manual run more valuable.",
@@ -19,8 +20,8 @@ export const upgrades: Upgrade[] = [
     bugsPerClick: 1,
   },
   {
-    id: "coffee",
-    group: "manual",
+    id: MVP_IDS.upgrades.coffee,
+    group: MVP_IDS.uiSurfaces.manualTesting,
     name: "Coffee",
     description: "+3 bugs per click.",
     flavor: "A focused tester catches edge cases before lunch.",
@@ -36,16 +37,19 @@ export const initialState: GameState = {
   totalBugsFound: 0,
   totalMoneyEarned: 0,
   lastPlayedAt: Date.now(),
-  careerStage: "junior",
+  careerStage: MVP_IDS.careerStages.juniorQa,
   upgrades: {
-    checklist: 0,
-    coffee: 0,
+    [MVP_IDS.upgrades.betterChecklist]: 0,
+    [MVP_IDS.upgrades.coffee]: 0,
+    [MVP_IDS.upgrades.keyboardShortcuts]: 0,
+    [MVP_IDS.upgrades.bugReportTemplate]: 0,
+    [MVP_IDS.upgrades.testCaseLibrary]: 0,
   },
 };
 
 export const careerStages: CareerStageDefinition[] = [
   {
-    id: "junior",
+    id: MVP_IDS.careerStages.juniorQa,
     label: "Junior QA",
     nextLabel: "Middle QA",
     description: "Manual testing, bug reports, and the first upgrades.",
@@ -57,7 +61,7 @@ export const careerStages: CareerStageDefinition[] = [
         PROMOTION_REQUIRED_UPGRADES,
   },
   {
-    id: "middle",
+    id: MVP_IDS.careerStages.middleQa,
     label: "Middle QA",
     description: "Vertical slice complete. Future gameplay remains hidden.",
   },

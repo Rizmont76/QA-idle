@@ -1,4 +1,5 @@
 import { SAVE_KEY, initialState } from "./gameData";
+import { MVP_IDS } from "./types";
 import type { GameState, UpgradeId } from "./types";
 
 function safeNumber(value: unknown) {
@@ -15,17 +16,33 @@ function normalizeUpgradeLevel(value: unknown) {
 
 function normalizeUpgrades(value: unknown): Record<UpgradeId, number> {
   const saved = value && typeof value === "object" ? value : {};
+  const savedUpgrades = saved as Partial<
+    Record<UpgradeId | "checklist" | "coffee", unknown>
+  >;
 
   return {
-    checklist: normalizeUpgradeLevel(
-      (saved as Partial<Record<UpgradeId, unknown>>).checklist,
+    [MVP_IDS.upgrades.betterChecklist]: normalizeUpgradeLevel(
+      savedUpgrades[MVP_IDS.upgrades.betterChecklist] ?? savedUpgrades.checklist,
     ),
-    coffee: normalizeUpgradeLevel((saved as Partial<Record<UpgradeId, unknown>>).coffee),
+    [MVP_IDS.upgrades.coffee]: normalizeUpgradeLevel(
+      savedUpgrades[MVP_IDS.upgrades.coffee] ?? savedUpgrades.coffee,
+    ),
+    [MVP_IDS.upgrades.keyboardShortcuts]: normalizeUpgradeLevel(
+      savedUpgrades[MVP_IDS.upgrades.keyboardShortcuts],
+    ),
+    [MVP_IDS.upgrades.bugReportTemplate]: normalizeUpgradeLevel(
+      savedUpgrades[MVP_IDS.upgrades.bugReportTemplate],
+    ),
+    [MVP_IDS.upgrades.testCaseLibrary]: normalizeUpgradeLevel(
+      savedUpgrades[MVP_IDS.upgrades.testCaseLibrary],
+    ),
   };
 }
 
 function normalizeCareerStage(value: unknown): GameState["careerStage"] {
-  return value === "middle" ? "middle" : "junior";
+  return value === MVP_IDS.careerStages.middleQa || value === "middle"
+    ? MVP_IDS.careerStages.middleQa
+    : MVP_IDS.careerStages.juniorQa;
 }
 
 export function loadSave(): { game: GameState } {

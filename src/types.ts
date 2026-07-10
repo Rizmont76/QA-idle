@@ -1,6 +1,55 @@
-export type UpgradeId = "checklist" | "coffee";
-export type TabId = "manual";
-export type CareerStage = "junior" | "middle";
+export const MVP_IDS = {
+  careerStages: {
+    juniorQa: "junior_qa",
+    middleQa: "middle_qa",
+  },
+  promotions: {
+    juniorToMiddle: "promotion_junior_to_middle",
+  },
+  unlocks: {
+    promotionJuniorToMiddle: "unlock_promotion_junior_to_middle",
+  },
+  uiSurfaces: {
+    manualTesting: "ui_manual_testing",
+    bugReporting: "ui_bug_reporting",
+    resourcesBasic: "ui_resources_basic",
+    upgradesBasic: "ui_upgrades_basic",
+    promotionProgress: "ui_promotion_progress",
+    promoteAction: "ui_promote_action",
+  },
+  resources: {
+    bugsFound: "bugs_found",
+    money: "money",
+  },
+  gameplayStats: {
+    manualBugsPerAction: "manual_bugs_per_action",
+    moneyPerBugReported: "money_per_bug_reported",
+  },
+  actions: {
+    manualTest: "action_manual_test",
+    reportBugs: "action_report_bugs",
+    acceptPromotion: "action_accept_promotion",
+  },
+  upgrades: {
+    betterChecklist: "upgrade_better_checklist",
+    coffee: "upgrade_coffee",
+    keyboardShortcuts: "upgrade_keyboard_shortcuts",
+    bugReportTemplate: "upgrade_bug_report_template",
+    testCaseLibrary: "upgrade_test_case_library",
+  },
+} as const;
+
+export type CareerStage =
+  (typeof MVP_IDS.careerStages)[keyof typeof MVP_IDS.careerStages];
+export type PromotionId = (typeof MVP_IDS.promotions)[keyof typeof MVP_IDS.promotions];
+export type UnlockId = (typeof MVP_IDS.unlocks)[keyof typeof MVP_IDS.unlocks];
+export type UiSurfaceId = (typeof MVP_IDS.uiSurfaces)[keyof typeof MVP_IDS.uiSurfaces];
+export type ResourceId = (typeof MVP_IDS.resources)[keyof typeof MVP_IDS.resources];
+export type GameplayStatId =
+  (typeof MVP_IDS.gameplayStats)[keyof typeof MVP_IDS.gameplayStats];
+export type ActionId = (typeof MVP_IDS.actions)[keyof typeof MVP_IDS.actions];
+export type UpgradeId = (typeof MVP_IDS.upgrades)[keyof typeof MVP_IDS.upgrades];
+export type TabId = typeof MVP_IDS.uiSurfaces.manualTesting;
 
 export interface Upgrade {
   id: UpgradeId;
