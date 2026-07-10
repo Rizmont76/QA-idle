@@ -42,6 +42,15 @@
 - For UI changes, also run the app locally and visually check the affected viewport sizes when practical.
 - Do not commit generated build output, caches, logs, or dependency folders.
 
+## Token And Context Efficiency
+
+- Read only the docs and source files relevant to the current task; prefer targeted searches over loading every numbered design document.
+- When a task touches one system, start with that system's design doc plus `docs/07 - Technical Rules.md` only if architecture or cross-system behavior is involved.
+- Summarize discovered context briefly before acting when the task spans multiple docs, so later work can rely on the summary instead of rereading large files.
+- Avoid pasting long source or documentation excerpts into responses; cite filenames and describe the important rule or behavior.
+- Keep implementation notes and final answers concise unless the user asks for detailed reasoning.
+- Do not reduce verification quality to save tokens. Run the smallest check that gives confidence for the change.
+
 ## Repository Hygiene
 
 - Use `pnpm` as the package manager.
