@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { initialState, upgrades } from "./gameData";
 import {
   addResource,
+  calculateGameplayStat,
+  calculateGameplayStats,
   convertResources,
   createActiveModifierRegistry,
   formatNumber,
@@ -55,6 +57,68 @@ describe("game logic", () => {
     ).toEqual({
       bugsPerClick: 8,
       moneyPerBug: 2,
+    });
+  });
+
+  it("calculates MVP gameplay stats from registered base values without upgrades", () => {
+    const stats = calculateGameplayStats(initialState);
+
+    expect(stats[MVP_IDS.gameplayStats.manualBugsPerAction].value).toBe(1);
+    expect(stats[MVP_IDS.gameplayStats.moneyPerBugReported].value).toBe(1);
+    expect(
+      stats[MVP_IDS.gameplayStats.manualBugsPerAction].breakdown.appliedModifiers,
+    ).toEqual([]);
+  });
+
+  it("applies active flat upgrade modifiers through one calculation path", () => {
+    const stats = calculateGameplayStats({
+      ...initialState,
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+        [MVP_IDS.upgrades.coffee]: 1,
+        [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+        [MVP_IDS.upgrades.bugReportTemplate]: 1,
+        [MVP_IDS.upgrades.testCaseLibrary]: 1,
+      },
+    });
+    const manualBugsPerAction = stats[MVP_IDS.gameplayStats.manualBugsPerAction];
+    const moneyPerBugReported = stats[MVP_IDS.gameplayStats.moneyPerBugReported];
+
+    expect(manualBugsPerAction.value).toBe(8);
+    expect(moneyPerBugReported.value).toBe(2);
+    expect(
+      manualBugsPerAction.breakdown.appliedModifiers.map((modifier) => [
+        modifier.sourceId,
+        modifier.value,
+        modifier.newValue,
+      ]),
+    ).toEqual([
+      [MVP_IDS.upgrades.betterChecklist, 1, 2],
+      [MVP_IDS.upgrades.coffee, 1, 3],
+      [MVP_IDS.upgrades.keyboardShortcuts, 2, 5],
+      [MVP_IDS.upgrades.testCaseLibrary, 3, 8],
+    ]);
+  });
+
+  it("calculates a single stat from an explicit active modifier registry", () => {
+    const { registry } = createActiveModifierRegistry({
+      ...initialState,
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.bugReportTemplate]: 1,
+      },
+    });
+
+    expect(
+      calculateGameplayStat(MVP_IDS.gameplayStats.moneyPerBugReported, registry),
+    ).toMatchObject({
+      statId: MVP_IDS.gameplayStats.moneyPerBugReported,
+      value: 2,
+      breakdown: {
+        baseValue: 1,
+        finalValue: 2,
+      },
     });
   });
 

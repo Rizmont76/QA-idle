@@ -194,6 +194,35 @@ export interface ModifierRegistrationFailure {
   message: string;
 }
 
+export interface GameplayStatModifierBreakdownItem {
+  instanceId: ModifierInstanceId;
+  definitionId: ModifierDefinitionId;
+  sourceType: ModifierSourceType;
+  sourceId: string;
+  modifierType: ModifierType;
+  value: number;
+  previousValue: number;
+  newValue: number;
+}
+
+export interface GameplayStatCalculationBreakdown {
+  statId: GameplayStatId;
+  baseValue: number;
+  appliedModifiers: readonly GameplayStatModifierBreakdownItem[];
+  finalValue: number;
+}
+
+export interface GameplayStatCalculationResult {
+  statId: GameplayStatId;
+  value: number;
+  breakdown: GameplayStatCalculationBreakdown;
+}
+
+export type GameplayStatCalculationMap = Record<
+  GameplayStatId,
+  GameplayStatCalculationResult
+>;
+
 export interface DerivedStats {
   bugsPerClick: number;
   moneyPerBug: number;

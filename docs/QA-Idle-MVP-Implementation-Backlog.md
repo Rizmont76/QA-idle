@@ -638,6 +638,7 @@ Related Documentation Sections:
 
 ### QA-MVP-014 - Implement Additive Stat Calculation
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 4 - Modifier and Derived Stat System  
 Suggested Order: 2
@@ -675,6 +676,9 @@ Expected Deliverables:
 
 Risks:
 - Existing derived stats may include future passive production; ensure it is not included.
+
+Implementation Note:
+- Added a side-effect-free MVP gameplay stat calculation service that reads registered base stat values, applies active permanent flat upgrade modifiers from the modifier registry, and returns calculation breakdown data. Existing derived action stats now delegate to this calculation path, with focused tests covering base values, active upgrade effects, and explicit registry calculation.
 
 Related Documentation Sections:
 - `docs/09 - Modifier System.md` - Calculation Service, Flat Modifier
