@@ -1,3 +1,4 @@
 #!/bin/sh
 
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/guard-commit.ps1
 corepack pnpm check

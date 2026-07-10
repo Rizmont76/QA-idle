@@ -3,6 +3,7 @@
 ## Source Of Truth
 
 - Treat `docs/00 - Master Project Roadmap.md` through `docs/14 - Promotion System.md` as the design source of truth.
+- Use the `qa-idle-context-router` skill before implementation or review work to choose the smallest relevant documentation set.
 - Read the relevant design document before changing gameplay, economy, progression, unlocks, promotions, resources, modifiers, or save behavior.
 - Do not invent new mechanics, currencies, resources, stages, formulas, panels, upgrades, or unlock conditions unless the documentation is updated first.
 - Content in `docs/ideas/`, if present, is speculative until promoted into the main numbered docs.
@@ -37,6 +38,7 @@
 
 ## Testing And Verification
 
+- The pre-commit hook runs `scripts/guard-commit.ps1` before the full project check to block generated, dependency, cache, log, and duplicate imported project files.
 - Before finishing code changes, run `pnpm run check` when dependencies are installed.
 - For focused logic changes, add or update Vitest coverage near `src/gameLogic.test.ts` or `src/save.test.ts`.
 - For UI changes, also run the app locally and visually check the affected viewport sizes when practical.

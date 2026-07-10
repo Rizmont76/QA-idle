@@ -1,0 +1,4 @@
+interface:
+  display_name: "QA Idle Context Router"
+  short_description: "Route QA Idle tasks to the smallest relevant docs and files."
+  default_prompt: "Use this skill before QA Idle implementation or review work to select the minimal relevant documentation and source files."
