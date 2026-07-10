@@ -63,6 +63,7 @@ Related Documentation Sections:
 
 ### QA-MVP-002 - Make Future Systems Inert for MVP
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 1 - MVP Scope Lock  
 Suggested Order: 2
@@ -104,6 +105,9 @@ Expected Deliverables:
 
 Risks:
 - Removing future state too aggressively may break existing save parsing if not handled safely.
+
+Implementation Note:
+- Source review found no active Team, Automation, Reputation, Achievements, Statistics, Offline Progress, passive production, future UI panels, or future resource counters in the MVP code path. Existing save normalization ignores unknown future fields and restores only MVP state, so no production code change was required for this scope-lock item.
 
 Related Documentation Sections:
 - `docs/08 - MVP Vertical Slice Specification.md` - Excluded, Hidden Throughout the Entire Vertical Slice
