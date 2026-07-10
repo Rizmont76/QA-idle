@@ -210,6 +210,43 @@ export type ResourceTransactionValidationResult =
       failures: readonly ResourceTransactionValidationFailure[];
     };
 
+export interface ResourceOperationRequest {
+  resourceId: ResourceId;
+  amount: number;
+  sourceSystem: string;
+  reason: string;
+  simulationTime?: number;
+  transactionId?: string;
+}
+
+export interface ResourceTransactionMetadata {
+  transactionId: string;
+  operationType: Extract<ResourceTransactionOperationType, "add" | "spend">;
+  sourceSystem: string;
+  reason: string;
+  simulationTime: number;
+  changes: readonly ResourceTransactionProjectedChange[];
+}
+
+export interface ResourceChangedEventDescriptor {
+  id: "resource.changed";
+  payload: ResourceTransactionMetadata;
+}
+
+export type ResourceOperationResult =
+  | {
+      ok: true;
+      resources: ResourceState;
+      transaction: ResourceTransactionMetadata;
+      events: readonly ResourceChangedEventDescriptor[];
+    }
+  | {
+      ok: false;
+      resources: ResourceState;
+      failures: readonly ResourceTransactionValidationFailure[];
+      events: readonly [];
+    };
+
 export interface GameState {
   resources: ResourceState;
   totalBugsFound: number;

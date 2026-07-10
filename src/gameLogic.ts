@@ -9,7 +9,12 @@ import { MVP_IDS } from "./types";
 import type {
   ResourceDefinition,
   ResourceId,
+  ResourceOperationRequest,
+  ResourceOperationResult,
+  ResourceState,
+  ResourceTransactionMetadata,
   ResourceTransactionOperationType,
+  ResourceTransactionProjectedChange,
   ResourceTransactionValidationFailure,
   ResourceTransactionValidationRequest,
   ResourceTransactionValidationResult,
@@ -198,6 +203,99 @@ export function validateResourceTransaction(
     ok: true,
     changes: projectedChanges,
   };
+}
+
+function buildResourceTransactionId(
+  operationType: ResourceTransactionMetadata["operationType"],
+  request: ResourceOperationRequest,
+  changes: readonly ResourceTransactionProjectedChange[],
+) {
+  if (request.transactionId) {
+    return request.transactionId;
+  }
+
+  const changeKey = changes
+    .map((change) => `${change.resourceId}:${String(change.delta)}`)
+    .join(",");
+
+  return [
+    "resource",
+    operationType,
+    request.sourceSystem,
+    request.reason,
+    String(request.simulationTime ?? 0),
+    changeKey,
+  ].join(":");
+}
+
+function applyResourceOperation(
+  resources: ResourceState,
+  operationType: ResourceTransactionMetadata["operationType"],
+  request: ResourceOperationRequest,
+  definitions: readonly ResourceDefinition[] = resourceDefinitions,
+): ResourceOperationResult {
+  const delta = operationType === "add" ? request.amount : -request.amount;
+  const validation = validateResourceTransaction(
+    resources,
+    {
+      operationType,
+      changes: [{ resourceId: request.resourceId, delta }],
+    },
+    definitions,
+  );
+
+  if (!validation.ok) {
+    return {
+      ok: false,
+      resources,
+      failures: validation.failures,
+      events: [],
+    };
+  }
+
+  const nextResources = validation.changes.reduce<ResourceState>(
+    (updatedResources, change) => ({
+      ...updatedResources,
+      [change.resourceId]: change.newValue,
+    }),
+    { ...resources },
+  );
+  const transaction = {
+    transactionId: buildResourceTransactionId(operationType, request, validation.changes),
+    operationType,
+    sourceSystem: request.sourceSystem,
+    reason: request.reason,
+    simulationTime: request.simulationTime ?? 0,
+    changes: validation.changes,
+  };
+
+  return {
+    ok: true,
+    resources: nextResources,
+    transaction,
+    events: [
+      {
+        id: "resource.changed",
+        payload: transaction,
+      },
+    ],
+  };
+}
+
+export function addResource(
+  resources: ResourceState,
+  request: ResourceOperationRequest,
+  definitions: readonly ResourceDefinition[] = resourceDefinitions,
+): ResourceOperationResult {
+  return applyResourceOperation(resources, "add", request, definitions);
+}
+
+export function spendResource(
+  resources: ResourceState,
+  request: ResourceOperationRequest,
+  definitions: readonly ResourceDefinition[] = resourceDefinitions,
+): ResourceOperationResult {
+  return applyResourceOperation(resources, "spend", request, definitions);
 }
 
 export function formatNumber(value: number) {

@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { initialState, upgrades } from "./gameData";
 import {
+  addResource,
   formatNumber,
   getDerivedStats,
   getPromotionStage,
   getUpgradeCost,
+  spendResource,
   validateResourceTransaction,
 } from "./gameLogic";
 import { MVP_IDS } from "./types";
@@ -252,5 +254,125 @@ describe("resource transaction validation", () => {
         "resource_not_spendable",
       );
     }
+  });
+});
+
+describe("resource operations", () => {
+  it("adds resources after validation and returns transaction metadata", () => {
+    const resources = {
+      ...initialState.resources,
+      [MVP_IDS.resources.bugsFound]: 2,
+    };
+    const result = addResource(resources, {
+      resourceId: MVP_IDS.resources.bugsFound,
+      amount: 3,
+      sourceSystem: "manual_testing",
+      reason: "Manual Testing action",
+      simulationTime: 12,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Add operation should succeed.");
+    }
+
+    expect(resources[MVP_IDS.resources.bugsFound]).toBe(2);
+    expect(result.resources).toEqual({
+      ...resources,
+      [MVP_IDS.resources.bugsFound]: 5,
+    });
+    expect(result.transaction).toMatchObject({
+      transactionId: "resource:add:manual_testing:Manual Testing action:12:bugs_found:3",
+      operationType: "add",
+      sourceSystem: "manual_testing",
+      reason: "Manual Testing action",
+      simulationTime: 12,
+      changes: [
+        {
+          resourceId: MVP_IDS.resources.bugsFound,
+          previousValue: 2,
+          newValue: 5,
+          delta: 3,
+        },
+      ],
+    });
+    expect(result.events).toEqual([
+      {
+        id: "resource.changed",
+        payload: result.transaction,
+      },
+    ]);
+  });
+
+  it("spends resources after validation and returns transaction metadata", () => {
+    const resources = {
+      ...initialState.resources,
+      [MVP_IDS.resources.money]: 10,
+    };
+    const result = spendResource(resources, {
+      resourceId: MVP_IDS.resources.money,
+      amount: 4,
+      sourceSystem: "upgrades",
+      reason: "Buy Better Checklist",
+      simulationTime: 20,
+      transactionId: "test-transaction-id",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Spend operation should succeed.");
+    }
+
+    expect(resources[MVP_IDS.resources.money]).toBe(10);
+    expect(result.resources).toEqual({
+      ...resources,
+      [MVP_IDS.resources.money]: 6,
+    });
+    expect(result.transaction).toEqual({
+      transactionId: "test-transaction-id",
+      operationType: "spend",
+      sourceSystem: "upgrades",
+      reason: "Buy Better Checklist",
+      simulationTime: 20,
+      changes: [
+        {
+          resourceId: MVP_IDS.resources.money,
+          previousValue: 10,
+          newValue: 6,
+          delta: -4,
+        },
+      ],
+    });
+    expect(result.events).toEqual([
+      {
+        id: "resource.changed",
+        payload: result.transaction,
+      },
+    ]);
+  });
+
+  it("leaves resources unchanged and emits no events when an operation fails", () => {
+    const resources = {
+      ...initialState.resources,
+      [MVP_IDS.resources.money]: 1,
+    };
+    const result = spendResource(resources, {
+      resourceId: MVP_IDS.resources.money,
+      amount: 2,
+      sourceSystem: "upgrades",
+      reason: "Insufficient funds",
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("Spend operation should fail.");
+    }
+
+    expect(result.resources).toBe(resources);
+    expect(result.resources[MVP_IDS.resources.money]).toBe(1);
+    expect(result.failures.map((failure) => failure.code)).toContain(
+      "balance_below_minimum",
+    );
+    expect(result.events).toEqual([]);
   });
 });

@@ -494,6 +494,7 @@ Related Documentation Sections:
 
 ### QA-MVP-011 - Implement Add and Spend Resource Operations
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 3 - Resource System  
 Suggested Order: 3
@@ -531,6 +532,9 @@ Expected Deliverables:
 
 Risks:
 - If events are not yet implemented, operation should still return event descriptors for later bus integration.
+
+Implementation Note:
+- Added validated `addResource` and `spendResource` helpers that return immutable Resource State updates, deterministic transaction metadata, and `resource.changed` event descriptors only after successful validation. Failed operations return the original Resource State and no events. Focused Vitest coverage verifies add, spend, metadata, event descriptors, and failed spend rollback behavior.
 
 Related Documentation Sections:
 - `docs/11 - Resource System.md` - Resource Operations, Transaction Metadata
