@@ -17,6 +17,8 @@ foreach ($path in $stagedPaths) {
     "^(QA-idle|QA-idle-[0-9]+)/" { $reason = "duplicate imported project folder"; break }
     "(^|/)node_modules/" { $reason = "dependency folder"; break }
     "(^|/)dist/" { $reason = "generated build output"; break }
+    "(^|/)__MACOSX/" { $reason = "archive metadata folder"; break }
+    "(^|/)\._" { $reason = "archive metadata file"; break }
     "(^|/)\.pnpm-store/" { $reason = "package manager cache"; break }
     "(^|/)\.vite/" { $reason = "Vite cache"; break }
     "\.tsbuildinfo$" { $reason = "TypeScript build cache"; break }

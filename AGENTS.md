@@ -2,7 +2,7 @@
 
 ## Source Of Truth
 
-- Treat `docs/00 - Master Project Roadmap.md` through `docs/14 - Promotion System.md` as the design source of truth.
+- Treat `docs/00-Master_Project_Roadmap.md` through `docs/14-Promotion_System.md` as the design source of truth.
 - Use the `qa-idle-context-router` skill before implementation or review work to choose the smallest relevant documentation set.
 - Read the relevant design document before changing gameplay, economy, progression, unlocks, promotions, resources, modifiers, or save behavior.
 - Do not invent new mechanics, currencies, resources, stages, formulas, panels, upgrades, or unlock conditions unless the documentation is updated first.
@@ -47,7 +47,7 @@
 ## Token And Context Efficiency
 
 - Read only the docs and source files relevant to the current task; prefer targeted searches over loading every numbered design document.
-- When a task touches one system, start with that system's design doc plus `docs/07 - Technical Rules.md` only if architecture or cross-system behavior is involved.
+- When a task touches one system, start with that system's design doc plus `docs/07-Technical_Rules.md` only if architecture or cross-system behavior is involved.
 - Summarize discovered context briefly before acting when the task spans multiple docs, so later work can rely on the summary instead of rereading large files.
 - Avoid pasting long source or documentation excerpts into responses; cite filenames and describe the important rule or behavior.
 - Keep implementation notes and final answers concise unless the user asks for detailed reasoning.
