@@ -1,8 +1,7 @@
-node_modules/
-dist/
-.pnpm-store/
-.vite/
+dist
+docs
+node_modules
 *.tsbuildinfo
-*.log
+pnpm-lock.yaml
 vite.config.d.ts
 vite.config.js

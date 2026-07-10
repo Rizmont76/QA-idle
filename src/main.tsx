@@ -3,6 +3,9 @@ import ReactDOM from "react-dom/client";
 import {
   BUG_VALUE,
   PROMOTION_TOAST_MS,
+  PROMOTION_REQUIRED_BUGS,
+  PROMOTION_REQUIRED_MONEY,
+  PROMOTION_REQUIRED_UPGRADES,
   careerStages,
   initialState,
   upgrades,
@@ -20,12 +23,11 @@ import "./styles.css";
 function App() {
   const [loadedSave] = useState(() => loadSave());
   const [game, setGame] = useState(loadedSave.game);
-  const [promotionToast, setPromotionToast] =
-    useState<CareerStageDefinition | null>(null);
-  const [clickBurst, setClickBurst] = useState(false);
-  const [boughtUpgradeId, setBoughtUpgradeId] = useState<UpgradeId | null>(
+  const [promotionToast, setPromotionToast] = useState<CareerStageDefinition | null>(
     null,
   );
+  const [clickBurst, setClickBurst] = useState(false);
+  const [boughtUpgradeId, setBoughtUpgradeId] = useState<UpgradeId | null>(null);
 
   const stats = useMemo(() => getDerivedStats(game), [game]);
   const currentStage = careerStages.find((stage) => stage.id === game.careerStage);
@@ -38,19 +40,19 @@ function App() {
     {
       label: "Lifetime bugs found",
       current: game.totalBugsFound,
-      required: 100,
+      required: PROMOTION_REQUIRED_BUGS,
       prefix: "",
     },
     {
       label: "Lifetime money earned",
       current: game.totalMoneyEarned,
-      required: 150,
+      required: PROMOTION_REQUIRED_MONEY,
       prefix: "$",
     },
     {
       label: "Upgrades purchased",
       current: purchasedUpgradeCount,
-      required: 3,
+      required: PROMOTION_REQUIRED_UPGRADES,
       prefix: "",
     },
   ];
@@ -172,7 +174,7 @@ function App() {
           <p className="eyebrow">
             {game.careerStage === "middle" ? "MVP complete" : "Stage 1"}
           </p>
-          <h1>{currentStage?.label || "Junior QA"}</h1>
+          <h1>{currentStage?.label ?? "Junior QA"}</h1>
           <p className="stage-focus">{currentStage?.description}</p>
         </div>
         <div className="top-icons" aria-label="Game controls">
@@ -196,7 +198,7 @@ function App() {
       <section className="stage-panel" aria-label="Career stage">
         <div>
           <span>Current role</span>
-          <strong>{currentStage?.label || "Junior QA"}</strong>
+          <strong>{currentStage?.label ?? "Junior QA"}</strong>
           <p>{currentStage?.description}</p>
         </div>
         {promotionStage ? (
@@ -314,12 +316,12 @@ function App() {
 
       <section className="career-footer" aria-label="Promotion progress">
         <div>
-          <strong>{currentStage?.label || "Junior QA"}</strong>
+          <strong>{currentStage?.label ?? "Junior QA"}</strong>
           <span>Current stage</span>
         </div>
         <div className="career-arrow">to</div>
         <div>
-          <strong>{currentStage?.nextLabel || "Middle QA"}</strong>
+          <strong>{currentStage?.nextLabel ?? "Middle QA"}</strong>
           <span>{promotionStage ? "Promotion ready" : "Next goal"}</span>
         </div>
         <div className="career-progress">
@@ -337,7 +339,13 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+  throw new Error("Root element was not found.");
+}
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,

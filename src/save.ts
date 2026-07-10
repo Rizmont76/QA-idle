@@ -20,9 +20,7 @@ function normalizeUpgrades(value: unknown): Record<UpgradeId, number> {
     checklist: normalizeUpgradeLevel(
       (saved as Partial<Record<UpgradeId, unknown>>).checklist,
     ),
-    coffee: normalizeUpgradeLevel(
-      (saved as Partial<Record<UpgradeId, unknown>>).coffee,
-    ),
+    coffee: normalizeUpgradeLevel((saved as Partial<Record<UpgradeId, unknown>>).coffee),
   };
 }
 
