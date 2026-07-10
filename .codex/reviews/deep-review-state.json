@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "status": "not_started",
-  "lastReviewedSha": null,
-  "lastReviewedAt": null,
-  "branch": null,
-  "reviewedHeadSha": null,
+  "status": "reviewed",
+  "lastReviewedSha": "a341b0d6ee7fc024866811d9fc34d676a6e6bc86",
+  "lastReviewedAt": "2026-07-10T23:09:28.4143298+03:00",
+  "branch": "main",
+  "reviewedHeadSha": "a341b0d6ee7fc024866811d9fc34d676a6e6bc86",
   "reportPath": null
 }
