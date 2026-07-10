@@ -1,0 +1,4 @@
+interface:
+  display_name: "QA Idle Deep Review"
+  short_description: "Review QA Idle changes against project rules."
+  default_prompt: "Use $deep-review to review QA Idle changes since the last completed deep review."

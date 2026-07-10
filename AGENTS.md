@@ -4,6 +4,7 @@
 
 - Treat `docs/00-Master_Project_Roadmap.md` through `docs/14-Promotion_System.md` as the design source of truth.
 - Use the `qa-idle-context-router` skill before implementation or review work to choose the smallest relevant documentation set.
+- If `qa-idle-context-router`, `deep-review`, or another repo-local skill is not listed as an installed skill, read the matching `.codex/skills/<skill-name>/SKILL.md` file and follow it manually.
 - Read the relevant design document before changing gameplay, economy, progression, unlocks, promotions, resources, modifiers, or save behavior.
 - Do not invent new mechanics, currencies, resources, stages, formulas, panels, upgrades, or unlock conditions unless the documentation is updated first.
 - Content in `docs/ideas/`, if present, is speculative until promoted into the main numbered docs.
