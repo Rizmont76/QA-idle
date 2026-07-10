@@ -219,6 +219,17 @@ export interface ResourceOperationRequest {
   transactionId?: string;
 }
 
+export interface ResourceConversionRequest {
+  fromResourceId: ResourceId;
+  fromAmount: number;
+  toResourceId: ResourceId;
+  toAmount: number;
+  sourceSystem: string;
+  reason: string;
+  simulationTime?: number;
+  transactionId?: string;
+}
+
 export interface ResourceTransactionMetadata {
   transactionId: string;
   operationType: Extract<ResourceTransactionOperationType, "add" | "spend" | "convert">;

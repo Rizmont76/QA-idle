@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { initialState, upgrades } from "./gameData";
 import {
   addResource,
+  convertResources,
   formatNumber,
   getDerivedStats,
   getPromotionProgress,
@@ -416,6 +417,117 @@ describe("resource operations", () => {
     expect(result.failures.map((failure) => failure.code)).toContain(
       "balance_below_minimum",
     );
+    expect(result.events).toEqual([]);
+  });
+
+  it("converts one resource into another atomically with deterministic metadata", () => {
+    const resources = {
+      ...initialState.resources,
+      [MVP_IDS.resources.bugsFound]: 7,
+      [MVP_IDS.resources.money]: 3,
+    };
+    const result = convertResources(resources, {
+      fromResourceId: MVP_IDS.resources.bugsFound,
+      fromAmount: 4,
+      toResourceId: MVP_IDS.resources.money,
+      toAmount: 8,
+      sourceSystem: "bug_reporting",
+      reason: "Report Bugs Found",
+      simulationTime: 70,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Convert operation should succeed.");
+    }
+
+    expect(resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 7,
+      [MVP_IDS.resources.money]: 3,
+    });
+    expect(result.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 3,
+      [MVP_IDS.resources.money]: 11,
+    });
+    expect(result.transaction).toEqual({
+      transactionId:
+        "resource:convert:bug_reporting:Report Bugs Found:70:bugs_found:-4,money:8",
+      operationType: "convert",
+      sourceSystem: "bug_reporting",
+      reason: "Report Bugs Found",
+      simulationTime: 70,
+      changes: [
+        {
+          resourceId: MVP_IDS.resources.bugsFound,
+          previousValue: 7,
+          newValue: 3,
+          delta: -4,
+        },
+        {
+          resourceId: MVP_IDS.resources.money,
+          previousValue: 3,
+          newValue: 11,
+          delta: 8,
+        },
+      ],
+    });
+    expect(result.events).toEqual([
+      { id: "resource.changed", payload: result.transaction },
+    ]);
+  });
+
+  it("leaves both resources unchanged when a conversion would partially fail", () => {
+    const resources = {
+      ...initialState.resources,
+      [MVP_IDS.resources.bugsFound]: 5,
+      [MVP_IDS.resources.money]: 1_000_000,
+    };
+    const result = convertResources(resources, {
+      fromResourceId: MVP_IDS.resources.bugsFound,
+      fromAmount: 5,
+      toResourceId: MVP_IDS.resources.money,
+      toAmount: 1,
+      sourceSystem: "bug_reporting",
+      reason: "Report Bugs Found",
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("Convert operation should fail.");
+    }
+
+    expect(result.resources).toBe(resources);
+    expect(result.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 5,
+      [MVP_IDS.resources.money]: 1_000_000,
+    });
+    expect(result.failures.map((failure) => failure.code)).toContain(
+      "balance_above_maximum",
+    );
+    expect(result.events).toEqual([]);
+  });
+
+  it("rejects zero-amount conversions without mutating resources", () => {
+    const resources = {
+      ...initialState.resources,
+      [MVP_IDS.resources.bugsFound]: 5,
+    };
+    const result = convertResources(resources, {
+      fromResourceId: MVP_IDS.resources.bugsFound,
+      fromAmount: 0,
+      toResourceId: MVP_IDS.resources.money,
+      toAmount: 0,
+      sourceSystem: "bug_reporting",
+      reason: "Report Bugs Found",
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("Convert operation should fail.");
+    }
+
+    expect(result.resources).toBe(resources);
+    expect(result.failures.map((failure) => failure.code)).toContain("invalid_amount");
     expect(result.events).toEqual([]);
   });
 });

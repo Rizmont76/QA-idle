@@ -542,6 +542,7 @@ Related Documentation Sections:
 
 ### QA-MVP-012 - Implement Atomic Convert Resource Operation
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 3 - Resource System  
 Suggested Order: 4
@@ -577,6 +578,9 @@ Expected Deliverables:
 
 Risks:
 - Rounding must be explicit when converting all currently held bugs.
+
+Implementation Note:
+- Added a typed `convertResources` operation for one consumed resource and one produced resource. It validates both changes before mutation, returns one deterministic convert transaction with ordered spend/gain metadata, emits one `resource.changed` event on success, and leaves all resources unchanged on failed or zero-amount conversions. Bug Reporting now consumes this operation directly.
 
 Related Documentation Sections:
 - `docs/11 - Resource System.md` - Convert, Atomicity

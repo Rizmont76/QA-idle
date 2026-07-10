@@ -12,6 +12,7 @@ import type { CareerStage, DerivedStats, GameState, Upgrade } from "./types";
 import { MVP_IDS } from "./types";
 import type {
   ResourceChangedEventDescriptor,
+  ResourceConversionRequest,
   ResourceDefinition,
   ResourceId,
   ResourceOperationRequest,
@@ -353,11 +354,19 @@ export function spendResource(
 
 export function convertResources(
   resources: ResourceState,
-  changes: ResourceTransactionChangeList,
-  request: ResourceTransactionContext,
+  request: ResourceConversionRequest,
   definitions: readonly ResourceDefinition[] = resourceDefinitions,
 ): ResourceOperationResult {
-  return applyResourceTransaction(resources, "convert", request, changes, definitions);
+  return applyResourceTransaction(
+    resources,
+    "convert",
+    request,
+    [
+      { resourceId: request.fromResourceId, delta: -request.fromAmount },
+      { resourceId: request.toResourceId, delta: request.toAmount },
+    ],
+    definitions,
+  );
 }
 
 export function formatNumber(value: number) {
@@ -534,18 +543,15 @@ export function reportAllBugs(
   }
 
   const earnedMoney = Math.floor(reportedBugs * BUG_VALUE * stats.moneyPerBug);
-  const result = convertResources(
-    game.resources,
-    [
-      { resourceId: MVP_IDS.resources.bugsFound, delta: -reportedBugs },
-      { resourceId: MVP_IDS.resources.money, delta: earnedMoney },
-    ],
-    {
-      sourceSystem: "bug_reporting",
-      reason: "Report all Bugs Found",
-      simulationTime,
-    },
-  );
+  const result = convertResources(game.resources, {
+    fromResourceId: MVP_IDS.resources.bugsFound,
+    fromAmount: reportedBugs,
+    toResourceId: MVP_IDS.resources.money,
+    toAmount: earnedMoney,
+    sourceSystem: "bug_reporting",
+    reason: "Report all Bugs Found",
+    simulationTime,
+  });
 
   if (!result.ok) {
     return { ok: false, game, failures: result.failures, events: [] };
