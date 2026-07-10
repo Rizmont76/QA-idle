@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  careerStages,
   gameplayStatDefinitions,
   MVP_RESOURCE_MAX,
+  promotionDefinitions,
   resourceDefinitions,
   upgrades,
 } from "./gameData";
@@ -192,5 +194,78 @@ describe("MVP gameplay stat registry", () => {
 
     expect(statIds.has(MVP_IDS.resources.bugsFound)).toBe(false);
     expect(statIds.has(MVP_IDS.resources.money)).toBe(false);
+  });
+});
+
+describe("MVP career and promotion registries", () => {
+  it("defines Junior QA as the starting stage and Middle QA as the inert target stage", () => {
+    expect(careerStages).toEqual([
+      {
+        id: MVP_IDS.careerStages.juniorQa,
+        label: "Junior QA",
+        sortOrder: 10,
+        isStartingStage: true,
+        nextLabel: "Middle QA",
+        description: "Manual testing, bug reports, and the first upgrades.",
+        requirementText:
+          "Find 100 lifetime bugs, earn $150 lifetime money, and buy 3 upgrades.",
+        unlocksGameplay: [
+          "manual_testing",
+          "bug_reporting",
+          "basic_resources",
+          "basic_upgrades",
+          "promotion_progress",
+        ],
+      },
+      {
+        id: MVP_IDS.careerStages.middleQa,
+        label: "Middle QA",
+        sortOrder: 20,
+        isStartingStage: false,
+        description: "Vertical slice complete. Future gameplay remains hidden.",
+        unlocksGameplay: [],
+      },
+    ]);
+  });
+
+  it("defines the single documented Junior to Middle promotion", () => {
+    expect(promotionDefinitions).toEqual([
+      {
+        id: MVP_IDS.promotions.juniorToMiddle,
+        fromCareerStageId: MVP_IDS.careerStages.juniorQa,
+        toCareerStageId: MVP_IDS.careerStages.middleQa,
+        displayName: "Middle QA Promotion",
+        requirements: [
+          {
+            id: "requirement_lifetime_bugs_found_100",
+            type: "lifetime_resource_at_least",
+            source: "current_run_lifetime_bugs_found",
+            resourceId: MVP_IDS.resources.bugsFound,
+            amount: 100,
+          },
+          {
+            id: "requirement_lifetime_money_earned_150",
+            type: "lifetime_resource_at_least",
+            source: "current_run_lifetime_money_earned",
+            resourceId: MVP_IDS.resources.money,
+            amount: 150,
+          },
+          {
+            id: "requirement_purchased_upgrades_3",
+            type: "purchased_upgrades_at_least",
+            source: "purchased_mvp_upgrades",
+            amount: 3,
+          },
+        ],
+        outcome: {
+          type: "complete_promotion_and_set_stage",
+          completedPromotionId: MVP_IDS.promotions.juniorToMiddle,
+          setCurrentStageId: MVP_IDS.careerStages.middleQa,
+          unlocksGameplay: [],
+        },
+        repeatPolicy: "once_per_save",
+        persistencePolicy: "save_runtime_state_only",
+      },
+    ]);
   });
 });

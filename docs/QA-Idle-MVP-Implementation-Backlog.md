@@ -298,6 +298,7 @@ Related Documentation Sections:
 
 ### QA-MVP-007 - Define Career and Promotion Content
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 2 - Core Data Contracts  
 Suggested Order: 5
@@ -336,6 +337,9 @@ Expected Deliverables:
 
 Risks:
 - Current code may model promotion with loose `canPromote` functions; this task should move toward data.
+
+Implementation Note:
+- Added structured MVP career stage and promotion definitions. `promotion_junior_to_middle` now carries from/to stage IDs, three documented requirements, and an outcome limited to completing the promotion and setting the current stage to `middle_qa`; no Middle QA gameplay unlocks are defined. Existing promotion-stage UI lookup now reads the registered promotion definition instead of a career-stage-owned `canPromote` predicate, while full promotion runtime state/evaluation remains reserved for later backlog tasks.
 
 Related Documentation Sections:
 - `docs/08 - MVP Vertical Slice Specification.md` - Promotion Requirement

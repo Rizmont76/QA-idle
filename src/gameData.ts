@@ -3,6 +3,7 @@ import type {
   CareerStageDefinition,
   GameState,
   GameplayStatDefinition,
+  PromotionDefinition,
   ResourceDefinition,
   Upgrade,
 } from "./types";
@@ -281,18 +282,64 @@ export const careerStages: CareerStageDefinition[] = [
   {
     id: MVP_IDS.careerStages.juniorQa,
     label: "Junior QA",
+    sortOrder: 10,
+    isStartingStage: true,
     nextLabel: "Middle QA",
     description: "Manual testing, bug reports, and the first upgrades.",
     requirementText: `Find ${String(PROMOTION_REQUIRED_BUGS)} lifetime bugs, earn $${String(PROMOTION_REQUIRED_MONEY)} lifetime money, and buy ${String(PROMOTION_REQUIRED_UPGRADES)} upgrades.`,
-    canPromote: (game) =>
-      game.totalBugsFound >= PROMOTION_REQUIRED_BUGS &&
-      game.totalMoneyEarned >= PROMOTION_REQUIRED_MONEY &&
-      Object.values(game.upgrades).reduce((sum, owned) => sum + owned, 0) >=
-        PROMOTION_REQUIRED_UPGRADES,
+    unlocksGameplay: [
+      "manual_testing",
+      "bug_reporting",
+      "basic_resources",
+      "basic_upgrades",
+      "promotion_progress",
+    ],
   },
   {
     id: MVP_IDS.careerStages.middleQa,
     label: "Middle QA",
+    sortOrder: 20,
+    isStartingStage: false,
     description: "Vertical slice complete. Future gameplay remains hidden.",
+    unlocksGameplay: [],
+  },
+];
+
+export const promotionDefinitions: PromotionDefinition[] = [
+  {
+    id: MVP_IDS.promotions.juniorToMiddle,
+    fromCareerStageId: MVP_IDS.careerStages.juniorQa,
+    toCareerStageId: MVP_IDS.careerStages.middleQa,
+    displayName: "Middle QA Promotion",
+    requirements: [
+      {
+        id: "requirement_lifetime_bugs_found_100",
+        type: "lifetime_resource_at_least",
+        source: "current_run_lifetime_bugs_found",
+        resourceId: MVP_IDS.resources.bugsFound,
+        amount: PROMOTION_REQUIRED_BUGS,
+      },
+      {
+        id: "requirement_lifetime_money_earned_150",
+        type: "lifetime_resource_at_least",
+        source: "current_run_lifetime_money_earned",
+        resourceId: MVP_IDS.resources.money,
+        amount: PROMOTION_REQUIRED_MONEY,
+      },
+      {
+        id: "requirement_purchased_upgrades_3",
+        type: "purchased_upgrades_at_least",
+        source: "purchased_mvp_upgrades",
+        amount: PROMOTION_REQUIRED_UPGRADES,
+      },
+    ],
+    outcome: {
+      type: "complete_promotion_and_set_stage",
+      completedPromotionId: MVP_IDS.promotions.juniorToMiddle,
+      setCurrentStageId: MVP_IDS.careerStages.middleQa,
+      unlocksGameplay: [],
+    },
+    repeatPolicy: "once_per_save",
+    persistencePolicy: "save_runtime_state_only",
   },
 ];

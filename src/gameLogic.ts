@@ -1,4 +1,4 @@
-import { careerStages, upgrades } from "./gameData";
+import { careerStages, promotionDefinitions, upgrades } from "./gameData";
 import type { CareerStage, DerivedStats, GameState, Upgrade } from "./types";
 import { MVP_IDS } from "./types";
 
@@ -57,11 +57,34 @@ export function getStageIndex(stage: CareerStage) {
 }
 
 export function getPromotionStage(game: GameState) {
-  const currentIndex = getStageIndex(game.careerStage);
-  const currentStage = careerStages[currentIndex];
-  const nextStage = careerStages[currentIndex + 1];
+  const promotionDefinition = promotionDefinitions.find(
+    (promotion) => promotion.fromCareerStageId === game.careerStage,
+  );
+  const nextStage = careerStages.find(
+    (careerStage) => careerStage.id === promotionDefinition?.toCareerStageId,
+  );
 
-  if (!currentStage?.canPromote?.(game) || !nextStage) {
+  if (!promotionDefinition || !nextStage) {
+    return null;
+  }
+
+  const purchasedUpgrades = Object.values(game.upgrades).reduce(
+    (sum, owned) => sum + owned,
+    0,
+  );
+  const requirementsMet = promotionDefinition.requirements.every((requirement) => {
+    if (requirement.type === "purchased_upgrades_at_least") {
+      return purchasedUpgrades >= requirement.amount;
+    }
+
+    if (requirement.source === "current_run_lifetime_bugs_found") {
+      return game.totalBugsFound >= requirement.amount;
+    }
+
+    return game.totalMoneyEarned >= requirement.amount;
+  });
+
+  if (!requirementsMet) {
     return null;
   }
 

@@ -64,6 +64,15 @@ export type UpgradeEffectChannel = "modifier_grant";
 export type ModifierType = "flat";
 export type ModifierDurationType = "permanent";
 export type ModifierStackingPolicy = "ignore";
+export type PromotionRequirementType =
+  "lifetime_resource_at_least" | "purchased_upgrades_at_least";
+export type PromotionRequirementSource =
+  | "current_run_lifetime_bugs_found"
+  | "current_run_lifetime_money_earned"
+  | "purchased_mvp_upgrades";
+export type PromotionOutcomeType = "complete_promotion_and_set_stage";
+export type PromotionRepeatPolicy = "once_per_save";
+export type PromotionPersistencePolicy = "save_runtime_state_only";
 
 export interface ResourceDefinition {
   id: ResourceId;
@@ -152,8 +161,43 @@ export interface GameState {
 export interface CareerStageDefinition {
   id: CareerStage;
   label: string;
+  sortOrder: number;
+  isStartingStage: boolean;
   nextLabel?: string;
   description: string;
   requirementText?: string;
-  canPromote?: (game: GameState) => boolean;
+  unlocksGameplay: readonly string[];
+}
+
+export interface PromotionDefinition {
+  id: PromotionId;
+  fromCareerStageId: CareerStage;
+  toCareerStageId: CareerStage;
+  displayName: string;
+  requirements: readonly PromotionRequirementDefinition[];
+  outcome: PromotionOutcomeDefinition;
+  repeatPolicy: PromotionRepeatPolicy;
+  persistencePolicy: PromotionPersistencePolicy;
+}
+
+export type PromotionRequirementDefinition =
+  | {
+      id: string;
+      type: "lifetime_resource_at_least";
+      source: Exclude<PromotionRequirementSource, "purchased_mvp_upgrades">;
+      resourceId: ResourceId;
+      amount: number;
+    }
+  | {
+      id: string;
+      type: "purchased_upgrades_at_least";
+      source: "purchased_mvp_upgrades";
+      amount: number;
+    };
+
+export interface PromotionOutcomeDefinition {
+  type: PromotionOutcomeType;
+  completedPromotionId: PromotionId;
+  setCurrentStageId: CareerStage;
+  unlocksGameplay: readonly string[];
 }
