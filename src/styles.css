@@ -91,16 +91,6 @@ button:disabled {
   line-height: 1.35;
 }
 
-.achievement-toast {
-  border-color: rgba(248, 197, 75, 0.55);
-  color: #fff7dc;
-  background: #332710;
-}
-
-.achievement-toast span {
-  color: #ffd66c;
-}
-
 .promotion-toast {
   border-color: rgba(161, 113, 255, 0.6);
   color: #f0e8ff;
@@ -302,58 +292,6 @@ h1 {
   background: rgba(67, 215, 111, 0.15);
 }
 
-.rep-icon {
-  color: #d6b6ff;
-  background: rgba(151, 96, 255, 0.2);
-}
-
-.info-tooltip {
-  position: relative;
-  display: inline-grid;
-  place-items: center;
-  width: 18px;
-  height: 18px;
-  margin-bottom: 0;
-  border: 1px solid rgba(176, 134, 255, 0.5);
-  border-radius: 50%;
-  color: #c8a8ff;
-  background: rgba(117, 75, 194, 0.2);
-  font-size: 0.72rem;
-  font-weight: 900;
-  line-height: 1;
-  cursor: help;
-}
-
-.info-tooltip::after {
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 10px);
-  width: min(270px, 72vw);
-  border: 1px solid rgba(122, 143, 171, 0.28);
-  border-radius: 8px;
-  padding: 10px 12px;
-  color: #f1f6ff;
-  background: #101a28;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
-  content: attr(aria-label);
-  font-size: 0.82rem;
-  font-weight: 700;
-  line-height: 1.35;
-  opacity: 0;
-  pointer-events: none;
-  text-transform: none;
-  transform: translateY(4px);
-  transition:
-    opacity 140ms ease,
-    transform 140ms ease;
-}
-
-.info-tooltip:hover::after,
-.info-tooltip:focus-visible::after {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 .metric strong {
   display: block;
   color: #a873ff;
@@ -363,10 +301,6 @@ h1 {
 
 .metric:nth-child(2) strong {
   color: #49d66f;
-}
-
-.metric.reputation strong {
-  color: #a873ff;
 }
 
 .metric em {
@@ -513,8 +447,7 @@ h3 {
 
 .shop-list,
 .side-column,
-.achievement-list,
-.stats-list {
+.progress-list {
   display: grid;
   gap: 8px;
 }
@@ -577,11 +510,11 @@ h3 {
   background: #263244;
 }
 
-.stats-list {
+.progress-list {
   margin: 0;
 }
 
-.stats-list div {
+.progress-list div {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -590,7 +523,7 @@ h3 {
   padding-bottom: 9px;
 }
 
-.stats-list div:last-child {
+.progress-list div:last-child {
   border-bottom: 0;
   padding-bottom: 0;
 }
@@ -606,34 +539,6 @@ dd {
   color: #ffffff;
   font-size: 1rem;
   font-weight: 900;
-}
-
-.achievement {
-  display: grid;
-  gap: 4px;
-  border: 1px solid rgba(122, 143, 171, 0.12);
-  border-radius: 7px;
-  padding: 10px;
-  color: #77859a;
-  background: rgba(17, 26, 38, 0.82);
-  opacity: 0.72;
-}
-
-.achievement.unlocked {
-  color: #fdf4d5;
-  border-color: rgba(248, 197, 75, 0.4);
-  background: rgba(75, 58, 18, 0.45);
-  opacity: 1;
-}
-
-.achievement strong {
-  font-size: 0.9rem;
-}
-
-.achievement span {
-  color: inherit;
-  font-size: 0.84rem;
-  line-height: 1.35;
 }
 
 .career-footer {
