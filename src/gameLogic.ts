@@ -13,6 +13,7 @@ import type {
   CareerStage,
   DerivedStats,
   GameState,
+  GameplayEventDescriptor,
   GameplayStatCalculationMap,
   GameplayStatCalculationResult,
   GameplayStatId,
@@ -26,7 +27,6 @@ import type {
 } from "./types";
 import { MVP_IDS } from "./types";
 import type {
-  ResourceChangedEventDescriptor,
   ResourceConversionRequest,
   ResourceDefinition,
   ResourceId,
@@ -36,9 +36,9 @@ import type {
   ResourceTransactionMetadata,
   ResourceTransactionOperationType,
   ResourceTransactionProjectedChange,
-  ResourceTransactionValidationFailure,
   ResourceTransactionValidationRequest,
   ResourceTransactionValidationResult,
+  ResourceTransactionValidationFailure,
 } from "./types";
 
 const COMPACT_NUMBER_INTEGER_THRESHOLD = 100;
@@ -63,7 +63,7 @@ export type GameplayActionResult =
   | {
       ok: true;
       game: GameState;
-      events: readonly ResourceChangedEventDescriptor[];
+      events: readonly GameplayEventDescriptor[];
     }
   | {
       ok: false;
@@ -726,9 +726,10 @@ export function performManualTest(
   simulationTime = Date.now(),
 ): GameplayActionResult {
   const stats = getDerivedStats(game);
+  const bugsFound = stats.bugsPerClick;
   const result = addResource(game.resources, {
     resourceId: MVP_IDS.resources.bugsFound,
-    amount: stats.bugsPerClick,
+    amount: bugsFound,
     sourceSystem: "manual_testing",
     reason: "Manual Testing action",
     simulationTime,
@@ -743,10 +744,29 @@ export function performManualTest(
     game: {
       ...game,
       resources: result.resources,
-      totalBugsFound: game.totalBugsFound + stats.bugsPerClick,
+      totalBugsFound: game.totalBugsFound + bugsFound,
       lastPlayedAt: simulationTime,
     },
-    events: result.events,
+    events: [
+      {
+        id: "manualTest.performed",
+        payload: {
+          actionId: MVP_IDS.actions.manualTest,
+          bugsFound,
+          simulationTime,
+        },
+      },
+      ...result.events,
+      {
+        id: "bugs.found",
+        payload: {
+          resourceId: MVP_IDS.resources.bugsFound,
+          amount: bugsFound,
+          totalBugsFound: game.totalBugsFound + bugsFound,
+          simulationTime,
+        },
+      },
+    ],
   };
 }
 

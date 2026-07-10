@@ -297,6 +297,30 @@ export interface ResourceChangedEventDescriptor {
   payload: ResourceTransactionMetadata;
 }
 
+export interface ManualTestPerformedEventDescriptor {
+  id: "manualTest.performed";
+  payload: {
+    actionId: typeof MVP_IDS.actions.manualTest;
+    bugsFound: number;
+    simulationTime: number;
+  };
+}
+
+export interface BugsFoundEventDescriptor {
+  id: "bugs.found";
+  payload: {
+    resourceId: typeof MVP_IDS.resources.bugsFound;
+    amount: number;
+    totalBugsFound: number;
+    simulationTime: number;
+  };
+}
+
+export type GameplayEventDescriptor =
+  | ResourceChangedEventDescriptor
+  | ManualTestPerformedEventDescriptor
+  | BugsFoundEventDescriptor;
+
 export type ResourceOperationResult =
   | {
       ok: true;

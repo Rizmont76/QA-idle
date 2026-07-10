@@ -739,6 +739,7 @@ Related Documentation Sections:
 
 ### QA-MVP-016 - Implement Manual Testing Action
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 5 - Core Gameplay Actions  
 Suggested Order: 2
@@ -778,6 +779,9 @@ Expected Deliverables:
 
 Risks:
 - Current click handler may mutate state directly; refactor with care.
+
+Implementation Note:
+- Manual Testing now resolves through `performManualTest`, queries the calculated `manual_bugs_per_action`, adds `bugs_found` through the Resource System, increments current-run lifetime Bugs Found, and returns `manualTest.performed`, `resource.changed`, and `bugs.found` event descriptors only after a successful resource transaction. The existing UI triggers this gameplay handler rather than mutating Manual Testing state directly.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - Manual Testing, MVP Action Rules

@@ -694,9 +694,32 @@ describe("gameplay action operations", () => {
 
     expect(result.game.resources[MVP_IDS.resources.bugsFound]).toBe(2);
     expect(result.game.totalBugsFound).toBe(2);
-    expect(result.events[0]?.payload).toMatchObject({
+    expect(result.game.resources[MVP_IDS.resources.money]).toBe(0);
+    expect(result.events.map((event) => event.id)).toEqual([
+      "manualTest.performed",
+      "resource.changed",
+      "bugs.found",
+    ]);
+    expect(result.events[0]).toEqual({
+      id: "manualTest.performed",
+      payload: {
+        actionId: MVP_IDS.actions.manualTest,
+        bugsFound: 2,
+        simulationTime: 30,
+      },
+    });
+    expect(result.events[1]?.payload).toMatchObject({
       operationType: "add",
       sourceSystem: "manual_testing",
+    });
+    expect(result.events[2]).toEqual({
+      id: "bugs.found",
+      payload: {
+        resourceId: MVP_IDS.resources.bugsFound,
+        amount: 2,
+        totalBugsFound: 2,
+        simulationTime: 30,
+      },
     });
   });
 
