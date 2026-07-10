@@ -1,11 +1,15 @@
 :root {
   font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
     sans-serif;
   color: #eef4ff;
   background:
-    radial-gradient(circle at top left, rgba(130, 93, 55, 0.16), transparent 34%),
-    #eee6d8;
+    radial-gradient(circle at top left, rgba(130, 93, 55, 0.16), transparent 34%), #eee6d8;
 }
 
 * {
@@ -53,8 +57,7 @@ button:disabled {
   padding: 14px;
   color: #eef4ff;
   background:
-    linear-gradient(180deg, rgba(19, 29, 42, 0.98), rgba(8, 14, 22, 0.99)),
-    #0d141f;
+    linear-gradient(180deg, rgba(19, 29, 42, 0.98), rgba(8, 14, 22, 0.99)), #0d141f;
   box-shadow:
     0 22px 80px rgba(3, 8, 15, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);

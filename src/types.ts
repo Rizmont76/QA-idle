@@ -2,7 +2,7 @@ export type UpgradeId = "checklist" | "coffee";
 export type TabId = "manual";
 export type CareerStage = "junior" | "middle";
 
-export type Upgrade = {
+export interface Upgrade {
   id: UpgradeId;
   group: TabId;
   name: string;
@@ -11,14 +11,14 @@ export type Upgrade = {
   baseCost: number;
   costGrowth: number;
   bugsPerClick: number;
-};
+}
 
-export type DerivedStats = {
+export interface DerivedStats {
   bugsPerClick: number;
   moneyPerBug: number;
-};
+}
 
-export type GameState = {
+export interface GameState {
   bugs: number;
   money: number;
   totalBugsFound: number;
@@ -26,13 +26,13 @@ export type GameState = {
   lastPlayedAt: number;
   careerStage: CareerStage;
   upgrades: Record<UpgradeId, number>;
-};
+}
 
-export type CareerStageDefinition = {
+export interface CareerStageDefinition {
   id: CareerStage;
   label: string;
   nextLabel?: string;
   description: string;
   requirementText?: string;
   canPromote?: (game: GameState) => boolean;
-};
+}

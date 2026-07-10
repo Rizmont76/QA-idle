@@ -3,6 +3,9 @@ import type { CareerStageDefinition, GameState, Upgrade } from "./types";
 export const SAVE_KEY = "qa-idle-save-v1";
 export const BUG_VALUE = 1;
 export const PROMOTION_TOAST_MS = 5200;
+export const PROMOTION_REQUIRED_BUGS = 100;
+export const PROMOTION_REQUIRED_MONEY = 150;
+export const PROMOTION_REQUIRED_UPGRADES = 3;
 
 export const upgrades: Upgrade[] = [
   {
@@ -46,12 +49,12 @@ export const careerStages: CareerStageDefinition[] = [
     label: "Junior QA",
     nextLabel: "Middle QA",
     description: "Manual testing, bug reports, and the first upgrades.",
-    requirementText:
-      "Find 100 lifetime bugs, earn $150 lifetime money, and buy 3 upgrades.",
+    requirementText: `Find ${String(PROMOTION_REQUIRED_BUGS)} lifetime bugs, earn $${String(PROMOTION_REQUIRED_MONEY)} lifetime money, and buy ${String(PROMOTION_REQUIRED_UPGRADES)} upgrades.`,
     canPromote: (game) =>
-      game.totalBugsFound >= 100 &&
-      game.totalMoneyEarned >= 150 &&
-      Object.values(game.upgrades).reduce((sum, owned) => sum + owned, 0) >= 3,
+      game.totalBugsFound >= PROMOTION_REQUIRED_BUGS &&
+      game.totalMoneyEarned >= PROMOTION_REQUIRED_MONEY &&
+      Object.values(game.upgrades).reduce((sum, owned) => sum + owned, 0) >=
+        PROMOTION_REQUIRED_UPGRADES,
   },
   {
     id: "middle",

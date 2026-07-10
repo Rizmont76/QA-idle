@@ -1,6 +1,8 @@
 import { careerStages, upgrades } from "./gameData";
 import type { CareerStage, DerivedStats, GameState, Upgrade } from "./types";
 
+const COMPACT_NUMBER_INTEGER_THRESHOLD = 100;
+
 export function getUpgradeCost(upgrade: Upgrade, owned: number) {
   return Math.ceil(upgrade.baseCost * upgrade.costGrowth ** owned);
 }
@@ -17,7 +19,7 @@ export function formatNumber(value: number) {
 
   if (!suffix) {
     return `${sign}${new Intl.NumberFormat("en-US", {
-      maximumFractionDigits: absoluteValue >= 100 ? 0 : 1,
+      maximumFractionDigits: absoluteValue >= COMPACT_NUMBER_INTEGER_THRESHOLD ? 0 : 1,
     }).format(absoluteValue)}`;
   }
 
@@ -28,8 +30,7 @@ export function getDerivedStats(game: GameState): DerivedStats {
   return upgrades.reduce(
     (stats, upgrade) => ({
       ...stats,
-      bugsPerClick:
-        stats.bugsPerClick + upgrade.bugsPerClick * game.upgrades[upgrade.id],
+      bugsPerClick: stats.bugsPerClick + upgrade.bugsPerClick * game.upgrades[upgrade.id],
     }),
     { bugsPerClick: 1, moneyPerBug: 1 },
   );
