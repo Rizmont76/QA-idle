@@ -54,6 +54,18 @@ export type TabId = typeof MVP_IDS.uiSurfaces.manualTesting;
 export type ResourceLifetimeCategory = "disposable" | "investment";
 export type ResourceResetBehavior = "reset";
 export type ResourceFormatStyle = "integer";
+export type ResourceTransactionOperationType =
+  "add" | "spend" | "convert" | "set" | "reset";
+export type ResourceTransactionValidationFailureCode =
+  | "missing_transaction_parameter"
+  | "invalid_operation_type"
+  | "operation_not_allowed"
+  | "resource_not_found"
+  | "resource_not_spendable"
+  | "invalid_amount"
+  | "invalid_balance"
+  | "balance_below_minimum"
+  | "balance_above_maximum";
 export type GameplayStatCategory = "manual_testing" | "bug_reporting";
 export type GameplayStatNumericType = "native_number";
 export type UpgradeCategory = "production" | "conversion";
@@ -164,6 +176,39 @@ export interface DerivedStats {
 }
 
 export type ResourceState = Record<ResourceId, number>;
+
+export interface ResourceTransactionChangeRequest {
+  resourceId: ResourceId;
+  delta: number;
+}
+
+export interface ResourceTransactionValidationRequest {
+  operationType: ResourceTransactionOperationType;
+  changes: readonly ResourceTransactionChangeRequest[];
+}
+
+export interface ResourceTransactionProjectedChange {
+  resourceId: ResourceId;
+  previousValue: number;
+  newValue: number;
+  delta: number;
+}
+
+export interface ResourceTransactionValidationFailure {
+  code: ResourceTransactionValidationFailureCode;
+  resourceId?: ResourceId;
+  message: string;
+}
+
+export type ResourceTransactionValidationResult =
+  | {
+      ok: true;
+      changes: readonly ResourceTransactionProjectedChange[];
+    }
+  | {
+      ok: false;
+      failures: readonly ResourceTransactionValidationFailure[];
+    };
 
 export interface GameState {
   resources: ResourceState;

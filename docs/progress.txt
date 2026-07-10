@@ -1,0 +1,1 @@
+QA-MVP-010 handoff: Resource validation exists but current UI handlers still mutate resource balances directly; wire QA-MVP-011/012 operations before gameplay actions rely on the Resource System contract.

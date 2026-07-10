@@ -5,8 +5,10 @@ import {
   getDerivedStats,
   getPromotionStage,
   getUpgradeCost,
+  validateResourceTransaction,
 } from "./gameLogic";
 import { MVP_IDS } from "./types";
+import type { ResourceDefinition, ResourceId } from "./types";
 
 describe("game logic", () => {
   it("uses fixed one-time upgrade costs", () => {
@@ -64,5 +66,191 @@ describe("game logic", () => {
 
   it("does not promote before requirements are met", () => {
     expect(getPromotionStage(initialState)).toBeNull();
+  });
+});
+
+describe("resource transaction validation", () => {
+  it("accepts valid add, spend, and convert requests with projected changes", () => {
+    const resources = {
+      ...initialState.resources,
+      [MVP_IDS.resources.bugsFound]: 10,
+      [MVP_IDS.resources.money]: 5,
+    };
+
+    expect(
+      validateResourceTransaction(resources, {
+        operationType: "add",
+        changes: [{ resourceId: MVP_IDS.resources.bugsFound, delta: 3 }],
+      }),
+    ).toEqual({
+      ok: true,
+      changes: [
+        {
+          resourceId: MVP_IDS.resources.bugsFound,
+          previousValue: 10,
+          newValue: 13,
+          delta: 3,
+        },
+      ],
+    });
+
+    expect(
+      validateResourceTransaction(resources, {
+        operationType: "spend",
+        changes: [{ resourceId: MVP_IDS.resources.money, delta: -4 }],
+      }),
+    ).toEqual({
+      ok: true,
+      changes: [
+        {
+          resourceId: MVP_IDS.resources.money,
+          previousValue: 5,
+          newValue: 1,
+          delta: -4,
+        },
+      ],
+    });
+
+    expect(
+      validateResourceTransaction(resources, {
+        operationType: "convert",
+        changes: [
+          { resourceId: MVP_IDS.resources.bugsFound, delta: -2 },
+          { resourceId: MVP_IDS.resources.money, delta: 2 },
+        ],
+      }),
+    ).toEqual({
+      ok: true,
+      changes: [
+        {
+          resourceId: MVP_IDS.resources.bugsFound,
+          previousValue: 10,
+          newValue: 8,
+          delta: -2,
+        },
+        {
+          resourceId: MVP_IDS.resources.money,
+          previousValue: 5,
+          newValue: 7,
+          delta: 2,
+        },
+      ],
+    });
+  });
+
+  it("rejects missing resources without mutating state", () => {
+    const result = validateResourceTransaction(initialState.resources, {
+      operationType: "add",
+      changes: [{ resourceId: "future_resource" as ResourceId, delta: 1 }],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.failures.map((failure) => failure.code)).toContain(
+        "resource_not_found",
+      );
+    }
+    expect(initialState.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 0,
+      [MVP_IDS.resources.money]: 0,
+    });
+  });
+
+  it("rejects invalid operation shapes and numeric amounts", () => {
+    const result = validateResourceTransaction(initialState.resources, {
+      operationType: "add",
+      changes: [{ resourceId: MVP_IDS.resources.bugsFound, delta: Number.NaN }],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.failures.map((failure) => failure.code)).toContain("invalid_amount");
+    }
+
+    const malformedConvert = validateResourceTransaction(initialState.resources, {
+      operationType: "convert",
+      changes: [{ resourceId: MVP_IDS.resources.bugsFound, delta: 1 }],
+    });
+
+    expect(malformedConvert.ok).toBe(false);
+    if (!malformedConvert.ok) {
+      expect(malformedConvert.failures.map((failure) => failure.code)).toContain(
+        "operation_not_allowed",
+      );
+    }
+  });
+
+  it("rejects spends below the minimum balance", () => {
+    const result = validateResourceTransaction(initialState.resources, {
+      operationType: "spend",
+      changes: [{ resourceId: MVP_IDS.resources.money, delta: -1 }],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.failures.map((failure) => failure.code)).toContain(
+        "balance_below_minimum",
+      );
+    }
+  });
+
+  it("rejects additions above the MVP maximum balance", () => {
+    const result = validateResourceTransaction(
+      {
+        ...initialState.resources,
+        [MVP_IDS.resources.money]: 1_000_000,
+      },
+      {
+        operationType: "add",
+        changes: [{ resourceId: MVP_IDS.resources.money, delta: 1 }],
+      },
+    );
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.failures.map((failure) => failure.code)).toContain(
+        "balance_above_maximum",
+      );
+    }
+  });
+
+  it("rejects spending a registered non-spendable resource", () => {
+    const nonSpendableDefinitions: ResourceDefinition[] = [
+      {
+        id: MVP_IDS.resources.money,
+        displayName: "Money",
+        description: "Test-only non-spendable resource definition.",
+        category: "personal_economy",
+        lifetimeCategory: "investment",
+        producedBy: [],
+        consumedBy: [],
+        initialValue: 0,
+        minimumValue: 0,
+        maximumValue: 1_000_000,
+        isSpendable: false,
+        isPersistent: true,
+        visibleByDefault: true,
+        resetBehavior: "reset",
+        format: {
+          style: "integer",
+          maximumFractionDigits: 0,
+        },
+      },
+    ];
+    const result = validateResourceTransaction(
+      { ...initialState.resources, [MVP_IDS.resources.money]: 10 },
+      {
+        operationType: "spend",
+        changes: [{ resourceId: MVP_IDS.resources.money, delta: -1 }],
+      },
+      nonSpendableDefinitions,
+    );
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.failures.map((failure) => failure.code)).toContain(
+        "resource_not_spendable",
+      );
+    }
   });
 });

@@ -447,6 +447,7 @@ Related Documentation Sections:
 
 ### QA-MVP-010 - Implement Resource Transaction Validation
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 3 - Resource System  
 Suggested Order: 2
@@ -483,6 +484,9 @@ Expected Deliverables:
 
 Risks:
 - Need consistent behavior for max cap. MVP documents max value; implementation should choose explicit fail or clamp and test it.
+
+Implementation Note:
+- Added reusable resource transaction validation with structured failure codes and deterministic projected change metadata for add, spend, and convert requests. MVP maximum overflow fails validation rather than clamping, matching the Resource System rule that balances must not violate maximum value. Gameplay actions are intentionally not wired yet.
 
 Related Documentation Sections:
 - `docs/11 - Resource System.md` - Transaction Validation
