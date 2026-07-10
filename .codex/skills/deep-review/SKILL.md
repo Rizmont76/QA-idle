@@ -2,7 +2,6 @@
 name: deep-review
 description: QA Idle deep review workflow for changes since the last completed deep review. Produces a project-specific findings report, proposes fixes, and waits for approval before editing. Tracks the reviewed commit in .codex/reviews/deep-review-state.json after a completed review.
 user-invocable: true
-model: opus
 ---
 
 # QA Idle Deep Review

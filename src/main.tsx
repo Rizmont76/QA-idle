@@ -1,20 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
-import {
-  BUG_VALUE,
-  PROMOTION_TOAST_MS,
-  PROMOTION_REQUIRED_BUGS,
-  PROMOTION_REQUIRED_MONEY,
-  PROMOTION_REQUIRED_UPGRADES,
-  careerStages,
-  initialState,
-  upgrades,
-} from "./gameData";
+import { PROMOTION_TOAST_MS, careerStages, initialState, upgrades } from "./gameData";
 import {
   formatNumber,
   getDerivedStats,
+  getPromotionProgress,
   getPromotionStage,
   getUpgradeCost,
+  performManualTest,
+  purchaseUpgrade,
+  reportAllBugs,
 } from "./gameLogic";
 import { clearSave, loadSave, saveGame } from "./save";
 import { MVP_IDS } from "./types";
@@ -35,30 +30,7 @@ function App() {
   const money = game.resources[MVP_IDS.resources.money];
   const currentStage = careerStages.find((stage) => stage.id === game.careerStage);
   const promotionStage = getPromotionStage(game);
-  const purchasedUpgradeCount = Object.values(game.upgrades).reduce(
-    (sum, owned) => sum + owned,
-    0,
-  );
-  const promotionProgress = [
-    {
-      label: "Lifetime bugs found",
-      current: game.totalBugsFound,
-      required: PROMOTION_REQUIRED_BUGS,
-      prefix: "",
-    },
-    {
-      label: "Lifetime money earned",
-      current: game.totalMoneyEarned,
-      required: PROMOTION_REQUIRED_MONEY,
-      prefix: "$",
-    },
-    {
-      label: "Upgrades purchased",
-      current: purchasedUpgradeCount,
-      required: PROMOTION_REQUIRED_UPGRADES,
-      prefix: "",
-    },
-  ];
+  const promotionProgress = getPromotionProgress(game);
   const isMvpComplete = game.careerStage === MVP_IDS.careerStages.middleQa;
 
   useEffect(() => {
@@ -81,73 +53,24 @@ function App() {
     setClickBurst(false);
     window.requestAnimationFrame(() => setClickBurst(true));
 
-    setGame((current) => ({
-      ...current,
-      resources: {
-        ...current.resources,
-        [MVP_IDS.resources.bugsFound]:
-          current.resources[MVP_IDS.resources.bugsFound] + stats.bugsPerClick,
-      },
-      totalBugsFound: current.totalBugsFound + stats.bugsPerClick,
-      lastPlayedAt: Date.now(),
-    }));
+    setGame((current) => performManualTest(current).game);
   }
 
   function reportBugs() {
-    if (bugsFound < 1) {
-      return;
-    }
-
-    const reportedBugs = Math.floor(bugsFound);
-    const earnedMoney = Math.floor(reportedBugs * BUG_VALUE * stats.moneyPerBug);
-
-    if (reportedBugs <= 0) {
-      return;
-    }
-
-    setGame((current) => ({
-      ...current,
-      resources: {
-        ...current.resources,
-        [MVP_IDS.resources.bugsFound]:
-          current.resources[MVP_IDS.resources.bugsFound] - reportedBugs,
-        [MVP_IDS.resources.money]:
-          current.resources[MVP_IDS.resources.money] + earnedMoney,
-      },
-      totalMoneyEarned: current.totalMoneyEarned + earnedMoney,
-      lastPlayedAt: Date.now(),
-    }));
+    setGame((current) => reportAllBugs(current).game);
   }
 
   function buyUpgrade(upgradeId: UpgradeId) {
-    const upgrade = upgrades.find((item) => item.id === upgradeId);
+    setGame((current) => {
+      const result = purchaseUpgrade(current, upgradeId);
 
-    if (!upgrade) {
-      return;
-    }
+      if (result.ok) {
+        setBoughtUpgradeId(null);
+        window.requestAnimationFrame(() => setBoughtUpgradeId(upgradeId));
+      }
 
-    const owned = game.upgrades[upgrade.id];
-    const cost = getUpgradeCost(upgrade);
-
-    if (owned >= upgrade.maxLevel || money < cost) {
-      return;
-    }
-
-    setBoughtUpgradeId(null);
-    window.requestAnimationFrame(() => setBoughtUpgradeId(upgrade.id));
-
-    setGame((current) => ({
-      ...current,
-      resources: {
-        ...current.resources,
-        [MVP_IDS.resources.money]: current.resources[MVP_IDS.resources.money] - cost,
-      },
-      lastPlayedAt: Date.now(),
-      upgrades: {
-        ...current.upgrades,
-        [upgrade.id]: Math.min(upgrade.maxLevel, current.upgrades[upgrade.id] + 1),
-      },
-    }));
+      return result.game;
+    });
   }
 
   function promote() {
@@ -312,12 +235,10 @@ function App() {
           <h2>Promotion Progress</h2>
           <dl className="progress-list">
             {promotionProgress.map((item) => {
-              const complete = item.current >= item.required;
-
               return (
                 <div key={item.label}>
                   <dt>{item.label}</dt>
-                  <dd className={complete ? "complete" : ""}>
+                  <dd className={item.complete ? "complete" : ""}>
                     {item.prefix}
                     {formatNumber(item.current)} / {item.prefix}
                     {formatNumber(item.required)}

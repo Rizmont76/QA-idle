@@ -1,4 +1,4 @@
-# 08 - MVP Vertical Slice Specifica
+# 08 - MVP Vertical Slice Specification
 
 ## Document Status
 

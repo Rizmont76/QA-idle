@@ -51,7 +51,7 @@ Production Documentation is complete and documents 00-14 are the current source 
 - 05 - Progression.md
 - 06 - Game Systems.md
 - 07 - Technical Rules.md
-- 08 - MVP Vertical Slice Specifica.md
+- 08-MVP_Vertical_Slice_Specification.md
 - 09 - Modifier System.md
 - 10 - Economy Framework.md
 - 11 - Resource System.md
@@ -72,7 +72,7 @@ Production Documentation is complete and documents 00-14 are the current source 
 05 - Progression
 06 - Game Systems
 07 - Technical Rules
-08 - MVP Vertical Slice Specifica
+08-MVP_Vertical_Slice_Specification
 09 - Modifier System
 10 - Economy Framework
 11 - Resource System

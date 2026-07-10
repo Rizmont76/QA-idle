@@ -3,7 +3,7 @@
 Status: Complete
 Task: QA-MVP-001 - Audit Current Implementation Against MVP Scope
 Audit date: 2026-07-10
-Source of truth: `docs/00 - Master Project Roadmap.md`, `docs/07 - Technical Rules.md`, and `docs/08 - MVP Vertical Slice Specification.md`
+Source of truth: `docs/00 - Master Project Roadmap.md`, `docs/07 - Technical Rules.md`, and `docs/08-MVP_Vertical_Slice_Specification.md`
 
 ## Summary
 

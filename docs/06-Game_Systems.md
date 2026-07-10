@@ -3711,8 +3711,8 @@ Other documents may reference the system but should never redefine its behavior.
 
 | Gameplay System | Source Document |
 |-----------------|-----------------|
-| Manual Testing | 06 - Game Systems.md / 08 - MVP Vertical Slice Specifica.md |
-| Bug Reporting | 06 - Game Systems.md / 08 - MVP Vertical Slice Specifica.md |
+| Manual Testing | 06 - Game Systems.md / 08-MVP_Vertical_Slice_Specification.md |
+| Bug Reporting | 06 - Game Systems.md / 08-MVP_Vertical_Slice_Specification.md |
 | Modifier System | 09 - Modifier System.md |
 | Economy | 10 - Economy Framework.md |
 | Money | 10 - Economy Framework.md / 11 - Resource System.md |
@@ -3729,7 +3729,7 @@ Other documents may reference the system but should never redefine its behavior.
 | Core Gameplay Loop | 02 - Core Gameplay Loop.md |
 | Vision | 01 - Vision.md |
 | Technical Rules | 07 - Technical Rules.md |
-| MVP Scope | 08 - MVP Vertical Slice Specifica.md |
+| MVP Scope | 08-MVP_Vertical_Slice_Specification.md |
 | Team | Future Team document |
 | Reputation | Future Reputation document |
 | Automation | Future Automation document |

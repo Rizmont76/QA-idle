@@ -8,9 +8,26 @@ import {
 import { MVP_IDS } from "./types";
 import type { GameState, ResourceId, ResourceState, UpgradeId } from "./types";
 
+const CURRENT_SAVE_SCHEMA_VERSION = 1;
+
 interface LegacySaveFields {
   bugs?: unknown;
   money?: unknown;
+}
+
+interface SaveData {
+  meta: {
+    schemaVersion: number;
+    createdAt: number;
+    lastSavedAt: number;
+    lastActiveAt: number;
+    migratedFromVersions: string[];
+  };
+  game: GameState;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
 }
 
 function safeNumber(value: unknown) {
@@ -99,6 +116,73 @@ function normalizeCareerStage(value: unknown): GameState["careerStage"] {
     : MVP_IDS.careerStages.juniorQa;
 }
 
+function normalizeGameState(value: unknown): GameState {
+  const parsed = (isRecord(value) ? value : {}) as Partial<GameState> & LegacySaveFields;
+
+  return {
+    ...initialState,
+    resources: normalizeResources(parsed.resources, parsed),
+    totalBugsFound: safeNumber(parsed.totalBugsFound),
+    totalMoneyEarned: safeNumber(parsed.totalMoneyEarned),
+    lastPlayedAt: Date.now(),
+    careerStage: normalizeCareerStage(parsed.careerStage),
+    upgrades: normalizeUpgrades(parsed.upgrades),
+  };
+}
+
+function getSavedGamePayload(parsed: unknown) {
+  if (isRecord(parsed) && isRecord(parsed["game"])) {
+    return parsed["game"];
+  }
+
+  return parsed;
+}
+
+function readExistingSaveMetadata(now: number): SaveData["meta"] {
+  const fallback = {
+    schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+    createdAt: now,
+    lastSavedAt: now,
+    lastActiveAt: now,
+    migratedFromVersions: ["legacy_raw_game_state"],
+  };
+
+  try {
+    const rawSave = localStorage.getItem(SAVE_KEY);
+
+    if (!rawSave) {
+      return {
+        ...fallback,
+        migratedFromVersions: [],
+      };
+    }
+
+    const parsed = JSON.parse(rawSave) as unknown;
+
+    if (!isRecord(parsed) || !isRecord(parsed["meta"])) {
+      return fallback;
+    }
+
+    const meta = parsed["meta"];
+    const createdAt = safeNumber(meta["createdAt"]);
+    const migratedFromVersions = Array.isArray(meta["migratedFromVersions"])
+      ? meta["migratedFromVersions"].filter(
+          (version): version is string => typeof version === "string",
+        )
+      : [];
+
+    return {
+      schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+      createdAt: createdAt || now,
+      lastSavedAt: now,
+      lastActiveAt: now,
+      migratedFromVersions,
+    };
+  } catch {
+    return fallback;
+  }
+}
+
 export function loadSave(): { game: GameState } {
   try {
     const rawSave = localStorage.getItem(SAVE_KEY);
@@ -107,18 +191,10 @@ export function loadSave(): { game: GameState } {
       return { game: initialState };
     }
 
-    const parsed = JSON.parse(rawSave) as Partial<GameState> & LegacySaveFields;
+    const parsed = JSON.parse(rawSave) as unknown;
 
     return {
-      game: {
-        ...initialState,
-        resources: normalizeResources(parsed.resources, parsed),
-        totalBugsFound: safeNumber(parsed.totalBugsFound),
-        totalMoneyEarned: safeNumber(parsed.totalMoneyEarned),
-        lastPlayedAt: Date.now(),
-        careerStage: normalizeCareerStage(parsed.careerStage),
-        upgrades: normalizeUpgrades(parsed.upgrades),
-      },
+      game: normalizeGameState(getSavedGamePayload(parsed)),
     };
   } catch {
     return { game: initialState };
@@ -126,13 +202,17 @@ export function loadSave(): { game: GameState } {
 }
 
 export function saveGame(game: GameState) {
-  localStorage.setItem(
-    SAVE_KEY,
-    JSON.stringify({
+  const now = Date.now();
+  const meta = readExistingSaveMetadata(now);
+  const saveData: SaveData = {
+    meta,
+    game: {
       ...game,
-      lastPlayedAt: Date.now(),
-    }),
-  );
+      lastPlayedAt: now,
+    },
+  };
+
+  localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
 }
 
 export function clearSave() {

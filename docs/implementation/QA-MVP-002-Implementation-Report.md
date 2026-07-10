@@ -3,7 +3,7 @@
 Status: Complete  
 Task: QA-MVP-002 - Make Future Systems Inert for MVP  
 Implementation date: 2026-07-10  
-Source of truth: frozen documentation in `docs/00 - Master Project Roadmap.md`, `docs/07 - Technical Rules.md`, `docs/08 - MVP Vertical Slice Specification.md`, and `docs/13 - Unlock System.md`
+Source of truth: frozen documentation in `docs/00 - Master Project Roadmap.md`, `docs/07 - Technical Rules.md`, `docs/08-MVP_Vertical_Slice_Specification.md`, and `docs/13 - Unlock System.md`
 
 ## 1. Summary
 

@@ -58,7 +58,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/00 - Master Project Roadmap.md` - MVP Scope
-- `docs/08 - MVP Vertical Slice Specification.md` - Scope, Excluded, Scope Validation
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Scope, Excluded, Scope Validation
 - `docs/07 - Technical Rules.md` - Hidden Systems Must Exist Safely
 
 ### QA-MVP-002 - Make Future Systems Inert for MVP
@@ -110,7 +110,7 @@ Implementation Note:
 - Source review found no active Team, Automation, Reputation, Achievements, Statistics, Offline Progress, passive production, future UI panels, or future resource counters in the MVP code path. Existing save normalization ignores unknown future fields and restores only MVP state, so no production code change was required for this scope-lock item.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Excluded, Hidden Throughout the Entire Vertical Slice
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Excluded, Hidden Throughout the Entire Vertical Slice
 - `docs/13 - Unlock System.md` - Hidden state
 - `docs/07 - Technical Rules.md` - Hidden Systems Must Exist Safely
 
@@ -155,7 +155,7 @@ Risks:
 - Renaming current IDs may require save migration or transitional handling.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Required Stable IDs
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Required Stable IDs
 - `docs/07 - Technical Rules.md` - Stable IDs
 - `docs/13 - Unlock System.md` - Stable ID Rules
 
@@ -198,7 +198,7 @@ Risks:
 - Mixing resources with derived gameplay stats would violate architecture.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Resource Set
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Resource Set
 - `docs/11 - Resource System.md` - Resource Registry
 - `docs/10 - Economy Framework.md` - MVP Classification
 
@@ -242,7 +242,7 @@ Risks:
 - Current code may use names like `bugsPerClick`; map carefully to documented IDs.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - MVP Base Values, Modifier Rules
+- `docs/08-MVP_Vertical_Slice_Specification.md` - MVP Base Values, Modifier Rules
 - `docs/09 - Modifier System.md` - Gameplay Stats
 - `docs/11 - Resource System.md` - Resource vs Gameplay Stat
 
@@ -292,7 +292,7 @@ Risks:
 - Current repeatable upgrade model may need adaptation to one-time purchase state.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Upgrade Set
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Upgrade Set
 - `docs/12 - Upgrade System.md` - Upgrade Definitions, Purchase Rules
 - `docs/09 - Modifier System.md` - Modifier Definition
 
@@ -342,7 +342,7 @@ Implementation Note:
 - Added structured MVP career stage and promotion definitions. `promotion_junior_to_middle` now carries from/to stage IDs, three documented requirements, and an outcome limited to completing the promotion and setting the current stage to `middle_qa`; no Middle QA gameplay unlocks are defined. Existing promotion-stage UI lookup now reads the registered promotion definition instead of a career-stage-owned `canPromote` predicate, while full promotion runtime state/evaluation remains reserved for later backlog tasks.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Promotion Requirement
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Requirement
 - `docs/14 - Promotion System.md` - Promotion Definitions
 - `docs/04 - Career System.md` - Career Structure
 
@@ -392,7 +392,7 @@ Implementation Note:
 - Added declarative MVP UI surface metadata for the five New Game active surfaces plus the hidden Promote action. Added `unlock_promotion_junior_to_middle` as a separate unlock definition targeting `ui_promote_action`, with availability referencing the documented `promotion_junior_to_middle` requirements; no Unlock Service runtime logic or future system surfaces were added.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Required Stable IDs, Unlock Rules
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Required Stable IDs, Unlock Rules
 - `docs/13 - Unlock System.md` - Unlock Definition IDs vs UI Surface IDs
 - `docs/07 - Technical Rules.md` - UI Visibility States
 
@@ -443,7 +443,7 @@ Implementation Note:
 
 Related Documentation Sections:
 - `docs/11 - Resource System.md` - Resource State, Resource Lifecycle
-- `docs/08 - MVP Vertical Slice Specification.md` - Save Data, Resources
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Save Data, Resources
 
 ### QA-MVP-010 - Implement Resource Transaction Validation
 
@@ -490,7 +490,7 @@ Implementation Note:
 
 Related Documentation Sections:
 - `docs/11 - Resource System.md` - Transaction Validation
-- `docs/08 - MVP Vertical Slice Specification.md` - Resource Set
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Resource Set
 
 ### QA-MVP-011 - Implement Add and Spend Resource Operations
 
@@ -580,7 +580,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/11 - Resource System.md` - Convert, Atomicity
-- `docs/08 - MVP Vertical Slice Specification.md` - Bug Reporting
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Bug Reporting
 
 ## Phase 4 - Modifier and Derived Stat System
 
@@ -626,7 +626,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/09 - Modifier System.md` - Modifier Instance, Identity Rules
-- `docs/08 - MVP Vertical Slice Specification.md` - MVP Modifier Rules
+- `docs/08-MVP_Vertical_Slice_Specification.md` - MVP Modifier Rules
 
 ### QA-MVP-014 - Implement Additive Stat Calculation
 
@@ -670,7 +670,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/09 - Modifier System.md` - Calculation Service, Flat Modifier
-- `docs/08 - MVP Vertical Slice Specification.md` - MVP Base Values, Modifier Targets
+- `docs/08-MVP_Vertical_Slice_Specification.md` - MVP Base Values, Modifier Targets
 
 ## Phase 5 - Core Gameplay Actions
 
@@ -720,7 +720,7 @@ Risks:
 - Existing `initialState` may need replacement or migration wrapper.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - New Game, Save Data
+- `docs/08-MVP_Vertical_Slice_Specification.md` - New Game, Save Data
 - `docs/07 - Technical Rules.md` - Save Data Structure Draft
 
 ### QA-MVP-016 - Implement Manual Testing Action
@@ -766,7 +766,7 @@ Risks:
 - Current click handler may mutate state directly; refactor with care.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Manual Testing, MVP Action Rules
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Manual Testing, MVP Action Rules
 - `docs/02 - Core Gameplay Loop.md` - Manual Testing
 
 ### QA-MVP-017 - Implement Bug Reporting Action
@@ -813,7 +813,7 @@ Risks:
 - Fractional bug balances should not occur in MVP; if present from legacy saves, handle safely.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Bug Reporting, MVP Action Rules
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Bug Reporting, MVP Action Rules
 - `docs/02 - Core Gameplay Loop.md` - Reporting Bugs
 
 ## Phase 6 - Upgrade System
@@ -859,7 +859,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/12 - Upgrade System.md` - Upgrade Instance, Ownership
-- `docs/08 - MVP Vertical Slice Specification.md` - Upgrade Set
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Upgrade Set
 
 ### QA-MVP-019 - Implement Upgrade Purchase Validation
 
@@ -952,7 +952,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/12 - Upgrade System.md` - Purchase Flow, Atomicity and Rollback
-- `docs/08 - MVP Vertical Slice Specification.md` - Upgrades
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Upgrades
 
 ### QA-MVP-021 - Implement Purchased Upgrade Count Selector
 
@@ -991,7 +991,7 @@ Risks:
 - Future inactive upgrades must not accidentally count.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Promotion Requirement
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Requirement
 - `docs/12 - Upgrade System.md` - Upgrade Ownership
 
 ## Phase 7 - Requirement and Promotion Systems
@@ -1040,7 +1040,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/14 - Promotion System.md` - Promotion Requirement
-- `docs/08 - MVP Vertical Slice Specification.md` - Promotion Requirement
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Requirement
 - `docs/07 - Technical Rules.md` - Promotion Requirement Format
 
 ### QA-MVP-023 - Implement Promotion Runtime State
@@ -1084,7 +1084,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/14 - Promotion System.md` - Promotion Instance, Lifecycle
-- `docs/08 - MVP Vertical Slice Specification.md` - DN-01, Promotion
+- `docs/08-MVP_Vertical_Slice_Specification.md` - DN-01, Promotion
 
 ### QA-MVP-024 - Implement Promotion Availability Evaluation
 
@@ -1126,7 +1126,7 @@ Risks:
 - Repeated event emission can occur if availability is recomputed without state transition tracking.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Promotion, MVP Event Contracts
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion, MVP Event Contracts
 - `docs/14 - Promotion System.md` - Available, Pending Confirmation
 
 ### QA-MVP-025 - Implement Confirmed Promotion Execution
@@ -1172,7 +1172,7 @@ Risks:
 - UI may try to navigate to future tabs after promotion; prevent that.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - DN-03, Promotion Acceptance Criteria
+- `docs/08-MVP_Vertical_Slice_Specification.md` - DN-03, Promotion Acceptance Criteria
 - `docs/14 - Promotion System.md` - Promotion Executes Through a Pipeline
 
 ## Phase 8 - Unlock and Visibility System
@@ -1216,7 +1216,7 @@ Risks:
 - Confusing active UI surfaces with completed unlocks.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - MVP Unlock States
+- `docs/08-MVP_Vertical_Slice_Specification.md` - MVP Unlock States
 - `docs/13 - Unlock System.md` - Unlock State, UI Surface IDs
 
 ### QA-MVP-027 - Implement Promote Action Unlock Transition
@@ -1260,7 +1260,7 @@ Risks:
 - Duplicating promotion checks in UI could drift from requirement engine.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Promotion Visibility
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Visibility
 - `docs/13 - Unlock System.md` - Unlock Service, Unlock Events
 
 ### QA-MVP-028 - Implement UI Visibility Selectors
@@ -1348,7 +1348,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/07 - Technical Rules.md` - Save Data Schema and Versioning
-- `docs/08 - MVP Vertical Slice Specification.md` - Save Data
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Save Data
 
 ### QA-MVP-030 - Implement Save Serialization
 
@@ -1392,7 +1392,7 @@ Risks:
 - Duplicating derived values in save can create stale state.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Save / Load Acceptance Criteria
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Save / Load Acceptance Criteria
 - `docs/07 - Technical Rules.md` - Save Data Goals
 
 ### QA-MVP-031 - Implement Load, Defaults, and Legacy Handling
@@ -1441,7 +1441,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/07 - Technical Rules.md` - Save Loading Rules
-- `docs/08 - MVP Vertical Slice Specification.md` - Save / Load
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Save / Load
 
 ### QA-MVP-032 - Implement Save Reset / New Game Flow
 
@@ -1484,7 +1484,7 @@ Risks:
 - UI transient state may show stale promotion or purchase feedback after reset.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - New Game
+- `docs/08-MVP_Vertical_Slice_Specification.md` - New Game
 - `docs/07 - Technical Rules.md` - Save Loading Rules
 
 ## Phase 10 - MVP UI Integration
@@ -1535,7 +1535,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/03 - Player Journey.md` - Stage 1 Junior QA
-- `docs/08 - MVP Vertical Slice Specification.md` - Visible at New Game
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Visible at New Game
 - `docs/07 - Technical Rules.md` - UI Must Not Own Game Logic
 
 ### QA-MVP-034 - Build Promotion Progress UI
@@ -1580,7 +1580,7 @@ Risks:
 - Documentation allows limited anticipation, but MVP explicitly excludes future gameplay reveals; keep copy conservative.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Promotion Progress, Promotion Visibility
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Progress, Promotion Visibility
 - `docs/03 - Player Journey.md` - Curiosity hook
 
 ### QA-MVP-035 - Build Promote Completion State UI
@@ -1623,7 +1623,7 @@ Risks:
 - Existing code may automatically switch tabs after promotion; remove that behavior for MVP.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - DN-01, Promotion Acceptance Criteria
+- `docs/08-MVP_Vertical_Slice_Specification.md` - DN-01, Promotion Acceptance Criteria
 - `docs/14 - Promotion System.md` - Completed
 
 ### QA-MVP-036 - Implement MVP Number Formatting Helpers
@@ -1664,7 +1664,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/07 - Technical Rules.md` - Display Formatting
-- `docs/08 - MVP Vertical Slice Specification.md` - Bounded Native Numbers
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Bounded Native Numbers
 
 ## Phase 11 - Events and Observability
 
@@ -1717,7 +1717,7 @@ Risks:
 - Confusing technical events with excluded gameplay Events system.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - MVP Event Contracts
+- `docs/08-MVP_Vertical_Slice_Specification.md` - MVP Event Contracts
 - `docs/07 - Technical Rules.md` - Event Bus / Event Contracts
 
 ### QA-MVP-038 - Implement Minimal Runtime Event Dispatch
@@ -1766,7 +1766,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/07 - Technical Rules.md` - MVP Runtime Event Guarantees
-- `docs/08 - MVP Vertical Slice Specification.md` - MVP Event Contracts
+- `docs/08-MVP_Vertical_Slice_Specification.md` - MVP Event Contracts
 
 ## Phase 12 - Validation and Tests
 
@@ -1904,7 +1904,7 @@ Risks:
 - Tests must avoid asserting UI implementation details.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Upgrades, Modifier Rules
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Upgrades, Modifier Rules
 - `docs/09 - Modifier System.md` - Gameplay Rule
 
 ### QA-MVP-042 - Add Gameplay Loop Tests
@@ -1948,7 +1948,7 @@ Risks:
 - Avoid relying on timers or frame behavior; MVP has no passive production.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Gameplay Flow, Acceptance Criteria
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Gameplay Flow, Acceptance Criteria
 - `docs/02 - Core Gameplay Loop.md` - Stage 1 Junior QA Loop
 
 ### QA-MVP-043 - Add Promotion and Unlock Tests
@@ -1992,7 +1992,7 @@ Risks:
 - Existing code may have OR-based promotion conditions; tests should catch that regression.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Promotion Acceptance Criteria
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Acceptance Criteria
 - `docs/14 - Promotion System.md` - Promotion Lifecycle
 - `docs/13 - Unlock System.md` - Unlock Lifecycle
 
@@ -2040,7 +2040,7 @@ Risks:
 - Browser/localStorage testing may require test environment setup.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Save / Load Acceptance Criteria
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Save / Load Acceptance Criteria
 - `docs/07 - Technical Rules.md` - Save Loading Rules
 
 ### QA-MVP-045 - Add MVP UI Smoke Tests
@@ -2085,7 +2085,7 @@ Risks:
 
 Related Documentation Sections:
 - `docs/07 - Technical Rules.md` - UI Smoke Tests
-- `docs/08 - MVP Vertical Slice Specification.md` - Scope Validation
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Scope Validation
 
 ### QA-MVP-046 - Run Final MVP Acceptance Checklist
 
@@ -2135,7 +2135,7 @@ Risks:
 - Late discovery of scope leaks from current code.
 
 Related Documentation Sections:
-- `docs/08 - MVP Vertical Slice Specification.md` - Acceptance Criteria
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Acceptance Criteria
 - `docs/00 - Master Project Roadmap.md` - Current Milestone Definition of Done
 
 ## Final Backlog Review

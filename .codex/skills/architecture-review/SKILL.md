@@ -2,7 +2,6 @@
 name: architecture-review
 description: QA Idle architecture review for committed, uncommitted, and untracked project changes. Checks feature-level correctness, design-doc alignment, gameplay architecture, save compatibility, and test coverage. Read-only by default.
 user-invocable: true
-model: opus
 ---
 
 # QA Idle Architecture Review

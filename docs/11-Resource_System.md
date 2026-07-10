@@ -16,7 +16,7 @@
 - 05 - Progression.md
 - 06 - Game Systems.md
 - 07 - Technical Rules.md
-- 08 - MVP Vertical Slice Specifica.md
+- 08-MVP_Vertical_Slice_Specification.md
 - 09 - Modifier System.md
 - 10 - Economy Framework.md
 
@@ -872,7 +872,7 @@ The MVP also tracks `Lifetime Bugs Found` and `Lifetime Money Earned` as progres
 
 Those counters are not Resource System Resources in the MVP Vertical Slice.
 
-They may be stored under Career, Promotion or MVP progress state according to **08 - MVP Vertical Slice Specifica.md**.
+They may be stored under Career, Promotion or MVP progress state according to **08-MVP_Vertical_Slice_Specification.md**.
 
 They may observe Resource Transactions, but they must not be registered as MVP Resources unless a future frozen document explicitly changes that scope.
 

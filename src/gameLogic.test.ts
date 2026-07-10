@@ -4,8 +4,12 @@ import {
   addResource,
   formatNumber,
   getDerivedStats,
+  getPromotionProgress,
   getPromotionStage,
   getUpgradeCost,
+  performManualTest,
+  purchaseUpgrade,
+  reportAllBugs,
   spendResource,
   validateResourceTransaction,
 } from "./gameLogic";
@@ -68,6 +72,45 @@ describe("game logic", () => {
 
   it("does not promote before requirements are met", () => {
     expect(getPromotionStage(initialState)).toBeNull();
+  });
+
+  it("returns shared promotion progress rows", () => {
+    expect(
+      getPromotionProgress({
+        ...initialState,
+        totalBugsFound: 100,
+        totalMoneyEarned: 25,
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+        },
+      }),
+    ).toEqual([
+      {
+        id: "current_run_lifetime_bugs_found",
+        label: "Lifetime bugs found",
+        current: 100,
+        required: 100,
+        prefix: "",
+        complete: true,
+      },
+      {
+        id: "current_run_lifetime_money_earned",
+        label: "Lifetime money earned",
+        current: 25,
+        required: 150,
+        prefix: "$",
+        complete: false,
+      },
+      {
+        id: "purchased_mvp_upgrades",
+        label: "Upgrades purchased",
+        current: 1,
+        required: 3,
+        prefix: "",
+        complete: false,
+      },
+    ]);
   });
 });
 
@@ -373,6 +416,132 @@ describe("resource operations", () => {
     expect(result.failures.map((failure) => failure.code)).toContain(
       "balance_below_minimum",
     );
+    expect(result.events).toEqual([]);
+  });
+});
+
+describe("gameplay action operations", () => {
+  it("performs manual testing through a resource transaction", () => {
+    const result = performManualTest(
+      {
+        ...initialState,
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+        },
+      },
+      30,
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Manual testing should succeed.");
+    }
+
+    expect(result.game.resources[MVP_IDS.resources.bugsFound]).toBe(2);
+    expect(result.game.totalBugsFound).toBe(2);
+    expect(result.events[0]?.payload).toMatchObject({
+      operationType: "add",
+      sourceSystem: "manual_testing",
+    });
+  });
+
+  it("rejects manual testing when the resource cap would be exceeded", () => {
+    const game = {
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.bugsFound]: 1_000_000,
+      },
+    };
+    const result = performManualTest(game);
+
+    expect(result.ok).toBe(false);
+    expect(result.game).toBe(game);
+    if (!result.ok) {
+      expect(result.failures.map((failure) => failure.code)).toContain(
+        "balance_above_maximum",
+      );
+    }
+  });
+
+  it("reports all bugs through one atomic convert transaction", () => {
+    const result = reportAllBugs(
+      {
+        ...initialState,
+        resources: {
+          ...initialState.resources,
+          [MVP_IDS.resources.bugsFound]: 5,
+        },
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.bugReportTemplate]: 1,
+        },
+      },
+      40,
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Bug reporting should succeed.");
+    }
+
+    expect(result.game.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 0,
+      [MVP_IDS.resources.money]: 10,
+    });
+    expect(result.game.totalMoneyEarned).toBe(10);
+    expect(result.events[0]?.payload).toMatchObject({
+      operationType: "convert",
+      sourceSystem: "bug_reporting",
+      changes: [
+        {
+          resourceId: MVP_IDS.resources.bugsFound,
+          previousValue: 5,
+          newValue: 0,
+          delta: -5,
+        },
+        {
+          resourceId: MVP_IDS.resources.money,
+          previousValue: 0,
+          newValue: 10,
+          delta: 10,
+        },
+      ],
+    });
+  });
+
+  it("purchases upgrades through a resource spend transaction", () => {
+    const result = purchaseUpgrade(
+      {
+        ...initialState,
+        resources: {
+          ...initialState.resources,
+          [MVP_IDS.resources.money]: 10,
+        },
+      },
+      MVP_IDS.upgrades.betterChecklist,
+      50,
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Upgrade purchase should succeed.");
+    }
+
+    expect(result.game.resources[MVP_IDS.resources.money]).toBe(0);
+    expect(result.game.upgrades[MVP_IDS.upgrades.betterChecklist]).toBe(1);
+    expect(result.events[0]?.payload).toMatchObject({
+      operationType: "spend",
+      sourceSystem: "upgrades",
+    });
+  });
+
+  it("leaves state unchanged when an upgrade purchase fails", () => {
+    const result = purchaseUpgrade(initialState, MVP_IDS.upgrades.betterChecklist, 60);
+
+    expect(result.ok).toBe(false);
+    expect(result.game).toBe(initialState);
     expect(result.events).toEqual([]);
   });
 });

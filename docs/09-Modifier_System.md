@@ -15,7 +15,7 @@
 - 05 - Progression.md
 - 06 - Game Systems.md
 - 07 - Technical Rules.md
-- 08 - MVP Vertical Slice Specifica.md
+- 08-MVP_Vertical_Slice_Specification.md
 
 This document defines the complete Modifier System architecture for QA Idle.
 

@@ -221,7 +221,7 @@ export interface ResourceOperationRequest {
 
 export interface ResourceTransactionMetadata {
   transactionId: string;
-  operationType: Extract<ResourceTransactionOperationType, "add" | "spend">;
+  operationType: Extract<ResourceTransactionOperationType, "add" | "spend" | "convert">;
   sourceSystem: string;
   reason: string;
   simulationTime: number;

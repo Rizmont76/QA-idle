@@ -1,12 +1,17 @@
 import {
+  BUG_VALUE,
   careerStages,
   promotionDefinitions,
+  PROMOTION_REQUIRED_BUGS,
+  PROMOTION_REQUIRED_MONEY,
+  PROMOTION_REQUIRED_UPGRADES,
   resourceDefinitions,
   upgrades,
 } from "./gameData";
 import type { CareerStage, DerivedStats, GameState, Upgrade } from "./types";
 import { MVP_IDS } from "./types";
 import type {
+  ResourceChangedEventDescriptor,
   ResourceDefinition,
   ResourceId,
   ResourceOperationRequest,
@@ -28,6 +33,37 @@ const RESOURCE_TRANSACTION_OPERATION_TYPES = new Set<ResourceTransactionOperatio
   "set",
   "reset",
 ]);
+
+interface ResourceTransactionContext {
+  sourceSystem: string;
+  reason: string;
+  simulationTime?: number;
+  transactionId?: string;
+}
+
+type ResourceTransactionChangeList = ResourceTransactionValidationRequest["changes"];
+
+export type GameplayActionResult =
+  | {
+      ok: true;
+      game: GameState;
+      events: readonly ResourceChangedEventDescriptor[];
+    }
+  | {
+      ok: false;
+      game: GameState;
+      failures: readonly ResourceTransactionValidationFailure[];
+      events: readonly [];
+    };
+
+export interface PromotionProgressItem {
+  id: string;
+  label: string;
+  current: number;
+  required: number;
+  prefix: string;
+  complete: boolean;
+}
 
 function getResourceDefinition(
   resourceId: ResourceId,
@@ -207,7 +243,7 @@ export function validateResourceTransaction(
 
 function buildResourceTransactionId(
   operationType: ResourceTransactionMetadata["operationType"],
-  request: ResourceOperationRequest,
+  request: ResourceTransactionContext,
   changes: readonly ResourceTransactionProjectedChange[],
 ) {
   if (request.transactionId) {
@@ -228,18 +264,18 @@ function buildResourceTransactionId(
   ].join(":");
 }
 
-function applyResourceOperation(
+function applyResourceTransaction(
   resources: ResourceState,
   operationType: ResourceTransactionMetadata["operationType"],
-  request: ResourceOperationRequest,
+  request: ResourceTransactionContext,
+  changes: ResourceTransactionChangeList,
   definitions: readonly ResourceDefinition[] = resourceDefinitions,
 ): ResourceOperationResult {
-  const delta = operationType === "add" ? request.amount : -request.amount;
   const validation = validateResourceTransaction(
     resources,
     {
       operationType,
-      changes: [{ resourceId: request.resourceId, delta }],
+      changes,
     },
     definitions,
   );
@@ -282,6 +318,23 @@ function applyResourceOperation(
   };
 }
 
+function applyResourceOperation(
+  resources: ResourceState,
+  operationType: Extract<ResourceTransactionMetadata["operationType"], "add" | "spend">,
+  request: ResourceOperationRequest,
+  definitions: readonly ResourceDefinition[] = resourceDefinitions,
+): ResourceOperationResult {
+  const delta = operationType === "add" ? request.amount : -request.amount;
+
+  return applyResourceTransaction(
+    resources,
+    operationType,
+    request,
+    [{ resourceId: request.resourceId, delta }],
+    definitions,
+  );
+}
+
 export function addResource(
   resources: ResourceState,
   request: ResourceOperationRequest,
@@ -296,6 +349,15 @@ export function spendResource(
   definitions: readonly ResourceDefinition[] = resourceDefinitions,
 ): ResourceOperationResult {
   return applyResourceOperation(resources, "spend", request, definitions);
+}
+
+export function convertResources(
+  resources: ResourceState,
+  changes: ResourceTransactionChangeList,
+  request: ResourceTransactionContext,
+  definitions: readonly ResourceDefinition[] = resourceDefinitions,
+): ResourceOperationResult {
+  return applyResourceTransaction(resources, "convert", request, changes, definitions);
 }
 
 export function formatNumber(value: number) {
@@ -346,6 +408,42 @@ export function getStageIndex(stage: CareerStage) {
   return careerStages.findIndex((careerStage) => careerStage.id === stage);
 }
 
+export function getPurchasedUpgradeCount(game: GameState) {
+  return Object.values(game.upgrades).reduce((sum, owned) => sum + owned, 0);
+}
+
+export function getPromotionProgress(game: GameState): PromotionProgressItem[] {
+  const purchasedUpgradeCount = getPurchasedUpgradeCount(game);
+  const progress = [
+    {
+      id: "current_run_lifetime_bugs_found",
+      label: "Lifetime bugs found",
+      current: game.totalBugsFound,
+      required: PROMOTION_REQUIRED_BUGS,
+      prefix: "",
+    },
+    {
+      id: "current_run_lifetime_money_earned",
+      label: "Lifetime money earned",
+      current: game.totalMoneyEarned,
+      required: PROMOTION_REQUIRED_MONEY,
+      prefix: "$",
+    },
+    {
+      id: "purchased_mvp_upgrades",
+      label: "Upgrades purchased",
+      current: purchasedUpgradeCount,
+      required: PROMOTION_REQUIRED_UPGRADES,
+      prefix: "",
+    },
+  ];
+
+  return progress.map((item) => ({
+    ...item,
+    complete: item.current >= item.required,
+  }));
+}
+
 export function getPromotionStage(game: GameState) {
   const promotionDefinition = promotionDefinitions.find(
     (promotion) => promotion.fromCareerStageId === game.careerStage,
@@ -358,10 +456,7 @@ export function getPromotionStage(game: GameState) {
     return null;
   }
 
-  const purchasedUpgrades = Object.values(game.upgrades).reduce(
-    (sum, owned) => sum + owned,
-    0,
-  );
+  const purchasedUpgrades = getPurchasedUpgradeCount(game);
   const requirementsMet = promotionDefinition.requirements.every((requirement) => {
     if (requirement.type === "purchased_upgrades_at_least") {
       return purchasedUpgrades >= requirement.amount;
@@ -379,4 +474,143 @@ export function getPromotionStage(game: GameState) {
   }
 
   return nextStage;
+}
+
+function buildGameplayFailure(
+  message: string,
+): readonly ResourceTransactionValidationFailure[] {
+  return [
+    {
+      code: "operation_not_allowed",
+      message,
+    },
+  ];
+}
+
+export function performManualTest(
+  game: GameState,
+  simulationTime = Date.now(),
+): GameplayActionResult {
+  const stats = getDerivedStats(game);
+  const result = addResource(game.resources, {
+    resourceId: MVP_IDS.resources.bugsFound,
+    amount: stats.bugsPerClick,
+    sourceSystem: "manual_testing",
+    reason: "Manual Testing action",
+    simulationTime,
+  });
+
+  if (!result.ok) {
+    return { ok: false, game, failures: result.failures, events: [] };
+  }
+
+  return {
+    ok: true,
+    game: {
+      ...game,
+      resources: result.resources,
+      totalBugsFound: game.totalBugsFound + stats.bugsPerClick,
+      lastPlayedAt: simulationTime,
+    },
+    events: result.events,
+  };
+}
+
+export function reportAllBugs(
+  game: GameState,
+  simulationTime = Date.now(),
+): GameplayActionResult {
+  const stats = getDerivedStats(game);
+  const bugsFound = game.resources[MVP_IDS.resources.bugsFound];
+  const reportedBugs = Math.floor(bugsFound);
+
+  if (reportedBugs <= 0) {
+    return {
+      ok: false,
+      game,
+      failures: buildGameplayFailure("Bug Reporting requires at least one bug."),
+      events: [],
+    };
+  }
+
+  const earnedMoney = Math.floor(reportedBugs * BUG_VALUE * stats.moneyPerBug);
+  const result = convertResources(
+    game.resources,
+    [
+      { resourceId: MVP_IDS.resources.bugsFound, delta: -reportedBugs },
+      { resourceId: MVP_IDS.resources.money, delta: earnedMoney },
+    ],
+    {
+      sourceSystem: "bug_reporting",
+      reason: "Report all Bugs Found",
+      simulationTime,
+    },
+  );
+
+  if (!result.ok) {
+    return { ok: false, game, failures: result.failures, events: [] };
+  }
+
+  return {
+    ok: true,
+    game: {
+      ...game,
+      resources: result.resources,
+      totalMoneyEarned: game.totalMoneyEarned + earnedMoney,
+      lastPlayedAt: simulationTime,
+    },
+    events: result.events,
+  };
+}
+
+export function purchaseUpgrade(
+  game: GameState,
+  upgradeId: Upgrade["id"],
+  simulationTime = Date.now(),
+): GameplayActionResult {
+  const upgrade = upgrades.find((item) => item.id === upgradeId);
+
+  if (!upgrade) {
+    return {
+      ok: false,
+      game,
+      failures: buildGameplayFailure(`Unknown upgrade: ${upgradeId}.`),
+      events: [],
+    };
+  }
+
+  if (game.upgrades[upgrade.id] >= upgrade.maxLevel) {
+    return {
+      ok: false,
+      game,
+      failures: buildGameplayFailure(`${upgrade.name} is already owned.`),
+      events: [],
+    };
+  }
+
+  const result = spendResource(game.resources, {
+    resourceId: upgrade.cost.resourceId,
+    amount: getUpgradeCost(upgrade),
+    sourceSystem: "upgrades",
+    reason: `Buy ${upgrade.name}`,
+    simulationTime,
+  });
+
+  if (!result.ok) {
+    return { ok: false, game, failures: result.failures, events: [] };
+  }
+
+  return {
+    ok: true,
+    game: {
+      ...game,
+      resources: result.resources,
+      lastPlayedAt: simulationTime,
+      upgrades: {
+        ...game.upgrades,
+        [upgrade.id]: Math.min(upgrade.maxLevel, game.upgrades[upgrade.id] + 1),
+      },
+    },
+    events: result.events,
+  };
 }
