@@ -32,8 +32,11 @@ describe("save storage", () => {
 
     expect(loadSave().game).toEqual({
       ...initialState,
-      bugs: 0,
-      money: 42,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.bugsFound]: 0,
+        [MVP_IDS.resources.money]: 42,
+      },
       totalBugsFound: 0,
       totalMoneyEarned: 250,
       lastPlayedAt: Date.now(),
@@ -49,15 +52,20 @@ describe("save storage", () => {
   it("saves and clears the current game state", () => {
     const game = {
       ...initialState,
-      bugs: 5,
-      money: 12,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.bugsFound]: 5,
+        [MVP_IDS.resources.money]: 12,
+      },
     };
 
     saveGame(game);
 
     expect(JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}")).toMatchObject({
-      bugs: 5,
-      money: 12,
+      resources: {
+        [MVP_IDS.resources.bugsFound]: 5,
+        [MVP_IDS.resources.money]: 12,
+      },
       lastPlayedAt: Date.now(),
     });
 

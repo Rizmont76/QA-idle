@@ -400,6 +400,7 @@ Related Documentation Sections:
 
 ### QA-MVP-009 - Implement Resource State Initialization
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 3 - Resource System  
 Suggested Order: 1
@@ -436,6 +437,9 @@ Expected Deliverables:
 
 Risks:
 - Current state shape uses direct fields; migration must be handled carefully later.
+
+Implementation Note:
+- Added a registry-driven Resource State map keyed by stable MVP resource IDs. New games initialize `bugs_found` and `money` from `resourceDefinitions`, Save/Load restores missing resources to safe defaults, and legacy direct `bugs`/`money` saves are normalized into the Resource State without adding lifetime counters to resources.
 
 Related Documentation Sections:
 - `docs/11 - Resource System.md` - Resource State, Resource Lifecycle

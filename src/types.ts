@@ -163,9 +163,10 @@ export interface DerivedStats {
   moneyPerBug: number;
 }
 
+export type ResourceState = Record<ResourceId, number>;
+
 export interface GameState {
-  bugs: number;
-  money: number;
+  resources: ResourceState;
   totalBugsFound: number;
   totalMoneyEarned: number;
   lastPlayedAt: number;

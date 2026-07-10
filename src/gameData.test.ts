@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   careerStages,
+  createInitialResourceState,
   gameplayStatDefinitions,
+  initialState,
   MVP_RESOURCE_MAX,
   promotionDefinitions,
   resourceDefinitions,
@@ -17,6 +19,19 @@ describe("MVP resource registry", () => {
       MVP_IDS.resources.bugsFound,
       MVP_IDS.resources.money,
     ]);
+  });
+
+  it("builds initial resource state from the registry only", () => {
+    expect(createInitialResourceState()).toEqual({
+      [MVP_IDS.resources.bugsFound]: 0,
+      [MVP_IDS.resources.money]: 0,
+    });
+    expect(Object.keys(initialState.resources)).toEqual([
+      MVP_IDS.resources.bugsFound,
+      MVP_IDS.resources.money,
+    ]);
+    expect(initialState.resources).not.toHaveProperty("totalBugsFound");
+    expect(initialState.resources).not.toHaveProperty("totalMoneyEarned");
   });
 
   it("defines Bugs Found as a spendable disposable resource", () => {

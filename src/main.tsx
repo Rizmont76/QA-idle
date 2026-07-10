@@ -31,6 +31,8 @@ function App() {
   const [boughtUpgradeId, setBoughtUpgradeId] = useState<UpgradeId | null>(null);
 
   const stats = useMemo(() => getDerivedStats(game), [game]);
+  const bugsFound = game.resources[MVP_IDS.resources.bugsFound];
+  const money = game.resources[MVP_IDS.resources.money];
   const currentStage = careerStages.find((stage) => stage.id === game.careerStage);
   const promotionStage = getPromotionStage(game);
   const purchasedUpgradeCount = Object.values(game.upgrades).reduce(
@@ -81,18 +83,22 @@ function App() {
 
     setGame((current) => ({
       ...current,
-      bugs: current.bugs + stats.bugsPerClick,
+      resources: {
+        ...current.resources,
+        [MVP_IDS.resources.bugsFound]:
+          current.resources[MVP_IDS.resources.bugsFound] + stats.bugsPerClick,
+      },
       totalBugsFound: current.totalBugsFound + stats.bugsPerClick,
       lastPlayedAt: Date.now(),
     }));
   }
 
   function reportBugs() {
-    if (game.bugs < 1) {
+    if (bugsFound < 1) {
       return;
     }
 
-    const reportedBugs = Math.floor(game.bugs);
+    const reportedBugs = Math.floor(bugsFound);
     const earnedMoney = Math.floor(reportedBugs * BUG_VALUE * stats.moneyPerBug);
 
     if (reportedBugs <= 0) {
@@ -101,8 +107,13 @@ function App() {
 
     setGame((current) => ({
       ...current,
-      bugs: current.bugs - reportedBugs,
-      money: current.money + earnedMoney,
+      resources: {
+        ...current.resources,
+        [MVP_IDS.resources.bugsFound]:
+          current.resources[MVP_IDS.resources.bugsFound] - reportedBugs,
+        [MVP_IDS.resources.money]:
+          current.resources[MVP_IDS.resources.money] + earnedMoney,
+      },
       totalMoneyEarned: current.totalMoneyEarned + earnedMoney,
       lastPlayedAt: Date.now(),
     }));
@@ -118,7 +129,7 @@ function App() {
     const owned = game.upgrades[upgrade.id];
     const cost = getUpgradeCost(upgrade);
 
-    if (owned >= upgrade.maxLevel || game.money < cost) {
+    if (owned >= upgrade.maxLevel || money < cost) {
       return;
     }
 
@@ -127,7 +138,10 @@ function App() {
 
     setGame((current) => ({
       ...current,
-      money: current.money - cost,
+      resources: {
+        ...current.resources,
+        [MVP_IDS.resources.money]: current.resources[MVP_IDS.resources.money] - cost,
+      },
       lastPlayedAt: Date.now(),
       upgrades: {
         ...current.upgrades,
@@ -219,14 +233,14 @@ function App() {
           <span className="metric-label">
             <span className="metric-icon bug-icon">B</span>Bugs Found
           </span>
-          <strong>{formatNumber(game.bugs)}</strong>
+          <strong>{formatNumber(bugsFound)}</strong>
           <em>+{formatNumber(stats.bugsPerClick)} per action</em>
         </div>
         <div className="metric primary">
           <span className="metric-label">
             <span className="metric-icon money-icon">$</span>Money
           </span>
-          <strong>${formatNumber(game.money)}</strong>
+          <strong>${formatNumber(money)}</strong>
           <em>Report bugs to earn</em>
         </div>
       </section>
@@ -244,12 +258,12 @@ function App() {
           className="secondary-button"
           type="button"
           onClick={reportBugs}
-          disabled={game.bugs < 1}
+          disabled={bugsFound < 1}
         >
           Report Bugs{" "}
           <span>
-            {game.bugs >= 1
-              ? `+$${formatNumber(Math.floor(game.bugs * stats.moneyPerBug))}`
+            {bugsFound >= 1
+              ? `+$${formatNumber(Math.floor(bugsFound * stats.moneyPerBug))}`
               : ""}
           </span>
         </button>
@@ -263,7 +277,7 @@ function App() {
               const owned = game.upgrades[upgrade.id];
               const cost = getUpgradeCost(upgrade);
               const isOwned = owned >= upgrade.maxLevel;
-              const canBuy = !isOwned && game.money >= cost;
+              const canBuy = !isOwned && money >= cost;
 
               return (
                 <article

@@ -264,22 +264,6 @@ export const upgrades: Upgrade[] = [
   },
 ];
 
-export const initialState: GameState = {
-  bugs: 0,
-  money: 0,
-  totalBugsFound: 0,
-  totalMoneyEarned: 0,
-  lastPlayedAt: Date.now(),
-  careerStage: MVP_IDS.careerStages.juniorQa,
-  upgrades: {
-    [MVP_IDS.upgrades.betterChecklist]: 0,
-    [MVP_IDS.upgrades.coffee]: 0,
-    [MVP_IDS.upgrades.keyboardShortcuts]: 0,
-    [MVP_IDS.upgrades.bugReportTemplate]: 0,
-    [MVP_IDS.upgrades.testCaseLibrary]: 0,
-  },
-};
-
 export const careerStages: CareerStageDefinition[] = [
   {
     id: MVP_IDS.careerStages.juniorQa,
@@ -421,3 +405,28 @@ export const unlockDefinitions: UnlockDefinition[] = [
     },
   },
 ];
+
+export function createInitialResourceState(): GameState["resources"] {
+  return resourceDefinitions.reduce(
+    (resources, resource) => ({
+      ...resources,
+      [resource.id]: resource.initialValue,
+    }),
+    {} as GameState["resources"],
+  );
+}
+
+export const initialState: GameState = {
+  resources: createInitialResourceState(),
+  totalBugsFound: 0,
+  totalMoneyEarned: 0,
+  lastPlayedAt: Date.now(),
+  careerStage: MVP_IDS.careerStages.juniorQa,
+  upgrades: {
+    [MVP_IDS.upgrades.betterChecklist]: 0,
+    [MVP_IDS.upgrades.coffee]: 0,
+    [MVP_IDS.upgrades.keyboardShortcuts]: 0,
+    [MVP_IDS.upgrades.bugReportTemplate]: 0,
+    [MVP_IDS.upgrades.testCaseLibrary]: 0,
+  },
+};

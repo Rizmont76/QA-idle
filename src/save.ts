@@ -1,6 +1,17 @@
-import { SAVE_KEY, initialState, upgrades } from "./gameData";
+import {
+  SAVE_KEY,
+  createInitialResourceState,
+  initialState,
+  resourceDefinitions,
+  upgrades,
+} from "./gameData";
 import { MVP_IDS } from "./types";
-import type { GameState, UpgradeId } from "./types";
+import type { GameState, ResourceId, ResourceState, UpgradeId } from "./types";
+
+interface LegacySaveFields {
+  bugs?: unknown;
+  money?: unknown;
+}
 
 function safeNumber(value: unknown) {
   const numberValue = Number(value);
@@ -46,6 +57,42 @@ function normalizeUpgrades(value: unknown): Record<UpgradeId, number> {
   };
 }
 
+function normalizeResourceValue(value: unknown, resourceId: ResourceId) {
+  const resourceDefinition = resourceDefinitions.find(
+    (resource) => resource.id === resourceId,
+  );
+  const numberValue = safeNumber(value);
+
+  if (!resourceDefinition) {
+    return numberValue;
+  }
+
+  return Math.min(
+    Math.max(numberValue, resourceDefinition.minimumValue),
+    resourceDefinition.maximumValue,
+  );
+}
+
+function normalizeResources(
+  value: unknown,
+  legacySave: Partial<GameState> & LegacySaveFields,
+): ResourceState {
+  const saved = value && typeof value === "object" ? value : {};
+  const savedResources = saved as Partial<Record<ResourceId, unknown>>;
+
+  return {
+    ...createInitialResourceState(),
+    [MVP_IDS.resources.bugsFound]: normalizeResourceValue(
+      savedResources[MVP_IDS.resources.bugsFound] ?? legacySave.bugs,
+      MVP_IDS.resources.bugsFound,
+    ),
+    [MVP_IDS.resources.money]: normalizeResourceValue(
+      savedResources[MVP_IDS.resources.money] ?? legacySave.money,
+      MVP_IDS.resources.money,
+    ),
+  };
+}
+
 function normalizeCareerStage(value: unknown): GameState["careerStage"] {
   return value === MVP_IDS.careerStages.middleQa || value === "middle"
     ? MVP_IDS.careerStages.middleQa
@@ -60,13 +107,12 @@ export function loadSave(): { game: GameState } {
       return { game: initialState };
     }
 
-    const parsed = JSON.parse(rawSave) as Partial<GameState>;
+    const parsed = JSON.parse(rawSave) as Partial<GameState> & LegacySaveFields;
 
     return {
       game: {
         ...initialState,
-        bugs: safeNumber(parsed.bugs),
-        money: safeNumber(parsed.money),
+        resources: normalizeResources(parsed.resources, parsed),
         totalBugsFound: safeNumber(parsed.totalBugsFound),
         totalMoneyEarned: safeNumber(parsed.totalMoneyEarned),
         lastPlayedAt: Date.now(),
