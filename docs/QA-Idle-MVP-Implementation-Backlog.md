@@ -161,6 +161,7 @@ Related Documentation Sections:
 
 ### QA-MVP-004 - Define MVP Resource Registry
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 2 - Core Data Contracts  
 Suggested Order: 2

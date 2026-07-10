@@ -1,5 +1,10 @@
 import { MVP_IDS } from "./types";
-import type { CareerStageDefinition, GameState, Upgrade } from "./types";
+import type {
+  CareerStageDefinition,
+  GameState,
+  ResourceDefinition,
+  Upgrade,
+} from "./types";
 
 export const SAVE_KEY = "qa-idle-save-v1";
 export const BUG_VALUE = 1;
@@ -7,6 +12,50 @@ export const PROMOTION_TOAST_MS = 5200;
 export const PROMOTION_REQUIRED_BUGS = 100;
 export const PROMOTION_REQUIRED_MONEY = 150;
 export const PROMOTION_REQUIRED_UPGRADES = 3;
+export const MVP_RESOURCE_MAX = 1_000_000;
+
+export const resourceDefinitions: ResourceDefinition[] = [
+  {
+    id: MVP_IDS.resources.bugsFound,
+    displayName: "Bugs Found",
+    description: "Discovered bugs waiting to be reported.",
+    category: "manual_qa",
+    lifetimeCategory: "disposable",
+    producedBy: ["Manual Testing"],
+    consumedBy: ["Bug Reporting"],
+    initialValue: 0,
+    minimumValue: 0,
+    maximumValue: MVP_RESOURCE_MAX,
+    isSpendable: true,
+    isPersistent: true,
+    visibleByDefault: true,
+    resetBehavior: "reset",
+    format: {
+      style: "integer",
+      maximumFractionDigits: 0,
+    },
+  },
+  {
+    id: MVP_IDS.resources.money,
+    displayName: "Money",
+    description: "Primary investment resource earned through reporting.",
+    category: "personal_economy",
+    lifetimeCategory: "investment",
+    producedBy: ["Bug Reporting"],
+    consumedBy: ["Upgrades"],
+    initialValue: 0,
+    minimumValue: 0,
+    maximumValue: MVP_RESOURCE_MAX,
+    isSpendable: true,
+    isPersistent: true,
+    visibleByDefault: true,
+    resetBehavior: "reset",
+    format: {
+      style: "integer",
+      maximumFractionDigits: 0,
+    },
+  },
+];
 
 export const upgrades: Upgrade[] = [
   {

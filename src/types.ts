@@ -51,6 +51,31 @@ export type ActionId = (typeof MVP_IDS.actions)[keyof typeof MVP_IDS.actions];
 export type UpgradeId = (typeof MVP_IDS.upgrades)[keyof typeof MVP_IDS.upgrades];
 export type TabId = typeof MVP_IDS.uiSurfaces.manualTesting;
 
+export type ResourceLifetimeCategory = "disposable" | "investment";
+export type ResourceResetBehavior = "reset";
+export type ResourceFormatStyle = "integer";
+
+export interface ResourceDefinition {
+  id: ResourceId;
+  displayName: string;
+  description: string;
+  category: string;
+  lifetimeCategory: ResourceLifetimeCategory;
+  producedBy: readonly string[];
+  consumedBy: readonly string[];
+  initialValue: number;
+  minimumValue: number;
+  maximumValue: number;
+  isSpendable: boolean;
+  isPersistent: boolean;
+  visibleByDefault: boolean;
+  resetBehavior: ResourceResetBehavior;
+  format: {
+    style: ResourceFormatStyle;
+    maximumFractionDigits: number;
+  };
+}
+
 export interface Upgrade {
   id: UpgradeId;
   group: TabId;
