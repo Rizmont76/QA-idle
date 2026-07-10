@@ -1,6 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { PROMOTION_TOAST_MS, careerStages, initialState, upgrades } from "./gameData";
+import {
+  PROMOTION_TOAST_MS,
+  careerStages,
+  createNewGameState,
+  upgrades,
+} from "./gameData";
 import {
   formatNumber,
   getDerivedStats,
@@ -91,10 +96,7 @@ function App() {
   function resetSave() {
     clearSave();
     setPromotionToast(null);
-    setGame({
-      ...initialState,
-      lastPlayedAt: Date.now(),
-    });
+    setGame(createNewGameState());
   }
 
   return (

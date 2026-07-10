@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   careerStages,
+  createInitialPromotionState,
   createInitialResourceState,
+  createInitialUiSurfaceState,
+  createInitialUnlockState,
+  createInitialUpgradeState,
+  createNewGameState,
   gameplayStatDefinitions,
   initialState,
   MVP_RESOURCE_MAX,
@@ -79,6 +84,52 @@ describe("MVP resource registry", () => {
         style: "integer",
         maximumFractionDigits: 0,
       },
+    });
+  });
+});
+
+describe("MVP new game state factory", () => {
+  it("creates a fresh Junior QA state from MVP registries only", () => {
+    const now = new Date("2026-07-10T12:00:00.000Z").getTime();
+
+    expect(createInitialUpgradeState()).toEqual({
+      [MVP_IDS.upgrades.betterChecklist]: 0,
+      [MVP_IDS.upgrades.coffee]: 0,
+      [MVP_IDS.upgrades.keyboardShortcuts]: 0,
+      [MVP_IDS.upgrades.bugReportTemplate]: 0,
+      [MVP_IDS.upgrades.testCaseLibrary]: 0,
+    });
+    expect(createInitialPromotionState()).toEqual({
+      availablePromotionIds: [],
+      completedPromotionIds: [],
+    });
+    expect(createInitialUiSurfaceState()).toEqual({
+      [MVP_IDS.uiSurfaces.manualTesting]: "active",
+      [MVP_IDS.uiSurfaces.bugReporting]: "active",
+      [MVP_IDS.uiSurfaces.resourcesBasic]: "active",
+      [MVP_IDS.uiSurfaces.upgradesBasic]: "active",
+      [MVP_IDS.uiSurfaces.promotionProgress]: "active",
+      [MVP_IDS.uiSurfaces.promoteAction]: "hidden",
+    });
+    expect(createInitialUnlockState()).toEqual({
+      [MVP_IDS.unlocks.promotionJuniorToMiddle]: "hidden",
+    });
+    expect(createNewGameState(now)).toEqual({
+      resources: createInitialResourceState(),
+      totalBugsFound: 0,
+      totalMoneyEarned: 0,
+      lastPlayedAt: now,
+      careerStage: MVP_IDS.careerStages.juniorQa,
+      promotion: createInitialPromotionState(),
+      uiSurfaces: createInitialUiSurfaceState(),
+      unlocks: createInitialUnlockState(),
+      upgrades: createInitialUpgradeState(),
+    });
+  });
+
+  it("keeps the exported initial state equivalent to the factory shape", () => {
+    expect(initialState).toEqual({
+      ...createNewGameState(initialState.lastPlayedAt),
     });
   });
 });

@@ -411,17 +411,55 @@ export function createInitialResourceState(): GameState["resources"] {
   );
 }
 
-export const initialState: GameState = {
-  resources: createInitialResourceState(),
-  totalBugsFound: 0,
-  totalMoneyEarned: 0,
-  lastPlayedAt: Date.now(),
-  careerStage: MVP_IDS.careerStages.juniorQa,
-  upgrades: {
-    [MVP_IDS.upgrades.betterChecklist]: 0,
-    [MVP_IDS.upgrades.coffee]: 0,
-    [MVP_IDS.upgrades.keyboardShortcuts]: 0,
-    [MVP_IDS.upgrades.bugReportTemplate]: 0,
-    [MVP_IDS.upgrades.testCaseLibrary]: 0,
-  },
-};
+export function createInitialUpgradeState(): GameState["upgrades"] {
+  return upgrades.reduce(
+    (ownedUpgrades, upgrade) => ({
+      ...ownedUpgrades,
+      [upgrade.id]: 0,
+    }),
+    {} as GameState["upgrades"],
+  );
+}
+
+export function createInitialUiSurfaceState(): GameState["uiSurfaces"] {
+  return uiSurfaceDefinitions.reduce(
+    (uiSurfaces, surface) => ({
+      ...uiSurfaces,
+      [surface.id]: surface.initialVisibility,
+    }),
+    {} as GameState["uiSurfaces"],
+  );
+}
+
+export function createInitialUnlockState(): GameState["unlocks"] {
+  return unlockDefinitions.reduce(
+    (unlocks, unlock) => ({
+      ...unlocks,
+      [unlock.id]: unlock.initialState,
+    }),
+    {} as GameState["unlocks"],
+  );
+}
+
+export function createInitialPromotionState(): GameState["promotion"] {
+  return {
+    availablePromotionIds: [],
+    completedPromotionIds: [],
+  };
+}
+
+export function createNewGameState(now = Date.now()): GameState {
+  return {
+    resources: createInitialResourceState(),
+    totalBugsFound: 0,
+    totalMoneyEarned: 0,
+    lastPlayedAt: now,
+    careerStage: MVP_IDS.careerStages.juniorQa,
+    promotion: createInitialPromotionState(),
+    uiSurfaces: createInitialUiSurfaceState(),
+    unlocks: createInitialUnlockState(),
+    upgrades: createInitialUpgradeState(),
+  };
+}
+
+export const initialState: GameState = createNewGameState();

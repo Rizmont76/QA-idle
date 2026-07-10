@@ -317,6 +317,12 @@ export interface GameState {
   totalMoneyEarned: number;
   lastPlayedAt: number;
   careerStage: CareerStage;
+  promotion: {
+    availablePromotionIds: PromotionId[];
+    completedPromotionIds: PromotionId[];
+  };
+  uiSurfaces: Record<UiSurfaceId, UiSurfaceVisibilityState>;
+  unlocks: Record<UnlockId, UnlockInitialState | UnlockAvailableState>;
   upgrades: Record<UpgradeId, number>;
 }
 

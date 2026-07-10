@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SAVE_KEY, initialState } from "./gameData";
+import { SAVE_KEY, createNewGameState, initialState } from "./gameData";
 import { clearSave, loadSave, saveGame } from "./save";
 import { MVP_IDS } from "./types";
 
@@ -11,7 +11,7 @@ describe("save storage", () => {
   });
 
   it("loads the initial state when no save exists", () => {
-    expect(loadSave()).toEqual({ game: initialState });
+    expect(loadSave()).toEqual({ game: createNewGameState(Date.now()) });
   });
 
   it("normalizes invalid saved values", () => {
@@ -46,6 +46,9 @@ describe("save storage", () => {
         [MVP_IDS.upgrades.betterChecklist]: 1,
         [MVP_IDS.upgrades.coffee]: 0,
       },
+      promotion: initialState.promotion,
+      uiSurfaces: initialState.uiSurfaces,
+      unlocks: initialState.unlocks,
     });
   });
 

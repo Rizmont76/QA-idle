@@ -1,12 +1,23 @@
 import {
   SAVE_KEY,
+  createInitialPromotionState,
   createInitialResourceState,
-  initialState,
+  createInitialUiSurfaceState,
+  createInitialUnlockState,
+  createNewGameState,
   resourceDefinitions,
+  uiSurfaceDefinitions,
+  unlockDefinitions,
   upgrades,
 } from "./gameData";
 import { MVP_IDS } from "./types";
-import type { GameState, ResourceId, ResourceState, UpgradeId } from "./types";
+import type {
+  GameState,
+  PromotionId,
+  ResourceId,
+  ResourceState,
+  UpgradeId,
+} from "./types";
 
 const CURRENT_SAVE_SCHEMA_VERSION = 1;
 
@@ -74,6 +85,60 @@ function normalizeUpgrades(value: unknown): Record<UpgradeId, number> {
   };
 }
 
+function normalizePromotionIds(value: unknown): PromotionId[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(
+    (promotionId): promotionId is PromotionId =>
+      promotionId === MVP_IDS.promotions.juniorToMiddle,
+  );
+}
+
+function normalizePromotionState(value: unknown): GameState["promotion"] {
+  const saved = isRecord(value) ? value : {};
+  const defaults = createInitialPromotionState();
+
+  return {
+    ...defaults,
+    availablePromotionIds: normalizePromotionIds(saved["availablePromotionIds"]),
+    completedPromotionIds: normalizePromotionIds(saved["completedPromotionIds"]),
+  };
+}
+
+function normalizeUiSurfaces(value: unknown): GameState["uiSurfaces"] {
+  const saved = isRecord(value) ? value : {};
+  const uiSurfaces = createInitialUiSurfaceState();
+
+  for (const surface of uiSurfaceDefinitions) {
+    const savedState = saved[surface.id];
+
+    uiSurfaces[surface.id] =
+      savedState === "active" || savedState === "hidden"
+        ? savedState
+        : surface.initialVisibility;
+  }
+
+  return uiSurfaces;
+}
+
+function normalizeUnlocks(value: unknown): GameState["unlocks"] {
+  const saved = isRecord(value) ? value : {};
+  const unlocks = createInitialUnlockState();
+
+  for (const unlock of unlockDefinitions) {
+    const savedState = saved[unlock.id];
+
+    unlocks[unlock.id] =
+      savedState === unlock.availableState || savedState === unlock.initialState
+        ? savedState
+        : unlock.initialState;
+  }
+
+  return unlocks;
+}
+
 function normalizeResourceValue(value: unknown, resourceId: ResourceId) {
   const resourceDefinition = resourceDefinitions.find(
     (resource) => resource.id === resourceId,
@@ -120,12 +185,15 @@ function normalizeGameState(value: unknown): GameState {
   const parsed = (isRecord(value) ? value : {}) as Partial<GameState> & LegacySaveFields;
 
   return {
-    ...initialState,
+    ...createNewGameState(),
     resources: normalizeResources(parsed.resources, parsed),
     totalBugsFound: safeNumber(parsed.totalBugsFound),
     totalMoneyEarned: safeNumber(parsed.totalMoneyEarned),
     lastPlayedAt: Date.now(),
     careerStage: normalizeCareerStage(parsed.careerStage),
+    promotion: normalizePromotionState(parsed.promotion),
+    uiSurfaces: normalizeUiSurfaces(parsed.uiSurfaces),
+    unlocks: normalizeUnlocks(parsed.unlocks),
     upgrades: normalizeUpgrades(parsed.upgrades),
   };
 }
@@ -188,7 +256,7 @@ export function loadSave(): { game: GameState } {
     const rawSave = localStorage.getItem(SAVE_KEY);
 
     if (!rawSave) {
-      return { game: initialState };
+      return { game: createNewGameState() };
     }
 
     const parsed = JSON.parse(rawSave) as unknown;
@@ -197,7 +265,7 @@ export function loadSave(): { game: GameState } {
       game: normalizeGameState(getSavedGamePayload(parsed)),
     };
   } catch {
-    return { game: initialState };
+    return { game: createNewGameState() };
   }
 }
 
