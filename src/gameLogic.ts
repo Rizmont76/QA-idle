@@ -1,10 +1,11 @@
 import { careerStages, upgrades } from "./gameData";
 import type { CareerStage, DerivedStats, GameState, Upgrade } from "./types";
+import { MVP_IDS } from "./types";
 
 const COMPACT_NUMBER_INTEGER_THRESHOLD = 100;
 
-export function getUpgradeCost(upgrade: Upgrade, owned: number) {
-  return Math.ceil(upgrade.baseCost * upgrade.costGrowth ** owned);
+export function getUpgradeCost(upgrade: Upgrade) {
+  return upgrade.cost.amount;
 }
 
 export function formatNumber(value: number) {
@@ -28,10 +29,25 @@ export function formatNumber(value: number) {
 
 export function getDerivedStats(game: GameState): DerivedStats {
   return upgrades.reduce(
-    (stats, upgrade) => ({
-      ...stats,
-      bugsPerClick: stats.bugsPerClick + upgrade.bugsPerClick * game.upgrades[upgrade.id],
-    }),
+    (stats, upgrade) => {
+      if (game.upgrades[upgrade.id] < 1) {
+        return stats;
+      }
+
+      return upgrade.effects.reduce((nextStats, effect) => {
+        if (effect.modifier.targetStatId === MVP_IDS.gameplayStats.manualBugsPerAction) {
+          return {
+            ...nextStats,
+            bugsPerClick: nextStats.bugsPerClick + effect.modifier.value,
+          };
+        }
+
+        return {
+          ...nextStats,
+          moneyPerBug: nextStats.moneyPerBug + effect.modifier.value,
+        };
+      }, stats);
+    },
     { bugsPerClick: 1, moneyPerBug: 1 },
   );
 }

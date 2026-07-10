@@ -1,4 +1,4 @@
-import { SAVE_KEY, initialState } from "./gameData";
+import { SAVE_KEY, initialState, upgrades } from "./gameData";
 import { MVP_IDS } from "./types";
 import type { GameState, UpgradeId } from "./types";
 
@@ -8,10 +8,12 @@ function safeNumber(value: unknown) {
   return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : 0;
 }
 
-function normalizeUpgradeLevel(value: unknown) {
+function normalizeUpgradeLevel(value: unknown, upgradeId: UpgradeId) {
   const numberValue = Math.floor(safeNumber(value));
+  const upgradeDefinition = upgrades.find((upgrade) => upgrade.id === upgradeId);
+  const maximumLevel = upgradeDefinition?.maxLevel ?? 0;
 
-  return Number.isFinite(numberValue) ? numberValue : 0;
+  return Number.isFinite(numberValue) ? Math.min(numberValue, maximumLevel) : 0;
 }
 
 function normalizeUpgrades(value: unknown): Record<UpgradeId, number> {
@@ -23,18 +25,23 @@ function normalizeUpgrades(value: unknown): Record<UpgradeId, number> {
   return {
     [MVP_IDS.upgrades.betterChecklist]: normalizeUpgradeLevel(
       savedUpgrades[MVP_IDS.upgrades.betterChecklist] ?? savedUpgrades.checklist,
+      MVP_IDS.upgrades.betterChecklist,
     ),
     [MVP_IDS.upgrades.coffee]: normalizeUpgradeLevel(
       savedUpgrades[MVP_IDS.upgrades.coffee] ?? savedUpgrades.coffee,
+      MVP_IDS.upgrades.coffee,
     ),
     [MVP_IDS.upgrades.keyboardShortcuts]: normalizeUpgradeLevel(
       savedUpgrades[MVP_IDS.upgrades.keyboardShortcuts],
+      MVP_IDS.upgrades.keyboardShortcuts,
     ),
     [MVP_IDS.upgrades.bugReportTemplate]: normalizeUpgradeLevel(
       savedUpgrades[MVP_IDS.upgrades.bugReportTemplate],
+      MVP_IDS.upgrades.bugReportTemplate,
     ),
     [MVP_IDS.upgrades.testCaseLibrary]: normalizeUpgradeLevel(
       savedUpgrades[MVP_IDS.upgrades.testCaseLibrary],
+      MVP_IDS.upgrades.testCaseLibrary,
     ),
   };
 }

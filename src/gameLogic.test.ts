@@ -9,7 +9,7 @@ import {
 import { MVP_IDS } from "./types";
 
 describe("game logic", () => {
-  it("scales upgrade costs by owned level", () => {
+  it("uses fixed one-time upgrade costs", () => {
     const checklist = upgrades.find(
       (upgrade) => upgrade.id === MVP_IDS.upgrades.betterChecklist,
     );
@@ -18,8 +18,7 @@ describe("game logic", () => {
       throw new Error("Checklist upgrade is missing.");
     }
 
-    expect(getUpgradeCost(checklist, 0)).toBe(12);
-    expect(getUpgradeCost(checklist, 2)).toBe(23);
+    expect(getUpgradeCost(checklist)).toBe(10);
   });
 
   it("formats compact resource numbers", () => {
@@ -34,13 +33,16 @@ describe("game logic", () => {
         ...initialState,
         upgrades: {
           ...initialState.upgrades,
-          [MVP_IDS.upgrades.betterChecklist]: 2,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
           [MVP_IDS.upgrades.coffee]: 1,
+          [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+          [MVP_IDS.upgrades.bugReportTemplate]: 1,
+          [MVP_IDS.upgrades.testCaseLibrary]: 1,
         },
       }),
     ).toEqual({
-      bugsPerClick: 6,
-      moneyPerBug: 1,
+      bugsPerClick: 8,
+      moneyPerBug: 2,
     });
   });
 
@@ -52,8 +54,9 @@ describe("game logic", () => {
         totalMoneyEarned: 150,
         upgrades: {
           ...initialState.upgrades,
-          [MVP_IDS.upgrades.betterChecklist]: 2,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
           [MVP_IDS.upgrades.coffee]: 1,
+          [MVP_IDS.upgrades.keyboardShortcuts]: 1,
         },
       })?.id,
     ).toBe(MVP_IDS.careerStages.middleQa);

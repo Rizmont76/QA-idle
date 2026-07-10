@@ -3,6 +3,7 @@ import {
   gameplayStatDefinitions,
   MVP_RESOURCE_MAX,
   resourceDefinitions,
+  upgrades,
 } from "./gameData";
 import { MVP_IDS } from "./types";
 
@@ -60,6 +61,89 @@ describe("MVP resource registry", () => {
         maximumFractionDigits: 0,
       },
     });
+  });
+});
+
+describe("MVP upgrade registry", () => {
+  it("defines exactly the five one-time MVP upgrades in documented order", () => {
+    expect(upgrades.map((upgrade) => upgrade.id)).toEqual([
+      MVP_IDS.upgrades.betterChecklist,
+      MVP_IDS.upgrades.coffee,
+      MVP_IDS.upgrades.keyboardShortcuts,
+      MVP_IDS.upgrades.bugReportTemplate,
+      MVP_IDS.upgrades.testCaseLibrary,
+    ]);
+    expect(
+      upgrades.map((upgrade) => ({
+        type: upgrade.type,
+        maxLevel: upgrade.maxLevel,
+        visibility: upgrade.visibility,
+      })),
+    ).toEqual([
+      { type: "one_time", maxLevel: 1, visibility: "active" },
+      { type: "one_time", maxLevel: 1, visibility: "active" },
+      { type: "one_time", maxLevel: 1, visibility: "active" },
+      { type: "one_time", maxLevel: 1, visibility: "active" },
+      { type: "one_time", maxLevel: 1, visibility: "active" },
+    ]);
+  });
+
+  it("uses the documented fixed Money costs", () => {
+    expect(
+      upgrades.map((upgrade) => [
+        upgrade.id,
+        upgrade.cost.resourceId,
+        upgrade.cost.amount,
+      ]),
+    ).toEqual([
+      [MVP_IDS.upgrades.betterChecklist, MVP_IDS.resources.money, 10],
+      [MVP_IDS.upgrades.coffee, MVP_IDS.resources.money, 25],
+      [MVP_IDS.upgrades.keyboardShortcuts, MVP_IDS.resources.money, 60],
+      [MVP_IDS.upgrades.bugReportTemplate, MVP_IDS.resources.money, 100],
+      [MVP_IDS.upgrades.testCaseLibrary, MVP_IDS.resources.money, 250],
+    ]);
+  });
+
+  it("defines upgrade effects as modifier grants against registered gameplay stats", () => {
+    expect(
+      upgrades.map((upgrade) => [
+        upgrade.id,
+        upgrade.effects[0]?.channel,
+        upgrade.effects[0]?.modifier.targetStatId,
+        upgrade.effects[0]?.modifier.value,
+      ]),
+    ).toEqual([
+      [
+        MVP_IDS.upgrades.betterChecklist,
+        "modifier_grant",
+        MVP_IDS.gameplayStats.manualBugsPerAction,
+        1,
+      ],
+      [
+        MVP_IDS.upgrades.coffee,
+        "modifier_grant",
+        MVP_IDS.gameplayStats.manualBugsPerAction,
+        1,
+      ],
+      [
+        MVP_IDS.upgrades.keyboardShortcuts,
+        "modifier_grant",
+        MVP_IDS.gameplayStats.manualBugsPerAction,
+        2,
+      ],
+      [
+        MVP_IDS.upgrades.bugReportTemplate,
+        "modifier_grant",
+        MVP_IDS.gameplayStats.moneyPerBugReported,
+        1,
+      ],
+      [
+        MVP_IDS.upgrades.testCaseLibrary,
+        "modifier_grant",
+        MVP_IDS.gameplayStats.manualBugsPerAction,
+        3,
+      ],
+    ]);
   });
 });
 

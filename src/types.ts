@@ -56,6 +56,14 @@ export type ResourceResetBehavior = "reset";
 export type ResourceFormatStyle = "integer";
 export type GameplayStatCategory = "manual_testing" | "bug_reporting";
 export type GameplayStatNumericType = "native_number";
+export type UpgradeCategory = "production" | "conversion";
+export type UpgradeType = "one_time";
+export type UpgradeLifetime = "reset";
+export type UpgradeVisibilityState = "active";
+export type UpgradeEffectChannel = "modifier_grant";
+export type ModifierType = "flat";
+export type ModifierDurationType = "permanent";
+export type ModifierStackingPolicy = "ignore";
 
 export interface ResourceDefinition {
   id: ResourceId;
@@ -93,12 +101,37 @@ export interface GameplayStatDefinition {
 export interface Upgrade {
   id: UpgradeId;
   group: TabId;
+  sourceSystemId: "manual_testing" | "bug_reporting";
+  categoryId: UpgradeCategory;
+  type: UpgradeType;
   name: string;
   description: string;
   flavor: string;
-  baseCost: number;
-  costGrowth: number;
-  bugsPerClick: number;
+  maxLevel: 1;
+  cost: {
+    type: "fixed";
+    resourceId: typeof MVP_IDS.resources.money;
+    amount: number;
+  };
+  visibility: UpgradeVisibilityState;
+  sortOrder: number;
+  lifetime: UpgradeLifetime;
+  effects: UpgradeEffect[];
+}
+
+export interface UpgradeEffect {
+  channel: UpgradeEffectChannel;
+  modifier: {
+    definitionId: string;
+    instanceId: string;
+    sourceType: "upgrade";
+    sourceId: UpgradeId;
+    targetStatId: GameplayStatId;
+    modifierType: ModifierType;
+    value: number;
+    durationType: ModifierDurationType;
+    stackingPolicy: ModifierStackingPolicy;
+  };
 }
 
 export interface DerivedStats {

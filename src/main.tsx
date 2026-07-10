@@ -116,9 +116,9 @@ function App() {
     }
 
     const owned = game.upgrades[upgrade.id];
-    const cost = getUpgradeCost(upgrade, owned);
+    const cost = getUpgradeCost(upgrade);
 
-    if (game.money < cost) {
+    if (owned >= upgrade.maxLevel || game.money < cost) {
       return;
     }
 
@@ -131,7 +131,7 @@ function App() {
       lastPlayedAt: Date.now(),
       upgrades: {
         ...current.upgrades,
-        [upgrade.id]: current.upgrades[upgrade.id] + 1,
+        [upgrade.id]: Math.min(upgrade.maxLevel, current.upgrades[upgrade.id] + 1),
       },
     }));
   }
@@ -261,8 +261,9 @@ function App() {
           <div className="shop-list">
             {upgrades.map((upgrade) => {
               const owned = game.upgrades[upgrade.id];
-              const cost = getUpgradeCost(upgrade, owned);
-              const canBuy = game.money >= cost;
+              const cost = getUpgradeCost(upgrade);
+              const isOwned = owned >= upgrade.maxLevel;
+              const canBuy = !isOwned && game.money >= cost;
 
               return (
                 <article
@@ -275,7 +276,7 @@ function App() {
                   <div>
                     <div className="upgrade-title">
                       <h3>{upgrade.name}</h3>
-                      <span>Owned {owned}</span>
+                      <span>{isOwned ? "Owned" : "Available"}</span>
                     </div>
                     <p>{upgrade.description}</p>
                     <p className="upgrade-flavor">{upgrade.flavor}</p>
@@ -285,7 +286,7 @@ function App() {
                     onClick={() => buyUpgrade(upgrade.id)}
                     disabled={!canBuy}
                   >
-                    Buy ${formatNumber(cost)}
+                    {isOwned ? "Owned" : `Buy $${formatNumber(cost)}`}
                   </button>
                 </article>
               );

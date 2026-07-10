@@ -248,6 +248,7 @@ Related Documentation Sections:
 
 ### QA-MVP-006 - Define MVP Upgrade Content
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 2 - Core Data Contracts  
 Suggested Order: 4
