@@ -5,6 +5,8 @@ import type {
   GameplayStatDefinition,
   PromotionDefinition,
   ResourceDefinition,
+  UiSurfaceDefinition,
+  UnlockDefinition,
   Upgrade,
 } from "./types";
 
@@ -341,5 +343,81 @@ export const promotionDefinitions: PromotionDefinition[] = [
     },
     repeatPolicy: "once_per_save",
     persistencePolicy: "save_runtime_state_only",
+  },
+];
+
+export const uiSurfaceDefinitions: UiSurfaceDefinition[] = [
+  {
+    id: MVP_IDS.uiSurfaces.manualTesting,
+    displayName: "Manual Testing",
+    category: "action_panel",
+    initialVisibility: "active",
+    visibleFromNewGame: true,
+    controlledByUnlockId: null,
+    sortOrder: 10,
+  },
+  {
+    id: MVP_IDS.uiSurfaces.bugReporting,
+    displayName: "Bug Reporting",
+    category: "action_panel",
+    initialVisibility: "active",
+    visibleFromNewGame: true,
+    controlledByUnlockId: null,
+    sortOrder: 20,
+  },
+  {
+    id: MVP_IDS.uiSurfaces.resourcesBasic,
+    displayName: "Basic Resources",
+    category: "resource_panel",
+    initialVisibility: "active",
+    visibleFromNewGame: true,
+    controlledByUnlockId: null,
+    sortOrder: 30,
+  },
+  {
+    id: MVP_IDS.uiSurfaces.upgradesBasic,
+    displayName: "Basic Upgrades",
+    category: "upgrade_panel",
+    initialVisibility: "active",
+    visibleFromNewGame: true,
+    controlledByUnlockId: null,
+    sortOrder: 40,
+  },
+  {
+    id: MVP_IDS.uiSurfaces.promotionProgress,
+    displayName: "Promotion Progress",
+    category: "progress_panel",
+    initialVisibility: "active",
+    visibleFromNewGame: true,
+    controlledByUnlockId: null,
+    sortOrder: 50,
+  },
+  {
+    id: MVP_IDS.uiSurfaces.promoteAction,
+    displayName: "Promote",
+    category: "player_action",
+    initialVisibility: "hidden",
+    visibleFromNewGame: false,
+    controlledByUnlockId: MVP_IDS.unlocks.promotionJuniorToMiddle,
+    sortOrder: 60,
+  },
+];
+
+export const unlockDefinitions: UnlockDefinition[] = [
+  {
+    id: MVP_IDS.unlocks.promotionJuniorToMiddle,
+    ownerSystem: "unlock",
+    category: "gameplay_action",
+    targetType: "ui_surface",
+    targetId: MVP_IDS.uiSurfaces.promoteAction,
+    initialState: "hidden",
+    availableState: "available",
+    activationMode: "automatic",
+    lifetime: "once_per_save",
+    persistencePolicy: "save_runtime_state_only",
+    availabilityRequirement: {
+      type: "promotion_requirements_met",
+      promotionId: MVP_IDS.promotions.juniorToMiddle,
+    },
   },
 ];

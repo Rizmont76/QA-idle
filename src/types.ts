@@ -73,6 +73,21 @@ export type PromotionRequirementSource =
 export type PromotionOutcomeType = "complete_promotion_and_set_stage";
 export type PromotionRepeatPolicy = "once_per_save";
 export type PromotionPersistencePolicy = "save_runtime_state_only";
+export type UiSurfaceVisibilityState = "active" | "hidden";
+export type UiSurfaceCategory =
+  | "action_panel"
+  | "resource_panel"
+  | "upgrade_panel"
+  | "progress_panel"
+  | "player_action";
+export type UnlockTargetType = "ui_surface";
+export type UnlockInitialState = "hidden";
+export type UnlockAvailableState = "available";
+export type UnlockActivationMode = "automatic";
+export type UnlockCategory = "gameplay_action";
+export type UnlockLifetime = "once_per_save";
+export type UnlockPersistencePolicy = "save_runtime_state_only";
+export type UnlockRequirementType = "promotion_requirements_met";
 
 export interface ResourceDefinition {
   id: ResourceId;
@@ -200,4 +215,31 @@ export interface PromotionOutcomeDefinition {
   completedPromotionId: PromotionId;
   setCurrentStageId: CareerStage;
   unlocksGameplay: readonly string[];
+}
+
+export interface UiSurfaceDefinition {
+  id: UiSurfaceId;
+  displayName: string;
+  category: UiSurfaceCategory;
+  initialVisibility: UiSurfaceVisibilityState;
+  visibleFromNewGame: boolean;
+  controlledByUnlockId: UnlockId | null;
+  sortOrder: number;
+}
+
+export interface UnlockDefinition {
+  id: UnlockId;
+  ownerSystem: "unlock";
+  category: UnlockCategory;
+  targetType: UnlockTargetType;
+  targetId: UiSurfaceId;
+  initialState: UnlockInitialState;
+  availableState: UnlockAvailableState;
+  activationMode: UnlockActivationMode;
+  lifetime: UnlockLifetime;
+  persistencePolicy: UnlockPersistencePolicy;
+  availabilityRequirement: {
+    type: UnlockRequirementType;
+    promotionId: PromotionId;
+  };
 }

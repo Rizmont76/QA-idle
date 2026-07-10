@@ -348,6 +348,7 @@ Related Documentation Sections:
 
 ### QA-MVP-008 - Define MVP Unlock and UI Surface Metadata
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 2 - Core Data Contracts  
 Suggested Order: 6
@@ -386,6 +387,9 @@ Expected Deliverables:
 
 Risks:
 - Treating unlock ID and UI surface ID as the same namespace can cause save/UI ambiguity.
+
+Implementation Note:
+- Added declarative MVP UI surface metadata for the five New Game active surfaces plus the hidden Promote action. Added `unlock_promotion_junior_to_middle` as a separate unlock definition targeting `ui_promote_action`, with availability referencing the documented `promotion_junior_to_middle` requirements; no Unlock Service runtime logic or future system surfaces were added.
 
 Related Documentation Sections:
 - `docs/08 - MVP Vertical Slice Specification.md` - Required Stable IDs, Unlock Rules
