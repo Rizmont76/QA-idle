@@ -110,7 +110,6 @@ export const upgrades: Upgrade[] = [
         channel: "modifier_grant",
         modifier: {
           definitionId: "upgrade.upgrade_better_checklist.manual_bugs_per_action.flat",
-          instanceId: "upgrade.upgrade_better_checklist.manual_bugs_per_action.flat",
           sourceType: "upgrade",
           sourceId: MVP_IDS.upgrades.betterChecklist,
           targetStatId: MVP_IDS.gameplayStats.manualBugsPerAction,
@@ -145,7 +144,6 @@ export const upgrades: Upgrade[] = [
         channel: "modifier_grant",
         modifier: {
           definitionId: "upgrade.upgrade_coffee.manual_bugs_per_action.flat",
-          instanceId: "upgrade.upgrade_coffee.manual_bugs_per_action.flat",
           sourceType: "upgrade",
           sourceId: MVP_IDS.upgrades.coffee,
           targetStatId: MVP_IDS.gameplayStats.manualBugsPerAction,
@@ -180,7 +178,6 @@ export const upgrades: Upgrade[] = [
         channel: "modifier_grant",
         modifier: {
           definitionId: "upgrade.upgrade_keyboard_shortcuts.manual_bugs_per_action.flat",
-          instanceId: "upgrade.upgrade_keyboard_shortcuts.manual_bugs_per_action.flat",
           sourceType: "upgrade",
           sourceId: MVP_IDS.upgrades.keyboardShortcuts,
           targetStatId: MVP_IDS.gameplayStats.manualBugsPerAction,
@@ -215,7 +212,6 @@ export const upgrades: Upgrade[] = [
         channel: "modifier_grant",
         modifier: {
           definitionId: "upgrade.upgrade_bug_report_template.money_per_bug_reported.flat",
-          instanceId: "upgrade.upgrade_bug_report_template.money_per_bug_reported.flat",
           sourceType: "upgrade",
           sourceId: MVP_IDS.upgrades.bugReportTemplate,
           targetStatId: MVP_IDS.gameplayStats.moneyPerBugReported,
@@ -250,7 +246,6 @@ export const upgrades: Upgrade[] = [
         channel: "modifier_grant",
         modifier: {
           definitionId: "upgrade.upgrade_test_case_library.manual_bugs_per_action.flat",
-          instanceId: "upgrade.upgrade_test_case_library.manual_bugs_per_action.flat",
           sourceType: "upgrade",
           sourceId: MVP_IDS.upgrades.testCaseLibrary,
           targetStatId: MVP_IDS.gameplayStats.manualBugsPerAction,

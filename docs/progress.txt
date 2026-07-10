@@ -1,1 +1,2 @@
 QA-MVP-011 handoff: Add/spend Resource operations now exist; current UI handlers still mutate balances directly until later gameplay action wiring tasks consume QA-MVP-011/012.
+QA-MVP-013 handoff: Modifier registry state now rebuilds active permanent upgrade modifiers; QA-MVP-014 should switch derived stat calculation to consume that registry.

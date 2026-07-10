@@ -590,6 +590,7 @@ Related Documentation Sections:
 
 ### QA-MVP-013 - Implement MVP Modifier Registry State
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 4 - Modifier and Derived Stat System  
 Suggested Order: 1
@@ -627,6 +628,9 @@ Expected Deliverables:
 
 Risks:
 - Overbuilding full future modifier lifecycle can slow MVP; keep to MVP subset.
+
+Implementation Note:
+- Added typed runtime modifier instances and a registry state keyed by deterministic permanent instance IDs derived from modifier definition IDs. Active MVP modifiers are reconstructed from purchased upgrade owner state, with unsupported or unknown modifier definitions ignored with structured failures; static upgrade effect data no longer stores runtime instance IDs.
 
 Related Documentation Sections:
 - `docs/09 - Modifier System.md` - Modifier Instance, Identity Rules

@@ -73,9 +73,18 @@ export type UpgradeType = "one_time";
 export type UpgradeLifetime = "reset";
 export type UpgradeVisibilityState = "active";
 export type UpgradeEffectChannel = "modifier_grant";
-export type ModifierType = "flat";
-export type ModifierDurationType = "permanent";
-export type ModifierStackingPolicy = "ignore";
+export type ModifierType = "flat" | (string & {});
+export type ModifierDurationType = "permanent" | (string & {});
+export type ModifierStackingPolicy = "ignore" | (string & {});
+export type ModifierSourceType = "upgrade" | (string & {});
+export type ModifierDefinitionId = string;
+export type ModifierInstanceId = string;
+export type ModifierRegistrationFailureCode =
+  | "unknown_modifier_target"
+  | "unsupported_modifier_source"
+  | "unsupported_modifier_type"
+  | "unsupported_modifier_duration"
+  | "unsupported_modifier_stacking";
 export type PromotionRequirementType =
   "lifetime_resource_at_least" | "purchased_upgrades_at_least";
 export type PromotionRequirementSource =
@@ -157,17 +166,32 @@ export interface Upgrade {
 
 export interface UpgradeEffect {
   channel: UpgradeEffectChannel;
-  modifier: {
-    definitionId: string;
-    instanceId: string;
-    sourceType: "upgrade";
-    sourceId: UpgradeId;
-    targetStatId: GameplayStatId;
-    modifierType: ModifierType;
-    value: number;
-    durationType: ModifierDurationType;
-    stackingPolicy: ModifierStackingPolicy;
-  };
+  modifier: ModifierDefinition;
+}
+
+export interface ModifierDefinition {
+  definitionId: ModifierDefinitionId;
+  sourceType: ModifierSourceType;
+  sourceId: string;
+  targetStatId: GameplayStatId;
+  modifierType: ModifierType;
+  value: number;
+  durationType: ModifierDurationType;
+  stackingPolicy: ModifierStackingPolicy;
+}
+
+export interface ModifierInstance {
+  instanceId: ModifierInstanceId;
+  definitionId: ModifierDefinitionId;
+  enabled: boolean;
+}
+
+export type ModifierRegistryState = Record<ModifierInstanceId, ModifierInstance>;
+
+export interface ModifierRegistrationFailure {
+  code: ModifierRegistrationFailureCode;
+  definitionId: ModifierDefinitionId;
+  message: string;
 }
 
 export interface DerivedStats {

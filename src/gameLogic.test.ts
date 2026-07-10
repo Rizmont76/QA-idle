@@ -3,11 +3,14 @@ import { initialState, upgrades } from "./gameData";
 import {
   addResource,
   convertResources,
+  createActiveModifierRegistry,
   formatNumber,
   getDerivedStats,
+  getPermanentModifierInstanceId,
   getPromotionProgress,
   getPromotionStage,
   getUpgradeCost,
+  getUpgradeModifierDefinitions,
   performManualTest,
   purchaseUpgrade,
   reportAllBugs,
@@ -15,7 +18,7 @@ import {
   validateResourceTransaction,
 } from "./gameLogic";
 import { MVP_IDS } from "./types";
-import type { ResourceDefinition, ResourceId } from "./types";
+import type { ModifierDefinition, ResourceDefinition, ResourceId } from "./types";
 
 describe("game logic", () => {
   it("uses fixed one-time upgrade costs", () => {
@@ -53,6 +56,81 @@ describe("game logic", () => {
       bugsPerClick: 8,
       moneyPerBug: 2,
     });
+  });
+
+  it("builds active modifier registry instances from purchased upgrades", () => {
+    const modifierDefinitions = getUpgradeModifierDefinitions();
+    const checklistModifier = modifierDefinitions.find(
+      (modifier) => modifier.sourceId === MVP_IDS.upgrades.betterChecklist,
+    );
+    const templateModifier = modifierDefinitions.find(
+      (modifier) => modifier.sourceId === MVP_IDS.upgrades.bugReportTemplate,
+    );
+
+    if (!checklistModifier || !templateModifier) {
+      throw new Error("Expected MVP upgrade modifiers are missing.");
+    }
+
+    const result = createActiveModifierRegistry({
+      ...initialState,
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+        [MVP_IDS.upgrades.bugReportTemplate]: 1,
+      },
+    });
+
+    expect(result.failures).toEqual([]);
+    expect(result.registry).toEqual({
+      [getPermanentModifierInstanceId(checklistModifier)]: {
+        instanceId: getPermanentModifierInstanceId(checklistModifier),
+        definitionId: checklistModifier.definitionId,
+        enabled: true,
+      },
+      [getPermanentModifierInstanceId(templateModifier)]: {
+        instanceId: getPermanentModifierInstanceId(templateModifier),
+        definitionId: templateModifier.definitionId,
+        enabled: true,
+      },
+    });
+  });
+
+  it("keeps the modifier registry empty when no upgrades are owned", () => {
+    expect(createActiveModifierRegistry(initialState)).toEqual({
+      registry: {},
+      failures: [],
+    });
+  });
+
+  it("ignores unsupported modifier definitions and reports failures", () => {
+    const unsupportedModifier: ModifierDefinition = {
+      definitionId: "upgrade.future_automation.manual_bugs_per_action.temporary",
+      sourceType: "upgrade",
+      sourceId: MVP_IDS.upgrades.betterChecklist,
+      targetStatId: MVP_IDS.gameplayStats.manualBugsPerAction,
+      modifierType: "multiplicative",
+      value: 2,
+      durationType: "temporary",
+      stackingPolicy: "stack",
+    };
+
+    const result = createActiveModifierRegistry(
+      {
+        ...initialState,
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+        },
+      },
+      [unsupportedModifier],
+    );
+
+    expect(result.registry).toEqual({});
+    expect(result.failures.map((failure) => failure.code)).toEqual([
+      "unsupported_modifier_type",
+      "unsupported_modifier_duration",
+      "unsupported_modifier_stacking",
+    ]);
   });
 
   it("returns the next promotion stage when requirements are met", () => {
