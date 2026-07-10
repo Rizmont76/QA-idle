@@ -204,6 +204,7 @@ Related Documentation Sections:
 
 ### QA-MVP-005 - Define MVP Gameplay Stat Registry
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 2 - Core Data Contracts  
 Suggested Order: 3

@@ -2,6 +2,7 @@ import { MVP_IDS } from "./types";
 import type {
   CareerStageDefinition,
   GameState,
+  GameplayStatDefinition,
   ResourceDefinition,
   Upgrade,
 } from "./types";
@@ -54,6 +55,31 @@ export const resourceDefinitions: ResourceDefinition[] = [
       style: "integer",
       maximumFractionDigits: 0,
     },
+  },
+];
+
+export const gameplayStatDefinitions: GameplayStatDefinition[] = [
+  {
+    id: MVP_IDS.gameplayStats.manualBugsPerAction,
+    displayName: "Manual Bugs Per Action",
+    description: "Bugs Found produced by each Manual Testing action before storage.",
+    baseValue: 1,
+    category: "manual_testing",
+    numericType: "native_number",
+    allowNegative: false,
+    minimumValue: 0,
+    visible: true,
+  },
+  {
+    id: MVP_IDS.gameplayStats.moneyPerBugReported,
+    displayName: "Money Per Bug Reported",
+    description: "Money earned for each Bug reported through Bug Reporting.",
+    baseValue: 1,
+    category: "bug_reporting",
+    numericType: "native_number",
+    allowNegative: false,
+    minimumValue: 0,
+    visible: true,
   },
 ];
 

@@ -54,6 +54,8 @@ export type TabId = typeof MVP_IDS.uiSurfaces.manualTesting;
 export type ResourceLifetimeCategory = "disposable" | "investment";
 export type ResourceResetBehavior = "reset";
 export type ResourceFormatStyle = "integer";
+export type GameplayStatCategory = "manual_testing" | "bug_reporting";
+export type GameplayStatNumericType = "native_number";
 
 export interface ResourceDefinition {
   id: ResourceId;
@@ -74,6 +76,18 @@ export interface ResourceDefinition {
     style: ResourceFormatStyle;
     maximumFractionDigits: number;
   };
+}
+
+export interface GameplayStatDefinition {
+  id: GameplayStatId;
+  displayName: string;
+  description: string;
+  baseValue: number;
+  category: GameplayStatCategory;
+  numericType: GameplayStatNumericType;
+  allowNegative: boolean;
+  minimumValue: number;
+  visible: boolean;
 }
 
 export interface Upgrade {
