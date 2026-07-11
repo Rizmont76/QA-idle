@@ -990,6 +990,7 @@ Related Documentation Sections:
 
 ### QA-MVP-021 - Implement Purchased Upgrade Count Selector
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 6 - Upgrade System  
 Suggested Order: 4
@@ -1023,6 +1024,9 @@ Expected Deliverables:
 
 Risks:
 - Future inactive upgrades must not accidentally count.
+
+Implementation Note:
+- Tightened `getPurchasedUpgradeCount` so promotion progress counts only registered, active MVP upgrade definitions, ignores unknown or future upgrade keys, and caps malformed ownership levels to one per MVP upgrade. Added focused coverage for new-game count, purchased count, inactive/future exclusion, and the MVP max of five.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Requirement

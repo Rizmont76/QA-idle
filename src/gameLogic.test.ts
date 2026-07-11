@@ -8,6 +8,7 @@ import {
   createActiveModifierRegistry,
   formatNumber,
   getDerivedStats,
+  getPurchasedUpgradeCount,
   getPermanentModifierInstanceId,
   getPromotionProgress,
   getPromotionStage,
@@ -21,7 +22,12 @@ import {
   validateResourceTransaction,
 } from "./gameLogic";
 import { MVP_IDS } from "./types";
-import type { ModifierDefinition, ResourceDefinition, ResourceId } from "./types";
+import type {
+  ModifierDefinition,
+  ResourceDefinition,
+  ResourceId,
+  Upgrade,
+} from "./types";
 
 describe("game logic", () => {
   it("uses fixed one-time upgrade costs", () => {
@@ -255,6 +261,53 @@ describe("game logic", () => {
         complete: false,
       },
     ]);
+  });
+
+  it("counts only purchased MVP upgrades from registered active definitions", () => {
+    const checklist = upgrades.find(
+      (upgrade) => upgrade.id === MVP_IDS.upgrades.betterChecklist,
+    );
+    const coffee = upgrades.find((upgrade) => upgrade.id === MVP_IDS.upgrades.coffee);
+
+    if (!checklist || !coffee) {
+      throw new Error("Expected MVP upgrade definitions are missing.");
+    }
+
+    const futureUpgrade = {
+      ...checklist,
+      id: "future_upgrade",
+      visibility: "active",
+    } as unknown as Upgrade;
+    const hiddenMvpUpgrade = {
+      ...coffee,
+      visibility: "hidden" as const,
+    };
+    const game = {
+      ...initialState,
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1 as const,
+        [MVP_IDS.upgrades.coffee]: 1 as const,
+        future_upgrade: 1,
+      },
+    } as unknown as typeof initialState;
+
+    expect(getPurchasedUpgradeCount(initialState)).toBe(0);
+    expect(getPurchasedUpgradeCount(game)).toBe(2);
+    expect(
+      getPurchasedUpgradeCount(game, [checklist, hiddenMvpUpgrade, futureUpgrade]),
+    ).toBe(1);
+  });
+
+  it("caps the purchased MVP upgrade count at one per MVP upgrade", () => {
+    const malformedGame = {
+      ...initialState,
+      upgrades: Object.fromEntries(
+        upgrades.map((upgrade) => [upgrade.id, 2]),
+      ) as unknown as typeof initialState.upgrades,
+    };
+
+    expect(getPurchasedUpgradeCount(malformedGame)).toBe(5);
   });
 });
 

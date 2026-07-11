@@ -52,6 +52,7 @@ const RESOURCE_TRANSACTION_OPERATION_TYPES = new Set<ResourceTransactionOperatio
   "set",
   "reset",
 ]);
+const MVP_UPGRADE_ID_SET = new Set<string>(Object.values(MVP_IDS.upgrades));
 
 interface ResourceTransactionContext {
   sourceSystem: string;
@@ -645,8 +646,20 @@ export function getStageIndex(stage: CareerStage) {
   return careerStages.findIndex((careerStage) => careerStage.id === stage);
 }
 
-export function getPurchasedUpgradeCount(game: GameState) {
-  return Object.values(game.upgrades).reduce<number>((sum, owned) => sum + owned, 0);
+export function getPurchasedUpgradeCount(
+  game: GameState,
+  upgradeDefinitions: readonly Upgrade[] = upgrades,
+) {
+  return upgradeDefinitions.reduce<number>((count, upgrade) => {
+    if (!MVP_UPGRADE_ID_SET.has(upgrade.id) || upgrade.visibility !== "active") {
+      return count;
+    }
+
+    const ownedLevel =
+      (game.upgrades as Partial<Record<string, number>>)[upgrade.id] ?? 0;
+
+    return count + Math.min(Math.max(ownedLevel, 0), upgrade.maxLevel);
+  }, 0);
 }
 
 export function getPromotionProgress(game: GameState): PromotionProgressItem[] {
