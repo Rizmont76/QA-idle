@@ -41,6 +41,15 @@ The Epic is complete when:
 
 Architecture Audit
 
+## Status
+
+Complete
+
+## Completion Notes
+
+- Audit report: `docs/implementation/ARCH-AUDIT-001-Core-Game-Logic-Module-Boundaries.md`.
+- Final recommendation: refactor now, incrementally, with behavior-preserving extraction and existing characterization tests as the safety net.
+
 ## Problem
 
 The core game logic implementation has grown into a large file. File size alone does not prove an architectural problem, but it may indicate mixed responsibilities, weak module boundaries, excessive coupling, and poor context locality for AI-assisted development.
