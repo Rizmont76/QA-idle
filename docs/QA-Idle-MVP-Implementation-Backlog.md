@@ -1720,6 +1720,7 @@ Related Documentation Sections:
 
 ### QA-MVP-031 - Implement Load, Defaults, and Legacy Handling
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 9 - Save and Load  
 Suggested Order: 3
@@ -1761,6 +1762,9 @@ Expected Deliverables:
 
 Risks:
 - Legacy saves containing future systems may imply non-MVP career stages; normalize carefully to MVP-safe state.
+
+Implementation Note:
+- Load now validates the basic versioned save shape, rejects unsupported schema versions safely, preserves valid saved `lastPlayedAt` values, fills missing MVP defaults, ignores unknown fields through normalization, and does not award offline progress. Focused save tests cover exact MVP restoration, legacy migration, unsupported schema fallback, and offline no-gain behavior.
 
 Related Documentation Sections:
 - `docs/07 - Technical Rules.md` - Save Loading Rules

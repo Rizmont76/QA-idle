@@ -41,6 +41,12 @@ function safeNumber(value: unknown) {
   return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : 0;
 }
 
+function safeTimestamp(value: unknown, fallback: number) {
+  const numberValue = Number(value);
+
+  return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : fallback;
+}
+
 function normalizeUpgradeLevel(
   value: unknown,
   upgradeId: UpgradeId,
@@ -181,7 +187,7 @@ function normalizeCareerStage(value: unknown): GameState["careerStage"] {
     : MVP_IDS.careerStages.juniorQa;
 }
 
-function normalizeGameState(value: unknown): GameState {
+function normalizeGameState(value: unknown, now = Date.now()): GameState {
   const parsed = (isRecord(value) ? value : {}) as Partial<GameState> & LegacySaveFields;
 
   return {
@@ -189,7 +195,7 @@ function normalizeGameState(value: unknown): GameState {
     resources: normalizeResources(parsed.resources, parsed),
     totalBugsFound: safeNumber(parsed.totalBugsFound),
     totalMoneyEarned: safeNumber(parsed.totalMoneyEarned),
-    lastPlayedAt: Date.now(),
+    lastPlayedAt: safeTimestamp(parsed.lastPlayedAt, now),
     careerStage: normalizeCareerStage(parsed.careerStage),
     promotion: normalizePromotionState(parsed.promotion),
     uiSurfaces: normalizeUiSurfaces(parsed.uiSurfaces),
@@ -198,8 +204,24 @@ function normalizeGameState(value: unknown): GameState {
   };
 }
 
+function hasSupportedSchemaVersion(parsed: Record<string, unknown>) {
+  if (!isRecord(parsed["meta"])) {
+    return true;
+  }
+
+  return parsed["meta"]["schemaVersion"] === CURRENT_SAVE_SCHEMA_VERSION;
+}
+
 function getSavedGamePayload(parsed: unknown) {
-  if (isRecord(parsed) && isRecord(parsed["game"])) {
+  if (!isRecord(parsed)) {
+    return null;
+  }
+
+  if (!hasSupportedSchemaVersion(parsed)) {
+    return null;
+  }
+
+  if (isRecord(parsed["game"])) {
     return parsed["game"];
   }
 
@@ -267,16 +289,22 @@ function readExistingSaveMetadata(now: number): SaveData["meta"] {
 
 export function loadSave(): { game: GameState } {
   try {
+    const now = Date.now();
     const rawSave = localStorage.getItem(SAVE_KEY);
 
     if (!rawSave) {
-      return { game: createNewGameState() };
+      return { game: createNewGameState(now) };
     }
 
     const parsed = JSON.parse(rawSave) as unknown;
+    const savedGamePayload = getSavedGamePayload(parsed);
+
+    if (!savedGamePayload) {
+      return { game: createNewGameState(now) };
+    }
 
     return {
-      game: normalizeGameState(getSavedGamePayload(parsed)),
+      game: normalizeGameState(savedGamePayload, now),
     };
   } catch {
     return { game: createNewGameState() };

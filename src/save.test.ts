@@ -211,14 +211,16 @@ describe("save storage", () => {
   });
 
   it("loads versioned saves and migrates legacy raw saves on write", () => {
+    const savedLastPlayedAt = new Date("2026-07-09T12:30:00.000Z").getTime();
+
     localStorage.setItem(
       SAVE_KEY,
       JSON.stringify({
         meta: {
           schemaVersion: 1,
           createdAt: new Date("2026-07-09T12:00:00.000Z").getTime(),
-          lastSavedAt: new Date("2026-07-09T12:30:00.000Z").getTime(),
-          lastActiveAt: new Date("2026-07-09T12:30:00.000Z").getTime(),
+          lastSavedAt: savedLastPlayedAt,
+          lastActiveAt: savedLastPlayedAt,
           migratedFromVersions: ["legacy_raw_game_state"],
         },
         game: {
@@ -228,6 +230,7 @@ describe("save storage", () => {
           },
           totalBugsFound: 8,
           totalMoneyEarned: 14,
+          lastPlayedAt: savedLastPlayedAt,
           careerStage: MVP_IDS.careerStages.juniorQa,
           upgrades: {
             [MVP_IDS.upgrades.betterChecklist]: 1,
@@ -243,6 +246,7 @@ describe("save storage", () => {
       },
       totalBugsFound: 8,
       totalMoneyEarned: 14,
+      lastPlayedAt: savedLastPlayedAt,
       upgrades: {
         [MVP_IDS.upgrades.betterChecklist]: 1,
       },
@@ -272,6 +276,99 @@ describe("save storage", () => {
         },
       },
     });
+  });
+
+  it("restores a valid MVP save without awarding offline progress", () => {
+    const savedLastPlayedAt = new Date("2026-07-01T12:00:00.000Z").getTime();
+
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        meta: {
+          schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+          createdAt: savedLastPlayedAt,
+          lastSavedAt: savedLastPlayedAt,
+          lastActiveAt: savedLastPlayedAt,
+          migratedFromVersions: [],
+        },
+        game: {
+          resources: {
+            [MVP_IDS.resources.bugsFound]: 17,
+            [MVP_IDS.resources.money]: 29,
+          },
+          totalBugsFound: 101,
+          totalMoneyEarned: 151,
+          lastPlayedAt: savedLastPlayedAt,
+          careerStage: MVP_IDS.careerStages.middleQa,
+          promotion: {
+            availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+            completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+          },
+          uiSurfaces: {
+            ...initialState.uiSurfaces,
+            [MVP_IDS.uiSurfaces.promoteAction]: "active",
+          },
+          unlocks: {
+            [MVP_IDS.unlocks.promotionJuniorToMiddle]: "available",
+          },
+          upgrades: {
+            ...initialState.upgrades,
+            [MVP_IDS.upgrades.betterChecklist]: 1,
+            [MVP_IDS.upgrades.coffee]: 1,
+            [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+          },
+        },
+      }),
+    );
+
+    expect(loadSave().game).toEqual({
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.bugsFound]: 17,
+        [MVP_IDS.resources.money]: 29,
+      },
+      totalBugsFound: 101,
+      totalMoneyEarned: 151,
+      lastPlayedAt: savedLastPlayedAt,
+      careerStage: MVP_IDS.careerStages.middleQa,
+      promotion: {
+        availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      },
+      uiSurfaces: {
+        ...initialState.uiSurfaces,
+        [MVP_IDS.uiSurfaces.promoteAction]: "active",
+      },
+      unlocks: {
+        [MVP_IDS.unlocks.promotionJuniorToMiddle]: "available",
+      },
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+        [MVP_IDS.upgrades.coffee]: 1,
+        [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+      },
+    });
+  });
+
+  it("falls back safely when a versioned save has an unsupported schema", () => {
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        meta: {
+          schemaVersion: 999,
+        },
+        game: {
+          resources: {
+            [MVP_IDS.resources.bugsFound]: 999,
+            [MVP_IDS.resources.money]: 999,
+          },
+        },
+      }),
+    );
+
+    expect(loadSave().game).toEqual(createNewGameState(Date.now()));
   });
 
   it("restores MVP upgrade ownership by stable ID and ignores unknown saved upgrades", () => {
