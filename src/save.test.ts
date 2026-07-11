@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SAVE_KEY, createNewGameState, initialState } from "./gameData";
-import { clearSave, loadSave, saveGame } from "./save";
+import { CURRENT_SAVE_SCHEMA_VERSION, clearSave, loadSave, saveGame } from "./save";
 import { MVP_IDS } from "./types";
 
 describe("save storage", () => {
@@ -84,6 +84,69 @@ describe("save storage", () => {
     clearSave();
 
     expect(localStorage.getItem(SAVE_KEY)).toBeNull();
+  });
+
+  it("persists the explicit MVP save schema without future systems", () => {
+    saveGame({
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.bugsFound]: 7,
+        [MVP_IDS.resources.money]: 11,
+      },
+      totalBugsFound: 23,
+      totalMoneyEarned: 19,
+      careerStage: MVP_IDS.careerStages.juniorQa,
+      promotion: {
+        availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        completedPromotionIds: [],
+      },
+      unlocks: {
+        [MVP_IDS.unlocks.promotionJuniorToMiddle]: "available",
+      },
+    });
+
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}") as {
+      meta: Record<string, unknown>;
+      game: Record<string, unknown>;
+    };
+
+    expect(saved.meta).toEqual({
+      schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+      createdAt: Date.now(),
+      lastSavedAt: Date.now(),
+      lastActiveAt: Date.now(),
+      migratedFromVersions: [],
+    });
+    expect(Object.keys(saved.game).sort()).toEqual(
+      [
+        "careerStage",
+        "lastPlayedAt",
+        "promotion",
+        "resources",
+        "totalBugsFound",
+        "totalMoneyEarned",
+        "uiSurfaces",
+        "unlocks",
+        "upgrades",
+      ].sort(),
+    );
+    expect(saved.game).toMatchObject({
+      resources: {
+        [MVP_IDS.resources.bugsFound]: 7,
+        [MVP_IDS.resources.money]: 11,
+      },
+      totalBugsFound: 23,
+      totalMoneyEarned: 19,
+      careerStage: MVP_IDS.careerStages.juniorQa,
+      promotion: {
+        availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        completedPromotionIds: [],
+      },
+      unlocks: {
+        [MVP_IDS.unlocks.promotionJuniorToMiddle]: "available",
+      },
+    });
   });
 
   it("loads versioned saves and migrates legacy raw saves on write", () => {

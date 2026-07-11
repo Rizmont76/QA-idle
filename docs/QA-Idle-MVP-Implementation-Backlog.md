@@ -1623,6 +1623,7 @@ Related Documentation Sections:
 
 ### QA-MVP-029 - Define MVP Save Data Schema
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 9 - Save and Load  
 Suggested Order: 1
@@ -1660,6 +1661,9 @@ Expected Deliverables:
 
 Risks:
 - Existing localStorage data may not match new schema.
+
+Implementation Note:
+- Added exported MVP save schema types for metadata and persisted game data, promoted the current schema version to an exported literal constant, and routed save writes through an MVP-only serializer so resources, current-run lifetime counters, career stage, promotion state, UI surfaces, unlocks and upgrades are the only persisted gameplay fields. No supported settings or future systems are persisted.
 
 Related Documentation Sections:
 - `docs/07 - Technical Rules.md` - Save Data Schema and Versioning

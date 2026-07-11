@@ -470,6 +470,33 @@ export interface GameState {
   upgrades: UpgradeOwnershipState;
 }
 
+export type SaveSchemaVersion = 1;
+
+export interface SaveMetadata {
+  schemaVersion: SaveSchemaVersion;
+  createdAt: number;
+  lastSavedAt: number;
+  lastActiveAt: number;
+  migratedFromVersions: string[];
+}
+
+export interface MvpSaveGameData {
+  resources: ResourceState;
+  totalBugsFound: number;
+  totalMoneyEarned: number;
+  lastPlayedAt: number;
+  careerStage: CareerStage;
+  promotion: GameState["promotion"];
+  uiSurfaces: GameState["uiSurfaces"];
+  unlocks: GameState["unlocks"];
+  upgrades: UpgradeOwnershipState;
+}
+
+export interface SaveData {
+  meta: SaveMetadata;
+  game: MvpSaveGameData;
+}
+
 export interface UiVisibilitySelectors {
   resourceCounters: readonly UiSurfaceId[];
   actionButtons: readonly UiSurfaceId[];

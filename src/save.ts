@@ -13,30 +13,22 @@ import {
 import { MVP_IDS } from "./types";
 import type {
   GameState,
+  MvpSaveGameData,
   PromotionId,
   ResourceId,
   ResourceState,
+  SaveData,
+  SaveMetadata,
   UpgradeId,
   UpgradeOwnershipLevel,
   UpgradeOwnershipState,
 } from "./types";
 
-const CURRENT_SAVE_SCHEMA_VERSION = 1;
+export const CURRENT_SAVE_SCHEMA_VERSION = 1 as const;
 
 interface LegacySaveFields {
   bugs?: unknown;
   money?: unknown;
-}
-
-interface SaveData {
-  meta: {
-    schemaVersion: number;
-    createdAt: number;
-    lastSavedAt: number;
-    lastActiveAt: number;
-    migratedFromVersions: string[];
-  };
-  game: GameState;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -214,8 +206,22 @@ function getSavedGamePayload(parsed: unknown) {
   return parsed;
 }
 
+function toMvpSaveGameData(game: GameState, lastPlayedAt: number): MvpSaveGameData {
+  return {
+    resources: game.resources,
+    totalBugsFound: game.totalBugsFound,
+    totalMoneyEarned: game.totalMoneyEarned,
+    lastPlayedAt,
+    careerStage: game.careerStage,
+    promotion: game.promotion,
+    uiSurfaces: game.uiSurfaces,
+    unlocks: game.unlocks,
+    upgrades: game.upgrades,
+  };
+}
+
 function readExistingSaveMetadata(now: number): SaveData["meta"] {
-  const fallback = {
+  const fallback: SaveMetadata = {
     schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
     createdAt: now,
     lastSavedAt: now,
@@ -282,10 +288,7 @@ export function saveGame(game: GameState) {
   const meta = readExistingSaveMetadata(now);
   const saveData: SaveData = {
     meta,
-    game: {
-      ...game,
-      lastPlayedAt: now,
-    },
+    game: toMvpSaveGameData(game, now),
   };
 
   localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
