@@ -13,6 +13,7 @@ import {
   getDerivedStats,
   getPromotionProgress,
   getPromotionStage,
+  getUiVisibilitySelectors,
   getUpgradeCost,
   performManualTest,
   purchaseUpgrade,
@@ -40,9 +41,11 @@ function App() {
   const bugsFound = game.resources[MVP_IDS.resources.bugsFound];
   const money = game.resources[MVP_IDS.resources.money];
   const currentStage = careerStages.find((stage) => stage.id === game.careerStage);
-  const isPromotionActionActive =
-    game.unlocks[MVP_IDS.unlocks.promotionJuniorToMiddle] === "available" &&
-    game.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction] === "active";
+  const visibility = useMemo(() => getUiVisibilitySelectors(game), [game]);
+  const visibleActions = new Set(visibility.actionButtons);
+  const isPromotionActionActive = visibility.promoteAction.includes(
+    MVP_IDS.uiSurfaces.promoteAction,
+  );
   const promotionStage = isPromotionActionActive ? getPromotionStage(game) : null;
   const promotionProgress = getPromotionProgress(game);
   const isMvpComplete = game.careerStage === MVP_IDS.careerStages.middleQa;
@@ -150,7 +153,7 @@ function App() {
           <strong>{currentStage?.label ?? "Junior QA"}</strong>
           <p>{currentStage?.description}</p>
         </div>
-        {promotionStage ? (
+        {isPromotionActionActive && promotionStage ? (
           <button type="button" onClick={promote}>
             Promote to {promotionStage.label}
           </button>
@@ -163,101 +166,113 @@ function App() {
         )}
       </section>
 
-      <section className="resource-grid two-columns" aria-label="Current resources">
-        <div className="metric primary">
-          <span className="metric-label">
-            <span className="metric-icon bug-icon">B</span>Bugs Found
-          </span>
-          <strong>{formatNumber(bugsFound)}</strong>
-          <em>+{formatNumber(stats.bugsPerClick)} per action</em>
-        </div>
-        <div className="metric primary">
-          <span className="metric-label">
-            <span className="metric-icon money-icon">$</span>Money
-          </span>
-          <strong>${formatNumber(money)}</strong>
-          <em>Report bugs to earn</em>
-        </div>
-      </section>
+      {visibility.resourceCounters.includes(MVP_IDS.uiSurfaces.resourcesBasic) && (
+        <section className="resource-grid two-columns" aria-label="Current resources">
+          <div className="metric primary">
+            <span className="metric-label">
+              <span className="metric-icon bug-icon">B</span>Bugs Found
+            </span>
+            <strong>{formatNumber(bugsFound)}</strong>
+            <em>+{formatNumber(stats.bugsPerClick)} per action</em>
+          </div>
+          <div className="metric primary">
+            <span className="metric-label">
+              <span className="metric-icon money-icon">$</span>Money
+            </span>
+            <strong>${formatNumber(money)}</strong>
+            <em>Report bugs to earn</em>
+          </div>
+        </section>
+      )}
 
-      <section className="action-bar" aria-label="Main actions">
-        <button
-          className={`main-button ${clickBurst ? "is-clicked" : ""}`}
-          type="button"
-          onAnimationEnd={() => setClickBurst(false)}
-          onClick={runQaTest}
-        >
-          Find Bug <span>+{formatNumber(stats.bugsPerClick)}</span>
-        </button>
-        <button
-          className="secondary-button"
-          type="button"
-          onClick={reportBugs}
-          disabled={bugsFound < 1}
-        >
-          Report Bugs{" "}
-          <span>
-            {bugsFound >= 1 ? `+$${formatNumber(bugsFound * stats.moneyPerBug)}` : ""}
-          </span>
-        </button>
-      </section>
+      {visibleActions.size > 0 && (
+        <section className="action-bar" aria-label="Main actions">
+          {visibleActions.has(MVP_IDS.uiSurfaces.manualTesting) && (
+            <button
+              className={`main-button ${clickBurst ? "is-clicked" : ""}`}
+              type="button"
+              onAnimationEnd={() => setClickBurst(false)}
+              onClick={runQaTest}
+            >
+              Find Bug <span>+{formatNumber(stats.bugsPerClick)}</span>
+            </button>
+          )}
+          {visibleActions.has(MVP_IDS.uiSurfaces.bugReporting) && (
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={reportBugs}
+              disabled={bugsFound < 1}
+            >
+              Report Bugs{" "}
+              <span>
+                {bugsFound >= 1 ? `+$${formatNumber(bugsFound * stats.moneyPerBug)}` : ""}
+              </span>
+            </button>
+          )}
+        </section>
+      )}
 
       <section className="content-grid">
-        <div className="panel">
-          <h2>Manual Work</h2>
-          <div className="shop-list">
-            {upgrades.map((upgrade) => {
-              const owned = game.upgrades[upgrade.id];
-              const cost = getUpgradeCost(upgrade);
-              const isOwned = owned >= upgrade.maxLevel;
-              const canBuy = !isOwned && money >= cost;
+        {visibility.upgradePanels.includes(MVP_IDS.uiSurfaces.upgradesBasic) && (
+          <div className="panel">
+            <h2>Manual Work</h2>
+            <div className="shop-list">
+              {upgrades.map((upgrade) => {
+                const owned = game.upgrades[upgrade.id];
+                const cost = getUpgradeCost(upgrade);
+                const isOwned = owned >= upgrade.maxLevel;
+                const canBuy = !isOwned && money >= cost;
 
-              return (
-                <article
-                  className={`upgrade ${
-                    boughtUpgradeId === upgrade.id ? "is-bought" : ""
-                  }`}
-                  key={upgrade.id}
-                  onAnimationEnd={() => setBoughtUpgradeId(null)}
-                >
-                  <div>
-                    <div className="upgrade-title">
-                      <h3>{upgrade.name}</h3>
-                      <span>{isOwned ? "Owned" : "Available"}</span>
-                    </div>
-                    <p>{upgrade.description}</p>
-                    <p className="upgrade-flavor">{upgrade.flavor}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => buyUpgrade(upgrade.id)}
-                    disabled={!canBuy}
+                return (
+                  <article
+                    className={`upgrade ${
+                      boughtUpgradeId === upgrade.id ? "is-bought" : ""
+                    }`}
+                    key={upgrade.id}
+                    onAnimationEnd={() => setBoughtUpgradeId(null)}
                   >
-                    {isOwned ? "Owned" : `Buy $${formatNumber(cost)}`}
-                  </button>
-                </article>
-              );
-            })}
+                    <div>
+                      <div className="upgrade-title">
+                        <h3>{upgrade.name}</h3>
+                        <span>{isOwned ? "Owned" : "Available"}</span>
+                      </div>
+                      <p>{upgrade.description}</p>
+                      <p className="upgrade-flavor">{upgrade.flavor}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => buyUpgrade(upgrade.id)}
+                      disabled={!canBuy}
+                    >
+                      {isOwned ? "Owned" : `Buy $${formatNumber(cost)}`}
+                    </button>
+                  </article>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="panel">
-          <h2>Promotion Progress</h2>
-          <dl className="progress-list">
-            {promotionProgress.map((item) => {
-              return (
-                <div key={item.label}>
-                  <dt>{item.label}</dt>
-                  <dd className={item.complete ? "complete" : ""}>
-                    {item.prefix}
-                    {formatNumber(item.current)} / {item.prefix}
-                    {formatNumber(item.required)}
-                  </dd>
-                </div>
-              );
-            })}
-          </dl>
-        </div>
+        {visibility.promotionProgress.includes(MVP_IDS.uiSurfaces.promotionProgress) && (
+          <div className="panel">
+            <h2>Promotion Progress</h2>
+            <dl className="progress-list">
+              {promotionProgress.map((item) => {
+                return (
+                  <div key={item.label}>
+                    <dt>{item.label}</dt>
+                    <dd className={item.complete ? "complete" : ""}>
+                      {item.prefix}
+                      {formatNumber(item.current)} / {item.prefix}
+                      {formatNumber(item.required)}
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
+          </div>
+        )}
       </section>
 
       <section className="career-footer" aria-label="Promotion progress">

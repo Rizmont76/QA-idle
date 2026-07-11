@@ -1576,6 +1576,7 @@ Implementation Note:
 
 ### QA-MVP-028 - Implement UI Visibility Selectors
 
+Status: Complete
 Priority: Medium  
 Parent Phase: Phase 8 - Unlock and Visibility System  
 Suggested Order: 3
@@ -1610,6 +1611,9 @@ Expected Deliverables:
 
 Risks:
 - If selectors are too UI-specific, they may become presentation logic; keep them state-focused.
+
+Implementation Note:
+- Added gameplay-layer UI visibility selectors for active MVP resource counters, action buttons, upgrade panels, promotion progress, and the Promote action. React rendering now consumes the derived selector output instead of independently checking unlock eligibility, and focused tests verify the Promote action visibility and absence of future surfaces.
 
 Related Documentation Sections:
 - `docs/07 - Technical Rules.md` - UI Visibility States, UI Must Not Own Game Logic

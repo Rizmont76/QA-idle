@@ -470,6 +470,14 @@ export interface GameState {
   upgrades: UpgradeOwnershipState;
 }
 
+export interface UiVisibilitySelectors {
+  resourceCounters: readonly UiSurfaceId[];
+  actionButtons: readonly UiSurfaceId[];
+  upgradePanels: readonly UiSurfaceId[];
+  promotionProgress: readonly UiSurfaceId[];
+  promoteAction: readonly UiSurfaceId[];
+}
+
 export interface CareerStageDefinition {
   id: CareerStage;
   label: string;

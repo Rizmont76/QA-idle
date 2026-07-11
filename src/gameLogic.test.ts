@@ -16,6 +16,7 @@ import {
   getPermanentModifierInstanceId,
   getPromotionProgress,
   getPromotionStage,
+  getUiVisibilitySelectors,
   getUiSurfaceState,
   getUnlockState,
   getUpgradeCost,
@@ -58,6 +59,46 @@ describe("game logic", () => {
     expect(getUiSurfaceState(initialState, MVP_IDS.uiSurfaces.promoteAction)).toBe(
       "hidden",
     );
+  });
+
+  it("returns active MVP UI visibility selectors for a new game", () => {
+    expect(getUiVisibilitySelectors(initialState)).toEqual({
+      resourceCounters: [MVP_IDS.uiSurfaces.resourcesBasic],
+      actionButtons: [MVP_IDS.uiSurfaces.manualTesting, MVP_IDS.uiSurfaces.bugReporting],
+      upgradePanels: [MVP_IDS.uiSurfaces.upgradesBasic],
+      promotionProgress: [MVP_IDS.uiSurfaces.promotionProgress],
+      promoteAction: [],
+    });
+  });
+
+  it("returns the promote action only when its unlock state allows it", () => {
+    const game = evaluatePromotionAvailability({
+      ...initialState,
+      totalBugsFound: 100,
+      totalMoneyEarned: 150,
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+        [MVP_IDS.upgrades.coffee]: 1,
+        [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+      },
+    });
+
+    expect(getUiVisibilitySelectors(game).promoteAction).toEqual([
+      MVP_IDS.uiSurfaces.promoteAction,
+    ]);
+  });
+
+  it("does not return future surfaces from UI visibility selectors", () => {
+    const visibleSurfaceIds = Object.values(
+      getUiVisibilitySelectors(initialState),
+    ).flat();
+
+    expect(visibleSurfaceIds).not.toContain("ui_team");
+    expect(visibleSurfaceIds).not.toContain("ui_automation");
+    expect(visibleSurfaceIds).not.toContain("ui_reputation");
+    expect(visibleSurfaceIds).not.toContain("ui_achievements");
+    expect(visibleSurfaceIds).not.toContain("ui_statistics");
   });
 
   it("uses fixed one-time upgrade costs", () => {
