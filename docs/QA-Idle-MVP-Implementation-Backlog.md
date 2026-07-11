@@ -789,6 +789,7 @@ Related Documentation Sections:
 
 ### QA-MVP-017 - Implement Bug Reporting Action
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 5 - Core Gameplay Actions  
 Suggested Order: 3
@@ -829,6 +830,9 @@ Expected Deliverables:
 
 Risks:
 - Fractional bug balances should not occur in MVP; if present from legacy saves, handle safely.
+
+Implementation Note:
+- `reportAllBugs` now processes `action_report_bugs` through one atomic Resource System conversion, consumes the full current Bugs Found balance, uses final `money_per_bug_reported`, increments current-run lifetime Money Earned, and returns `bugReport.submitted`, `resource.changed`, and `money.earned` descriptors. Zero-bug reporting fails gracefully with no state change, and focused tests cover the reporting path plus future-resource exclusion.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - Bug Reporting, MVP Action Rules

@@ -775,8 +775,7 @@ export function reportAllBugs(
   simulationTime = Date.now(),
 ): GameplayActionResult {
   const stats = getDerivedStats(game);
-  const bugsFound = game.resources[MVP_IDS.resources.bugsFound];
-  const reportedBugs = Math.floor(bugsFound);
+  const reportedBugs = game.resources[MVP_IDS.resources.bugsFound];
 
   if (reportedBugs <= 0) {
     return {
@@ -787,7 +786,7 @@ export function reportAllBugs(
     };
   }
 
-  const earnedMoney = Math.floor(reportedBugs * BUG_VALUE * stats.moneyPerBug);
+  const earnedMoney = reportedBugs * BUG_VALUE * stats.moneyPerBug;
   const result = convertResources(game.resources, {
     fromResourceId: MVP_IDS.resources.bugsFound,
     fromAmount: reportedBugs,
@@ -810,7 +809,27 @@ export function reportAllBugs(
       totalMoneyEarned: game.totalMoneyEarned + earnedMoney,
       lastPlayedAt: simulationTime,
     },
-    events: result.events,
+    events: [
+      {
+        id: "bugReport.submitted",
+        payload: {
+          actionId: MVP_IDS.actions.reportBugs,
+          reportedBugs,
+          earnedMoney,
+          simulationTime,
+        },
+      },
+      ...result.events,
+      {
+        id: "money.earned",
+        payload: {
+          resourceId: MVP_IDS.resources.money,
+          amount: earnedMoney,
+          totalMoneyEarned: game.totalMoneyEarned + earnedMoney,
+          simulationTime,
+        },
+      },
+    ],
   };
 }
 

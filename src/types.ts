@@ -316,10 +316,32 @@ export interface BugsFoundEventDescriptor {
   };
 }
 
+export interface BugReportSubmittedEventDescriptor {
+  id: "bugReport.submitted";
+  payload: {
+    actionId: typeof MVP_IDS.actions.reportBugs;
+    reportedBugs: number;
+    earnedMoney: number;
+    simulationTime: number;
+  };
+}
+
+export interface MoneyEarnedEventDescriptor {
+  id: "money.earned";
+  payload: {
+    resourceId: typeof MVP_IDS.resources.money;
+    amount: number;
+    totalMoneyEarned: number;
+    simulationTime: number;
+  };
+}
+
 export type GameplayEventDescriptor =
   | ResourceChangedEventDescriptor
   | ManualTestPerformedEventDescriptor
-  | BugsFoundEventDescriptor;
+  | BugsFoundEventDescriptor
+  | BugReportSubmittedEventDescriptor
+  | MoneyEarnedEventDescriptor;
 
 export type ResourceOperationResult =
   | {

@@ -768,7 +768,21 @@ describe("gameplay action operations", () => {
       [MVP_IDS.resources.money]: 10,
     });
     expect(result.game.totalMoneyEarned).toBe(10);
-    expect(result.events[0]?.payload).toMatchObject({
+    expect(result.events.map((event) => event.id)).toEqual([
+      "bugReport.submitted",
+      "resource.changed",
+      "money.earned",
+    ]);
+    expect(result.events[0]).toEqual({
+      id: "bugReport.submitted",
+      payload: {
+        actionId: MVP_IDS.actions.reportBugs,
+        reportedBugs: 5,
+        earnedMoney: 10,
+        simulationTime: 40,
+      },
+    });
+    expect(result.events[1]?.payload).toMatchObject({
       operationType: "convert",
       sourceSystem: "bug_reporting",
       changes: [
@@ -786,6 +800,54 @@ describe("gameplay action operations", () => {
         },
       ],
     });
+    expect(result.events[2]).toEqual({
+      id: "money.earned",
+      payload: {
+        resourceId: MVP_IDS.resources.money,
+        amount: 10,
+        totalMoneyEarned: 10,
+        simulationTime: 40,
+      },
+    });
+  });
+
+  it("leaves state unchanged when reporting with zero bugs", () => {
+    const result = reportAllBugs(initialState, 45);
+
+    expect(result.ok).toBe(false);
+    expect(result.game).toBe(initialState);
+    expect(result.events).toEqual([]);
+    if (!result.ok) {
+      expect(result.failures.map((failure) => failure.code)).toContain(
+        "operation_not_allowed",
+      );
+    }
+  });
+
+  it("reports the full current bug balance without producing future resources", () => {
+    const game = {
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.bugsFound]: 2.5,
+      },
+    };
+    const result = reportAllBugs(game, 46);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Bug reporting should succeed.");
+    }
+
+    expect(result.game.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 0,
+      [MVP_IDS.resources.money]: 2.5,
+    });
+    expect(Object.keys(result.game.resources)).toEqual([
+      MVP_IDS.resources.bugsFound,
+      MVP_IDS.resources.money,
+    ]);
+    expect(result.game.totalMoneyEarned).toBe(2.5);
   });
 
   it("purchases upgrades through a resource spend transaction", () => {

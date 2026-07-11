@@ -187,9 +187,7 @@ function App() {
         >
           Report Bugs{" "}
           <span>
-            {bugsFound >= 1
-              ? `+$${formatNumber(Math.floor(bugsFound * stats.moneyPerBug))}`
-              : ""}
+            {bugsFound >= 1 ? `+$${formatNumber(bugsFound * stats.moneyPerBug)}` : ""}
           </span>
         </button>
       </section>
