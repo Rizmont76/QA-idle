@@ -643,7 +643,7 @@ export function getStageIndex(stage: CareerStage) {
 }
 
 export function getPurchasedUpgradeCount(game: GameState) {
-  return Object.values(game.upgrades).reduce((sum, owned) => sum + owned, 0);
+  return Object.values(game.upgrades).reduce<number>((sum, owned) => sum + owned, 0);
 }
 
 export function getPromotionProgress(game: GameState): PromotionProgressItem[] {
@@ -878,7 +878,7 @@ export function purchaseUpgrade(
       lastPlayedAt: simulationTime,
       upgrades: {
         ...game.upgrades,
-        [upgrade.id]: Math.min(upgrade.maxLevel, game.upgrades[upgrade.id] + 1),
+        [upgrade.id]: 1,
       },
     },
     events: result.events,

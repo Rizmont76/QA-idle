@@ -17,6 +17,8 @@ import type {
   ResourceId,
   ResourceState,
   UpgradeId,
+  UpgradeOwnershipLevel,
+  UpgradeOwnershipState,
 } from "./types";
 
 const CURRENT_SAVE_SCHEMA_VERSION = 1;
@@ -47,15 +49,21 @@ function safeNumber(value: unknown) {
   return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : 0;
 }
 
-function normalizeUpgradeLevel(value: unknown, upgradeId: UpgradeId) {
+function normalizeUpgradeLevel(
+  value: unknown,
+  upgradeId: UpgradeId,
+): UpgradeOwnershipLevel {
   const numberValue = Math.floor(safeNumber(value));
   const upgradeDefinition = upgrades.find((upgrade) => upgrade.id === upgradeId);
   const maximumLevel = upgradeDefinition?.maxLevel ?? 0;
+  const normalizedLevel = Number.isFinite(numberValue)
+    ? Math.min(numberValue, maximumLevel)
+    : 0;
 
-  return Number.isFinite(numberValue) ? Math.min(numberValue, maximumLevel) : 0;
+  return normalizedLevel >= 1 ? 1 : 0;
 }
 
-function normalizeUpgrades(value: unknown): Record<UpgradeId, number> {
+function normalizeUpgrades(value: unknown): UpgradeOwnershipState {
   const saved = value && typeof value === "object" ? value : {};
   const savedUpgrades = saved as Partial<
     Record<UpgradeId | "checklist" | "coffee", unknown>

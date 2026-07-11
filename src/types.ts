@@ -73,6 +73,8 @@ export type UpgradeType = "one_time";
 export type UpgradeLifetime = "reset";
 export type UpgradeVisibilityState = "active";
 export type UpgradeEffectChannel = "modifier_grant";
+export type UpgradeOwnershipLevel = 0 | 1;
+export type UpgradeOwnershipState = Record<UpgradeId, UpgradeOwnershipLevel>;
 export type ModifierType = "flat" | (string & {});
 export type ModifierDurationType = "permanent" | (string & {});
 export type ModifierStackingPolicy = "ignore" | (string & {});
@@ -369,7 +371,7 @@ export interface GameState {
   };
   uiSurfaces: Record<UiSurfaceId, UiSurfaceVisibilityState>;
   unlocks: Record<UnlockId, UnlockInitialState | UnlockAvailableState>;
-  upgrades: Record<UpgradeId, number>;
+  upgrades: UpgradeOwnershipState;
 }
 
 export interface CareerStageDefinition {

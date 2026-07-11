@@ -8,6 +8,7 @@ import type {
   UiSurfaceDefinition,
   UnlockDefinition,
   Upgrade,
+  UpgradeOwnershipState,
 } from "./types";
 
 export const SAVE_KEY = "qa-idle-save-v1";
@@ -417,7 +418,7 @@ export function createInitialUpgradeState(): GameState["upgrades"] {
       ...ownedUpgrades,
       [upgrade.id]: 0,
     }),
-    {} as GameState["upgrades"],
+    {} as UpgradeOwnershipState,
   );
 }
 

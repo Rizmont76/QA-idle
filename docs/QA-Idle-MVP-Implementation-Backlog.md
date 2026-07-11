@@ -842,6 +842,7 @@ Related Documentation Sections:
 
 ### QA-MVP-018 - Implement Upgrade Ownership State
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 6 - Upgrade System  
 Suggested Order: 1
@@ -878,6 +879,9 @@ Expected Deliverables:
 
 Risks:
 - Current upgrade state uses non-MVP IDs and numeric levels.
+
+Implementation Note:
+- Added an explicit MVP upgrade ownership state type limited to one-time levels `0 | 1`. New games initialize all registered MVP upgrades as unpurchased, purchase execution stores owned upgrades as stable IDs with level `1`, and Save/Load normalizes missing, legacy, over-level, or unknown upgrade entries safely without applying unknown upgrade effects.
 
 Related Documentation Sections:
 - `docs/12 - Upgrade System.md` - Upgrade Instance, Ownership

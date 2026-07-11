@@ -149,4 +149,26 @@ describe("save storage", () => {
       },
     });
   });
+
+  it("restores MVP upgrade ownership by stable ID and ignores unknown saved upgrades", () => {
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        game: {
+          upgrades: {
+            [MVP_IDS.upgrades.betterChecklist]: 1,
+            [MVP_IDS.upgrades.coffee]: 99,
+            upgrade_future_automation: 1,
+          },
+        },
+      }),
+    );
+
+    expect(loadSave().game.upgrades).toEqual({
+      ...initialState.upgrades,
+      [MVP_IDS.upgrades.betterChecklist]: 1,
+      [MVP_IDS.upgrades.coffee]: 1,
+    });
+    expect(loadSave().game.upgrades).not.toHaveProperty("upgrade_future_automation");
+  });
 });
