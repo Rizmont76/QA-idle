@@ -67,6 +67,9 @@ function App() {
         FULL_PROGRESS_PERCENT
       : 0;
   const isMvpComplete = game.careerStage === MVP_IDS.careerStages.middleQa;
+  const footerTargetLabel = isMvpComplete
+    ? "MVP endpoint"
+    : (currentStage?.nextLabel ?? "Middle QA");
 
   useEffect(() => {
     saveGame(game);
@@ -179,6 +182,19 @@ function App() {
         </p>
       </section>
 
+      {isMvpComplete && (
+        <section className="completion-panel" aria-label="MVP completion">
+          <div>
+            <span>Promotion completed</span>
+            <strong>Middle QA reached</strong>
+          </div>
+          <p>
+            This save has reached the end of the MVP vertical slice. No additional
+            gameplay systems are active.
+          </p>
+        </section>
+      )}
+
       {visibility.resourceCounters.includes(MVP_IDS.uiSurfaces.resourcesBasic) && (
         <section className="resource-grid two-columns" aria-label="Current resources">
           <div className="metric primary">
@@ -274,11 +290,13 @@ function App() {
             <h2>Promotion Progress</h2>
             <div className="rank-route" aria-label="Promotion route">
               <div>
-                <span>Current rank</span>
-                <strong>{currentStage?.label ?? "Junior QA"}</strong>
+                <span>{isMvpComplete ? "Completed rank" : "Current rank"}</span>
+                <strong>
+                  {isMvpComplete ? "Junior QA" : (currentStage?.label ?? "Junior QA")}
+                </strong>
               </div>
               <div>
-                <span>Next rank</span>
+                <span>{isMvpComplete ? "Reached rank" : "Next rank"}</span>
                 <strong>{nextStage?.label ?? "Middle QA"}</strong>
               </div>
             </div>
@@ -334,12 +352,18 @@ function App() {
       <section className="career-footer" aria-label="Promotion progress">
         <div>
           <strong>{currentStage?.label ?? "Junior QA"}</strong>
-          <span>Current stage</span>
+          <span>{isMvpComplete ? "Current stage" : "Current rank"}</span>
         </div>
         <div className="career-arrow">to</div>
         <div>
-          <strong>{currentStage?.nextLabel ?? "Middle QA"}</strong>
-          <span>{promotionStage ? "Promotion ready" : "Next goal"}</span>
+          <strong>{footerTargetLabel}</strong>
+          <span>
+            {isMvpComplete
+              ? "Completed milestone"
+              : promotionStage
+                ? "Promotion ready"
+                : "Next goal"}
+          </span>
         </div>
         <div className="career-progress">
           <span>

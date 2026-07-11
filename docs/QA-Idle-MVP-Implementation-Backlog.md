@@ -1924,6 +1924,7 @@ Related Documentation Sections:
 
 ### QA-MVP-035 - Build Promote Completion State UI
 
+Status: Complete
 Priority: Medium  
 Parent Phase: Phase 10 - MVP UI Integration  
 Suggested Order: 3
@@ -1960,6 +1961,9 @@ Expected Deliverables:
 
 Risks:
 - Existing code may automatically switch tabs after promotion; remove that behavior for MVP.
+
+Implementation Note:
+- Added an explicit MVP completion panel when `middle_qa` is reached, adjusted the promotion progress route and footer copy for the completed endpoint, and kept future systems hidden with no new Middle QA gameplay surfaces.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - DN-01, Promotion Acceptance Criteria
