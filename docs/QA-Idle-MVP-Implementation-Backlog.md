@@ -2017,6 +2017,7 @@ Related Documentation Sections:
 
 ### QA-MVP-037 - Define MVP Event Types
 
+Status: Complete
 Priority: Medium  
 Parent Phase: Phase 11 - Events and Observability  
 Suggested Order: 1
@@ -2059,6 +2060,9 @@ Definition of Done:
 
 Expected Deliverables:
 - MVP event type definitions.
+
+Implementation Note:
+- Added stable MVP event IDs to the shared ID namespace, typed descriptor payloads for all twelve documented technical events including Save/Load events, and focused coverage that pins the exact MVP event vocabulary. No runtime dispatch or future gameplay Events system behavior was added.
 
 Risks:
 - Confusing technical events with excluded gameplay Events system.

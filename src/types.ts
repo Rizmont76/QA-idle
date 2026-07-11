@@ -30,6 +30,20 @@ export const MVP_IDS = {
     reportBugs: "action_report_bugs",
     acceptPromotion: "action_accept_promotion",
   },
+  events: {
+    manualTestPerformed: "manualTest.performed",
+    bugsFound: "bugs.found",
+    bugReportSubmitted: "bugReport.submitted",
+    moneyEarned: "money.earned",
+    resourceChanged: "resource.changed",
+    upgradePurchased: "upgrade.purchased",
+    promotionAvailable: "promotion.available",
+    promotionCompleted: "promotion.completed",
+    careerStageChanged: "career.stageChanged",
+    unlockRevealed: "unlock.revealed",
+    gameSaved: "game.saved",
+    gameLoaded: "game.loaded",
+  },
   upgrades: {
     betterChecklist: "upgrade_better_checklist",
     coffee: "upgrade_coffee",
@@ -48,6 +62,7 @@ export type ResourceId = (typeof MVP_IDS.resources)[keyof typeof MVP_IDS.resourc
 export type GameplayStatId =
   (typeof MVP_IDS.gameplayStats)[keyof typeof MVP_IDS.gameplayStats];
 export type ActionId = (typeof MVP_IDS.actions)[keyof typeof MVP_IDS.actions];
+export type MvpEventId = (typeof MVP_IDS.events)[keyof typeof MVP_IDS.events];
 export type UpgradeId = (typeof MVP_IDS.upgrades)[keyof typeof MVP_IDS.upgrades];
 export type TabId = typeof MVP_IDS.uiSurfaces.manualTesting;
 
@@ -333,12 +348,12 @@ export interface ResourceTransactionMetadata {
 }
 
 export interface ResourceChangedEventDescriptor {
-  id: "resource.changed";
+  id: typeof MVP_IDS.events.resourceChanged;
   payload: ResourceTransactionMetadata;
 }
 
 export interface ManualTestPerformedEventDescriptor {
-  id: "manualTest.performed";
+  id: typeof MVP_IDS.events.manualTestPerformed;
   payload: {
     actionId: typeof MVP_IDS.actions.manualTest;
     bugsFound: number;
@@ -347,7 +362,7 @@ export interface ManualTestPerformedEventDescriptor {
 }
 
 export interface BugsFoundEventDescriptor {
-  id: "bugs.found";
+  id: typeof MVP_IDS.events.bugsFound;
   payload: {
     resourceId: typeof MVP_IDS.resources.bugsFound;
     amount: number;
@@ -357,7 +372,7 @@ export interface BugsFoundEventDescriptor {
 }
 
 export interface BugReportSubmittedEventDescriptor {
-  id: "bugReport.submitted";
+  id: typeof MVP_IDS.events.bugReportSubmitted;
   payload: {
     actionId: typeof MVP_IDS.actions.reportBugs;
     reportedBugs: number;
@@ -367,7 +382,7 @@ export interface BugReportSubmittedEventDescriptor {
 }
 
 export interface MoneyEarnedEventDescriptor {
-  id: "money.earned";
+  id: typeof MVP_IDS.events.moneyEarned;
   payload: {
     resourceId: typeof MVP_IDS.resources.money;
     amount: number;
@@ -377,7 +392,7 @@ export interface MoneyEarnedEventDescriptor {
 }
 
 export interface UpgradePurchasedEventDescriptor {
-  id: "upgrade.purchased";
+  id: typeof MVP_IDS.events.upgradePurchased;
   payload: {
     upgradeId: UpgradeId;
     previousLevel: UpgradeOwnershipLevel;
@@ -389,7 +404,7 @@ export interface UpgradePurchasedEventDescriptor {
 }
 
 export interface PromotionCompletedEventDescriptor {
-  id: "promotion.completed";
+  id: typeof MVP_IDS.events.promotionCompleted;
   payload: {
     promotionId: PromotionId;
     fromCareerStageId: CareerStage;
@@ -399,7 +414,7 @@ export interface PromotionCompletedEventDescriptor {
 }
 
 export interface PromotionAvailableEventDescriptor {
-  id: "promotion.available";
+  id: typeof MVP_IDS.events.promotionAvailable;
   payload: {
     promotionId: PromotionId;
     fromCareerStageId: CareerStage;
@@ -409,7 +424,7 @@ export interface PromotionAvailableEventDescriptor {
 }
 
 export interface CareerStageChangedEventDescriptor {
-  id: "career.stageChanged";
+  id: typeof MVP_IDS.events.careerStageChanged;
   payload: {
     promotionId: PromotionId;
     previousCareerStageId: CareerStage;
@@ -419,13 +434,31 @@ export interface CareerStageChangedEventDescriptor {
 }
 
 export interface UnlockRevealedEventDescriptor {
-  id: "unlock.revealed";
+  id: typeof MVP_IDS.events.unlockRevealed;
   payload: {
     unlockId: UnlockId;
     targetSurfaceId: UiSurfaceId;
     previousUnlockState: UnlockInitialState;
     currentUnlockState: UnlockAvailableState;
     simulationTime: number;
+  };
+}
+
+export interface GameSavedEventDescriptor {
+  id: typeof MVP_IDS.events.gameSaved;
+  payload: {
+    schemaVersion: SaveSchemaVersion;
+    savedAt: number;
+    lastActiveAt: number;
+  };
+}
+
+export interface GameLoadedEventDescriptor {
+  id: typeof MVP_IDS.events.gameLoaded;
+  payload: {
+    schemaVersion: SaveSchemaVersion;
+    loadedAt: number;
+    migratedFromVersions: readonly string[];
   };
 }
 
@@ -439,7 +472,9 @@ export type GameplayEventDescriptor =
   | PromotionAvailableEventDescriptor
   | PromotionCompletedEventDescriptor
   | CareerStageChangedEventDescriptor
-  | UnlockRevealedEventDescriptor;
+  | UnlockRevealedEventDescriptor
+  | GameSavedEventDescriptor
+  | GameLoadedEventDescriptor;
 
 export type ResourceOperationResult =
   | {

@@ -430,3 +430,22 @@ describe("MVP unlock and UI surface metadata", () => {
     expect(surfaceIds).not.toContain("ui_statistics");
   });
 });
+
+describe("MVP event contract IDs", () => {
+  it("defines exactly the documented technical MVP events", () => {
+    expect(Object.values(MVP_IDS.events)).toEqual([
+      "manualTest.performed",
+      "bugs.found",
+      "bugReport.submitted",
+      "money.earned",
+      "resource.changed",
+      "upgrade.purchased",
+      "promotion.available",
+      "promotion.completed",
+      "career.stageChanged",
+      "unlock.revealed",
+      "game.saved",
+      "game.loaded",
+    ]);
+  });
+});
