@@ -1230,7 +1230,7 @@ Related Documentation Sections:
 
 ### TECH-DEBT-005 - Add Repository CI Check Task
 
-Status: Not Started
+Status: Complete
 Priority: Medium  
 Parent Phase: Pre-022 Technical Debt Gate  
 Suggested Order: 5
@@ -1265,6 +1265,9 @@ Expected Deliverables:
 
 Risks:
 - If `pnpm run check` is not green first, CI will immediately fail.
+
+Implementation Note:
+- Added a minimal GitHub Actions validation workflow at `.github/workflows/ci.yml`. It runs on pushes and pull requests targeting `main`, installs with `pnpm install --frozen-lockfile`, then runs `pnpm run check` and `pnpm run build`. No deployment or package script changes were added.
 
 Related Documentation Sections:
 - `AGENTS.md` - Testing And Verification
