@@ -1032,6 +1032,229 @@ Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Requirement
 - `docs/12 - Upgrade System.md` - Upgrade Ownership
 
+## Pre-022 Technical Debt Gate
+
+These tasks must be handled before QA-MVP-022. They synchronize the repository with the current implementation checkpoint and remove process risk before the Requirement and Promotion phase continues.
+
+### TECH-DEBT-001 - Restore Project Check Baseline
+
+Status: Not Started
+Priority: Critical  
+Parent Phase: Pre-022 Technical Debt Gate  
+Suggested Order: 1
+
+Purpose: Make the repository pass the documented full project check before new gameplay work continues.
+
+Scope:
+- Run the existing formatter against the repository.
+- Preserve generated, dependency, cache, and build output ignores.
+- Verify that formatting changes are mechanical only.
+- Re-run the full project check after formatting.
+
+Files or Systems Expected to Be Modified:
+- Any Prettier-managed source/config/test/documentation files currently reported by `pnpm run format:check`
+- No gameplay logic changes unless formatting reveals an existing syntax issue
+
+Dependencies:
+- QA-MVP-021
+
+Estimated Complexity: Small
+
+Acceptance Criteria:
+- `pnpm run format:check` passes.
+- `pnpm run check` reaches and completes all configured stages.
+- No gameplay behavior changes are introduced.
+- `dist/`, `node_modules/`, caches, and generated outputs remain untracked.
+
+Definition of Done:
+- The repository has a green local baseline for typecheck, lint, format check, and tests.
+
+Expected Deliverables:
+- Mechanical formatting commit/change.
+- Verification note with exact commands and results.
+
+Risks:
+- Formatting `.codex` or docs files may create a wide diff; keep the task limited to formatter output.
+
+Related Documentation Sections:
+- `AGENTS.md` - Testing And Verification
+
+### TECH-DEBT-002 - Reconcile Backlog Status with Implemented Promotion Work
+
+Status: Not Started
+Priority: High  
+Parent Phase: Pre-022 Technical Debt Gate  
+Suggested Order: 2
+
+Purpose: Prevent Codex from duplicating or overwriting already implemented Phase 7 work.
+
+Scope:
+- Review current `src/types.ts`, `src/gameData.ts`, `src/gameLogic.ts`, `src/main.tsx`, and existing tests for Phase 7 behavior already present.
+- Mark which QA-MVP-023, QA-MVP-024, and QA-MVP-025 acceptance criteria are already satisfied, partially satisfied, or missing.
+- Add concise Implementation Notes to the affected backlog tasks without changing their final status to Complete unless every acceptance criterion is verified.
+- Explicitly identify missing event descriptors and save/load gaps that belong to later tasks.
+
+Files or Systems Expected to Be Modified:
+- `docs/QA-Idle-MVP-Implementation-Backlog.md`
+
+Dependencies:
+- TECH-DEBT-001
+
+Estimated Complexity: Small
+
+Acceptance Criteria:
+- QA-MVP-023 has an implementation note describing existing `availablePromotionIds` and `completedPromotionIds` state.
+- QA-MVP-024 has an implementation note describing existing promotion availability evaluation and remaining gaps.
+- QA-MVP-025 has an implementation note describing existing explicit promotion confirmation and remaining gaps.
+- The backlog clearly states that QA-MVP-022 is still required as a shared requirement engine task.
+
+Definition of Done:
+- A future Codex session can start QA-MVP-022 without assuming Phase 7 is untouched.
+
+Expected Deliverables:
+- Backlog-only synchronization update.
+
+Risks:
+- Over-marking tasks as complete could hide missing architecture work.
+
+Related Documentation Sections:
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Acceptance Criteria
+- `docs/14 - Promotion System.md` - Promotion Lifecycle
+
+### TECH-DEBT-003 - Add Shared Requirement Engine Design Note
+
+Status: Not Started
+Priority: High  
+Parent Phase: Pre-022 Technical Debt Gate  
+Suggested Order: 3
+
+Purpose: Define the exact target shape for QA-MVP-022 before editing gameplay logic.
+
+Scope:
+- Decide the minimum requirement evaluation result shape for MVP.
+- Confirm which existing fields are authoritative inputs:
+  - `totalBugsFound`
+  - `totalMoneyEarned`
+  - purchased MVP upgrade count selector
+- Define how UI progress, promotion availability, and unlock availability will consume the same evaluator output.
+- Keep the design limited to existing MVP requirement types.
+
+Files or Systems Expected to Be Modified:
+- `docs/QA-Idle-MVP-Implementation-Backlog.md`
+- Optional short implementation note under QA-MVP-022
+
+Dependencies:
+- TECH-DEBT-002
+
+Estimated Complexity: Small
+
+Acceptance Criteria:
+- QA-MVP-022 has a clear implementation note describing the evaluator inputs and outputs.
+- The note explicitly says current Money balance must not be used for lifetime Money Earned.
+- The note states that `getPromotionProgress`, `getPromotionStage`, and `evaluatePromotionAvailability` should consume the shared evaluator.
+- The note does not introduce new requirement types beyond MVP scope.
+
+Definition of Done:
+- QA-MVP-022 can be implemented without re-deciding requirement architecture.
+
+Expected Deliverables:
+- Backlog design note for QA-MVP-022.
+
+Risks:
+- Designing too much of the future requirement system could expand scope beyond MVP.
+
+Related Documentation Sections:
+- `docs/07 - Technical Rules.md` - Promotion Requirement Format
+- `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Requirement
+- `docs/14 - Promotion System.md` - Requirements
+
+### TECH-DEBT-004 - Audit MVP Event Descriptor Gaps
+
+Status: Not Started
+Priority: Medium  
+Parent Phase: Pre-022 Technical Debt Gate  
+Suggested Order: 4
+
+Purpose: Record event gaps before continuing Phase 7 so promotion and unlock work does not silently drift from MVP acceptance criteria.
+
+Scope:
+- Compare current emitted event descriptors against the MVP event list.
+- Identify which missing events are blockers for QA-MVP-024 or QA-MVP-025 and which belong to QA-MVP-037 or QA-MVP-038.
+- Pay special attention to:
+  - `promotion.available`
+  - `promotion.completed`
+  - `career.stageChanged`
+  - `unlock.revealed`
+- Do not implement the event system in this task.
+
+Files or Systems Expected to Be Modified:
+- `docs/QA-Idle-MVP-Implementation-Backlog.md`
+
+Dependencies:
+- TECH-DEBT-002
+
+Estimated Complexity: Small
+
+Acceptance Criteria:
+- The backlog contains a concise event-gap note before QA-MVP-022 or under the affected Phase 7 tasks.
+- The note identifies that `promotion.completed` exists today.
+- The note identifies whether `career.stageChanged`, `promotion.available`, and `unlock.revealed` are missing or deferred.
+- No code changes are made.
+
+Definition of Done:
+- Later Codex sessions know whether an event is a Phase 7 blocker or a Phase 11 task.
+
+Expected Deliverables:
+- Backlog event-gap note.
+
+Risks:
+- Mixing event implementation into this audit would make the task larger than intended.
+
+Related Documentation Sections:
+- `docs/08-MVP_Vertical_Slice_Specification.md` - MVP Event Contracts
+- `docs/07 - Technical Rules.md` - Event List
+
+### TECH-DEBT-005 - Add Repository CI Check Task
+
+Status: Not Started
+Priority: Medium  
+Parent Phase: Pre-022 Technical Debt Gate  
+Suggested Order: 5
+
+Purpose: Ensure future Codex work has a repeatable GitHub-side verification signal, not only local checks.
+
+Scope:
+- Add a minimal GitHub Actions workflow for install, check, and build.
+- Use `pnpm` and the committed lockfile.
+- Keep the workflow limited to validation; do not add deployment.
+- Confirm the workflow is compatible with the repository's package scripts.
+
+Files or Systems Expected to Be Modified:
+- `.github/workflows/ci.yml`
+
+Dependencies:
+- TECH-DEBT-001
+
+Estimated Complexity: Small
+
+Acceptance Criteria:
+- CI installs dependencies with `pnpm install --frozen-lockfile`.
+- CI runs `pnpm run check`.
+- CI runs `pnpm run build`.
+- Workflow triggers on pull requests and pushes to `main`.
+
+Definition of Done:
+- The repository has an automated baseline check for future tasks.
+
+Expected Deliverables:
+- Minimal CI workflow.
+
+Risks:
+- If `pnpm run check` is not green first, CI will immediately fail.
+
+Related Documentation Sections:
+- `AGENTS.md` - Testing And Verification
+
 ## Phase 7 - Requirement and Promotion Systems
 
 ### QA-MVP-022 - Implement Shared Requirement Evaluation
@@ -2226,12 +2449,13 @@ Implementation should proceed in this order:
 4. QA-MVP-013 to QA-MVP-014
 5. QA-MVP-015 to QA-MVP-017
 6. QA-MVP-018 to QA-MVP-021
-7. QA-MVP-022 to QA-MVP-025
-8. QA-MVP-026 to QA-MVP-028
-9. QA-MVP-029 to QA-MVP-032
-10. QA-MVP-033 to QA-MVP-036
-11. QA-MVP-037 to QA-MVP-038
-12. QA-MVP-039 to QA-MVP-046
+7. TECH-DEBT-001 to TECH-DEBT-005
+8. QA-MVP-022 to QA-MVP-025
+9. QA-MVP-026 to QA-MVP-028
+10. QA-MVP-029 to QA-MVP-032
+11. QA-MVP-033 to QA-MVP-036
+12. QA-MVP-037 to QA-MVP-038
+13. QA-MVP-039 to QA-MVP-046
 
 Tasks are independent where practical, but architectural layers intentionally precede gameplay and UI work.
 
