@@ -8,6 +8,8 @@ import {
 } from "./gameData";
 import {
   formatNumber,
+  acceptPromotion,
+  evaluatePromotionAvailability,
   getDerivedStats,
   getPromotionProgress,
   getPromotionStage,
@@ -22,7 +24,11 @@ import type { CareerStageDefinition, UpgradeId } from "./types";
 import "./styles.css";
 
 function App() {
-  const [loadedSave] = useState(() => loadSave());
+  const [loadedSave] = useState(() => {
+    const save = loadSave();
+
+    return { game: evaluatePromotionAvailability(save.game) };
+  });
   const [game, setGame] = useState(loadedSave.game);
   const [promotionToast, setPromotionToast] = useState<CareerStageDefinition | null>(
     null,
@@ -34,7 +40,9 @@ function App() {
   const bugsFound = game.resources[MVP_IDS.resources.bugsFound];
   const money = game.resources[MVP_IDS.resources.money];
   const currentStage = careerStages.find((stage) => stage.id === game.careerStage);
-  const promotionStage = getPromotionStage(game);
+  const isPromotionActionActive =
+    game.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction] === "active";
+  const promotionStage = isPromotionActionActive ? getPromotionStage(game) : null;
   const promotionProgress = getPromotionProgress(game);
   const isMvpComplete = game.careerStage === MVP_IDS.careerStages.middleQa;
 
@@ -79,18 +87,19 @@ function App() {
   }
 
   function promote() {
-    const nextStage = getPromotionStage(game);
+    setGame((current) => {
+      const result = acceptPromotion(current);
 
-    if (!nextStage) {
-      return;
-    }
+      if (result.ok) {
+        const nextStage = careerStages.find(
+          (stage) => stage.id === result.game.careerStage,
+        );
 
-    setGame((current) => ({
-      ...current,
-      careerStage: nextStage.id,
-      lastPlayedAt: Date.now(),
-    }));
-    setPromotionToast(nextStage);
+        setPromotionToast(nextStage ?? null);
+      }
+
+      return result.game;
+    });
   }
 
   function resetSave() {

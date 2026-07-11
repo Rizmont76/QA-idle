@@ -60,6 +60,7 @@ export type ResourceTransactionValidationFailureCode =
   | "missing_transaction_parameter"
   | "invalid_operation_type"
   | "operation_not_allowed"
+  | "duplicate_resource_change"
   | "resource_not_found"
   | "resource_not_spendable"
   | "invalid_amount"
@@ -387,13 +388,24 @@ export interface UpgradePurchasedEventDescriptor {
   };
 }
 
+export interface PromotionCompletedEventDescriptor {
+  id: "promotion.completed";
+  payload: {
+    promotionId: PromotionId;
+    fromCareerStageId: CareerStage;
+    toCareerStageId: CareerStage;
+    simulationTime: number;
+  };
+}
+
 export type GameplayEventDescriptor =
   | ResourceChangedEventDescriptor
   | ManualTestPerformedEventDescriptor
   | BugsFoundEventDescriptor
   | BugReportSubmittedEventDescriptor
   | MoneyEarnedEventDescriptor
-  | UpgradePurchasedEventDescriptor;
+  | UpgradePurchasedEventDescriptor
+  | PromotionCompletedEventDescriptor;
 
 export type ResourceOperationResult =
   | {

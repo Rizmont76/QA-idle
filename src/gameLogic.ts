@@ -7,6 +7,8 @@ import {
   PROMOTION_REQUIRED_UPGRADES,
   gameplayStatDefinitions,
   resourceDefinitions,
+  uiSurfaceDefinitions,
+  unlockDefinitions,
   upgrades,
 } from "./gameData";
 import type {
@@ -322,7 +324,12 @@ export function calculateGameplayStats(
   return statDefinitions.reduce(
     (calculatedStats, stat) => ({
       ...calculatedStats,
-      [stat.id]: calculateGameplayStat(stat.id, registry),
+      [stat.id]: calculateGameplayStat(
+        stat.id,
+        registry,
+        getUpgradeModifierDefinitions(),
+        statDefinitions,
+      ),
     }),
     {} as GameplayStatCalculationMap,
   );
@@ -349,6 +356,27 @@ export function validateResourceTransaction(
       buildResourceFailure({
         code: "missing_transaction_parameter",
         message: "Resource transaction must include at least one change.",
+      }),
+    );
+  }
+
+  const seenResourceIds = new Set<ResourceId>();
+  const duplicateResourceIds = new Set<ResourceId>();
+
+  for (const change of request.changes) {
+    if (seenResourceIds.has(change.resourceId)) {
+      duplicateResourceIds.add(change.resourceId);
+    }
+
+    seenResourceIds.add(change.resourceId);
+  }
+
+  for (const resourceId of duplicateResourceIds) {
+    failures.push(
+      buildResourceFailure({
+        code: "duplicate_resource_change",
+        resourceId,
+        message: `Resource ${resourceId} appears more than once in one transaction.`,
       }),
     );
   }
@@ -726,6 +754,138 @@ export function getPromotionStage(game: GameState) {
   return nextStage;
 }
 
+export function evaluatePromotionAvailability(game: GameState): GameState {
+  const promotionDefinition = promotionDefinitions.find(
+    (promotion) => promotion.fromCareerStageId === game.careerStage,
+  );
+  const nextStage = getPromotionStage(game);
+  const promotionUnlock = unlockDefinitions[0];
+  const promoteSurface = uiSurfaceDefinitions.find(
+    (surface) => surface.controlledByUnlockId === promotionUnlock?.id,
+  );
+
+  if (!promotionDefinition || !promotionUnlock || !promoteSurface) {
+    return {
+      ...game,
+      promotion: {
+        ...game.promotion,
+        availablePromotionIds: [],
+      },
+    };
+  }
+
+  if (!nextStage) {
+    return {
+      ...game,
+      promotion: {
+        ...game.promotion,
+        availablePromotionIds: [],
+      },
+      unlocks: {
+        ...game.unlocks,
+        [promotionUnlock.id]: promotionUnlock.initialState,
+      },
+      uiSurfaces: {
+        ...game.uiSurfaces,
+        [promoteSurface.id]: "hidden",
+      },
+    };
+  }
+
+  const availablePromotionIds = game.promotion.availablePromotionIds.includes(
+    promotionDefinition.id,
+  )
+    ? game.promotion.availablePromotionIds
+    : [...game.promotion.availablePromotionIds, promotionDefinition.id];
+
+  return {
+    ...game,
+    promotion: {
+      ...game.promotion,
+      availablePromotionIds,
+    },
+    unlocks: {
+      ...game.unlocks,
+      [promotionUnlock.id]: promotionUnlock.availableState,
+    },
+    uiSurfaces: {
+      ...game.uiSurfaces,
+      [promoteSurface.id]: "active",
+    },
+  };
+}
+
+export function acceptPromotion(
+  game: GameState,
+  simulationTime = Date.now(),
+): GameplayActionResult {
+  const evaluatedGame = evaluatePromotionAvailability(game);
+  const promotionDefinition = promotionDefinitions.find(
+    (promotion) => promotion.fromCareerStageId === game.careerStage,
+  );
+  const nextStage = getPromotionStage(evaluatedGame);
+
+  if (
+    !promotionDefinition ||
+    !nextStage ||
+    !evaluatedGame.promotion.availablePromotionIds.includes(promotionDefinition.id)
+  ) {
+    return {
+      ok: false,
+      game,
+      failures: buildGameplayFailure("Promotion requirements are not met."),
+      events: [],
+    };
+  }
+
+  const completedPromotionId = promotionDefinition.outcome.completedPromotionId;
+  const completedPromotionIds = evaluatedGame.promotion.completedPromotionIds.includes(
+    completedPromotionId,
+  )
+    ? evaluatedGame.promotion.completedPromotionIds
+    : [...evaluatedGame.promotion.completedPromotionIds, completedPromotionId];
+  const promotionUnlock = unlockDefinitions[0];
+  const promoteSurface = uiSurfaceDefinitions.find(
+    (surface) => surface.controlledByUnlockId === promotionUnlock?.id,
+  );
+
+  return {
+    ok: true,
+    game: {
+      ...evaluatedGame,
+      careerStage: promotionDefinition.outcome.setCurrentStageId,
+      lastPlayedAt: simulationTime,
+      promotion: {
+        availablePromotionIds: [],
+        completedPromotionIds,
+      },
+      unlocks: promotionUnlock
+        ? {
+            ...evaluatedGame.unlocks,
+            [promotionUnlock.id]: promotionUnlock.initialState,
+          }
+        : evaluatedGame.unlocks,
+      uiSurfaces: promoteSurface
+        ? {
+            ...evaluatedGame.uiSurfaces,
+            [promoteSurface.id]: "hidden",
+          }
+        : evaluatedGame.uiSurfaces,
+    },
+    events: [
+      {
+        id: "promotion.completed",
+        payload: {
+          promotionId: completedPromotionId,
+          fromCareerStageId: promotionDefinition.fromCareerStageId,
+          toCareerStageId: promotionDefinition.outcome.setCurrentStageId,
+          simulationTime,
+        },
+      },
+    ],
+  };
+}
+
 function buildGameplayFailure(
   message: string,
 ): readonly ResourceTransactionValidationFailure[] {
@@ -855,15 +1015,16 @@ export function performManualTest(
   if (!result.ok) {
     return { ok: false, game, failures: result.failures, events: [] };
   }
+  const nextGame = evaluatePromotionAvailability({
+    ...game,
+    resources: result.resources,
+    totalBugsFound: game.totalBugsFound + bugsFound,
+    lastPlayedAt: simulationTime,
+  });
 
   return {
     ok: true,
-    game: {
-      ...game,
-      resources: result.resources,
-      totalBugsFound: game.totalBugsFound + bugsFound,
-      lastPlayedAt: simulationTime,
-    },
+    game: nextGame,
     events: [
       {
         id: "manualTest.performed",
@@ -917,15 +1078,16 @@ export function reportAllBugs(
   if (!result.ok) {
     return { ok: false, game, failures: result.failures, events: [] };
   }
+  const nextGame = evaluatePromotionAvailability({
+    ...game,
+    resources: result.resources,
+    totalMoneyEarned: game.totalMoneyEarned + earnedMoney,
+    lastPlayedAt: simulationTime,
+  });
 
   return {
     ok: true,
-    game: {
-      ...game,
-      resources: result.resources,
-      totalMoneyEarned: game.totalMoneyEarned + earnedMoney,
-      lastPlayedAt: simulationTime,
-    },
+    game: nextGame,
     events: [
       {
         id: "bugReport.submitted",
@@ -986,18 +1148,19 @@ export function purchaseUpgrade(
   if (!result.ok) {
     return { ok: false, game, failures: result.failures, events: [] };
   }
+  const nextGame = evaluatePromotionAvailability({
+    ...game,
+    resources: result.resources,
+    lastPlayedAt: simulationTime,
+    upgrades: {
+      ...game.upgrades,
+      [upgrade.id]: 1,
+    },
+  });
 
   return {
     ok: true,
-    game: {
-      ...game,
-      resources: result.resources,
-      lastPlayedAt: simulationTime,
-      upgrades: {
-        ...game.upgrades,
-        [upgrade.id]: 1,
-      },
-    },
+    game: nextGame,
     events: [
       ...result.events,
       {

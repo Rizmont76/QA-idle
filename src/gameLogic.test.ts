@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { initialState, upgrades } from "./gameData";
 import {
+  acceptPromotion,
   addResource,
   calculateGameplayStat,
   calculateGameplayStats,
   convertResources,
   createActiveModifierRegistry,
+  evaluatePromotionAvailability,
   formatNumber,
   getDerivedStats,
   getPurchasedUpgradeCount,
@@ -224,6 +226,80 @@ describe("game logic", () => {
     expect(getPromotionStage(initialState)).toBeNull();
   });
 
+  it("makes the promotion action available when requirements are met", () => {
+    const result = evaluatePromotionAvailability({
+      ...initialState,
+      totalBugsFound: 100,
+      totalMoneyEarned: 150,
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+        [MVP_IDS.upgrades.coffee]: 1,
+        [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+      },
+    });
+
+    expect(result.promotion.availablePromotionIds).toEqual([
+      MVP_IDS.promotions.juniorToMiddle,
+    ]);
+    expect(result.unlocks[MVP_IDS.unlocks.promotionJuniorToMiddle]).toBe("available");
+    expect(result.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction]).toBe("active");
+  });
+
+  it("accepts promotion through one gameplay operation", () => {
+    const result = acceptPromotion(
+      {
+        ...initialState,
+        totalBugsFound: 100,
+        totalMoneyEarned: 150,
+        promotion: {
+          ...initialState.promotion,
+          availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        },
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+          [MVP_IDS.upgrades.coffee]: 1,
+          [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+        },
+      },
+      25,
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Promotion should succeed.");
+    }
+
+    expect(result.game.careerStage).toBe(MVP_IDS.careerStages.middleQa);
+    expect(result.game.lastPlayedAt).toBe(25);
+    expect(result.game.promotion).toEqual({
+      availablePromotionIds: [],
+      completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+    });
+    expect(result.game.unlocks[MVP_IDS.unlocks.promotionJuniorToMiddle]).toBe("hidden");
+    expect(result.game.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction]).toBe("hidden");
+    expect(result.events).toEqual([
+      {
+        id: "promotion.completed",
+        payload: {
+          promotionId: MVP_IDS.promotions.juniorToMiddle,
+          fromCareerStageId: MVP_IDS.careerStages.juniorQa,
+          toCareerStageId: MVP_IDS.careerStages.middleQa,
+          simulationTime: 25,
+        },
+      },
+    ]);
+  });
+
+  it("leaves state unchanged when accepting promotion before requirements are met", () => {
+    const result = acceptPromotion(initialState, 26);
+
+    expect(result.ok).toBe(false);
+    expect(result.game).toBe(initialState);
+    expect(result.events).toEqual([]);
+  });
+
   it("returns shared promotion progress rows", () => {
     expect(
       getPromotionProgress({
@@ -420,6 +496,28 @@ describe("resource transaction validation", () => {
         "operation_not_allowed",
       );
     }
+  });
+
+  it("rejects duplicate resource changes in one transaction", () => {
+    const resources = {
+      ...initialState.resources,
+      [MVP_IDS.resources.bugsFound]: 5,
+    };
+    const result = validateResourceTransaction(resources, {
+      operationType: "convert",
+      changes: [
+        { resourceId: MVP_IDS.resources.bugsFound, delta: -2 },
+        { resourceId: MVP_IDS.resources.bugsFound, delta: 1 },
+      ],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.failures.map((failure) => failure.code)).toContain(
+        "duplicate_resource_change",
+      );
+    }
+    expect(resources[MVP_IDS.resources.bugsFound]).toBe(5);
   });
 
   it("rejects spends below the minimum balance", () => {
