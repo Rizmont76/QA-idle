@@ -1772,6 +1772,7 @@ Related Documentation Sections:
 
 ### QA-MVP-032 - Implement Save Reset / New Game Flow
 
+Status: Complete
 Priority: Medium  
 Parent Phase: Phase 9 - Save and Load  
 Suggested Order: 4
@@ -1809,6 +1810,9 @@ Expected Deliverables:
 
 Risks:
 - UI transient state may show stale promotion or purchase feedback after reset.
+
+Implementation Note:
+- Added a save-layer reset helper that clears persisted data and recreates state through the New Game factory. The UI reset action now clears transient promotion, click, and purchase feedback before applying the fresh state; focused save coverage verifies Junior QA, zero resources, unpurchased upgrades, unavailable/incomplete promotion, and initial unlock state.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - New Game

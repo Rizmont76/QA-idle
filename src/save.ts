@@ -330,3 +330,9 @@ export function saveGame(game: GameState) {
 export function clearSave() {
   localStorage.removeItem(SAVE_KEY);
 }
+
+export function resetSave(now = Date.now()): { game: GameState } {
+  clearSave();
+
+  return { game: createNewGameState(now) };
+}

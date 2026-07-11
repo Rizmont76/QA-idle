@@ -1,11 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
-import {
-  PROMOTION_TOAST_MS,
-  careerStages,
-  createNewGameState,
-  upgrades,
-} from "./gameData";
+import { PROMOTION_TOAST_MS, careerStages, upgrades } from "./gameData";
 import {
   formatNumber,
   acceptPromotion,
@@ -19,7 +14,7 @@ import {
   purchaseUpgrade,
   reportAllBugs,
 } from "./gameLogic";
-import { clearSave, loadSave, saveGame } from "./save";
+import { loadSave, resetSave, saveGame } from "./save";
 import { MVP_IDS } from "./types";
 import type { CareerStageDefinition, UpgradeId } from "./types";
 import "./styles.css";
@@ -106,10 +101,13 @@ function App() {
     });
   }
 
-  function resetSave() {
-    clearSave();
+  function startNewGame() {
+    const save = resetSave();
+
     setPromotionToast(null);
-    setGame(createNewGameState());
+    setClickBurst(false);
+    setBoughtUpgradeId(null);
+    setGame(save.game);
   }
 
   return (
@@ -133,7 +131,7 @@ function App() {
           <button
             className="icon-button"
             type="button"
-            onClick={resetSave}
+            onClick={startNewGame}
             title="Reset Save"
           >
             R

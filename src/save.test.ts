@@ -4,6 +4,7 @@ import {
   CURRENT_SAVE_SCHEMA_VERSION,
   clearSave,
   loadSave,
+  resetSave,
   saveGame,
   serializeGameForSave,
 } from "./save";
@@ -442,5 +443,46 @@ describe("save storage", () => {
       },
     });
     expect(saved.game.promotion).not.toHaveProperty("requirements");
+  });
+
+  it("resets persisted progress to a fresh MVP new game state", () => {
+    saveGame({
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.bugsFound]: 64,
+        [MVP_IDS.resources.money]: 128,
+      },
+      totalBugsFound: 100,
+      totalMoneyEarned: 150,
+      careerStage: MVP_IDS.careerStages.middleQa,
+      promotion: {
+        availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      },
+      uiSurfaces: {
+        ...initialState.uiSurfaces,
+        [MVP_IDS.uiSurfaces.promoteAction]: "active",
+      },
+      unlocks: {
+        [MVP_IDS.unlocks.promotionJuniorToMiddle]: "available",
+      },
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+        [MVP_IDS.upgrades.coffee]: 1,
+        [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+      },
+    });
+
+    const reset = resetSave();
+
+    expect(localStorage.getItem(SAVE_KEY)).toBeNull();
+    expect(reset).toEqual({ game: createNewGameState(Date.now()) });
+    expect(reset.game.careerStage).toBe(MVP_IDS.careerStages.juniorQa);
+    expect(reset.game.resources).toEqual(initialState.resources);
+    expect(reset.game.upgrades).toEqual(initialState.upgrades);
+    expect(reset.game.promotion).toEqual(initialState.promotion);
+    expect(reset.game.unlocks).toEqual(initialState.unlocks);
   });
 });
