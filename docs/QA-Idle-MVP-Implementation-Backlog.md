@@ -1129,7 +1129,7 @@ Related Documentation Sections:
 
 ### TECH-DEBT-003 - Add Shared Requirement Engine Design Note
 
-Status: Not Started
+Status: Complete
 Priority: High  
 Parent Phase: Pre-022 Technical Debt Gate  
 Suggested Order: 3
@@ -1168,6 +1168,9 @@ Expected Deliverables:
 
 Risks:
 - Designing too much of the future requirement system could expand scope beyond MVP.
+
+Implementation Note:
+- QA-MVP-022 target shape is documented below. Keep the implementation limited to the two MVP requirement types already present in `promotion_junior_to_middle`: current-run lifetime resource total and purchased MVP upgrade count.
 
 Related Documentation Sections:
 - `docs/07 - Technical Rules.md` - Promotion Requirement Format
@@ -1306,7 +1309,10 @@ Risks:
 - Do not treat current Money balance as lifetime Money Earned.
 
 Implementation Note:
-- Still required before completing Phase 7. Current implementation reads the correct inputs (`totalBugsFound`, `totalMoneyEarned`, and `getPurchasedUpgradeCount`), but the requirement checks remain promotion-specific in `getPromotionProgress`, `getPromotionStage`, and `evaluatePromotionAvailability`. QA-MVP-022 must provide the shared per-requirement result consumed by Promotion, Unlock, and UI progress.
+- Still required before completing Phase 7. Current implementation reads the correct authoritative inputs (`totalBugsFound`, `totalMoneyEarned`, and `getPurchasedUpgradeCount(game)`), but the requirement checks remain promotion-specific in `getPromotionProgress`, `getPromotionStage`, and `evaluatePromotionAvailability`.
+- QA-MVP-022 should add a shared evaluator for the existing `PromotionRequirementDefinition` data. For each requirement, return at minimum: requirement id, type, source, current value, required value, and pass/fail status; also return an aggregate all-requirements-passed value for the promotion.
+- Lifetime Bugs Found must read `game.totalBugsFound`. Lifetime Money Earned must read `game.totalMoneyEarned`; current Money balance in `game.resources.money` must not be used for lifetime Money Earned because spending upgrades can reduce the current balance. Purchased Upgrades must read the purchased MVP upgrade count selector so future/hidden/non-MVP upgrades remain excluded.
+- After QA-MVP-022, `getPromotionProgress`, `getPromotionStage`, and `evaluatePromotionAvailability` should all consume this shared evaluator output instead of duplicating requirement logic. Do not add requirement types beyond current-run lifetime resource total and purchased MVP upgrade count in this task.
 
 Related Documentation Sections:
 - `docs/14 - Promotion System.md` - Promotion Requirement
