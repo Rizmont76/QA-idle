@@ -41,6 +41,7 @@ function App() {
   const money = game.resources[MVP_IDS.resources.money];
   const currentStage = careerStages.find((stage) => stage.id === game.careerStage);
   const isPromotionActionActive =
+    game.unlocks[MVP_IDS.unlocks.promotionJuniorToMiddle] === "available" &&
     game.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction] === "active";
   const promotionStage = isPromotionActionActive ? getPromotionStage(game) : null;
   const promotionProgress = getPromotionProgress(game);

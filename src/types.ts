@@ -418,6 +418,17 @@ export interface CareerStageChangedEventDescriptor {
   };
 }
 
+export interface UnlockRevealedEventDescriptor {
+  id: "unlock.revealed";
+  payload: {
+    unlockId: UnlockId;
+    targetSurfaceId: UiSurfaceId;
+    previousUnlockState: UnlockInitialState;
+    currentUnlockState: UnlockAvailableState;
+    simulationTime: number;
+  };
+}
+
 export type GameplayEventDescriptor =
   | ResourceChangedEventDescriptor
   | ManualTestPerformedEventDescriptor
@@ -427,7 +438,8 @@ export type GameplayEventDescriptor =
   | UpgradePurchasedEventDescriptor
   | PromotionAvailableEventDescriptor
   | PromotionCompletedEventDescriptor
-  | CareerStageChangedEventDescriptor;
+  | CareerStageChangedEventDescriptor
+  | UnlockRevealedEventDescriptor;
 
 export type ResourceOperationResult =
   | {

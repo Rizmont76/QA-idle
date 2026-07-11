@@ -901,11 +901,40 @@ export function evaluatePromotionAvailabilityTransition(
   const wasAlreadyAvailable = game.promotion.availablePromotionIds.includes(
     promotionDefinition.id,
   );
+  const wasPromotionActionRevealed =
+    game.unlocks[promotionUnlock.id] === promotionUnlock.availableState &&
+    game.uiSurfaces[promoteSurface.id] === "active";
   const availablePromotionIds = game.promotion.availablePromotionIds.includes(
     promotionDefinition.id,
   )
     ? game.promotion.availablePromotionIds
     : [...game.promotion.availablePromotionIds, promotionDefinition.id];
+  const events: GameplayEventDescriptor[] = [];
+
+  if (!wasAlreadyAvailable) {
+    events.push({
+      id: "promotion.available",
+      payload: {
+        promotionId: promotionDefinition.id,
+        fromCareerStageId: promotionDefinition.fromCareerStageId,
+        toCareerStageId: promotionDefinition.toCareerStageId,
+        simulationTime,
+      },
+    });
+  }
+
+  if (!wasPromotionActionRevealed) {
+    events.push({
+      id: "unlock.revealed",
+      payload: {
+        unlockId: promotionUnlock.id,
+        targetSurfaceId: promoteSurface.id,
+        previousUnlockState: promotionUnlock.initialState,
+        currentUnlockState: promotionUnlock.availableState,
+        simulationTime,
+      },
+    });
+  }
 
   return {
     game: {
@@ -923,19 +952,7 @@ export function evaluatePromotionAvailabilityTransition(
         [promoteSurface.id]: "active",
       },
     },
-    events: wasAlreadyAvailable
-      ? []
-      : [
-          {
-            id: "promotion.available",
-            payload: {
-              promotionId: promotionDefinition.id,
-              fromCareerStageId: promotionDefinition.fromCareerStageId,
-              toCareerStageId: promotionDefinition.toCareerStageId,
-              simulationTime,
-            },
-          },
-        ],
+    events,
   };
 }
 

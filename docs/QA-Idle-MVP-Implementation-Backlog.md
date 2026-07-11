@@ -1527,6 +1527,7 @@ Related Documentation Sections:
 
 ### QA-MVP-027 - Implement Promote Action Unlock Transition
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 8 - Unlock and Visibility System  
 Suggested Order: 2
@@ -1568,6 +1569,10 @@ Risks:
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Visibility
 - `docs/13 - Unlock System.md` - Unlock Service, Unlock Events
+
+Implementation Note:
+- `evaluatePromotionAvailabilityTransition` now reveals `unlock_promotion_junior_to_middle` and `ui_promote_action` through the existing QA-MVP-024 promotion availability path, emits a typed `unlock.revealed` descriptor only when the Promote action transitions into visibility, and keeps repeated evaluation silent once already revealed.
+- Promote UI rendering now requires both the unlock state and UI surface state to be active/available, without adding QA-MVP-028 broad visibility selectors or revealing future systems.
 
 ### QA-MVP-028 - Implement UI Visibility Selectors
 

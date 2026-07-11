@@ -305,9 +305,42 @@ describe("game logic", () => {
           simulationTime: 30,
         },
       },
+      {
+        id: "unlock.revealed",
+        payload: {
+          unlockId: MVP_IDS.unlocks.promotionJuniorToMiddle,
+          targetSurfaceId: MVP_IDS.uiSurfaces.promoteAction,
+          previousUnlockState: "hidden",
+          currentUnlockState: "available",
+          simulationTime: 30,
+        },
+      },
     ]);
 
     expect(evaluatePromotionAvailabilityTransition(result.game, 31).events).toEqual([]);
+  });
+
+  it("reveals the promote action through unlock state when promotion is available", () => {
+    const result = evaluatePromotionAvailabilityTransition(
+      {
+        ...initialState,
+        totalBugsFound: 100,
+        totalMoneyEarned: 150,
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+          [MVP_IDS.upgrades.coffee]: 1,
+          [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+        },
+      },
+      31,
+    );
+
+    expect(result.game.unlocks[MVP_IDS.unlocks.promotionJuniorToMiddle]).toBe(
+      "available",
+    );
+    expect(result.game.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction]).toBe("active");
+    expect(result.events.map((event) => event.id)).toContain("unlock.revealed");
   });
 
   it("does not emit promotion available before all requirements pass", () => {
@@ -507,6 +540,7 @@ describe("game logic", () => {
       "resource.changed",
       "upgrade.purchased",
       "promotion.available",
+      "unlock.revealed",
     ]);
     expect(result.events[2]).toEqual({
       id: "promotion.available",
@@ -514,6 +548,16 @@ describe("game logic", () => {
         promotionId: MVP_IDS.promotions.juniorToMiddle,
         fromCareerStageId: MVP_IDS.careerStages.juniorQa,
         toCareerStageId: MVP_IDS.careerStages.middleQa,
+        simulationTime: 33,
+      },
+    });
+    expect(result.events[3]).toEqual({
+      id: "unlock.revealed",
+      payload: {
+        unlockId: MVP_IDS.unlocks.promotionJuniorToMiddle,
+        targetSurfaceId: MVP_IDS.uiSurfaces.promoteAction,
+        previousUnlockState: "hidden",
+        currentUnlockState: "available",
         simulationTime: 33,
       },
     });

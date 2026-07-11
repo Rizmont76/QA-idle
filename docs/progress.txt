@@ -2,3 +2,4 @@ QA-MVP-011 handoff: Add/spend Resource operations now exist; current UI handlers
 QA-MVP-013 handoff: Modifier registry state now rebuilds active permanent upgrade modifiers; QA-MVP-014 should switch derived stat calculation to consume that registry.
 QA-MVP-017 handoff: `npm run build` cannot write the existing local `dist/assets` directory on this machine (EPERM); temp outDir Vite build passed.
 QA-MVP-019 handoff: Local `dist/assets` still has EPERM on normal Vite clean; temp outDir build passed.
+QA-MVP-027 handoff: Promote action reveal now emits `unlock.revealed` through the promotion availability transition; normal Vite build still hits local `dist/assets` EPERM, temp outDir build passed.
