@@ -1,8 +1,13 @@
 const COMPACT_NUMBER_INTEGER_THRESHOLD = 100;
 
+function getDisplayNumber(value: number) {
+  return Number.isFinite(value) ? value : 0;
+}
+
 export function formatNumber(value: number) {
-  const sign = value < 0 ? "-" : "";
-  const absoluteValue = Math.abs(value);
+  const displayValue = getDisplayNumber(value);
+  const sign = displayValue < 0 ? "-" : "";
+  const absoluteValue = Math.abs(displayValue);
   const suffixes = [
     { value: 1_000_000_000, suffix: "B" },
     { value: 1_000_000, suffix: "M" },
@@ -17,4 +22,8 @@ export function formatNumber(value: number) {
   }
 
   return `${sign}${(absoluteValue / suffix.value).toFixed(1)}${suffix.suffix}`;
+}
+
+export function formatCurrency(value: number) {
+  return `$${formatNumber(value)}`;
 }

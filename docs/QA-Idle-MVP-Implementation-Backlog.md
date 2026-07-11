@@ -1971,6 +1971,7 @@ Related Documentation Sections:
 
 ### QA-MVP-036 - Implement MVP Number Formatting Helpers
 
+Status: Complete
 Priority: Low  
 Parent Phase: Phase 10 - MVP UI Integration  
 Suggested Order: 4
@@ -2004,6 +2005,9 @@ Expected Deliverables:
 
 Risks:
 - Existing formatter may be acceptable; avoid unnecessary redesign.
+
+Implementation Note:
+- Added an explicit MVP currency display helper alongside the existing compact number formatter, including non-finite display sanitization. Money counters, projected report rewards, upgrade costs, promotion requirement rows, and repeated promotion requirement copy now use the shared formatter path while stored gameplay values remain unchanged.
 
 Related Documentation Sections:
 - `docs/07 - Technical Rules.md` - Display Formatting

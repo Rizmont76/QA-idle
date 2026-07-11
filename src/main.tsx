@@ -7,9 +7,10 @@ import {
   upgrades,
 } from "./gameData";
 import {
-  formatNumber,
   acceptPromotion,
   evaluatePromotionAvailability,
+  formatCurrency,
+  formatNumber,
   getDerivedStats,
   getPromotionProgress,
   getPromotionStage,
@@ -25,6 +26,7 @@ import type { CareerStageDefinition, UpgradeId } from "./types";
 import "./styles.css";
 
 const FULL_PROGRESS_PERCENT = 100;
+const MVP_PROMOTION_REQUIREMENT_COUNT = 3;
 
 function App() {
   const [loadedSave] = useState(() => {
@@ -66,6 +68,16 @@ function App() {
       ? (completedPromotionRequirements / promotionProgress.length) *
         FULL_PROGRESS_PERCENT
       : 0;
+  const activeRequirementText =
+    promotionProgress.length === MVP_PROMOTION_REQUIREMENT_COUNT
+      ? `Find ${formatNumber(
+          promotionProgress[0]?.required ?? 0,
+        )} lifetime bugs, earn ${formatCurrency(
+          promotionProgress[1]?.required ?? 0,
+        )} lifetime money, and buy ${formatNumber(
+          promotionProgress[2]?.required ?? 0,
+        )} upgrades.`
+      : currentStage?.requirementText;
   const isMvpComplete = game.careerStage === MVP_IDS.careerStages.middleQa;
   const footerTargetLabel = isMvpComplete
     ? "MVP endpoint"
@@ -176,9 +188,7 @@ function App() {
           <p>{currentStage?.description}</p>
         </div>
         <p className="stage-requirement">
-          {isMvpComplete
-            ? "The MVP endpoint has been reached."
-            : currentStage?.requirementText}
+          {isMvpComplete ? "The MVP endpoint has been reached." : activeRequirementText}
         </p>
       </section>
 
@@ -208,7 +218,7 @@ function App() {
             <span className="metric-label">
               <span className="metric-icon money-icon">$</span>Money
             </span>
-            <strong>${formatNumber(money)}</strong>
+            <strong>{formatCurrency(money)}</strong>
             <em>Report bugs to earn</em>
           </div>
         </section>
@@ -236,7 +246,7 @@ function App() {
               Report Bugs{" "}
               <span>
                 {bugsFound >= 1
-                  ? `+$${formatNumber(bugsFound * stats.moneyPerBug)}`
+                  ? `+${formatCurrency(bugsFound * stats.moneyPerBug)}`
                   : "No bugs ready"}
               </span>
             </button>
@@ -276,7 +286,7 @@ function App() {
                       onClick={() => buyUpgrade(upgrade.id)}
                       disabled={!canBuy}
                     >
-                      {isOwned ? "Owned" : `$${formatNumber(cost)}`}
+                      {isOwned ? "Owned" : formatCurrency(cost)}
                     </button>
                   </article>
                 );
@@ -328,12 +338,15 @@ function App() {
                     </dt>
                     <dd>
                       <strong>
-                        {item.prefix}
-                        {formatNumber(item.current)}
+                        {item.prefix === "$"
+                          ? formatCurrency(item.current)
+                          : formatNumber(item.current)}
                       </strong>
                       <span>
-                        of {item.prefix}
-                        {formatNumber(item.required)}
+                        of{" "}
+                        {item.prefix === "$"
+                          ? formatCurrency(item.required)
+                          : formatNumber(item.required)}
                       </span>
                     </dd>
                   </div>
@@ -369,7 +382,7 @@ function App() {
           <span>
             {isMvpComplete
               ? "Promotion completed. No additional systems are active in this MVP."
-              : currentStage?.requirementText}
+              : activeRequirementText}
           </span>
           <div className="progress-track">
             <span style={{ width: `${String(promotionProgressPercent)}%` }} />

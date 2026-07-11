@@ -10,6 +10,7 @@ import {
   evaluatePromotionAvailability,
   evaluatePromotionAvailabilityTransition,
   evaluatePromotionRequirements,
+  formatCurrency,
   formatNumber,
   getDerivedStats,
   getPurchasedUpgradeCount,
@@ -117,6 +118,14 @@ describe("game logic", () => {
     expect(formatNumber(999)).toBe("999");
     expect(formatNumber(1_500)).toBe("1.5K");
     expect(formatNumber(-2_000_000)).toBe("-2.0M");
+    expect(formatNumber(Number.NaN)).toBe("0");
+  });
+
+  it("formats MVP currency display without changing numeric values", () => {
+    const money = 1_500;
+
+    expect(formatCurrency(money)).toBe("$1.5K");
+    expect(money).toBe(1_500);
   });
 
   it("derives click stats from owned upgrades", () => {
