@@ -1179,7 +1179,7 @@ Related Documentation Sections:
 
 ### TECH-DEBT-004 - Audit MVP Event Descriptor Gaps
 
-Status: Not Started
+Status: Complete
 Priority: Medium  
 Parent Phase: Pre-022 Technical Debt Gate  
 Suggested Order: 4
@@ -1218,6 +1218,11 @@ Expected Deliverables:
 
 Risks:
 - Mixing event implementation into this audit would make the task larger than intended.
+
+Implementation Note:
+- MVP event audit found current typed/emitted descriptors for `manualTest.performed`, `bugs.found`, `bugReport.submitted`, `money.earned`, `resource.changed`, `upgrade.purchased`, and `promotion.completed`; `promotion.completed` exists today and is returned by `acceptPromotion`.
+- Missing Phase 7 blockers: `promotion.available` is required by QA-MVP-024 and is not defined/emitted; `career.stageChanged` is required by QA-MVP-025 and is not defined/emitted. `unlock.revealed` is also missing; its Promote action reveal behavior belongs primarily to QA-MVP-027, while its event type/dispatch shape should align with QA-MVP-037 and QA-MVP-038.
+- Deferred Phase 11/save events: `game.saved` and `game.loaded` are not defined/emitted today and should be covered by QA-MVP-037/QA-MVP-038 or later save/load event work. No event code was changed in this audit.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - MVP Event Contracts
