@@ -17,6 +17,7 @@ import {
   purchaseUpgrade,
   reportAllBugs,
   spendResource,
+  validateUpgradePurchase,
   validateResourceTransaction,
 } from "./gameLogic";
 import { MVP_IDS } from "./types";
@@ -872,8 +873,83 @@ describe("gameplay action operations", () => {
     expect(result.game.upgrades[MVP_IDS.upgrades.betterChecklist]).toBe(1);
     expect(result.events[0]?.payload).toMatchObject({
       operationType: "spend",
-      sourceSystem: "upgrades",
+      sourceSystem: "upgrade_system",
     });
+  });
+
+  it("validates unknown upgrade purchase attempts with a structured error", () => {
+    const result = validateUpgradePurchase(initialState, "upgrade_missing");
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("Upgrade validation should fail.");
+    }
+
+    expect(result.failures).toEqual([
+      {
+        code: "definition_not_found",
+        upgradeId: "upgrade_missing",
+        message: "Unknown upgrade: upgrade_missing.",
+      },
+    ]);
+  });
+
+  it("validates one-time ownership before purchase", () => {
+    const result = validateUpgradePurchase(
+      {
+        ...initialState,
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+        },
+      },
+      MVP_IDS.upgrades.betterChecklist,
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("Upgrade validation should fail.");
+    }
+
+    expect(result.failures.map((failure) => failure.code)).toEqual(["already_owned"]);
+  });
+
+  it("validates money affordability through the Resource System", () => {
+    const result = validateUpgradePurchase(
+      initialState,
+      MVP_IDS.upgrades.betterChecklist,
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("Upgrade validation should fail.");
+    }
+
+    expect(result.failures.map((failure) => failure.code)).toEqual(["not_affordable"]);
+  });
+
+  it("returns resolved cost and effects for a valid upgrade purchase", () => {
+    const result = validateUpgradePurchase(
+      {
+        ...initialState,
+        resources: {
+          ...initialState.resources,
+          [MVP_IDS.resources.money]: 10,
+        },
+      },
+      MVP_IDS.upgrades.betterChecklist,
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Upgrade validation should succeed.");
+    }
+
+    expect(result.resolvedCost).toEqual({
+      resourceId: MVP_IDS.resources.money,
+      amount: 10,
+    });
+    expect(result.effects).toEqual(result.upgrade.effects);
   });
 
   it("leaves state unchanged when an upgrade purchase fails", () => {

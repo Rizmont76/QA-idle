@@ -71,7 +71,21 @@ export type GameplayStatNumericType = "native_number";
 export type UpgradeCategory = "production" | "conversion";
 export type UpgradeType = "one_time";
 export type UpgradeLifetime = "reset";
-export type UpgradeVisibilityState = "active";
+export type UpgradeVisibilityState = "active" | "hidden";
+export type UpgradePurchaseValidationFailureCode =
+  | "definition_not_found"
+  | "content_disabled"
+  | "not_visible"
+  | "not_unlocked"
+  | "dependency_missing"
+  | "exclusive_conflict"
+  | "already_owned"
+  | "max_level_reached"
+  | "cost_invalid"
+  | "resource_missing"
+  | "not_affordable"
+  | "effect_failed"
+  | "transaction_failed";
 export type UpgradeEffectChannel = "modifier_grant";
 export type UpgradeOwnershipLevel = 0 | 1;
 export type UpgradeOwnershipState = Record<UpgradeId, UpgradeOwnershipLevel>;
@@ -170,6 +184,29 @@ export interface UpgradeEffect {
   channel: UpgradeEffectChannel;
   modifier: ModifierDefinition;
 }
+
+export interface UpgradeResolvedCost {
+  resourceId: typeof MVP_IDS.resources.money;
+  amount: number;
+}
+
+export interface UpgradePurchaseValidationFailure {
+  code: UpgradePurchaseValidationFailureCode;
+  upgradeId: string;
+  message: string;
+}
+
+export type UpgradePurchaseValidationResult =
+  | {
+      ok: true;
+      upgrade: Upgrade;
+      resolvedCost: UpgradeResolvedCost;
+      effects: readonly UpgradeEffect[];
+    }
+  | {
+      ok: false;
+      failures: readonly UpgradePurchaseValidationFailure[];
+    };
 
 export interface ModifierDefinition {
   definitionId: ModifierDefinitionId;

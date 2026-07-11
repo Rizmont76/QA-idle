@@ -889,6 +889,7 @@ Related Documentation Sections:
 
 ### QA-MVP-019 - Implement Upgrade Purchase Validation
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 6 - Upgrade System  
 Suggested Order: 2
@@ -929,6 +930,9 @@ Expected Deliverables:
 
 Risks:
 - Do not let UI determine affordability authoritatively.
+
+Implementation Note:
+- Added `validateUpgradePurchase` with structured purchase validation failures and success metadata containing the resolved Money cost plus upgrade effects. Purchase execution now calls validation before mutation and uses the documented `upgrade_system` Resource transaction source.
 
 Related Documentation Sections:
 - `docs/12 - Upgrade System.md` - Purchase Validation Order, Purchase Error Categories
