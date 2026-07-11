@@ -1329,6 +1329,7 @@ Related Documentation Sections:
 
 ### QA-MVP-023 - Implement Promotion Runtime State
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 7 - Requirement and Promotion Systems  
 Suggested Order: 2
@@ -1367,7 +1368,9 @@ Risks:
 - Existing code promotes directly based on `canPromote`; avoid collapsing states.
 
 Implementation Note:
-- Existing state partially satisfies this task: `GameState.promotion.availablePromotionIds` and `completedPromotionIds` represent availability and completion separately; New Game initializes both arrays empty; tests cover unavailable/incomplete initial state and completed state as distinct from available state. Final completion is still deferred because QA-MVP-022 is not implemented and explicit promotion Save/Load coverage is not yet present.
+- Existing runtime state now satisfies this task after QA-MVP-022: `GameState.promotion.availablePromotionIds` and `completedPromotionIds` represent availability and completion separately, New Game initializes both arrays empty, and promotion state is normalized/persisted as runtime IDs only.
+- No completion timestamp was added because the existing MVP state model has no promotion-instance timestamp field; adding one would require a broader save-shape change outside this task.
+- Added focused Save/Load coverage for separate available/completed promotion state restoration, unknown future promotion filtering, and runtime-only promotion persistence. No QA-MVP-024/025 behavior was added.
 
 Related Documentation Sections:
 - `docs/14 - Promotion System.md` - Promotion Instance, Lifecycle

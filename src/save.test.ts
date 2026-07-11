@@ -171,4 +171,55 @@ describe("save storage", () => {
     });
     expect(loadSave().game.upgrades).not.toHaveProperty("upgrade_future_automation");
   });
+
+  it("restores promotion availability and completion runtime state separately", () => {
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        game: {
+          promotion: {
+            availablePromotionIds: [
+              MVP_IDS.promotions.juniorToMiddle,
+              "promotion_future_senior",
+            ],
+            completedPromotionIds: [
+              MVP_IDS.promotions.juniorToMiddle,
+              "promotion_future_senior",
+            ],
+          },
+        },
+      }),
+    );
+
+    expect(loadSave().game.promotion).toEqual({
+      availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+    });
+  });
+
+  it("persists promotion runtime state without definition data", () => {
+    const game = {
+      ...initialState,
+      promotion: {
+        availablePromotionIds: [],
+        completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      },
+    };
+
+    saveGame(game);
+
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}") as {
+      game: { promotion: Record<string, unknown> };
+    };
+
+    expect(saved).toMatchObject({
+      game: {
+        promotion: {
+          availablePromotionIds: [],
+          completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        },
+      },
+    });
+    expect(saved.game.promotion).not.toHaveProperty("requirements");
+  });
 });
