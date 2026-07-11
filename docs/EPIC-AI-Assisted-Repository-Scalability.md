@@ -512,6 +512,16 @@ The task completion review template must verify:
 
 Tooling
 
+## Status
+
+Complete
+
+## Completion Notes
+
+- Added `scripts/repository-health.mjs` for deterministic repository health validation.
+- Added `npm run health` and wired it into `npm run check`.
+- Documented the audit, selected checks, local command, CI reuse, and failure resolution in `docs/implementation/TOOLING-001-Repository-Health-Checks.md`.
+
 ## Problem
 
 Some repository and architecture rules are currently enforced through natural-language instructions and manual review. This consumes AI context and allows mechanical violations to be missed.
