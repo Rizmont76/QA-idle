@@ -408,6 +408,16 @@ export interface PromotionAvailableEventDescriptor {
   };
 }
 
+export interface CareerStageChangedEventDescriptor {
+  id: "career.stageChanged";
+  payload: {
+    promotionId: PromotionId;
+    previousCareerStageId: CareerStage;
+    currentCareerStageId: CareerStage;
+    simulationTime: number;
+  };
+}
+
 export type GameplayEventDescriptor =
   | ResourceChangedEventDescriptor
   | ManualTestPerformedEventDescriptor
@@ -416,7 +426,8 @@ export type GameplayEventDescriptor =
   | MoneyEarnedEventDescriptor
   | UpgradePurchasedEventDescriptor
   | PromotionAvailableEventDescriptor
-  | PromotionCompletedEventDescriptor;
+  | PromotionCompletedEventDescriptor
+  | CareerStageChangedEventDescriptor;
 
 export type ResourceOperationResult =
   | {

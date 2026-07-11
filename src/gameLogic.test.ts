@@ -372,14 +372,79 @@ describe("game logic", () => {
           simulationTime: 25,
         },
       },
+      {
+        id: "career.stageChanged",
+        payload: {
+          promotionId: MVP_IDS.promotions.juniorToMiddle,
+          previousCareerStageId: MVP_IDS.careerStages.juniorQa,
+          currentCareerStageId: MVP_IDS.careerStages.middleQa,
+          simulationTime: 25,
+        },
+      },
     ]);
   });
 
+  it("does not reveal future systems after promotion completion", () => {
+    const result = acceptPromotion(
+      {
+        ...initialState,
+        totalBugsFound: 100,
+        totalMoneyEarned: 150,
+        promotion: {
+          ...initialState.promotion,
+          availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        },
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+          [MVP_IDS.upgrades.coffee]: 1,
+          [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+        },
+      },
+      26,
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Promotion should succeed.");
+    }
+
+    expect(result.game.careerStage).toBe(MVP_IDS.careerStages.middleQa);
+    expect(result.game.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction]).toBe("hidden");
+    expect(result.game.unlocks[MVP_IDS.unlocks.promotionJuniorToMiddle]).toBe("hidden");
+    expect(result.game.uiSurfaces).not.toHaveProperty("ui_team");
+    expect(result.game.uiSurfaces).not.toHaveProperty("ui_automation");
+    expect(result.game.uiSurfaces).not.toHaveProperty("ui_reputation");
+  });
+
   it("leaves state unchanged when accepting promotion before requirements are met", () => {
-    const result = acceptPromotion(initialState, 26);
+    const result = acceptPromotion(initialState, 27);
 
     expect(result.ok).toBe(false);
     expect(result.game).toBe(initialState);
+    expect(result.events).toEqual([]);
+  });
+
+  it("leaves state unchanged when accepting an already completed promotion", () => {
+    const game = {
+      ...initialState,
+      totalBugsFound: 100,
+      totalMoneyEarned: 150,
+      promotion: {
+        availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      },
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1 as const,
+        [MVP_IDS.upgrades.coffee]: 1 as const,
+        [MVP_IDS.upgrades.keyboardShortcuts]: 1 as const,
+      },
+    };
+    const result = acceptPromotion(game, 28);
+
+    expect(result.ok).toBe(false);
+    expect(result.game).toBe(game);
     expect(result.events).toEqual([]);
   });
 

@@ -949,7 +949,8 @@ export function acceptPromotion(
   if (
     !promotionDefinition ||
     !nextStage ||
-    !evaluatedGame.promotion.availablePromotionIds.includes(promotionDefinition.id)
+    !evaluatedGame.promotion.availablePromotionIds.includes(promotionDefinition.id) ||
+    evaluatedGame.promotion.completedPromotionIds.includes(promotionDefinition.id)
   ) {
     return {
       ok: false,
@@ -998,6 +999,15 @@ export function acceptPromotion(
           promotionId: completedPromotionId,
           fromCareerStageId: promotionDefinition.fromCareerStageId,
           toCareerStageId: promotionDefinition.outcome.setCurrentStageId,
+          simulationTime,
+        },
+      },
+      {
+        id: "career.stageChanged",
+        payload: {
+          promotionId: completedPromotionId,
+          previousCareerStageId: promotionDefinition.fromCareerStageId,
+          currentCareerStageId: promotionDefinition.outcome.setCurrentStageId,
           simulationTime,
         },
       },

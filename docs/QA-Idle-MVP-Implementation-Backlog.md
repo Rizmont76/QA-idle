@@ -1427,6 +1427,7 @@ Related Documentation Sections:
 
 ### QA-MVP-025 - Implement Confirmed Promotion Execution
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 7 - Requirement and Promotion Systems  
 Suggested Order: 4
@@ -1468,7 +1469,9 @@ Risks:
 - UI may try to navigate to future tabs after promotion; prevent that.
 
 Implementation Note:
-- Existing code partially satisfies this task: `acceptPromotion` is an explicit gameplay operation, rejects unmet requirements, marks `promotion_junior_to_middle` completed, sets `careerStage` to `middle_qa`, hides the Promote action after completion, and returns a `promotion.completed` descriptor. Remaining gaps: the action does not emit `career.stageChanged`, completion validation still relies on the pre-QA-MVP-022 promotion-specific checks, and explicit Save/Load tests for completed promotion state belong to later save/load coverage.
+- `acceptPromotion` now completes `action_accept_promotion` through the explicit gameplay operation, reuses the QA-MVP-024 availability/shared requirement path for validation, rejects unavailable or already completed promotion state, marks `promotion_junior_to_middle` completed, clears availability, and sets `careerStage` to `middle_qa`.
+- Added typed `career.stageChanged` output alongside existing `promotion.completed`; both descriptors are returned only after the committed state update.
+- Completion hides the Promote action and does not reveal Middle QA gameplay or future systems. Existing QA-MVP-023 runtime state preserves Save/Load compatibility; no save schema expansion or Phase 8 unlock selector work was added.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - DN-03, Promotion Acceptance Criteria
