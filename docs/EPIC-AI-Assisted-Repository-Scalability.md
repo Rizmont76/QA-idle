@@ -315,6 +315,16 @@ docs/AGENTS.md
 
 Technical Debt
 
+## Status
+
+Complete
+
+## Completion Notes
+
+- Refactored `src/gameLogic.ts` into cohesive domain modules under `src/game/`.
+- Kept `src/gameLogic.ts` as a compatibility barrel for existing imports.
+- Implementation summary and module public interfaces: `docs/implementation/TECH-DEBT-006-Core-Game-Logic-Modularization.md`.
+
 ## Problem
 
 The core gameplay implementation may contain multiple responsibilities in one large file, reducing maintainability, testability, review quality, and AI context efficiency.
