@@ -1084,7 +1084,7 @@ Related Documentation Sections:
 
 ### TECH-DEBT-002 - Reconcile Backlog Status with Implemented Promotion Work
 
-Status: Not Started
+Status: Complete
 Priority: High  
 Parent Phase: Pre-022 Technical Debt Gate  
 Suggested Order: 2
@@ -1119,6 +1119,9 @@ Expected Deliverables:
 
 Risks:
 - Over-marking tasks as complete could hide missing architecture work.
+
+Implementation Note:
+- Phase 7 reconciliation completed as a backlog-only update. Current code already contains promotion runtime arrays, availability evaluation, Promote action visibility updates, explicit promotion confirmation, and a `promotion.completed` descriptor, but QA-MVP-022 remains required because requirement evaluation is still duplicated across `getPromotionProgress`, `getPromotionStage`, and `evaluatePromotionAvailability` instead of flowing through a shared requirement engine.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Acceptance Criteria
@@ -1302,6 +1305,9 @@ Expected Deliverables:
 Risks:
 - Do not treat current Money balance as lifetime Money Earned.
 
+Implementation Note:
+- Still required before completing Phase 7. Current implementation reads the correct inputs (`totalBugsFound`, `totalMoneyEarned`, and `getPurchasedUpgradeCount`), but the requirement checks remain promotion-specific in `getPromotionProgress`, `getPromotionStage`, and `evaluatePromotionAvailability`. QA-MVP-022 must provide the shared per-requirement result consumed by Promotion, Unlock, and UI progress.
+
 Related Documentation Sections:
 - `docs/14 - Promotion System.md` - Promotion Requirement
 - `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Requirement
@@ -1346,6 +1352,9 @@ Expected Deliverables:
 Risks:
 - Existing code promotes directly based on `canPromote`; avoid collapsing states.
 
+Implementation Note:
+- Existing state partially satisfies this task: `GameState.promotion.availablePromotionIds` and `completedPromotionIds` represent availability and completion separately; New Game initializes both arrays empty; tests cover unavailable/incomplete initial state and completed state as distinct from available state. Final completion is still deferred because QA-MVP-022 is not implemented and explicit promotion Save/Load coverage is not yet present.
+
 Related Documentation Sections:
 - `docs/14 - Promotion System.md` - Promotion Instance, Lifecycle
 - `docs/08-MVP_Vertical_Slice_Specification.md` - DN-01, Promotion
@@ -1388,6 +1397,9 @@ Expected Deliverables:
 
 Risks:
 - Repeated event emission can occur if availability is recomputed without state transition tracking.
+
+Implementation Note:
+- Existing code partially satisfies this task: `evaluatePromotionAvailability` makes `promotion_junior_to_middle` available only when lifetime bugs, lifetime money, and purchased upgrade count all pass, and it activates `unlock_promotion_junior_to_middle` plus `ui_promote_action` without changing career stage. Remaining gaps: the checks do not consume QA-MVP-022's shared requirement engine, no `promotion.available` or `unlock.revealed` event descriptor exists, no once-only availability event transition is tracked, and explicit Save/Load coverage for persisted availability belongs to later save/load tasks.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion, MVP Event Contracts
@@ -1434,6 +1446,9 @@ Expected Deliverables:
 
 Risks:
 - UI may try to navigate to future tabs after promotion; prevent that.
+
+Implementation Note:
+- Existing code partially satisfies this task: `acceptPromotion` is an explicit gameplay operation, rejects unmet requirements, marks `promotion_junior_to_middle` completed, sets `careerStage` to `middle_qa`, hides the Promote action after completion, and returns a `promotion.completed` descriptor. Remaining gaps: the action does not emit `career.stageChanged`, completion validation still relies on the pre-QA-MVP-022 promotion-specific checks, and explicit Save/Load tests for completed promotion state belong to later save/load coverage.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - DN-03, Promotion Acceptance Criteria
