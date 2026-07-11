@@ -1276,6 +1276,7 @@ Related Documentation Sections:
 
 ### QA-MVP-022 - Implement Shared Requirement Evaluation
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 7 - Requirement and Promotion Systems  
 Suggested Order: 1
@@ -1317,10 +1318,9 @@ Risks:
 - Do not treat current Money balance as lifetime Money Earned.
 
 Implementation Note:
-- Still required before completing Phase 7. Current implementation reads the correct authoritative inputs (`totalBugsFound`, `totalMoneyEarned`, and `getPurchasedUpgradeCount(game)`), but the requirement checks remain promotion-specific in `getPromotionProgress`, `getPromotionStage`, and `evaluatePromotionAvailability`.
-- QA-MVP-022 should add a shared evaluator for the existing `PromotionRequirementDefinition` data. For each requirement, return at minimum: requirement id, type, source, current value, required value, and pass/fail status; also return an aggregate all-requirements-passed value for the promotion.
-- Lifetime Bugs Found must read `game.totalBugsFound`. Lifetime Money Earned must read `game.totalMoneyEarned`; current Money balance in `game.resources.money` must not be used for lifetime Money Earned because spending upgrades can reduce the current balance. Purchased Upgrades must read the purchased MVP upgrade count selector so future/hidden/non-MVP upgrades remain excluded.
-- After QA-MVP-022, `getPromotionProgress`, `getPromotionStage`, and `evaluatePromotionAvailability` should all consume this shared evaluator output instead of duplicating requirement logic. Do not add requirement types beyond current-run lifetime resource total and purchased MVP upgrade count in this task.
+- Added `evaluatePromotionRequirements` for existing `PromotionRequirementDefinition` data, limited to current-run lifetime resource totals and purchased MVP upgrade count. The evaluator returns per-requirement id/type/source/current/required/pass status plus aggregate all-requirements-passed.
+- Lifetime Bugs Found reads `game.totalBugsFound`, Lifetime Money Earned reads `game.totalMoneyEarned`, and Purchased Upgrades reads `getPurchasedUpgradeCount(game)` so current Money balance and non-MVP/future upgrades are not used.
+- `getPromotionProgress`, `getPromotionStage`, and `evaluatePromotionAvailability` now consume shared evaluator-derived requirement state; no QA-MVP-023/024/025 behavior was added.
 
 Related Documentation Sections:
 - `docs/14 - Promotion System.md` - Promotion Requirement

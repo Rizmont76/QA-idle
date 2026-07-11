@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { initialState, upgrades } from "./gameData";
+import { initialState, promotionDefinitions, upgrades } from "./gameData";
 import {
   acceptPromotion,
   addResource,
@@ -8,6 +8,7 @@ import {
   convertResources,
   createActiveModifierRegistry,
   evaluatePromotionAvailability,
+  evaluatePromotionRequirements,
   formatNumber,
   getDerivedStats,
   getPurchasedUpgradeCount,
@@ -363,6 +364,93 @@ describe("game logic", () => {
         complete: false,
       },
     ]);
+  });
+
+  it("returns inspectable shared requirement evaluation rows", () => {
+    const promotionDefinition = promotionDefinitions[0];
+
+    if (!promotionDefinition) {
+      throw new Error("Expected MVP promotion definition is missing.");
+    }
+
+    expect(
+      evaluatePromotionRequirements(
+        {
+          ...initialState,
+          totalBugsFound: 100,
+          totalMoneyEarned: 25,
+          upgrades: {
+            ...initialState.upgrades,
+            [MVP_IDS.upgrades.betterChecklist]: 1,
+          },
+        },
+        promotionDefinition.requirements,
+      ),
+    ).toEqual({
+      requirements: [
+        {
+          id: "requirement_lifetime_bugs_found_100",
+          type: "lifetime_resource_at_least",
+          source: "current_run_lifetime_bugs_found",
+          currentValue: 100,
+          requiredValue: 100,
+          passed: true,
+        },
+        {
+          id: "requirement_lifetime_money_earned_150",
+          type: "lifetime_resource_at_least",
+          source: "current_run_lifetime_money_earned",
+          currentValue: 25,
+          requiredValue: 150,
+          passed: false,
+        },
+        {
+          id: "requirement_purchased_upgrades_3",
+          type: "purchased_upgrades_at_least",
+          source: "purchased_mvp_upgrades",
+          currentValue: 1,
+          requiredValue: 3,
+          passed: false,
+        },
+      ],
+      allRequirementsPassed: false,
+    });
+  });
+
+  it("uses lifetime money earned instead of current money balance", () => {
+    const promotionDefinition = promotionDefinitions[0];
+
+    if (!promotionDefinition) {
+      throw new Error("Expected MVP promotion definition is missing.");
+    }
+
+    const game = {
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.money]: 500,
+      },
+      totalBugsFound: 100,
+      totalMoneyEarned: 25,
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1 as const,
+        [MVP_IDS.upgrades.coffee]: 1 as const,
+        [MVP_IDS.upgrades.keyboardShortcuts]: 1 as const,
+      },
+    };
+    const evaluation = evaluatePromotionRequirements(
+      game,
+      promotionDefinition.requirements,
+    );
+
+    expect(evaluation.requirements[1]).toMatchObject({
+      source: "current_run_lifetime_money_earned",
+      currentValue: 25,
+      passed: false,
+    });
+    expect(evaluation.allRequirementsPassed).toBe(false);
+    expect(getPromotionStage(game)).toBeNull();
   });
 
   it("counts only purchased MVP upgrades from registered active definitions", () => {

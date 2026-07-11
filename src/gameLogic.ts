@@ -2,9 +2,6 @@ import {
   BUG_VALUE,
   careerStages,
   promotionDefinitions,
-  PROMOTION_REQUIRED_BUGS,
-  PROMOTION_REQUIRED_MONEY,
-  PROMOTION_REQUIRED_UPGRADES,
   gameplayStatDefinitions,
   resourceDefinitions,
   uiSurfaceDefinitions,
@@ -25,6 +22,9 @@ import type {
   ModifierInstanceId,
   ModifierRegistrationFailure,
   ModifierRegistryState,
+  PromotionRequirementDefinition,
+  PromotionRequirementSource,
+  PromotionRequirementType,
   Upgrade,
 } from "./types";
 import { MVP_IDS } from "./types";
@@ -85,6 +85,20 @@ export interface PromotionProgressItem {
   required: number;
   prefix: string;
   complete: boolean;
+}
+
+export interface PromotionRequirementStatus {
+  id: string;
+  type: PromotionRequirementType;
+  source: PromotionRequirementSource;
+  currentValue: number;
+  requiredValue: number;
+  passed: boolean;
+}
+
+export interface PromotionRequirementEvaluation {
+  requirements: PromotionRequirementStatus[];
+  allRequirementsPassed: boolean;
 }
 
 function getResourceDefinition(
@@ -690,35 +704,81 @@ export function getPurchasedUpgradeCount(
   }, 0);
 }
 
-export function getPromotionProgress(game: GameState): PromotionProgressItem[] {
-  const purchasedUpgradeCount = getPurchasedUpgradeCount(game);
-  const progress = [
-    {
-      id: "current_run_lifetime_bugs_found",
-      label: "Lifetime bugs found",
-      current: game.totalBugsFound,
-      required: PROMOTION_REQUIRED_BUGS,
-      prefix: "",
-    },
-    {
-      id: "current_run_lifetime_money_earned",
-      label: "Lifetime money earned",
-      current: game.totalMoneyEarned,
-      required: PROMOTION_REQUIRED_MONEY,
-      prefix: "$",
-    },
-    {
-      id: "purchased_mvp_upgrades",
-      label: "Upgrades purchased",
-      current: purchasedUpgradeCount,
-      required: PROMOTION_REQUIRED_UPGRADES,
-      prefix: "",
-    },
-  ];
+function getLifetimeResourceRequirementValue(
+  game: GameState,
+  requirement: PromotionRequirementDefinition & {
+    type: "lifetime_resource_at_least";
+  },
+) {
+  if (requirement.source === "current_run_lifetime_bugs_found") {
+    return game.totalBugsFound;
+  }
 
-  return progress.map((item) => ({
-    ...item,
-    complete: item.current >= item.required,
+  return game.totalMoneyEarned;
+}
+
+export function evaluatePromotionRequirements(
+  game: GameState,
+  requirements: readonly PromotionRequirementDefinition[],
+): PromotionRequirementEvaluation {
+  const purchasedUpgradeCount = getPurchasedUpgradeCount(game);
+  const requirementStatuses = requirements.map<PromotionRequirementStatus>(
+    (requirement) => {
+      const currentValue =
+        requirement.type === "purchased_upgrades_at_least"
+          ? purchasedUpgradeCount
+          : getLifetimeResourceRequirementValue(game, requirement);
+
+      return {
+        id: requirement.id,
+        type: requirement.type,
+        source: requirement.source,
+        currentValue,
+        requiredValue: requirement.amount,
+        passed: currentValue >= requirement.amount,
+      };
+    },
+  );
+
+  return {
+    requirements: requirementStatuses,
+    allRequirementsPassed: requirementStatuses.every((requirement) => requirement.passed),
+  };
+}
+
+function getPromotionRequirementLabel(source: PromotionRequirementSource) {
+  if (source === "current_run_lifetime_bugs_found") {
+    return "Lifetime bugs found";
+  }
+
+  if (source === "current_run_lifetime_money_earned") {
+    return "Lifetime money earned";
+  }
+
+  return "Upgrades purchased";
+}
+
+function getPromotionRequirementPrefix(source: PromotionRequirementSource) {
+  return source === "current_run_lifetime_money_earned" ? "$" : "";
+}
+
+export function getPromotionProgress(game: GameState): PromotionProgressItem[] {
+  const promotionDefinition = promotionDefinitions[0];
+
+  if (!promotionDefinition) {
+    return [];
+  }
+
+  return evaluatePromotionRequirements(
+    game,
+    promotionDefinition.requirements,
+  ).requirements.map((requirement) => ({
+    id: requirement.source,
+    label: getPromotionRequirementLabel(requirement.source),
+    current: requirement.currentValue,
+    required: requirement.requiredValue,
+    prefix: getPromotionRequirementPrefix(requirement.source),
+    complete: requirement.passed,
   }));
 }
 
@@ -734,18 +794,10 @@ export function getPromotionStage(game: GameState) {
     return null;
   }
 
-  const purchasedUpgrades = getPurchasedUpgradeCount(game);
-  const requirementsMet = promotionDefinition.requirements.every((requirement) => {
-    if (requirement.type === "purchased_upgrades_at_least") {
-      return purchasedUpgrades >= requirement.amount;
-    }
-
-    if (requirement.source === "current_run_lifetime_bugs_found") {
-      return game.totalBugsFound >= requirement.amount;
-    }
-
-    return game.totalMoneyEarned >= requirement.amount;
-  });
+  const requirementsMet = evaluatePromotionRequirements(
+    game,
+    promotionDefinition.requirements,
+  ).allRequirementsPassed;
 
   if (!requirementsMet) {
     return null;
@@ -770,7 +822,13 @@ export function evaluatePromotionAvailability(game: GameState): GameState {
   const promotionDefinition = promotionDefinitions.find(
     (promotion) => promotion.fromCareerStageId === game.careerStage,
   );
-  const nextStage = getPromotionStage(game);
+  const requirementEvaluation = promotionDefinition
+    ? evaluatePromotionRequirements(game, promotionDefinition.requirements)
+    : null;
+  const targetCareerStageId = promotionDefinition?.toCareerStageId;
+  const nextStage = requirementEvaluation?.allRequirementsPassed
+    ? careerStages.find((careerStage) => careerStage.id === targetCareerStageId)
+    : null;
   const promotionUnlock = getPromotionUnlock(
     promotionDefinition?.id ?? MVP_IDS.promotions.juniorToMiddle,
   );
