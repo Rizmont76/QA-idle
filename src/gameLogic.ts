@@ -958,7 +958,9 @@ export function purchaseUpgrade(
     };
   }
 
-  const { upgrade, resolvedCost } = validation;
+  const { effects, upgrade, resolvedCost } = validation;
+  const previousLevel = game.upgrades[upgrade.id];
+  const newLevel = 1 as const;
 
   const result = spendResource(game.resources, {
     resourceId: resolvedCost.resourceId,
@@ -983,6 +985,19 @@ export function purchaseUpgrade(
         [upgrade.id]: 1,
       },
     },
-    events: result.events,
+    events: [
+      ...result.events,
+      {
+        id: "upgrade.purchased",
+        payload: {
+          upgradeId: upgrade.id,
+          previousLevel,
+          newLevel,
+          cost: resolvedCost,
+          modifierDefinitionIds: effects.map((effect) => effect.modifier.definitionId),
+          simulationTime,
+        },
+      },
+    ],
   };
 }

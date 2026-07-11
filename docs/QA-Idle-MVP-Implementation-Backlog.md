@@ -940,6 +940,7 @@ Related Documentation Sections:
 
 ### QA-MVP-020 - Implement Atomic Upgrade Purchase Execution
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 6 - Upgrade System  
 Suggested Order: 3
@@ -979,6 +980,9 @@ Expected Deliverables:
 
 Risks:
 - True rollback may require pure-state transformation pattern; avoid partial UI state mutation.
+
+Implementation Note:
+- `purchaseUpgrade` now executes the MVP one-time upgrade flow as a pure committed state transform: validate, spend Money through the Resource System, mark ownership, expose upgrade-owned modifiers through the existing Modifier System reconstruction path, and return a post-commit `upgrade.purchased` event descriptor. Failed validation or spend attempts return the original state and no events. Focused tests cover all five MVP upgrades, modifier effects, event payloads, and rollback behavior.
 
 Related Documentation Sections:
 - `docs/12 - Upgrade System.md` - Purchase Flow, Atomicity and Rollback

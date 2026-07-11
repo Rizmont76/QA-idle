@@ -375,12 +375,25 @@ export interface MoneyEarnedEventDescriptor {
   };
 }
 
+export interface UpgradePurchasedEventDescriptor {
+  id: "upgrade.purchased";
+  payload: {
+    upgradeId: UpgradeId;
+    previousLevel: UpgradeOwnershipLevel;
+    newLevel: UpgradeOwnershipLevel;
+    cost: UpgradeResolvedCost;
+    modifierDefinitionIds: readonly ModifierDefinitionId[];
+    simulationTime: number;
+  };
+}
+
 export type GameplayEventDescriptor =
   | ResourceChangedEventDescriptor
   | ManualTestPerformedEventDescriptor
   | BugsFoundEventDescriptor
   | BugReportSubmittedEventDescriptor
-  | MoneyEarnedEventDescriptor;
+  | MoneyEarnedEventDescriptor
+  | UpgradePurchasedEventDescriptor;
 
 export type ResourceOperationResult =
   | {

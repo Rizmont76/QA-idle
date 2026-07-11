@@ -875,6 +875,80 @@ describe("gameplay action operations", () => {
       operationType: "spend",
       sourceSystem: "upgrade_system",
     });
+    expect(result.events[1]).toEqual({
+      id: "upgrade.purchased",
+      payload: {
+        upgradeId: MVP_IDS.upgrades.betterChecklist,
+        previousLevel: 0,
+        newLevel: 1,
+        cost: {
+          resourceId: MVP_IDS.resources.money,
+          amount: 10,
+        },
+        modifierDefinitionIds: [
+          "upgrade.upgrade_better_checklist.manual_bugs_per_action.flat",
+        ],
+        simulationTime: 50,
+      },
+    });
+  });
+
+  it("purchases all MVP upgrades and activates their modifier effects", () => {
+    let game = {
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.money]: 445,
+      },
+    };
+
+    for (const upgrade of upgrades) {
+      const previousMoney = game.resources[MVP_IDS.resources.money];
+      const result = purchaseUpgrade(game, upgrade.id, 55);
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) {
+        throw new Error(`${upgrade.id} purchase should succeed.`);
+      }
+
+      expect(result.game.resources[MVP_IDS.resources.money]).toBe(
+        previousMoney - upgrade.cost.amount,
+      );
+      expect(result.game.upgrades[upgrade.id]).toBe(1);
+      expect(result.events.map((event) => event.id)).toEqual([
+        "resource.changed",
+        "upgrade.purchased",
+      ]);
+
+      game = result.game;
+    }
+
+    expect(game.resources[MVP_IDS.resources.money]).toBe(0);
+    expect(getDerivedStats(game)).toEqual({
+      bugsPerClick: 8,
+      moneyPerBug: 2,
+    });
+  });
+
+  it("rolls back the full upgrade purchase when ownership validation fails", () => {
+    const game = {
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.money]: 10,
+      },
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1 as const,
+      },
+    };
+    const result = purchaseUpgrade(game, MVP_IDS.upgrades.betterChecklist, 65);
+
+    expect(result.ok).toBe(false);
+    expect(result.game).toBe(game);
+    expect(result.events).toEqual([]);
+    expect(game.resources[MVP_IDS.resources.money]).toBe(10);
+    expect(game.upgrades[MVP_IDS.upgrades.betterChecklist]).toBe(1);
   });
 
   it("validates unknown upgrade purchase attempts with a structured error", () => {
