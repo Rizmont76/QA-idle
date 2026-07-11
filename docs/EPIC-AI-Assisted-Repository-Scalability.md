@@ -1,5 +1,11 @@
 # EPIC: AI-Assisted Repository Scalability
 
+## Epic Status
+
+Closed.
+
+All child tasks, including the post-epic workflow validation task, are complete.
+
 ## Epic Goal
 
 Prepare the QA Idle repository, documentation structure, and AI development workflow for continued project growth.
@@ -32,6 +38,7 @@ The Epic is complete when:
 - implementation and review prompt templates use the new context structure;
 - suitable repository health checks are automated;
 - future tasks do not require loading the entire documentation set by default.
+- active AI workflow guidance has been validated and is discoverable after the epic.
 
 ---
 
@@ -420,7 +427,7 @@ Complete
 
 ## Completion Notes
 
-- Created `docs/implementation/DEV-PROCESS-003-AI-Prompt-Templates.md`.
+- Created the prompt template guide, now active at `docs/workflows/AI-Prompt-Templates.md`.
 - Added standardized templates for feature implementation, bug fixing, behavior-preserving refactoring, production documentation creation, code review, architecture review, task completion verification, and documentation consistency review.
 - Included a usage guide, shared source-of-truth hierarchy, scoped context expectations, validation commands, acceptance checks, and escalation conditions.
 - Targeted search found no existing standalone prompt template files to update or deprecate.
@@ -585,6 +592,48 @@ Evaluate automation for:
 
 ---
 
+# DEV-PROCESS-004: Operationalize and Validate the Post-Epic AI Workflow
+
+## Type
+
+Development Process
+
+## Status
+
+Complete
+
+## Completion Notes
+
+- Moved the prompt template guide to active workflow documentation at `docs/workflows/AI-Prompt-Templates.md`.
+- Added `docs/workflows/AI-Task-Workflow.md` with the standard route-select-implement-verify workflow, task-type coverage matrix, and dry-run verification.
+- Updated `docs/README.md` to distinguish active workflow docs from historical implementation reports.
+- Updated `.codex/skills/qa-idle-context-router/SKILL.md` to reference current `src/game/` modules and keep `src/gameLogic.ts` as a compatibility entry point only where relevant.
+
+## Goal
+
+Verify that all outcomes of the AI-Assisted Repository Scalability Epic form one coherent, discoverable, and usable workflow for future QA Idle tasks.
+
+## Acceptance Criteria
+
+- Active workflow documents are clearly distinguishable from historical reports.
+- Prompt templates are discoverable without manually remembering their path.
+- The context router references the current modular source structure.
+- A standard implementation-to-verification workflow is documented.
+- One dry run confirms that the workflow can be followed without loading the full documentation set.
+- `pnpm run check` passes.
+- Any remaining limitations are documented.
+- The Epic can be formally marked closed after completion.
+
+## Dependencies
+
+- DEV-PROCESS-001.
+- DEV-PROCESS-002.
+- DEV-PROCESS-003.
+- TECH-DEBT-006.
+- TOOLING-001.
+
+---
+
 # Recommended Execution Order
 
 1. ARCH-AUDIT-001 — Audit Core Game Logic Module Boundaries.
@@ -593,6 +642,7 @@ Evaluate automation for:
 4. TECH-DEBT-006 — Modularize Core Game Logic, only if approved by the audit.
 5. DEV-PROCESS-003 — Update AI Implementation and Review Prompt Templates.
 6. TOOLING-001 — Add Automated Repository Health Checks.
+7. DEV-PROCESS-004 — Operationalize and Validate the Post-Epic AI Workflow.
 
 # Execution Rule
 

@@ -1,6 +1,10 @@
-# DEV-PROCESS-003 - AI Implementation and Review Prompt Templates
+# AI Prompt Templates
 
-Status: Complete
+Status: Active Workflow
+
+Origin: Created by `DEV-PROCESS-003` during the AI-Assisted Repository Scalability Epic.
+
+Use this document as active workflow guidance, not as a historical implementation report.
 
 ## Usage Guide
 
@@ -61,7 +65,7 @@ Excluded Context:
 - Duplicate imported project folders, generated output, caches, logs, and dependency folders
 
 Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/implementation/DEV-PROCESS-003-AI-Prompt-Templates.md.
+Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
 
 Files Allowed To Change:
 - Feature-owned source files and nearest tests
@@ -121,7 +125,7 @@ Excluded Context:
 - Speculative or future-system material unless the bug concerns visibility or inertness
 
 Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/implementation/DEV-PROCESS-003-AI-Prompt-Templates.md.
+Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
 
 Files Allowed To Change:
 - Minimal source and test files needed for the defect
@@ -178,7 +182,7 @@ Excluded Context:
 - Unrelated UI, docs, and future-system files
 
 Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/implementation/DEV-PROCESS-003-AI-Prompt-Templates.md.
+Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
 
 Files Allowed To Change:
 - Refactored source modules and tests
@@ -236,7 +240,7 @@ Excluded Context:
 - Backlog files unless updating task state
 
 Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/implementation/DEV-PROCESS-003-AI-Prompt-Templates.md.
+Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
 
 Files Allowed To Change:
 - The target documentation file
@@ -290,7 +294,7 @@ Excluded Context:
 - Unchanged unrelated source files
 
 Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/implementation/DEV-PROCESS-003-AI-Prompt-Templates.md.
+Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
 
 Files Allowed To Change:
 - None, unless the user explicitly asks for fixes after the review.
@@ -344,7 +348,7 @@ Excluded Context:
 - Gameplay balance docs unless formulas or economy ownership are under review
 
 Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/implementation/DEV-PROCESS-003-AI-Prompt-Templates.md.
+Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
 
 Files Allowed To Change:
 - None for review-only tasks
@@ -399,7 +403,7 @@ Excluded Context:
 - Full documentation set by default
 
 Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/implementation/DEV-PROCESS-003-AI-Prompt-Templates.md.
+Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
 
 Files Allowed To Change:
 - None unless the user explicitly asks for fixes.
@@ -460,7 +464,7 @@ Excluded Context:
 - Unrelated numbered docs
 
 Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/implementation/DEV-PROCESS-003-AI-Prompt-Templates.md.
+Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
 
 Files Allowed To Change:
 - None for review-only tasks
@@ -492,4 +496,3 @@ Escalate Instead Of Assuming When:
 ## Obsolete Template Review
 
 Targeted repository searches found no existing standalone prompt template files to update or deprecate. The active guidance now lives in `AGENTS.md`, scoped `AGENTS.md` files, repo-local skills, `docs/README.md`, and this template guide.
-

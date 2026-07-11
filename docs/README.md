@@ -8,9 +8,10 @@ Do not treat this index as a replacement for canonical design documents. It summ
 
 1. `docs/00-Master_Project_Roadmap.md` through `docs/14-Promotion_System.md` define approved production direction.
 2. `docs/07-Technical_Rules.md` defines implementation architecture and technical constraints.
-3. Task backlogs and epic files define execution order but do not authorize undocumented mechanics.
-4. `docs/implementation/` reports are historical implementation or audit artifacts unless a current task explicitly references them.
-5. `docs/progress.txt` is a short handoff log, not canonical design.
+3. `docs/workflows/` defines active AI task workflow and prompt-template guidance.
+4. Task backlogs and epic files define execution order but do not authorize undocumented mechanics.
+5. `docs/implementation/` reports are historical implementation or audit artifacts unless a current task explicitly references them.
+6. `docs/progress.txt` is a short handoff log, not canonical design.
 
 ## Status Meanings
 
@@ -45,6 +46,8 @@ Do not treat this index as a replacement for canonical design documents. It summ
 
 | Document | Category | Status | Canonical Responsibility | Required When |
 |---|---|---|---|---|
+| [AI Task Workflow](workflows/AI-Task-Workflow.md) | Active Workflow | Living | Standard route-select-implement-verify workflow for QA Idle AI tasks. | Starting, executing, or verifying QA Idle AI-assisted work. |
+| [AI Prompt Templates](workflows/AI-Prompt-Templates.md) | Active Workflow | Living | Prompt templates for implementation, bug fixing, refactoring, documentation, review, architecture review, task completion verification, and documentation consistency review. | Selecting a prompt template or completion-verification path. |
 | [EPIC - AI-Assisted Repository Scalability](EPIC-AI-Assisted-Repository-Scalability.md) | Epic Backlog | Living | Repository scalability task order, dependencies, and acceptance criteria. | Working this epic or checking its task state. |
 | [QA Idle MVP Implementation Backlog](QA-Idle-MVP-Implementation-Backlog.md) | Implementation Backlog | Living | MVP engineering task list, execution order, and task-level acceptance criteria. | Selecting or executing MVP backlog tasks. |
 | [progress.txt](progress.txt) | Handoff Log | Living | Brief handoff notes for known local limitations or follow-up. | Continuing recent implementation work or checking unresolved handoffs. |
@@ -71,6 +74,7 @@ Do not treat this index as a replacement for canonical design documents. It summ
 | Promotion availability, completion pipeline, promotion rewards | `docs/14-Promotion_System.md` |
 | Repository scalability epic state | `docs/EPIC-AI-Assisted-Repository-Scalability.md` |
 | MVP implementation task state | `docs/QA-Idle-MVP-Implementation-Backlog.md` |
+| AI task workflow and prompt templates | `docs/workflows/` |
 
 Every rule should have one canonical owner. If two documents appear to conflict, follow the more specific canonical owner for that subject and record the conflict before changing behavior.
 
@@ -87,7 +91,7 @@ Use the required context first. Load optional context only when the task touches
 | Visual design documentation | `docs/03-Player_Journey.md`, relevant feature doc | `docs/01-Vision.md`, `docs/08-MVP_Vertical_Slice_Specification.md` | Production source files unless documenting implemented UI |
 | Persistence changes | `AGENTS.md`, `docs/07-Technical_Rules.md`, relevant system doc | `docs/08-MVP_Vertical_Slice_Specification.md`, `src/save.ts`, `src/types.ts`, `src/save.test.ts` | Unrelated UI docs |
 | Save migration changes | `AGENTS.md`, `docs/07-Technical_Rules.md`, relevant system doc, `src/save.ts`, `src/types.ts`, `src/save.test.ts` | `docs/11-Resource_System.md`, `docs/12-Upgrade_System.md`, `docs/13-Unlock_System.md`, `docs/14-Promotion_System.md` as applicable | Unrelated gameplay source |
-| Upgrade changes | `AGENTS.md`, `docs/12-Upgrade_System.md`, `docs/09-Modifier_System.md`, `docs/11-Resource_System.md`, `docs/08-MVP_Vertical_Slice_Specification.md` | `docs/10-Economy_Framework.md`, `src/gameData.ts`, `src/game/`, `src/gameLogic.ts`, nearest tests | Promotion docs unless requirements/rewards change |
+| Upgrade changes | `AGENTS.md`, `docs/12-Upgrade_System.md`, `docs/09-Modifier_System.md`, `docs/11-Resource_System.md`, `docs/08-MVP_Vertical_Slice_Specification.md` | `docs/10-Economy_Framework.md`, `src/gameData.ts`, `src/game/upgrades.ts`, `src/game/modifiers.ts`, `src/game/stats.ts`, `src/gameLogic.ts` only for import compatibility, nearest tests | Promotion docs unless requirements/rewards change |
 | Unlock changes | `AGENTS.md`, `docs/13-Unlock_System.md`, `docs/08-MVP_Vertical_Slice_Specification.md`, `docs/07-Technical_Rules.md` | Relevant owning system doc, UI files, nearest tests | Economy docs unless resource thresholds change |
 | Promotion changes | `AGENTS.md`, `docs/14-Promotion_System.md`, `docs/04-Career_System.md`, `docs/13-Unlock_System.md`, `docs/08-MVP_Vertical_Slice_Specification.md` | `docs/11-Resource_System.md`, `docs/12-Upgrade_System.md`, nearest tests | Future career docs outside the changed stage |
 | Architecture review | `AGENTS.md`, `docs/07-Technical_Rules.md`, `docs/06-Game_Systems.md`, relevant system docs | Prior implementation reports if referenced by the task | Full numbered docs not touched by reviewed area |
@@ -95,6 +99,7 @@ Use the required context first. Load optional context only when the task touches
 | Documentation creation | `AGENTS.md`, target canonical owner doc, directly dependent docs listed in its status block | `docs/00-Master_Project_Roadmap.md` for status or scope impact | Source files unless documenting implementation facts |
 | Bug fixing | `AGENTS.md`, bug area source files, nearest tests, relevant canonical owner doc | `docs/07-Technical_Rules.md` for architecture or save impact | Broad documentation set unrelated to the bug |
 | Refactoring | `AGENTS.md`, `docs/07-Technical_Rules.md`, relevant architecture/audit doc, changed modules and tests | `docs/06-Game_Systems.md`, relevant system doc | Gameplay balancing docs unless behavior changes |
+| Task completion verification | `AGENTS.md`, scoped `AGENTS.md` files for changed directories, `docs/README.md`, task definition and acceptance criteria, changed files, nearest tests | `docs/07-Technical_Rules.md` for architecture/save/runtime impact, relevant implementation report for the same task | Unrelated backlog tasks and full numbered docs by default |
 
 ## Optional Context Triggers
 
@@ -117,6 +122,7 @@ Load these only when the task specifically touches the trigger:
 
 - Do not load all numbered docs for ordinary implementation.
 - Do not load `docs/implementation/` reports unless a task depends on a specific report.
+- Load `docs/workflows/` only when selecting prompt templates or verifying the AI task workflow; these files are active workflow guidance, not historical reports.
 - Do not load speculative or imported duplicate project folders if they exist.
 - Do not load future-system docs for MVP work unless the task is explicitly about keeping those systems hidden or inert.
 

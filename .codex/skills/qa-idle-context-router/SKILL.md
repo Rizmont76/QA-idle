@@ -18,13 +18,14 @@ Use this skill to choose the minimum context needed before editing or reviewing 
 - **General systems map**: `docs/06-Game_Systems.md`.
 - **Modifiers**: `docs/09-Modifier_System.md`.
 - **Economy, pricing, rewards**: `docs/10-Economy_Framework.md`.
-- **Resources and currencies**: `docs/11-Resource_System.md`.
-- **Upgrades**: `docs/12-Upgrade_System.md`, `src/gameData.ts`, `src/gameLogic.ts`.
-- **Unlocks**: `docs/13-Unlock_System.md`.
-- **Promotions**: `docs/14-Promotion_System.md`, `src/gameData.ts`, `src/gameLogic.ts`.
+- **Resources and currencies**: `docs/11-Resource_System.md`, `src/game/resources.ts`, `src/gameData.ts`.
+- **Upgrades**: `docs/12-Upgrade_System.md`, `src/gameData.ts`, `src/game/upgrades.ts`, `src/game/modifiers.ts`, `src/game/stats.ts`; use `src/gameLogic.ts` only when checking compatibility exports or existing imports.
+- **Unlocks**: `docs/13-Unlock_System.md`, `src/game/unlocks.ts`, `src/gameData.ts`.
+- **Promotions**: `docs/14-Promotion_System.md`, `src/gameData.ts`, `src/game/promotions.ts`, `src/game/unlocks.ts`; use `src/gameLogic.ts` only when checking compatibility exports or existing imports.
 - **Save/load or persisted state**: `docs/07-Technical_Rules.md`, `src/save.ts`, `src/types.ts`, `src/save.test.ts`.
 - **UI changes**: `src/main.tsx`, `src/styles.css`, plus the relevant gameplay doc for any displayed mechanic.
-- **Tests**: nearest existing test file, usually `src/gameLogic.test.ts` or `src/save.test.ts`.
+- **Tests**: nearest existing test file, usually `src/gameLogic.test.ts`, `src/gameData.test.ts`, or `src/save.test.ts`.
+- **AI task workflow or prompt templates**: `docs/workflows/AI-Task-Workflow.md`, `docs/workflows/AI-Prompt-Templates.md`, `docs/README.md`.
 
 ## Workflow
 
