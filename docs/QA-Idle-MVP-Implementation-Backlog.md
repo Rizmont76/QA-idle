@@ -1481,6 +1481,7 @@ Related Documentation Sections:
 
 ### QA-MVP-026 - Implement MVP Unlock State Initialization
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 8 - Unlock and Visibility System  
 Suggested Order: 1
@@ -1516,6 +1517,9 @@ Expected Deliverables:
 
 Risks:
 - Confusing active UI surfaces with completed unlocks.
+
+Implementation Note:
+- New Game unlock initialization now uses `unlock_promotion_junior_to_middle` as the unlock-definition state key and keeps UI surface visibility in the separate `uiSurfaces` map. The five MVP New Game surfaces initialize as `active`, `ui_promote_action` initializes as `hidden`, future UI surfaces remain absent, and minimal query helpers expose unlock-definition state separately from UI surface state without adding QA-MVP-027 transition events or QA-MVP-028 visibility selectors.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - MVP Unlock States

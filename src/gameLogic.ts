@@ -25,6 +25,8 @@ import type {
   PromotionRequirementDefinition,
   PromotionRequirementSource,
   PromotionRequirementType,
+  UiSurfaceId,
+  UnlockId,
   Upgrade,
 } from "./types";
 import { MVP_IDS } from "./types";
@@ -104,6 +106,14 @@ export interface PromotionRequirementEvaluation {
 export interface PromotionAvailabilityTransitionResult {
   game: GameState;
   events: readonly GameplayEventDescriptor[];
+}
+
+export function getUnlockState(game: GameState, unlockId: UnlockId) {
+  return game.unlocks[unlockId];
+}
+
+export function getUiSurfaceState(game: GameState, surfaceId: UiSurfaceId) {
+  return game.uiSurfaces[surfaceId];
 }
 
 function getResourceDefinition(

@@ -16,6 +16,8 @@ import {
   getPermanentModifierInstanceId,
   getPromotionProgress,
   getPromotionStage,
+  getUiSurfaceState,
+  getUnlockState,
   getUpgradeCost,
   getUpgradeModifierDefinitions,
   performManualTest,
@@ -34,6 +36,30 @@ import type {
 } from "./types";
 
 describe("game logic", () => {
+  it("queries initial MVP unlock and UI surface state separately", () => {
+    expect(getUnlockState(initialState, MVP_IDS.unlocks.promotionJuniorToMiddle)).toBe(
+      "hidden",
+    );
+    expect(getUiSurfaceState(initialState, MVP_IDS.uiSurfaces.manualTesting)).toBe(
+      "active",
+    );
+    expect(getUiSurfaceState(initialState, MVP_IDS.uiSurfaces.bugReporting)).toBe(
+      "active",
+    );
+    expect(getUiSurfaceState(initialState, MVP_IDS.uiSurfaces.resourcesBasic)).toBe(
+      "active",
+    );
+    expect(getUiSurfaceState(initialState, MVP_IDS.uiSurfaces.upgradesBasic)).toBe(
+      "active",
+    );
+    expect(getUiSurfaceState(initialState, MVP_IDS.uiSurfaces.promotionProgress)).toBe(
+      "active",
+    );
+    expect(getUiSurfaceState(initialState, MVP_IDS.uiSurfaces.promoteAction)).toBe(
+      "hidden",
+    );
+  });
+
   it("uses fixed one-time upgrade costs", () => {
     const checklist = upgrades.find(
       (upgrade) => upgrade.id === MVP_IDS.upgrades.betterChecklist,
