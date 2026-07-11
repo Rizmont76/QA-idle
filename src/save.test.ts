@@ -1,7 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SAVE_KEY, createNewGameState, initialState } from "./gameData";
-import { CURRENT_SAVE_SCHEMA_VERSION, clearSave, loadSave, saveGame } from "./save";
+import {
+  CURRENT_SAVE_SCHEMA_VERSION,
+  clearSave,
+  loadSave,
+  saveGame,
+  serializeGameForSave,
+} from "./save";
 import { MVP_IDS } from "./types";
+import type { GameState } from "./types";
 
 describe("save storage", () => {
   beforeEach(() => {
@@ -53,7 +60,7 @@ describe("save storage", () => {
   });
 
   it("saves and clears the current game state", () => {
-    const game = {
+    const game: GameState = {
       ...initialState,
       resources: {
         ...initialState.resources,
@@ -147,6 +154,60 @@ describe("save storage", () => {
         [MVP_IDS.unlocks.promotionJuniorToMiddle]: "available",
       },
     });
+  });
+
+  it("serializes only authoritative MVP gameplay state for persistence", () => {
+    const game: GameState = {
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.bugsFound]: 13,
+        [MVP_IDS.resources.money]: 21,
+      },
+      totalBugsFound: 144,
+      totalMoneyEarned: 233,
+      careerStage: MVP_IDS.careerStages.middleQa,
+      promotion: {
+        availablePromotionIds: [],
+        completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      },
+      unlocks: {
+        [MVP_IDS.unlocks.promotionJuniorToMiddle]: "available",
+      },
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+        [MVP_IDS.upgrades.bugReportTemplate]: 1,
+      },
+    };
+
+    const saved = serializeGameForSave(game);
+
+    expect(saved.game).toEqual({
+      resources: game.resources,
+      totalBugsFound: game.totalBugsFound,
+      totalMoneyEarned: game.totalMoneyEarned,
+      lastPlayedAt: Date.now(),
+      careerStage: game.careerStage,
+      promotion: game.promotion,
+      uiSurfaces: game.uiSurfaces,
+      unlocks: game.unlocks,
+      upgrades: game.upgrades,
+    });
+    expect(saved.game).not.toHaveProperty("modifiers");
+    expect(saved.game).not.toHaveProperty("team");
+    expect(saved.game).not.toHaveProperty("automation");
+    expect(saved.game).not.toHaveProperty("reputation");
+  });
+
+  it("returns the exact payload written to storage", () => {
+    const saved = saveGame({
+      ...initialState,
+      totalBugsFound: 34,
+      totalMoneyEarned: 55,
+    });
+
+    expect(JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}")).toEqual(saved);
   });
 
   it("loads versioned saves and migrates legacy raw saves on write", () => {

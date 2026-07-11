@@ -283,15 +283,20 @@ export function loadSave(): { game: GameState } {
   }
 }
 
-export function saveGame(game: GameState) {
-  const now = Date.now();
-  const meta = readExistingSaveMetadata(now);
-  const saveData: SaveData = {
-    meta,
+export function serializeGameForSave(game: GameState, now = Date.now()): SaveData {
+  return {
+    meta: readExistingSaveMetadata(now),
     game: toMvpSaveGameData(game, now),
   };
+}
+
+export function saveGame(game: GameState) {
+  const now = Date.now();
+  const saveData = serializeGameForSave(game, now);
 
   localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+
+  return saveData;
 }
 
 export function clearSave() {

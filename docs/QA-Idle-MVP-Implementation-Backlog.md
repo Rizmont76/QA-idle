@@ -1671,6 +1671,7 @@ Related Documentation Sections:
 
 ### QA-MVP-030 - Implement Save Serialization
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 9 - Save and Load  
 Suggested Order: 2
@@ -1709,6 +1710,9 @@ Expected Deliverables:
 
 Risks:
 - Duplicating derived values in save can create stale state.
+
+Implementation Note:
+- Added an explicit `serializeGameForSave` path used by `saveGame`, returning the exact versioned MVP payload written to storage. Serialization persists only authoritative MVP gameplay state: resources, lifetime counters, career stage, promotion runtime state, UI surfaces, unlocks, and purchased upgrades; derived modifier state and future systems remain absent.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - Save / Load Acceptance Criteria
