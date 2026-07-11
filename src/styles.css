@@ -9,7 +9,8 @@
     sans-serif;
   color: #eef4ff;
   background:
-    radial-gradient(circle at top left, rgba(130, 93, 55, 0.16), transparent 34%), #eee6d8;
+    radial-gradient(circle at top left, rgba(28, 132, 84, 0.13), transparent 34%),
+    linear-gradient(135deg, #e9ecf1, #f7f0de 48%, #dbe9e3);
 }
 
 * {
@@ -57,7 +58,7 @@ button:disabled {
   padding: 14px;
   color: #eef4ff;
   background:
-    linear-gradient(180deg, rgba(19, 29, 42, 0.98), rgba(8, 14, 22, 0.99)), #0d141f;
+    linear-gradient(180deg, rgba(22, 31, 42, 0.98), rgba(9, 14, 20, 0.99)), #0d141f;
   box-shadow:
     0 22px 80px rgba(3, 8, 15, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
@@ -109,8 +110,8 @@ button:disabled {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 20px;
   align-items: center;
-  margin: 2px 2px 12px;
-  text-align: center;
+  margin: 2px 2px 14px;
+  text-align: left;
 }
 
 .eyebrow {
@@ -132,7 +133,7 @@ p {
 h1 {
   margin-bottom: 6px;
   color: #f7f9ff;
-  font-size: clamp(1.3rem, 3vw, 1.7rem);
+  font-size: 1.7rem;
   line-height: 1.1;
   letter-spacing: 0;
 }
@@ -167,28 +168,6 @@ h1 {
   background: rgba(255, 255, 255, 0.04);
   font-size: 0.8rem;
   font-weight: 900;
-}
-
-.brand-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 48px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 7px;
-  margin-bottom: 10px;
-  padding: 0 14px;
-  background: linear-gradient(180deg, #0c121b, #080d14);
-}
-
-.brand-bar strong {
-  color: #ffffff;
-  font-size: 1rem;
-  text-transform: uppercase;
-}
-
-.brand-bar span {
-  color: #f6c64f;
 }
 
 .stage-panel {
@@ -245,7 +224,6 @@ h1 {
 
 .metric,
 .panel,
-.progress-panel,
 .career-footer {
   border: 1px solid rgba(122, 143, 171, 0.16);
   border-radius: 7px;
@@ -298,7 +276,7 @@ h1 {
 .metric strong {
   display: block;
   color: #a873ff;
-  font-size: clamp(1.8rem, 4vw, 2.55rem);
+  font-size: 2.45rem;
   line-height: 1;
 }
 
@@ -350,33 +328,12 @@ h1 {
   background: linear-gradient(180deg, #e0bd22, #b99408);
 }
 
-.progress-panel {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px 16px;
-  align-items: end;
-  margin-bottom: 10px;
-  padding: 14px;
-}
-
-.progress-panel span,
 .career-progress span {
   display: block;
   margin-bottom: 4px;
   color: #8d9bb1;
   font-size: 0.82rem;
   font-weight: 800;
-}
-
-.progress-panel strong {
-  color: #ffffff;
-  font-size: 1.02rem;
-}
-
-.progress-meta {
-  color: #c6d1e2;
-  font-weight: 800;
-  text-align: right;
 }
 
 .progress-track {
@@ -393,36 +350,6 @@ h1 {
   border-radius: inherit;
   background: linear-gradient(90deg, #56a8ff, #a873ff);
   transition: width 180ms ease;
-}
-
-.tabs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
-  overflow: hidden;
-  border: 1px solid rgba(122, 143, 171, 0.14);
-  border-radius: 7px;
-  margin-bottom: 10px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.tabs button {
-  min-height: 42px;
-  border-radius: 0;
-  color: #dbe5f5;
-  background: rgba(12, 20, 31, 0.72);
-}
-
-.tabs button:disabled {
-  color: #617083;
-  background: rgba(18, 26, 38, 0.72);
-  opacity: 1;
-}
-
-.tabs button:hover:not(:disabled),
-.tabs button.active {
-  color: #ffffff;
-  background: linear-gradient(180deg, #302b69, #211b50);
 }
 
 .content-grid {
@@ -449,14 +376,9 @@ h3 {
 }
 
 .shop-list,
-.side-column,
 .progress-list {
   display: grid;
   gap: 8px;
-}
-
-.side-column {
-  align-content: start;
 }
 
 .upgrade {
@@ -517,6 +439,30 @@ h3 {
   margin: 0;
 }
 
+.goal-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+  border: 1px solid rgba(86, 168, 255, 0.22);
+  border-radius: 7px;
+  padding: 10px 12px;
+  background: rgba(12, 27, 43, 0.72);
+}
+
+.goal-summary strong {
+  color: #ffffff;
+  font-size: 1.18rem;
+}
+
+.goal-summary span {
+  color: #9fc7ff;
+  font-size: 0.86rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .progress-list div {
   display: flex;
   align-items: baseline;
@@ -542,6 +488,12 @@ dd {
   color: #ffffff;
   font-size: 1rem;
   font-weight: 900;
+}
+
+.promote-button {
+  width: 100%;
+  margin-top: 14px;
+  background: linear-gradient(180deg, #7554d7, #5137a8);
 }
 
 .career-footer {
@@ -631,7 +583,6 @@ dd {
   .resource-grid.two-columns,
   .action-bar,
   .content-grid,
-  .progress-panel,
   .career-footer {
     grid-template-columns: 1fr;
   }
@@ -644,13 +595,8 @@ dd {
     justify-content: start;
   }
 
-  .progress-meta,
   .stage-requirement {
     text-align: left;
-  }
-
-  .tabs {
-    grid-template-columns: 1fr;
   }
 
   .upgrade {

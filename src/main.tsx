@@ -19,6 +19,8 @@ import { MVP_IDS } from "./types";
 import type { CareerStageDefinition, UpgradeId } from "./types";
 import "./styles.css";
 
+const FULL_PROGRESS_PERCENT = 100;
+
 function App() {
   const [loadedSave] = useState(() => {
     const save = loadSave();
@@ -43,6 +45,14 @@ function App() {
   );
   const promotionStage = isPromotionActionActive ? getPromotionStage(game) : null;
   const promotionProgress = getPromotionProgress(game);
+  const completedPromotionRequirements = promotionProgress.filter(
+    (item) => item.complete,
+  ).length;
+  const promotionProgressPercent =
+    promotionProgress.length > 0
+      ? (completedPromotionRequirements / promotionProgress.length) *
+        FULL_PROGRESS_PERCENT
+      : 0;
   const isMvpComplete = game.careerStage === MVP_IDS.careerStages.middleQa;
 
   useEffect(() => {
@@ -123,9 +133,13 @@ function App() {
 
       <section className="hero">
         <div>
-          <p className="eyebrow">{isMvpComplete ? "MVP complete" : "Stage 1"}</p>
-          <h1>{currentStage?.label ?? "Junior QA"}</h1>
-          <p className="stage-focus">{currentStage?.description}</p>
+          <p className="eyebrow">QA Idle</p>
+          <h1>{isMvpComplete ? "Middle QA Reached" : "Junior QA Workspace"}</h1>
+          <p className="stage-focus">
+            {isMvpComplete
+              ? "Vertical slice complete. Future gameplay remains hidden."
+              : "Manual testing, bug reports, upgrades, and one clear promotion goal."}
+          </p>
         </div>
         <div className="top-icons" aria-label="Game controls">
           <button
@@ -139,29 +153,17 @@ function App() {
         </div>
       </section>
 
-      <section className="brand-bar" aria-label="Game title">
-        <strong>
-          <span>QA</span> Idle
-        </strong>
-      </section>
-
       <section className="stage-panel" aria-label="Career stage">
         <div>
           <span>Current role</span>
           <strong>{currentStage?.label ?? "Junior QA"}</strong>
           <p>{currentStage?.description}</p>
         </div>
-        {isPromotionActionActive && promotionStage ? (
-          <button type="button" onClick={promote}>
-            Promote to {promotionStage.label}
-          </button>
-        ) : (
-          <p className="stage-requirement">
-            {isMvpComplete
-              ? "The MVP endpoint has been reached."
-              : currentStage?.requirementText}
-          </p>
-        )}
+        <p className="stage-requirement">
+          {isMvpComplete
+            ? "The MVP endpoint has been reached."
+            : currentStage?.requirementText}
+        </p>
       </section>
 
       {visibility.resourceCounters.includes(MVP_IDS.uiSurfaces.resourcesBasic) && (
@@ -204,7 +206,9 @@ function App() {
             >
               Report Bugs{" "}
               <span>
-                {bugsFound >= 1 ? `+$${formatNumber(bugsFound * stats.moneyPerBug)}` : ""}
+                {bugsFound >= 1
+                  ? `+$${formatNumber(bugsFound * stats.moneyPerBug)}`
+                  : "No bugs ready"}
               </span>
             </button>
           )}
@@ -214,7 +218,7 @@ function App() {
       <section className="content-grid">
         {visibility.upgradePanels.includes(MVP_IDS.uiSurfaces.upgradesBasic) && (
           <div className="panel">
-            <h2>Manual Work</h2>
+            <h2>Basic Upgrades</h2>
             <div className="shop-list">
               {upgrades.map((upgrade) => {
                 const owned = game.upgrades[upgrade.id];
@@ -243,7 +247,7 @@ function App() {
                       onClick={() => buyUpgrade(upgrade.id)}
                       disabled={!canBuy}
                     >
-                      {isOwned ? "Owned" : `Buy $${formatNumber(cost)}`}
+                      {isOwned ? "Owned" : `$${formatNumber(cost)}`}
                     </button>
                   </article>
                 );
@@ -255,6 +259,18 @@ function App() {
         {visibility.promotionProgress.includes(MVP_IDS.uiSurfaces.promotionProgress) && (
           <div className="panel">
             <h2>Promotion Progress</h2>
+            <div className="goal-summary">
+              <strong>
+                {completedPromotionRequirements} / {promotionProgress.length}
+              </strong>
+              <span>
+                {isMvpComplete
+                  ? "Promotion completed"
+                  : promotionStage
+                    ? "Promotion available"
+                    : "Promotion goal"}
+              </span>
+            </div>
             <dl className="progress-list">
               {promotionProgress.map((item) => {
                 return (
@@ -269,6 +285,11 @@ function App() {
                 );
               })}
             </dl>
+            {isPromotionActionActive && promotionStage && (
+              <button className="promote-button" type="button" onClick={promote}>
+                Promote to {promotionStage.label}
+              </button>
+            )}
           </div>
         )}
       </section>
@@ -290,7 +311,7 @@ function App() {
               : currentStage?.requirementText}
           </span>
           <div className="progress-track">
-            <span style={{ width: promotionStage ? "100%" : "0%" }} />
+            <span style={{ width: `${String(promotionProgressPercent)}%` }} />
           </div>
         </div>
       </section>

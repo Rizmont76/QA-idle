@@ -1822,6 +1822,7 @@ Related Documentation Sections:
 
 ### QA-MVP-033 - Build Junior QA MVP Layout
 
+Status: Complete
 Priority: Medium  
 Parent Phase: Phase 10 - MVP UI Integration  
 Suggested Order: 1
@@ -1863,6 +1864,9 @@ Expected Deliverables:
 
 Risks:
 - Current UI has future-stage layout; remove or hide without redesigning beyond MVP.
+
+Implementation Note:
+- Reworked the first screen into a focused Junior QA workspace driven by existing UI visibility selectors: current role, Bugs Found, Money, Manual Testing, Bug Reporting, Basic Upgrades, and Promotion Progress. Removed unused future-style tab/layout CSS, kept future systems hidden, and left gameplay validation in the gameplay layer while UI buttons reflect invalid report and purchase states.
 
 Related Documentation Sections:
 - `docs/03 - Player Journey.md` - Stage 1 Junior QA
