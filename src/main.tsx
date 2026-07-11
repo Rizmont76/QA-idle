@@ -1,6 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
-import { PROMOTION_TOAST_MS, careerStages, upgrades } from "./gameData";
+import {
+  PROMOTION_TOAST_MS,
+  careerStages,
+  promotionDefinitions,
+  upgrades,
+} from "./gameData";
 import {
   formatNumber,
   acceptPromotion,
@@ -38,6 +43,14 @@ function App() {
   const bugsFound = game.resources[MVP_IDS.resources.bugsFound];
   const money = game.resources[MVP_IDS.resources.money];
   const currentStage = careerStages.find((stage) => stage.id === game.careerStage);
+  const activePromotionDefinition = promotionDefinitions.find(
+    (promotion) => promotion.fromCareerStageId === game.careerStage,
+  );
+  const nextStage = careerStages.find(
+    (stage) =>
+      stage.id ===
+      (activePromotionDefinition?.toCareerStageId ?? MVP_IDS.careerStages.middleQa),
+  );
   const visibility = useMemo(() => getUiVisibilitySelectors(game), [game]);
   const visibleActions = new Set(visibility.actionButtons);
   const isPromotionActionActive = visibility.promoteAction.includes(
@@ -259,6 +272,16 @@ function App() {
         {visibility.promotionProgress.includes(MVP_IDS.uiSurfaces.promotionProgress) && (
           <div className="panel">
             <h2>Promotion Progress</h2>
+            <div className="rank-route" aria-label="Promotion route">
+              <div>
+                <span>Current rank</span>
+                <strong>{currentStage?.label ?? "Junior QA"}</strong>
+              </div>
+              <div>
+                <span>Next rank</span>
+                <strong>{nextStage?.label ?? "Middle QA"}</strong>
+              </div>
+            </div>
             <div className="goal-summary">
               <strong>
                 {completedPromotionRequirements} / {promotionProgress.length}
@@ -271,15 +294,29 @@ function App() {
                     : "Promotion goal"}
               </span>
             </div>
+            <div className="panel-progress" aria-hidden="true">
+              <span style={{ width: `${String(promotionProgressPercent)}%` }} />
+            </div>
             <dl className="progress-list">
               {promotionProgress.map((item) => {
                 return (
-                  <div key={item.label}>
-                    <dt>{item.label}</dt>
-                    <dd className={item.complete ? "complete" : ""}>
-                      {item.prefix}
-                      {formatNumber(item.current)} / {item.prefix}
-                      {formatNumber(item.required)}
+                  <div
+                    className={item.complete ? "requirement complete" : "requirement"}
+                    key={item.id}
+                  >
+                    <dt>
+                      <span>{item.complete ? "Complete" : "Pending"}</span>
+                      {item.label}
+                    </dt>
+                    <dd>
+                      <strong>
+                        {item.prefix}
+                        {formatNumber(item.current)}
+                      </strong>
+                      <span>
+                        of {item.prefix}
+                        {formatNumber(item.required)}
+                      </span>
                     </dd>
                   </div>
                 );

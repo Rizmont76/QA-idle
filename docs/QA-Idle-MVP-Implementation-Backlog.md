@@ -1875,6 +1875,7 @@ Related Documentation Sections:
 
 ### QA-MVP-034 - Build Promotion Progress UI
 
+Status: Complete
 Priority: Medium  
 Parent Phase: Phase 10 - MVP UI Integration  
 Suggested Order: 2
@@ -1913,6 +1914,9 @@ Expected Deliverables:
 
 Risks:
 - Documentation allows limited anticipation, but MVP explicitly excludes future gameplay reveals; keep copy conservative.
+
+Implementation Note:
+- Promotion Progress now shows current and next rank, requirement-engine progress rows for lifetime bugs, lifetime money, and purchased upgrades, and an availability summary/progress bar. The Promote action remains rendered only through unlock-derived visibility, and the UI copy avoids Team, Automation, Reputation, and other future-system reveals.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion Progress, Promotion Visibility
