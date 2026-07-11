@@ -217,6 +217,16 @@ None.
 
 Development Process
 
+## Status
+
+Complete
+
+## Completion Notes
+
+- Audit report: `docs/implementation/DEV-PROCESS-002-AI-Instruction-Hierarchy.md`.
+- Restructured active AI guidance into root, `src`, `docs`, and `.codex/skills` scoped instruction files.
+- Root `AGENTS.md` now keeps global rules and delegates source, documentation, and skill workflow rules to directory-local files.
+
 ## Problem
 
 The project uses AI agent instruction files, but their efficiency, scope, hierarchy, and consistency have not been audited. Instructions may be duplicated, overly broad, outdated, or placed too far from the code they govern.
