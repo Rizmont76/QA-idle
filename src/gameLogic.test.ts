@@ -246,6 +246,32 @@ describe("game logic", () => {
     expect(result.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction]).toBe("active");
   });
 
+  it("repairs stale promotion action state after promotion completion", () => {
+    const result = evaluatePromotionAvailability({
+      ...initialState,
+      careerStage: MVP_IDS.careerStages.middleQa,
+      promotion: {
+        availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      },
+      unlocks: {
+        ...initialState.unlocks,
+        [MVP_IDS.unlocks.promotionJuniorToMiddle]: "available",
+      },
+      uiSurfaces: {
+        ...initialState.uiSurfaces,
+        [MVP_IDS.uiSurfaces.promoteAction]: "active",
+      },
+    });
+
+    expect(result.promotion.availablePromotionIds).toEqual([]);
+    expect(result.promotion.completedPromotionIds).toEqual([
+      MVP_IDS.promotions.juniorToMiddle,
+    ]);
+    expect(result.unlocks[MVP_IDS.unlocks.promotionJuniorToMiddle]).toBe("hidden");
+    expect(result.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction]).toBe("hidden");
+  });
+
   it("accepts promotion through one gameplay operation", () => {
     const result = acceptPromotion(
       {

@@ -754,15 +754,27 @@ export function getPromotionStage(game: GameState) {
   return nextStage;
 }
 
+function getPromotionUnlock(promotionId: string) {
+  return unlockDefinitions.find(
+    (unlock) => unlock.availabilityRequirement.promotionId === promotionId,
+  );
+}
+
+function getControlledUiSurface(unlockId: string | undefined) {
+  return uiSurfaceDefinitions.find(
+    (surface) => surface.controlledByUnlockId === unlockId,
+  );
+}
+
 export function evaluatePromotionAvailability(game: GameState): GameState {
   const promotionDefinition = promotionDefinitions.find(
     (promotion) => promotion.fromCareerStageId === game.careerStage,
   );
   const nextStage = getPromotionStage(game);
-  const promotionUnlock = unlockDefinitions[0];
-  const promoteSurface = uiSurfaceDefinitions.find(
-    (surface) => surface.controlledByUnlockId === promotionUnlock?.id,
+  const promotionUnlock = getPromotionUnlock(
+    promotionDefinition?.id ?? MVP_IDS.promotions.juniorToMiddle,
   );
+  const promoteSurface = getControlledUiSurface(promotionUnlock?.id);
 
   if (!promotionDefinition || !promotionUnlock || !promoteSurface) {
     return {
@@ -771,6 +783,18 @@ export function evaluatePromotionAvailability(game: GameState): GameState {
         ...game.promotion,
         availablePromotionIds: [],
       },
+      unlocks: promotionUnlock
+        ? {
+            ...game.unlocks,
+            [promotionUnlock.id]: promotionUnlock.initialState,
+          }
+        : game.unlocks,
+      uiSurfaces: promoteSurface
+        ? {
+            ...game.uiSurfaces,
+            [promoteSurface.id]: "hidden",
+          }
+        : game.uiSurfaces,
     };
   }
 
@@ -844,10 +868,8 @@ export function acceptPromotion(
   )
     ? evaluatedGame.promotion.completedPromotionIds
     : [...evaluatedGame.promotion.completedPromotionIds, completedPromotionId];
-  const promotionUnlock = unlockDefinitions[0];
-  const promoteSurface = uiSurfaceDefinitions.find(
-    (surface) => surface.controlledByUnlockId === promotionUnlock?.id,
-  );
+  const promotionUnlock = getPromotionUnlock(completedPromotionId);
+  const promoteSurface = getControlledUiSurface(promotionUnlock?.id);
 
   return {
     ok: true,
