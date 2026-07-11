@@ -8,6 +8,7 @@ import {
   convertResources,
   createActiveModifierRegistry,
   evaluatePromotionAvailability,
+  evaluatePromotionAvailabilityTransition,
   evaluatePromotionRequirements,
   formatNumber,
   getDerivedStats,
@@ -247,6 +248,61 @@ describe("game logic", () => {
     expect(result.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction]).toBe("active");
   });
 
+  it("emits promotion available once when availability first becomes true", () => {
+    const result = evaluatePromotionAvailabilityTransition(
+      {
+        ...initialState,
+        totalBugsFound: 100,
+        totalMoneyEarned: 150,
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+          [MVP_IDS.upgrades.coffee]: 1,
+          [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+        },
+      },
+      30,
+    );
+
+    expect(result.game.careerStage).toBe(MVP_IDS.careerStages.juniorQa);
+    expect(result.game.promotion).toEqual({
+      availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      completedPromotionIds: [],
+    });
+    expect(result.events).toEqual([
+      {
+        id: "promotion.available",
+        payload: {
+          promotionId: MVP_IDS.promotions.juniorToMiddle,
+          fromCareerStageId: MVP_IDS.careerStages.juniorQa,
+          toCareerStageId: MVP_IDS.careerStages.middleQa,
+          simulationTime: 30,
+        },
+      },
+    ]);
+
+    expect(evaluatePromotionAvailabilityTransition(result.game, 31).events).toEqual([]);
+  });
+
+  it("does not emit promotion available before all requirements pass", () => {
+    const result = evaluatePromotionAvailabilityTransition(
+      {
+        ...initialState,
+        totalBugsFound: 100,
+        totalMoneyEarned: 150,
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+          [MVP_IDS.upgrades.coffee]: 1,
+        },
+      },
+      32,
+    );
+
+    expect(result.game.promotion.availablePromotionIds).toEqual([]);
+    expect(result.events).toEqual([]);
+  });
+
   it("repairs stale promotion action state after promotion completion", () => {
     const result = evaluatePromotionAvailability({
       ...initialState,
@@ -325,6 +381,51 @@ describe("game logic", () => {
     expect(result.ok).toBe(false);
     expect(result.game).toBe(initialState);
     expect(result.events).toEqual([]);
+  });
+
+  it("includes promotion availability event on the gameplay action that unlocks it", () => {
+    const result = purchaseUpgrade(
+      {
+        ...initialState,
+        resources: {
+          ...initialState.resources,
+          [MVP_IDS.resources.money]: 60,
+        },
+        totalBugsFound: 100,
+        totalMoneyEarned: 150,
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+          [MVP_IDS.upgrades.coffee]: 1,
+        },
+      },
+      MVP_IDS.upgrades.keyboardShortcuts,
+      33,
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Upgrade purchase should succeed.");
+    }
+
+    expect(result.game.careerStage).toBe(MVP_IDS.careerStages.juniorQa);
+    expect(result.game.promotion.availablePromotionIds).toEqual([
+      MVP_IDS.promotions.juniorToMiddle,
+    ]);
+    expect(result.events.map((event) => event.id)).toEqual([
+      "resource.changed",
+      "upgrade.purchased",
+      "promotion.available",
+    ]);
+    expect(result.events[2]).toEqual({
+      id: "promotion.available",
+      payload: {
+        promotionId: MVP_IDS.promotions.juniorToMiddle,
+        fromCareerStageId: MVP_IDS.careerStages.juniorQa,
+        toCareerStageId: MVP_IDS.careerStages.middleQa,
+        simulationTime: 33,
+      },
+    });
   });
 
   it("returns shared promotion progress rows", () => {

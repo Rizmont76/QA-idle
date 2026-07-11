@@ -1378,6 +1378,7 @@ Related Documentation Sections:
 
 ### QA-MVP-024 - Implement Promotion Availability Evaluation
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 7 - Requirement and Promotion Systems  
 Suggested Order: 3
@@ -1416,7 +1417,9 @@ Risks:
 - Repeated event emission can occur if availability is recomputed without state transition tracking.
 
 Implementation Note:
-- Existing code partially satisfies this task: `evaluatePromotionAvailability` makes `promotion_junior_to_middle` available only when lifetime bugs, lifetime money, and purchased upgrade count all pass, and it activates `unlock_promotion_junior_to_middle` plus `ui_promote_action` without changing career stage. Remaining gaps: the checks do not consume QA-MVP-022's shared requirement engine, no `promotion.available` or `unlock.revealed` event descriptor exists, no once-only availability event transition is tracked, and explicit Save/Load coverage for persisted availability belongs to later save/load tasks.
+- Added a controlled `evaluatePromotionAvailabilityTransition` path that consumes QA-MVP-022 shared requirement output, updates `promotion_junior_to_middle` availability state, preserves Promote action unlock/UI activation, and leaves career stage unchanged.
+- Added typed `promotion.available` descriptors emitted only when the promotion first transitions from unavailable to available; repeated re-evaluation while already available emits no duplicate event.
+- Existing `evaluatePromotionAvailability` remains as the state-only wrapper for UI/load callers. Availability persistence continues to use QA-MVP-023 promotion runtime state; no save schema expansion or QA-MVP-025 execution behavior was added.
 
 Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - Promotion, MVP Event Contracts

@@ -101,6 +101,11 @@ export interface PromotionRequirementEvaluation {
   allRequirementsPassed: boolean;
 }
 
+export interface PromotionAvailabilityTransitionResult {
+  game: GameState;
+  events: readonly GameplayEventDescriptor[];
+}
+
 function getResourceDefinition(
   resourceId: ResourceId,
   definitions: readonly ResourceDefinition[],
@@ -818,7 +823,10 @@ function getControlledUiSurface(unlockId: string | undefined) {
   );
 }
 
-export function evaluatePromotionAvailability(game: GameState): GameState {
+export function evaluatePromotionAvailabilityTransition(
+  game: GameState,
+  simulationTime = Date.now(),
+): PromotionAvailabilityTransitionResult {
   const promotionDefinition = promotionDefinitions.find(
     (promotion) => promotion.fromCareerStageId === game.careerStage,
   );
@@ -836,44 +844,53 @@ export function evaluatePromotionAvailability(game: GameState): GameState {
 
   if (!promotionDefinition || !promotionUnlock || !promoteSurface) {
     return {
-      ...game,
-      promotion: {
-        ...game.promotion,
-        availablePromotionIds: [],
+      game: {
+        ...game,
+        promotion: {
+          ...game.promotion,
+          availablePromotionIds: [],
+        },
+        unlocks: promotionUnlock
+          ? {
+              ...game.unlocks,
+              [promotionUnlock.id]: promotionUnlock.initialState,
+            }
+          : game.unlocks,
+        uiSurfaces: promoteSurface
+          ? {
+              ...game.uiSurfaces,
+              [promoteSurface.id]: "hidden",
+            }
+          : game.uiSurfaces,
       },
-      unlocks: promotionUnlock
-        ? {
-            ...game.unlocks,
-            [promotionUnlock.id]: promotionUnlock.initialState,
-          }
-        : game.unlocks,
-      uiSurfaces: promoteSurface
-        ? {
-            ...game.uiSurfaces,
-            [promoteSurface.id]: "hidden",
-          }
-        : game.uiSurfaces,
+      events: [],
     };
   }
 
   if (!nextStage) {
     return {
-      ...game,
-      promotion: {
-        ...game.promotion,
-        availablePromotionIds: [],
+      game: {
+        ...game,
+        promotion: {
+          ...game.promotion,
+          availablePromotionIds: [],
+        },
+        unlocks: {
+          ...game.unlocks,
+          [promotionUnlock.id]: promotionUnlock.initialState,
+        },
+        uiSurfaces: {
+          ...game.uiSurfaces,
+          [promoteSurface.id]: "hidden",
+        },
       },
-      unlocks: {
-        ...game.unlocks,
-        [promotionUnlock.id]: promotionUnlock.initialState,
-      },
-      uiSurfaces: {
-        ...game.uiSurfaces,
-        [promoteSurface.id]: "hidden",
-      },
+      events: [],
     };
   }
 
+  const wasAlreadyAvailable = game.promotion.availablePromotionIds.includes(
+    promotionDefinition.id,
+  );
   const availablePromotionIds = game.promotion.availablePromotionIds.includes(
     promotionDefinition.id,
   )
@@ -881,27 +898,49 @@ export function evaluatePromotionAvailability(game: GameState): GameState {
     : [...game.promotion.availablePromotionIds, promotionDefinition.id];
 
   return {
-    ...game,
-    promotion: {
-      ...game.promotion,
-      availablePromotionIds,
+    game: {
+      ...game,
+      promotion: {
+        ...game.promotion,
+        availablePromotionIds,
+      },
+      unlocks: {
+        ...game.unlocks,
+        [promotionUnlock.id]: promotionUnlock.availableState,
+      },
+      uiSurfaces: {
+        ...game.uiSurfaces,
+        [promoteSurface.id]: "active",
+      },
     },
-    unlocks: {
-      ...game.unlocks,
-      [promotionUnlock.id]: promotionUnlock.availableState,
-    },
-    uiSurfaces: {
-      ...game.uiSurfaces,
-      [promoteSurface.id]: "active",
-    },
+    events: wasAlreadyAvailable
+      ? []
+      : [
+          {
+            id: "promotion.available",
+            payload: {
+              promotionId: promotionDefinition.id,
+              fromCareerStageId: promotionDefinition.fromCareerStageId,
+              toCareerStageId: promotionDefinition.toCareerStageId,
+              simulationTime,
+            },
+          },
+        ],
   };
+}
+
+export function evaluatePromotionAvailability(game: GameState): GameState {
+  return evaluatePromotionAvailabilityTransition(game).game;
 }
 
 export function acceptPromotion(
   game: GameState,
   simulationTime = Date.now(),
 ): GameplayActionResult {
-  const evaluatedGame = evaluatePromotionAvailability(game);
+  const evaluatedGame = evaluatePromotionAvailabilityTransition(
+    game,
+    simulationTime,
+  ).game;
   const promotionDefinition = promotionDefinitions.find(
     (promotion) => promotion.fromCareerStageId === game.careerStage,
   );
@@ -1095,12 +1134,16 @@ export function performManualTest(
   if (!result.ok) {
     return { ok: false, game, failures: result.failures, events: [] };
   }
-  const nextGame = evaluatePromotionAvailability({
-    ...game,
-    resources: result.resources,
-    totalBugsFound: game.totalBugsFound + bugsFound,
-    lastPlayedAt: simulationTime,
-  });
+  const availabilityTransition = evaluatePromotionAvailabilityTransition(
+    {
+      ...game,
+      resources: result.resources,
+      totalBugsFound: game.totalBugsFound + bugsFound,
+      lastPlayedAt: simulationTime,
+    },
+    simulationTime,
+  );
+  const nextGame = availabilityTransition.game;
 
   return {
     ok: true,
@@ -1124,6 +1167,7 @@ export function performManualTest(
           simulationTime,
         },
       },
+      ...availabilityTransition.events,
     ],
   };
 }
@@ -1158,12 +1202,16 @@ export function reportAllBugs(
   if (!result.ok) {
     return { ok: false, game, failures: result.failures, events: [] };
   }
-  const nextGame = evaluatePromotionAvailability({
-    ...game,
-    resources: result.resources,
-    totalMoneyEarned: game.totalMoneyEarned + earnedMoney,
-    lastPlayedAt: simulationTime,
-  });
+  const availabilityTransition = evaluatePromotionAvailabilityTransition(
+    {
+      ...game,
+      resources: result.resources,
+      totalMoneyEarned: game.totalMoneyEarned + earnedMoney,
+      lastPlayedAt: simulationTime,
+    },
+    simulationTime,
+  );
+  const nextGame = availabilityTransition.game;
 
   return {
     ok: true,
@@ -1188,6 +1236,7 @@ export function reportAllBugs(
           simulationTime,
         },
       },
+      ...availabilityTransition.events,
     ],
   };
 }
@@ -1228,15 +1277,19 @@ export function purchaseUpgrade(
   if (!result.ok) {
     return { ok: false, game, failures: result.failures, events: [] };
   }
-  const nextGame = evaluatePromotionAvailability({
-    ...game,
-    resources: result.resources,
-    lastPlayedAt: simulationTime,
-    upgrades: {
-      ...game.upgrades,
-      [upgrade.id]: 1,
+  const availabilityTransition = evaluatePromotionAvailabilityTransition(
+    {
+      ...game,
+      resources: result.resources,
+      lastPlayedAt: simulationTime,
+      upgrades: {
+        ...game.upgrades,
+        [upgrade.id]: 1,
+      },
     },
-  });
+    simulationTime,
+  );
+  const nextGame = availabilityTransition.game;
 
   return {
     ok: true,
@@ -1254,6 +1307,7 @@ export function purchaseUpgrade(
           simulationTime,
         },
       },
+      ...availabilityTransition.events,
     ],
   };
 }
