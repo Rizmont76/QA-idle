@@ -1038,7 +1038,7 @@ These tasks must be handled before QA-MVP-022. They synchronize the repository w
 
 ### TECH-DEBT-001 - Restore Project Check Baseline
 
-Status: Not Started
+Status: Complete
 Priority: Critical  
 Parent Phase: Pre-022 Technical Debt Gate  
 Suggested Order: 1
@@ -1075,6 +1075,9 @@ Expected Deliverables:
 
 Risks:
 - Formatting `.codex` or docs files may create a wide diff; keep the task limited to formatter output.
+
+Implementation Note:
+- `pnpm run format` completed with all matched files unchanged. `pnpm run format:check` passed. The exact `npm run check` command is blocked in this PowerShell session by the local npm.ps1 execution policy, so the equivalent Windows npm entrypoint `npm.cmd run check` was used and completed typecheck, lint, format check, and tests successfully. No gameplay behavior or source files changed.
 
 Related Documentation Sections:
 - `AGENTS.md` - Testing And Verification
