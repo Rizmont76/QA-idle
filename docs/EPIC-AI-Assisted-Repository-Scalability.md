@@ -125,6 +125,15 @@ None.
 
 Development Process
 
+## Status
+
+Complete
+
+## Completion Notes
+
+- Created `docs/README.md` as the documentation index and task-context mapping.
+- Indexed production and supporting documents with status, ownership, dependencies, required context, optional context, and excluded context guidance.
+
 ## Problem
 
 The project contains a growing number of production documents. AI agents may load the full documentation set even when a task only requires a small subset, increasing token usage and making relevant requirements harder to identify.
