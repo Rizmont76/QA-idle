@@ -199,7 +199,7 @@ The ownership decision is recorded in `docs/11-Resource_System.md` under MVP Pro
 
 ## ARCH-002-05 - Design Event Bus V2 State Reaction Model
 
-Status: Needs Design
+Status: Completed
 
 Priority: P2
 
@@ -237,3 +237,18 @@ That is enough for MVP test observation. It is not enough for future unlocks, st
 ### Verification
 
 - Documentation review against `docs/07-Technical_Rules.md` event bus requirements.
+- `pnpm run check`
+- Passed on 2026-07-14.
+
+### Design Decision
+
+The Event Bus V2 reaction model is recorded in `docs/07-Technical_Rules.md` under Event Bus V2 State Reaction Model.
+
+- Events remain post-commit notifications by default.
+- Observational listeners may run after committed transactions, but listener callbacks must not directly mutate gameplay state.
+- State-producing reactions are allowed only when documented by the owning system and must be returned as structured reaction proposals.
+- A gameplay transaction coordinator owns proposal ordering, validation, application, idempotency, and follow-up event emission.
+- Reactions are sorted by explicit phase, listener priority, stable listener ID, and reaction ID.
+- A failed reaction proposal does not roll back the already committed source transaction and emits no success event.
+- Multi-step all-or-nothing behavior must be modeled as one explicit transaction or a dedicated coordinator phase before source events emit.
+- Unlock, Statistics, and Achievements can later react to committed resource, promotion, upgrade, offline, or career events by proposing owned transactions through the coordinator.

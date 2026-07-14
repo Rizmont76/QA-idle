@@ -690,6 +690,46 @@ MVP gameplay reactions should use transient events unless a system document expl
 
 ---
 
+## 10.6 Event Bus V2 State Reaction Model
+
+Event Bus V2 keeps events as post-commit notifications by default. A listener that only records telemetry, updates local statistics, schedules UI notifications, or refreshes derived caches may run as an observational listener after the originating gameplay transaction commits.
+
+State-producing reactions are allowed only when a system document explicitly declares the reaction and its owning system. These reactions must not mutate state inside the listener callback. Instead, the listener returns a structured reaction proposal that describes:
+
+| Field | Purpose |
+|---|---|
+| id | Stable reaction identifier. |
+| sourceEventId | Event that caused the reaction. |
+| ownerSystem | System that owns the proposed state change. |
+| phase | Explicit reaction phase where the coordinator may apply it. |
+| operation | Public service or transaction the coordinator should execute. |
+| payload | Serializable input for the operation. |
+| idempotencyKey | Stable key used to prevent repeated application of the same reaction. |
+
+A gameplay transaction coordinator owns reaction application. The coordinator gathers reaction proposals after the source transaction commits, sorts them by explicit phase, then by listener priority, then by stable listener ID and reaction ID. The coordinator validates each proposal through the owning system's public transaction API before applying it.
+
+Reaction phases must be documented before implementation. The default future path is:
+
+1. Source transaction validates and commits.
+2. Source events are emitted.
+3. Observational listeners run.
+4. State-producing listeners return reaction proposals.
+5. The coordinator validates proposals.
+6. The coordinator applies accepted proposals as new committed transactions.
+7. Follow-up events emit only for successfully committed reaction transactions.
+
+If a reaction proposal fails validation, the source transaction remains committed and the rejected proposal emits no success event. The failed proposal may emit a diagnostic or failure event only if a document explicitly defines that event. Failed reactions must not partially mutate state.
+
+Rollback is limited to the transaction currently being applied. Event Bus V2 must not roll back an already committed source transaction because a later listener or reaction fails. Any multi-step state change that requires all-or-nothing behavior must be modeled as a single explicit transaction or a dedicated coordinator phase before events are emitted.
+
+Repeated reactions must be idempotent. The coordinator must ignore an already-applied idempotency key for the same source event and reaction owner, and listeners must not rely on hidden mutable callback state to avoid duplicates.
+
+Persistent events remain opt-in. Transient events are used for normal unlock, statistic, achievement, and UI reactions unless a system document requires event history, replay, recovery, or debugging. Persisted reaction queues require explicit save schema and migration rules before implementation.
+
+Future unlock, statistic, and achievement reactions should use this path: resource, promotion, upgrade, offline, or career transactions emit committed events; the relevant system listener derives a proposal owned by Unlock, Statistics, or Achievements; the coordinator applies that proposal through the owning system's public transaction API; the resulting state change emits its own event after commit.
+
+---
+
 # 11. Event List
 
 This list defines the initial technical event vocabulary implied by the current design.
