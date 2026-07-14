@@ -29,6 +29,7 @@ import {
   getUnlockState,
   getUpgradeCost,
   getUpgradeModifierDefinitions,
+  getVisibleUpgradeDefinitions,
   performManualTest,
   purchaseUpgrade,
   reportAllBugs,
@@ -195,6 +196,52 @@ describe("game logic", () => {
     }
 
     expect(getUpgradeCost(checklist)).toBe(10);
+  });
+
+  it("keeps hidden future upgrade definitions out of visible and purchasable selectors", () => {
+    const baseUpgrade = upgrades[0];
+
+    if (!baseUpgrade) {
+      throw new Error("Expected at least one MVP upgrade definition.");
+    }
+
+    const hiddenFutureUpgrade: Upgrade = {
+      ...baseUpgrade,
+      id: "upgrade_future_automation" as Upgrade["id"],
+      name: "Future Automation",
+      visibility: "hidden",
+      sortOrder: 999,
+    };
+    const upgradeDefinitions = [...upgrades, hiddenFutureUpgrade];
+    const fundedGame = {
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.money]: 1_000,
+      },
+      upgrades: {
+        ...initialState.upgrades,
+        [hiddenFutureUpgrade.id]: 0,
+      },
+    };
+
+    expect(
+      getVisibleUpgradeDefinitions(fundedGame, upgradeDefinitions).map(
+        (upgrade) => upgrade.id,
+      ),
+    ).toEqual(upgrades.map((upgrade) => upgrade.id));
+
+    const validation = validateUpgradePurchase(
+      fundedGame,
+      hiddenFutureUpgrade.id,
+      upgradeDefinitions,
+    );
+
+    expect(validation.ok).toBe(false);
+    if (validation.ok) {
+      throw new Error("Hidden future upgrade validation should fail.");
+    }
+    expect(validation.failures.map((failure) => failure.code)).toEqual(["not_visible"]);
   });
 
   it("formats compact resource numbers", () => {

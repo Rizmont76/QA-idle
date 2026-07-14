@@ -13,6 +13,18 @@ export function getUpgradeCost(upgrade: Upgrade) {
   return upgrade.cost.amount;
 }
 
+export function getVisibleUpgradeDefinitions(
+  game: GameState,
+  upgradeDefinitions: readonly Upgrade[] = upgrades,
+) {
+  return upgradeDefinitions
+    .filter(
+      (upgrade) =>
+        upgrade.visibility === "active" && game.uiSurfaces[upgrade.group] === "active",
+    )
+    .sort((left, right) => left.sortOrder - right.sortOrder);
+}
+
 function buildUpgradePurchaseFailure(
   code: UpgradePurchaseValidationFailureCode,
   upgradeId: string,
@@ -46,8 +58,9 @@ function mapResourceFailureToUpgradePurchaseFailure(
 export function validateUpgradePurchase(
   game: GameState,
   upgradeId: string,
+  upgradeDefinitions: readonly Upgrade[] = upgrades,
 ): UpgradePurchaseValidationResult {
-  const upgrade = upgrades.find((item) => item.id === upgradeId);
+  const upgrade = upgradeDefinitions.find((item) => item.id === upgradeId);
 
   if (!upgrade) {
     return {
@@ -62,7 +75,9 @@ export function validateUpgradePurchase(
     };
   }
 
-  if (upgrade.visibility !== "active") {
+  const visibleUpgrades = getVisibleUpgradeDefinitions(game, upgradeDefinitions);
+
+  if (!visibleUpgrades.some((visibleUpgrade) => visibleUpgrade.id === upgrade.id)) {
     return {
       ok: false,
       failures: [

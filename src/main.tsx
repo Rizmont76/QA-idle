@@ -1,11 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
-import {
-  PROMOTION_TOAST_MS,
-  careerStages,
-  promotionDefinitions,
-  upgrades,
-} from "./gameData";
+import { PROMOTION_TOAST_MS, careerStages, promotionDefinitions } from "./gameData";
 import {
   acceptPromotion,
   evaluatePromotionAvailability,
@@ -16,6 +11,7 @@ import {
   getPromotionStage,
   getUiVisibilitySelectors,
   getUpgradeCost,
+  getVisibleUpgradeDefinitions,
   performManualTest,
   purchaseUpgrade,
   reportAllBugs,
@@ -54,6 +50,7 @@ function App() {
       (activePromotionDefinition?.toCareerStageId ?? MVP_IDS.careerStages.middleQa),
   );
   const visibility = useMemo(() => getUiVisibilitySelectors(game), [game]);
+  const visibleUpgrades = useMemo(() => getVisibleUpgradeDefinitions(game), [game]);
   const visibleActions = new Set(visibility.actionButtons);
   const isPromotionActionActive = visibility.promoteAction.includes(
     MVP_IDS.uiSurfaces.promoteAction,
@@ -259,7 +256,7 @@ function App() {
           <div className="panel">
             <h2>Basic Upgrades</h2>
             <div className="shop-list">
-              {upgrades.map((upgrade) => {
+              {visibleUpgrades.map((upgrade) => {
                 const owned = game.upgrades[upgrade.id];
                 const cost = getUpgradeCost(upgrade);
                 const isOwned = owned >= upgrade.maxLevel;
