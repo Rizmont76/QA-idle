@@ -1734,6 +1734,145 @@ describe("gameplay action operations", () => {
   });
 });
 
+describe("core gameplay loop MVP integration", () => {
+  it("completes the manual test, report, upgrade, and improved production loop without UI", () => {
+    let game = initialState;
+
+    for (let actionIndex = 0; actionIndex < 10; actionIndex += 1) {
+      const result = performManualTest(game, actionIndex);
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) {
+        throw new Error("Manual Testing should succeed in the base loop.");
+      }
+
+      game = result.game;
+    }
+
+    expect(game.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 10,
+      [MVP_IDS.resources.money]: 0,
+    });
+    expect(game.totalBugsFound).toBe(10);
+
+    const firstReport = reportAllBugs(game, 10);
+
+    expect(firstReport.ok).toBe(true);
+    if (!firstReport.ok) {
+      throw new Error("Bug Reporting should convert accumulated Bugs Found.");
+    }
+
+    game = firstReport.game;
+    expect(game.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 0,
+      [MVP_IDS.resources.money]: 10,
+    });
+    expect(game.totalMoneyEarned).toBe(10);
+
+    const checklistPurchase = purchaseUpgrade(game, MVP_IDS.upgrades.betterChecklist, 11);
+
+    expect(checklistPurchase.ok).toBe(true);
+    if (!checklistPurchase.ok) {
+      throw new Error("Better Checklist should be purchasable with earned Money.");
+    }
+
+    game = checklistPurchase.game;
+    expect(game.resources[MVP_IDS.resources.money]).toBe(0);
+    expect(game.upgrades[MVP_IDS.upgrades.betterChecklist]).toBe(1);
+    expect(getDerivedStats(game)).toEqual({
+      bugsPerClick: 2,
+      moneyPerBug: 1,
+    });
+
+    for (let actionIndex = 12; actionIndex < 62; actionIndex += 1) {
+      const result = performManualTest(game, actionIndex);
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) {
+        throw new Error("Upgraded Manual Testing should keep producing Bugs Found.");
+      }
+
+      game = result.game;
+    }
+
+    expect(game.resources[MVP_IDS.resources.bugsFound]).toBe(100);
+    expect(game.totalBugsFound).toBe(110);
+
+    const secondReport = reportAllBugs(game, 62);
+
+    expect(secondReport.ok).toBe(true);
+    if (!secondReport.ok) {
+      throw new Error("Bug Reporting should report the full upgraded bug balance.");
+    }
+
+    game = secondReport.game;
+    expect(game.resources[MVP_IDS.resources.money]).toBe(100);
+    expect(game.totalMoneyEarned).toBe(110);
+
+    const templatePurchase = purchaseUpgrade(
+      game,
+      MVP_IDS.upgrades.bugReportTemplate,
+      63,
+    );
+
+    expect(templatePurchase.ok).toBe(true);
+    if (!templatePurchase.ok) {
+      throw new Error("Bug Report Template should be purchasable with loop earnings.");
+    }
+
+    game = templatePurchase.game;
+    expect(getDerivedStats(game)).toEqual({
+      bugsPerClick: 2,
+      moneyPerBug: 2,
+    });
+
+    const upgradedManualTest = performManualTest(game, 64);
+
+    expect(upgradedManualTest.ok).toBe(true);
+    if (!upgradedManualTest.ok) {
+      throw new Error("Manual Testing should use the purchased checklist modifier.");
+    }
+
+    game = upgradedManualTest.game;
+    expect(game.resources[MVP_IDS.resources.bugsFound]).toBe(2);
+    expect(game.totalBugsFound).toBe(112);
+
+    const upgradedReport = reportAllBugs(game, 65);
+
+    expect(upgradedReport.ok).toBe(true);
+    if (!upgradedReport.ok) {
+      throw new Error("Bug Reporting should use the purchased template modifier.");
+    }
+
+    game = upgradedReport.game;
+    expect(game.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 0,
+      [MVP_IDS.resources.money]: 4,
+    });
+    expect(game.totalMoneyEarned).toBe(114);
+    expect(Object.keys(game.resources)).toEqual([
+      MVP_IDS.resources.bugsFound,
+      MVP_IDS.resources.money,
+    ]);
+    expect(game.resources).not.toHaveProperty("reputation");
+    expect(game.resources).not.toHaveProperty("automation_coverage");
+    expect(game.resources).not.toHaveProperty("team_output");
+  });
+
+  it("fails an empty bug report inside the core loop without mutating state", () => {
+    const result = reportAllBugs(initialState, 70);
+
+    expect(result.ok).toBe(false);
+    expect(result.game).toBe(initialState);
+    expect(result.events).toEqual([]);
+    if (!result.ok) {
+      expect(result.failures.map((failure) => failure.code)).toContain(
+        "operation_not_allowed",
+      );
+    }
+  });
+});
+
 describe("modifier and upgrade MVP coverage", () => {
   const upgradeEffectExpectations = [
     {

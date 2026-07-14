@@ -2276,6 +2276,7 @@ Related Documentation Sections:
 
 ### QA-MVP-042 - Add Gameplay Loop Tests
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 12 - Validation and Tests  
 Suggested Order: 4
@@ -2310,6 +2311,9 @@ Definition of Done:
 
 Expected Deliverables:
 - Core gameplay loop test suite.
+
+Implementation Note:
+- Added integration-style gameplay logic coverage for the MVP loop: new game state performs Manual Testing, reports Bugs Found into Money, purchases Better Checklist, verifies upgraded Manual Testing output, purchases Bug Report Template, verifies improved reporting value, confirms lifetime counters, and asserts only MVP resources are produced. Empty Bug Reporting is also covered as a safe failed action.
 
 Risks:
 - Avoid relying on timers or frame behavior; MVP has no passive production.
