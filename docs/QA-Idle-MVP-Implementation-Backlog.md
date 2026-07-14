@@ -2424,6 +2424,7 @@ Related Documentation Sections:
 
 ### QA-MVP-045 - Add MVP UI Smoke Tests
 
+Status: Complete
 Priority: Medium  
 Parent Phase: Phase 12 - Validation and Tests  
 Suggested Order: 7
@@ -2458,6 +2459,9 @@ Definition of Done:
 
 Expected Deliverables:
 - UI smoke tests.
+
+Implementation Note:
+- Added jsdom/Testing Library smoke coverage that boots the real React entrypoint and verifies New Game MVP surfaces, hidden future systems, Promote action reveal after all requirements, and Middle QA completion without future panels.
 
 Risks:
 - If no browser/UI test runner exists, this may need tooling discussion before implementation.
