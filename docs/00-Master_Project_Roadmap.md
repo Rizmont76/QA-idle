@@ -23,6 +23,25 @@
 
 # Development Workflow
 
+## Playable Idle MVP Status Update
+
+The completed Junior QA to Middle QA implementation is preserved as the accepted
+**Technical Vertical Slice**. Its manual-only scope, one-time upgrade set,
+promotion endpoint and absence of passive or offline production remain historically
+correct for that milestone.
+
+The active product target is now the **Playable Idle MVP**. This target extends
+the accepted Technical Vertical Slice by making Middle QA unlock the first passive
+Team subset through the Junior QA Assistant. Playable Idle MVP implementation must
+not begin until the production documentation patch defines the endpoint,
+authoritative ownership, validation gates and balance placeholders.
+
+Any older roadmap wording that says MVP implementation has not started applies
+only to the Playable Idle MVP implementation, not to the already accepted
+Technical Vertical Slice.
+
+------------------------------------------------------------------------
+
 ``` text
 Idea
     ↓
@@ -84,6 +103,10 @@ Iteration
 ------------------------------------------------------------------------
 
 # MVP Scope
+
+The scope list below is preserved as the accepted Technical Vertical Slice scope.
+For the active Playable Idle MVP, use the Playable Idle MVP status update above
+and `08-MVP_Vertical_Slice_Specification.md`.
 
 ## Included
 

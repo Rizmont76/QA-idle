@@ -24,6 +24,47 @@ It establishes how content becomes hidden, teased, visible, available, unlocked,
 
 After approval, this document becomes the Single Source of Truth for all unlock behavior in QA Idle.
 
+## Playable Idle MVP Addendum
+
+The Technical Vertical Slice unlock behavior remains historically correct: the
+Promote action is revealed when Junior to Middle promotion requirements are met,
+and future systems remain inactive.
+
+The Playable Idle MVP adds a first post-promotion unlock sequence:
+
+```text
+Manual loop active
+        -> some manual upgrades purchased
+        -> Junior QA Assistant teased
+        -> Middle QA promotion completed
+        -> Junior QA Assistant active
+        -> Junior QA Assistant producer upgrades visible
+        -> Assistant Support Upgrades staged through Middle QA
+        -> first producer milestone completed
+```
+
+The Assistant teaser may communicate that help or support is coming, but it must
+not expose full Team management, Automation, auto-reporting, future resources or
+future UI panels.
+
+Auto-reporting may be teased as a future system only after the player has seen
+manual reporting and passive Bugs Found accumulation. No teaser may activate
+automatic reporting during MVP.
+
+The three optional Assistant Support Upgrades should be revealed in stages during
+the Middle QA phase rather than all appearing immediately. A simultaneous reveal
+is allowed only if the balance simulation later proves that staged reveal harms
+the intended purchase decisions.
+
+Exact Support Upgrade unlock levels, thresholds or prerequisite conditions are
+`TBD` and owned by `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`. Unlock
+System owns the visibility states, reveal lifecycle and teaser boundaries only.
+
+This document owns unlock lifecycle, visibility state and teaser boundaries.
+Junior QA Assistant runtime behavior is owned by `06-Game_Systems.md`.
+Promotion execution is owned by `14-Promotion_System.md`. MVP acceptance is owned
+by `08-MVP_Vertical_Slice_Specification.md`.
+
 This document intentionally does **not** define:
 
 - concrete unlock content;

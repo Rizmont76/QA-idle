@@ -41,6 +41,39 @@ The Design System must allow multiple developers to build new interfaces without
 
 ---
 
+# Playable Idle MVP Addendum
+
+The completed Technical Vertical Slice workspace remains a valid visual baseline
+for the accepted manual-only slice.
+
+For the active Playable Idle MVP, the workspace must visibly grow when the player
+reaches Middle QA and unlocks the Junior QA Assistant. The UI should communicate
+that the player gained support without replacing the familiar Junior QA
+workspace.
+
+Required MVP visual communication:
+
+- contextual microcopy at first-use and unlock moments;
+- purchase grouping that separates Manual Burst investments from Passive Baseline
+  investments;
+- a clear visual distinction between repeatable Assistant levels and one-time
+  Assistant Support Upgrades;
+- before/after effect previews for Assistant levels and Assistant Support
+  Upgrades, without exposing undocumented formulas;
+- clear affordability, owned, max-level and newly-unlocked states for Middle QA
+  purchases;
+- a Junior QA Assistant workspace area after Middle QA promotion;
+- passive Bugs Found production rate with a clear source label;
+- milestone feedback for producer milestone levels;
+- Buy Max feedback that still surfaces every crossed milestone reward or effect;
+- compact offline return summary after passive production exists.
+
+VD-01 owns visual communication, layout and interaction presentation. It does not
+own Junior QA Assistant runtime behavior, economy formulas, resource rules,
+unlock requirements, promotion requirements or balance validation targets.
+
+---
+
 # Scope
 
 This document defines:

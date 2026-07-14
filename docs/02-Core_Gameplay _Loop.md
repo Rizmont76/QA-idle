@@ -19,6 +19,39 @@ Exact numbers, formulas, prices and timing curves should be defined later in the
 
 ---
 
+## Playable Idle MVP Addendum
+
+The completed Technical Vertical Slice remains the accepted manual-only
+foundation. The active product target is the Playable Idle MVP, which extends
+that foundation after the Junior QA to Middle QA promotion.
+
+Playable Idle MVP core loop:
+
+```text
+Manual Testing
+        -> Bugs Found
+        -> Manual Reporting
+        -> Money
+        -> Manual Burst upgrades or Junior QA Assistant upgrades
+        -> Passive Bugs Found baseline
+        -> First producer milestone
+```
+
+Manual Burst is a product role, not a new ability, combo, cooldown or separate
+system. Manual Testing should provide a strong immediate gain when the player is
+active. The Junior QA Assistant provides a slower passive baseline.
+
+The Junior QA Assistant produces Bugs Found only. Reporting remains a manual
+conversion step during the Playable Idle MVP. Offline progress may produce Bugs
+Found only after the passive producer is unlocked, and that offline simulation is
+limited by an offline-time cap rather than by a player-facing Bugs Found storage
+cap.
+
+Auto-reporting remains outside the Playable Idle MVP. It may be teased as a
+future system, but no automatic Bugs Found to Money conversion is active in MVP.
+
+---
+
 ## 1. Purpose of the Core Gameplay Loop
 
 The purpose of the core gameplay loop is to describe what the player repeatedly does, why those actions are satisfying, how those actions generate progress, and how the game gradually evolves as the player advances through a QA career.

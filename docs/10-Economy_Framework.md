@@ -34,6 +34,62 @@ This document intentionally does **not** define:
 
 Those belong to future balancing and content documents.
 
+## Playable Idle MVP Addendum
+
+The Playable Idle MVP economy keeps the Technical Vertical Slice resource flow
+and adds the first passive investment choice.
+
+Canonical Playable Idle MVP flow:
+
+```text
+Bugs Found
+        -> manual Reporting
+        -> Money
+        -> Manual Burst upgrades or Junior QA Assistant upgrades
+        -> active burst and passive baseline growth
+```
+
+Money remains the shared investment resource for both manual upgrades and Junior
+QA Assistant producer upgrades. This shared Money sink creates the MVP purchase
+trade-off: improve active manual burst or improve passive baseline production.
+
+Middle QA adds exactly three optional one-time Junior QA Assistant Support
+Upgrades as alternative shared-Money sinks. These Support Upgrades must compete
+economically with buying Assistant levels and must not become endpoint
+requirements.
+
+Their economic purpose is to create a small number of meaningful decisions during
+the Middle passive phase:
+
+- buying another Assistant level for direct milestone progress;
+- buying short-term Assistant support for immediate passive output;
+- buying long-term Assistant support that improves later level value;
+- optionally buying offline-oriented support that improves return value without
+  producing Money or automating reports.
+
+At least one Support Upgrade must create a measurable short-term versus long-term
+trade-off. No Support Upgrade may introduce a new currency, new producer, new
+system, automatic reporting or direct Money production.
+
+The balance simulation must check for dominant purchase strategies. A path where
+always buying levels first, always buying one Support Upgrade first, always
+skipping Support Upgrades, or always using Buy Max wins across all core scenarios
+without trade-off fails the Playable Idle MVP economy validation.
+
+The Junior QA Assistant produces Bugs Found only. It does not produce Money
+directly. Offline progress may produce Bugs Found only after the Assistant is
+unlocked. Bugs Found has no player-facing gameplay storage cap for this MVP;
+technical safe-number bounds still apply through Resource and Technical Rules.
+
+Cost scaling, production scaling, Support Upgrade prices and numeric effects,
+playtime bands, purchase count bands, stall limits, dominant strategy checks and
+runaway checks remain `TBD` and are owned by
+`15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`.
+
+Auto-reporting and Automation are excluded from the Playable Idle MVP economy.
+Auto-reporting may be teased as a future system but must not convert Bugs Found
+to Money automatically in MVP.
+
 The purpose of this document is to establish the economic architecture that every future gameplay system must follow.
 
 ---

@@ -30,6 +30,35 @@ It establishes how career transitions are evaluated, coordinated, confirmed, exe
 
 After approval, this document becomes the Single Source of Truth for every Promotion implemented in QA Idle.
 
+## Playable Idle MVP Addendum
+
+The completed Technical Vertical Slice may complete `promotion_junior_to_middle`
+by setting the current career stage to `middle_qa` without activating Middle QA
+gameplay. That remains historically correct for the accepted slice.
+
+For the active Playable Idle MVP, the Junior to Middle promotion remains
+explicitly player-confirmed and becomes the transition into the first passive
+Team subset.
+
+Playable Idle MVP promotion outcome:
+
+- complete `promotion_junior_to_middle`;
+- set the current career stage to `middle_qa`;
+- coordinate Unlock System activation of the Junior QA Assistant surface and
+  related producer upgrade visibility;
+- preserve manual reporting and Manual Testing after promotion;
+- do not activate Automation, auto-reporting, full Team management, Contracts,
+  Office, Company or Prestige.
+
+Promotion requirements keep the current requirement categories for the Playable
+Idle MVP, but exact values and any retuning are `TBD` and owned by
+`15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`.
+
+This document owns promotion availability, confirmation and coordinated outcome
+pipeline. Junior QA Assistant runtime behavior is owned by
+`06-Game_Systems.md`; unlock visibility is owned by `13-Unlock_System.md`; MVP
+acceptance is owned by `08-MVP_Vertical_Slice_Specification.md`.
+
 This document intentionally does **not** define:
 
 - concrete career ranks;

@@ -23,6 +23,47 @@ It establishes how upgrades are registered, unlocked, displayed, purchased, owne
 
 After approval, this document becomes the Single Source of Truth for every Upgrade implemented in QA Idle.
 
+## Playable Idle MVP Addendum
+
+The Technical Vertical Slice uses five one-time Basic Upgrades. That remains
+historically correct for the accepted slice.
+
+The Playable Idle MVP adds capped level-based upgrades for the Junior QA
+Assistant. This document owns the level-based upgrade model, caps, milestone
+level semantics and bulk purchase behavior.
+
+Playable Idle MVP upgrade rules:
+
+- Manual and Junior QA Assistant upgrades may share Money as their cost resource.
+- Manual upgrades and producer upgrades must be grouped separately in UI-facing
+  metadata so the player can compare Manual Burst and Passive Baseline
+  investment paths.
+- Junior QA Assistant repeatable improvements use level-based ownership.
+- MVP level-based upgrades must have finite `maxLevel` values.
+- Milestone levels must be defined separately from `maxLevel`.
+- The Playable Idle MVP includes exactly three optional one-time Junior QA
+  Assistant Support Upgrades.
+- Assistant Support Upgrades use one-time ownership, stable data-driven upgrade
+  definitions and existing Modifier effects.
+- Assistant Support Upgrades may modify Assistant passive production, Assistant
+  level effectiveness or Assistant offline effectiveness according to their
+  documented effect category.
+- Assistant Support Upgrades must not introduce new systems, currencies,
+  producers, automatic reporting, direct Money production, repeatable manual
+  upgrades or repeatable reporting upgrades.
+- Assistant Support Upgrade content identities, effect categories, lifecycle
+  metadata and Modifier integration are owned by this document.
+- Buy Max may purchase multiple levels in one atomic transaction, but it must not
+  hide milestone rewards, milestone effects or milestone feedback for levels
+  crossed by the bulk purchase.
+- If Buy Max cannot afford every remaining level, it may purchase the highest
+  affordable contiguous level range according to deterministic cost resolution.
+
+The exact max levels, milestone levels, Support Upgrade unlock thresholds,
+Support Upgrade prices, numeric effects, cost scaling parameters and endpoint
+level target are `TBD` and owned by
+`15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`.
+
 This document intentionally does **not** define:
 
 - concrete upgrade content;

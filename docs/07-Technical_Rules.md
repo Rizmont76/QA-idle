@@ -27,6 +27,51 @@ Its purpose is to define how implementation should preserve the documented desig
 
 ---
 
+# Playable Idle MVP Addendum
+
+The completed Technical Vertical Slice correctly has no passive tick production
+and no offline gains. The active Playable Idle MVP introduces the first
+deterministic passive production path and therefore requires the technical rules
+below.
+
+## Deterministic Tick Requirement
+
+Playable Idle MVP passive production must use a deterministic gameplay tick
+service based on elapsed time. UI timers may render feedback, but they must not
+own authoritative production formulas or resource mutation.
+
+The tick service must:
+
+- process passive Junior QA Assistant Bugs Found production after the Assistant
+  is unlocked;
+- clamp unsafe elapsed-time deltas;
+- keep manual player actions separate from passive production;
+- emit or return deterministic internal diagnostic/event descriptors after
+  committed state changes;
+- be reusable by offline progress where practical.
+
+## Offline Progress Requirement
+
+Offline progress in Playable Idle MVP reuses passive production rules. It may
+produce Bugs Found only, never Money directly. It is limited by an offline-time
+cap. The offline-time cap limits simulated absence duration; it is not a
+player-facing Bugs Found storage cap.
+
+## Save Versioning Requirement
+
+Adding passive producer state, level-based upgrades, milestone state or offline
+summary state requires a save schema version increment and migration from the
+accepted Technical Vertical Slice save shape.
+
+## Diagnostics Scope
+
+Playable Idle MVP includes internal diagnostics and scripted balance validation.
+External product analytics and telemetry integration are excluded from MVP.
+Technical domain events required by system architecture remain allowed and must
+not be removed.
+
+---
+
 # 1. Purpose
 
 QA Idle is designed around layered career progression, gradual system discovery and expanding responsibility.

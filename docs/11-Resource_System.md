@@ -42,6 +42,31 @@ After approval, this document becomes the Single Source of Truth for every Resou
 
 ---
 
+# Playable Idle MVP Addendum
+
+The Technical Vertical Slice resource set and manual conversion behavior remain
+historically correct. The Playable Idle MVP keeps the same core resource
+identity and adds passive Bugs Found production.
+
+Resource rules for Playable Idle MVP:
+
+- The Junior QA Assistant produces `bugs_found` only.
+- Offline progress may produce `bugs_found` only after the Assistant is unlocked.
+- Reporting remains a manual conversion from `bugs_found` to Money.
+- Auto-reporting is not active in MVP.
+- Bugs Found has no player-facing gameplay storage cap in MVP.
+- Technical safe-number bounds remain applicable and are not gameplay storage
+  caps.
+- The offline-time cap limits simulated absence duration and is not a Resource
+  storage cap.
+
+This document owns Resource terminology, storage, transactions and cap
+classification. Production formulas, offline-time cap values and validation
+targets are owned by
+`15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`.
+
+---
+
 # 1. Purpose
 
 The Resource System provides a unified architecture for every stored gameplay value owned by the player.
