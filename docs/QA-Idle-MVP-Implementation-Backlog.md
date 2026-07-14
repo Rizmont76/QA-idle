@@ -2229,6 +2229,7 @@ Related Documentation Sections:
 
 ### QA-MVP-041 - Add Modifier and Upgrade Tests
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 12 - Validation and Tests  
 Suggested Order: 3
@@ -2262,6 +2263,9 @@ Definition of Done:
 
 Expected Deliverables:
 - Modifier/Upgrade test suite.
+
+Implementation Note:
+- Added focused logic coverage for each MVP upgrade's registered modifier effect, final additive stat totals after all upgrades are owned, insufficient-Money and already-owned purchase rollback behavior, and purchased MVP upgrade counting. The tests assert gameplay logic only and avoid UI implementation details.
 
 Risks:
 - Tests must avoid asserting UI implementation details.

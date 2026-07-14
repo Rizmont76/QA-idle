@@ -1733,3 +1733,132 @@ describe("gameplay action operations", () => {
     expect(result.events).toEqual([]);
   });
 });
+
+describe("modifier and upgrade MVP coverage", () => {
+  const upgradeEffectExpectations = [
+    {
+      upgradeId: MVP_IDS.upgrades.betterChecklist,
+      statId: MVP_IDS.gameplayStats.manualBugsPerAction,
+      expectedValue: 2,
+      expectedModifierValue: 1,
+    },
+    {
+      upgradeId: MVP_IDS.upgrades.coffee,
+      statId: MVP_IDS.gameplayStats.manualBugsPerAction,
+      expectedValue: 2,
+      expectedModifierValue: 1,
+    },
+    {
+      upgradeId: MVP_IDS.upgrades.keyboardShortcuts,
+      statId: MVP_IDS.gameplayStats.manualBugsPerAction,
+      expectedValue: 3,
+      expectedModifierValue: 2,
+    },
+    {
+      upgradeId: MVP_IDS.upgrades.bugReportTemplate,
+      statId: MVP_IDS.gameplayStats.moneyPerBugReported,
+      expectedValue: 2,
+      expectedModifierValue: 1,
+    },
+    {
+      upgradeId: MVP_IDS.upgrades.testCaseLibrary,
+      statId: MVP_IDS.gameplayStats.manualBugsPerAction,
+      expectedValue: 4,
+      expectedModifierValue: 3,
+    },
+  ] as const;
+
+  it.each(upgradeEffectExpectations)(
+    "applies $upgradeId only through its registered modifier",
+    ({ upgradeId, statId, expectedValue, expectedModifierValue }) => {
+      const game = {
+        ...initialState,
+        upgrades: {
+          ...initialState.upgrades,
+          [upgradeId]: 1,
+        },
+      };
+      const { registry, failures } = createActiveModifierRegistry(game);
+      const result = calculateGameplayStat(statId, registry);
+
+      expect(failures).toEqual([]);
+      expect(result.value).toBe(expectedValue);
+      expect(result.breakdown.appliedModifiers).toHaveLength(1);
+      expect(result.breakdown.appliedModifiers[0]).toMatchObject({
+        sourceType: "upgrade",
+        sourceId: upgradeId,
+        modifierType: "flat",
+        value: expectedModifierValue,
+        previousValue: 1,
+        newValue: expectedValue,
+      });
+    },
+  );
+
+  it("calculates final additive MVP stat values after every upgrade is owned", () => {
+    const game = {
+      ...initialState,
+      upgrades: Object.fromEntries(
+        upgrades.map((upgrade) => [upgrade.id, 1]),
+      ) as typeof initialState.upgrades,
+    };
+    const stats = calculateGameplayStats(game);
+
+    expect(stats[MVP_IDS.gameplayStats.manualBugsPerAction].value).toBe(8);
+    expect(stats[MVP_IDS.gameplayStats.moneyPerBugReported].value).toBe(2);
+  });
+
+  it("does not spend Money or activate modifiers when Money is insufficient", () => {
+    const game = {
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.money]: 9,
+      },
+    };
+    const result = purchaseUpgrade(game, MVP_IDS.upgrades.betterChecklist, 80);
+
+    expect(result.ok).toBe(false);
+    expect(result.game).toBe(game);
+    expect(result.events).toEqual([]);
+    expect(game.resources[MVP_IDS.resources.money]).toBe(9);
+    expect(game.upgrades[MVP_IDS.upgrades.betterChecklist]).toBe(0);
+    expect(createActiveModifierRegistry(game).registry).toEqual({});
+  });
+
+  it("does not spend Money or duplicate modifiers when a one-time upgrade is already owned", () => {
+    const game = {
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.money]: 25,
+      },
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1 as const,
+      },
+    };
+    const result = purchaseUpgrade(game, MVP_IDS.upgrades.betterChecklist, 81);
+
+    expect(result.ok).toBe(false);
+    expect(result.game).toBe(game);
+    expect(result.events).toEqual([]);
+    expect(game.resources[MVP_IDS.resources.money]).toBe(25);
+    expect(game.upgrades[MVP_IDS.upgrades.betterChecklist]).toBe(1);
+    expect(Object.values(createActiveModifierRegistry(game).registry)).toHaveLength(1);
+  });
+
+  it("counts purchased MVP upgrades for promotion contribution", () => {
+    const game = {
+      ...initialState,
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1 as const,
+        [MVP_IDS.upgrades.coffee]: 1 as const,
+        [MVP_IDS.upgrades.keyboardShortcuts]: 1 as const,
+      },
+    };
+
+    expect(getPurchasedUpgradeCount(game)).toBe(3);
+  });
+});
