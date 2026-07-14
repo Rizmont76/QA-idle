@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { initialState, promotionDefinitions, upgrades } from "./gameData";
+import {
+  createInitialResourceState,
+  initialState,
+  MVP_RESOURCE_MAX,
+  promotionDefinitions,
+  upgrades,
+} from "./gameData";
 import {
   acceptPromotion,
   addResource,
@@ -1072,6 +1078,19 @@ describe("resource transaction validation", () => {
 });
 
 describe("resource operations", () => {
+  it("initializes MVP resource balances from registry defaults", () => {
+    const resources = createInitialResourceState();
+
+    expect(resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 0,
+      [MVP_IDS.resources.money]: 0,
+    });
+    expect(Object.keys(resources)).toEqual([
+      MVP_IDS.resources.bugsFound,
+      MVP_IDS.resources.money,
+    ]);
+  });
+
   it("adds resources after validation and returns transaction metadata", () => {
     const resources = {
       ...initialState.resources,
@@ -1165,6 +1184,34 @@ describe("resource operations", () => {
     ]);
   });
 
+  it("allows spending exactly down to the resource minimum", () => {
+    const resources = {
+      ...initialState.resources,
+      [MVP_IDS.resources.money]: 4,
+    };
+    const result = spendResource(resources, {
+      resourceId: MVP_IDS.resources.money,
+      amount: 4,
+      sourceSystem: "upgrades",
+      reason: "Spend exact balance",
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Exact-balance spend should succeed.");
+    }
+
+    expect(result.resources[MVP_IDS.resources.money]).toBe(0);
+    expect(result.transaction.changes).toEqual([
+      {
+        resourceId: MVP_IDS.resources.money,
+        previousValue: 4,
+        newValue: 0,
+        delta: -4,
+      },
+    ]);
+  });
+
   it("leaves resources unchanged and emits no events when an operation fails", () => {
     const resources = {
       ...initialState.resources,
@@ -1186,6 +1233,31 @@ describe("resource operations", () => {
     expect(result.resources[MVP_IDS.resources.money]).toBe(1);
     expect(result.failures.map((failure) => failure.code)).toContain(
       "balance_below_minimum",
+    );
+    expect(result.events).toEqual([]);
+  });
+
+  it("rejects add operations above the MVP maximum without mutating resources", () => {
+    const resources = {
+      ...initialState.resources,
+      [MVP_IDS.resources.money]: MVP_RESOURCE_MAX,
+    };
+    const result = addResource(resources, {
+      resourceId: MVP_IDS.resources.money,
+      amount: 1,
+      sourceSystem: "bug_reporting",
+      reason: "Overflow Money",
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("Overflow add operation should fail.");
+    }
+
+    expect(result.resources).toBe(resources);
+    expect(result.resources[MVP_IDS.resources.money]).toBe(MVP_RESOURCE_MAX);
+    expect(result.failures.map((failure) => failure.code)).toContain(
+      "balance_above_maximum",
     );
     expect(result.events).toEqual([]);
   });

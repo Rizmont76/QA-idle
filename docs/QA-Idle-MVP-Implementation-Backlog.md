@@ -2181,6 +2181,7 @@ Related Documentation Sections:
 
 ### QA-MVP-040 - Add Resource System Tests
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 12 - Validation and Tests  
 Suggested Order: 2
@@ -2215,6 +2216,9 @@ Definition of Done:
 
 Expected Deliverables:
 - Resource System test suite.
+
+Implementation Note:
+- Extended resource-operation coverage with explicit registry-default initialization, exact-minimum spend behavior, and MVP maximum overflow rollback assertions. Existing focused tests cover add, spend, failed spend, convert, failed convert, validation failures, deterministic metadata, atomic conversion rollback, and emitted `resource.changed` descriptors.
 
 Risks:
 - Repository currently may not include a test runner; adding one may require dependency decision.
