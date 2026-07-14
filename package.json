@@ -7,6 +7,7 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "health": "node scripts/repository-health.mjs",
+    "balance:baseline": "node scripts/balance/run-balance-simulation.mjs",
     "test": "vitest",
     "test:run": "vitest run",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run health && npm run test:run",
