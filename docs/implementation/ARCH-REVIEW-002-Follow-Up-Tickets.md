@@ -144,7 +144,7 @@ Preserve legacy aliases for previous raw save fields such as `checklist` and `co
 
 ## ARCH-002-04 - Design Lifetime Progression And Stat Ownership
 
-Status: Needs Design
+Status: Completed
 
 Priority: P2
 
@@ -178,9 +178,22 @@ The architecture expects statistics and lifetime progress to observe transaction
 - Save/load and prestige implications are documented before implementation.
 - No code change is made until the ownership decision is recorded.
 
+### Design Decision
+
+The ownership decision is recorded in `docs/11-Resource_System.md` under MVP Progression Counters.
+
+- MVP `Lifetime Bugs Found` and `Lifetime Money Earned` counters are not Resource System Resources.
+- The Statistics System owns their saved progression-counter state, mutation rules, reset behavior, and read-only query interface for Promotion and Unlock systems.
+- Successful Resource Transactions are the authoritative source for counter updates. Counter mutation happens inside the same committed gameplay transaction that applies the resource change, before post-commit gameplay events are emitted.
+- Failed or rolled-back resource transactions must not update lifetime counters.
+- Active actions, passive production, offline progress, and future resource-producing systems must feed lifetime accounting through the same committed transaction path rather than scattered direct increments.
+- MVP lifetime progression counters reset only for a new save or explicit full save reset. Future Prestige behavior must be documented before Prestige can reset, preserve, convert, or archive these counters differently.
+
 ### Verification
 
 - Documentation review against `docs/07-Technical_Rules.md` and `docs/11-Resource_System.md`.
+- `pnpm run check`
+- Passed on 2026-07-14.
 
 ---
 
