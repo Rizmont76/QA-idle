@@ -18,6 +18,7 @@ import {
   evaluatePromotionAvailabilityTransition,
   getPromotionStage,
 } from "./promotions";
+import { dispatchGameplayEvents, type GameplayEventListener } from "./events";
 import { validateUpgradePurchase } from "./upgrades";
 
 export type GameplayActionResult =
@@ -47,6 +48,7 @@ function buildGameplayFailure(
 export function acceptPromotion(
   game: GameState,
   simulationTime = Date.now(),
+  eventListeners: readonly GameplayEventListener[] = [],
 ): GameplayActionResult {
   const evaluatedGame = evaluatePromotionAvailabilityTransition(
     game,
@@ -82,20 +84,8 @@ export function acceptPromotion(
     completedPromotionId,
   );
 
-  return {
-    ok: true,
-    game: {
-      ...evaluatedGame,
-      careerStage: promotionDefinition.outcome.setCurrentStageId,
-      lastPlayedAt: simulationTime,
-      promotion: {
-        availablePromotionIds: [],
-        completedPromotionIds,
-      },
-      unlocks: completionVisibility.unlocks,
-      uiSurfaces: completionVisibility.uiSurfaces,
-    },
-    events: [
+  const events = dispatchGameplayEvents(
+    [
       {
         id: "promotion.completed",
         payload: {
@@ -115,12 +105,30 @@ export function acceptPromotion(
         },
       },
     ],
+    eventListeners,
+  ).events;
+
+  return {
+    ok: true,
+    game: {
+      ...evaluatedGame,
+      careerStage: promotionDefinition.outcome.setCurrentStageId,
+      lastPlayedAt: simulationTime,
+      promotion: {
+        availablePromotionIds: [],
+        completedPromotionIds,
+      },
+      unlocks: completionVisibility.unlocks,
+      uiSurfaces: completionVisibility.uiSurfaces,
+    },
+    events,
   };
 }
 
 export function performManualTest(
   game: GameState,
   simulationTime = Date.now(),
+  eventListeners: readonly GameplayEventListener[] = [],
 ): GameplayActionResult {
   const stats = getDerivedStats(game);
   const bugsFound = stats.bugsPerClick;
@@ -146,10 +154,8 @@ export function performManualTest(
   );
   const nextGame = availabilityTransition.game;
 
-  return {
-    ok: true,
-    game: nextGame,
-    events: [
+  const events = dispatchGameplayEvents(
+    [
       {
         id: "manualTest.performed",
         payload: {
@@ -170,12 +176,20 @@ export function performManualTest(
       },
       ...availabilityTransition.events,
     ],
+    eventListeners,
+  ).events;
+
+  return {
+    ok: true,
+    game: nextGame,
+    events,
   };
 }
 
 export function reportAllBugs(
   game: GameState,
   simulationTime = Date.now(),
+  eventListeners: readonly GameplayEventListener[] = [],
 ): GameplayActionResult {
   const stats = getDerivedStats(game);
   const reportedBugs = game.resources[MVP_IDS.resources.bugsFound];
@@ -214,10 +228,8 @@ export function reportAllBugs(
   );
   const nextGame = availabilityTransition.game;
 
-  return {
-    ok: true,
-    game: nextGame,
-    events: [
+  const events = dispatchGameplayEvents(
+    [
       {
         id: "bugReport.submitted",
         payload: {
@@ -239,6 +251,13 @@ export function reportAllBugs(
       },
       ...availabilityTransition.events,
     ],
+    eventListeners,
+  ).events;
+
+  return {
+    ok: true,
+    game: nextGame,
+    events,
   };
 }
 
@@ -246,6 +265,7 @@ export function purchaseUpgrade(
   game: GameState,
   upgradeId: Upgrade["id"],
   simulationTime = Date.now(),
+  eventListeners: readonly GameplayEventListener[] = [],
 ): GameplayActionResult {
   const validation = validateUpgradePurchase(game, upgradeId);
 
@@ -292,10 +312,8 @@ export function purchaseUpgrade(
   );
   const nextGame = availabilityTransition.game;
 
-  return {
-    ok: true,
-    game: nextGame,
-    events: [
+  const events = dispatchGameplayEvents(
+    [
       ...result.events,
       {
         id: "upgrade.purchased",
@@ -310,5 +328,12 @@ export function purchaseUpgrade(
       },
       ...availabilityTransition.events,
     ],
+    eventListeners,
+  ).events;
+
+  return {
+    ok: true,
+    game: nextGame,
+    events,
   };
 }

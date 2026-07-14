@@ -7,6 +7,7 @@ import {
   calculateGameplayStats,
   convertResources,
   createActiveModifierRegistry,
+  dispatchGameplayEvents,
   evaluatePromotionAvailability,
   evaluatePromotionAvailabilityTransition,
   evaluatePromotionRequirements,
@@ -36,8 +37,83 @@ import type {
   ResourceId,
   Upgrade,
 } from "./types";
+import type { GameplayEventListener } from "./gameLogic";
 
 describe("game logic", () => {
+  it("dispatches action events to listeners in deterministic priority order", () => {
+    const observedDeliveries: string[] = [];
+    const listeners: GameplayEventListener[] = [
+      {
+        id: "listener.z",
+        priority: 10,
+        handle: (event) => observedDeliveries.push(`listener.z:${event.id}`),
+      },
+      {
+        id: "listener.a",
+        priority: 10,
+        handle: (event) => observedDeliveries.push(`listener.a:${event.id}`),
+      },
+      {
+        id: "listener.early",
+        priority: -1,
+        handle: (event) => observedDeliveries.push(`listener.early:${event.id}`),
+      },
+    ];
+    const result = performManualTest(initialState, 10, listeners);
+
+    expect(result.ok).toBe(true);
+    expect(result.events.map((event) => event.id)).toEqual([
+      MVP_IDS.events.manualTestPerformed,
+      MVP_IDS.events.resourceChanged,
+      MVP_IDS.events.bugsFound,
+    ]);
+    expect(observedDeliveries).toEqual([
+      "listener.early:manualTest.performed",
+      "listener.a:manualTest.performed",
+      "listener.z:manualTest.performed",
+      "listener.early:resource.changed",
+      "listener.a:resource.changed",
+      "listener.z:resource.changed",
+      "listener.early:bugs.found",
+      "listener.a:bugs.found",
+      "listener.z:bugs.found",
+    ]);
+  });
+
+  it("collects transient event delivery metadata without mutating event order", () => {
+    const actionResult = performManualTest(initialState, 11);
+    const listener: GameplayEventListener = {
+      id: "listener.debug",
+      handle: () => undefined,
+    };
+
+    if (!actionResult.ok) {
+      throw new Error("Manual Testing should succeed.");
+    }
+
+    const dispatchResult = dispatchGameplayEvents(actionResult.events, [listener]);
+
+    expect(dispatchResult.events).toEqual(actionResult.events);
+    expect(dispatchResult.deliveries).toEqual([
+      { eventId: MVP_IDS.events.manualTestPerformed, listenerId: "listener.debug" },
+      { eventId: MVP_IDS.events.resourceChanged, listenerId: "listener.debug" },
+      { eventId: MVP_IDS.events.bugsFound, listenerId: "listener.debug" },
+    ]);
+  });
+
+  it("does not dispatch success events for failed gameplay actions", () => {
+    const observedEvents: string[] = [];
+    const listener: GameplayEventListener = {
+      id: "listener.debug",
+      handle: (event) => observedEvents.push(event.id),
+    };
+    const result = reportAllBugs(initialState, 12, [listener]);
+
+    expect(result.ok).toBe(false);
+    expect(result.events).toEqual([]);
+    expect(observedEvents).toEqual([]);
+  });
+
   it("queries initial MVP unlock and UI surface state separately", () => {
     expect(getUnlockState(initialState, MVP_IDS.unlocks.promotionJuniorToMiddle)).toBe(
       "hidden",

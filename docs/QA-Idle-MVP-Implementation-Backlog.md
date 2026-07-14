@@ -2073,6 +2073,7 @@ Related Documentation Sections:
 
 ### QA-MVP-038 - Implement Minimal Runtime Event Dispatch
 
+Status: Complete
 Priority: Medium  
 Parent Phase: Phase 11 - Events and Observability  
 Suggested Order: 2
@@ -2114,6 +2115,9 @@ Expected Deliverables:
 
 Risks:
 - Full event bus may be overkill; keep MVP implementation lean.
+
+Implementation Note:
+- Added a minimal transient gameplay event dispatcher with deterministic listener ordering by priority and stable listener ID. Successful MVP action results route committed event descriptors through the dispatcher, failed actions continue to emit no success events, and no excluded future systems subscribe or react to events.
 
 Related Documentation Sections:
 - `docs/07 - Technical Rules.md` - MVP Runtime Event Guarantees
