@@ -20,6 +20,37 @@ This document does not define exact mechanics, numbers, formulas, prices or UI l
 
 ---
 
+# Playable Idle MVP Addendum
+
+The Technical Vertical Slice journey ends with the player proving the Junior QA
+manual loop and reaching Middle QA. That remains historically correct.
+
+For the active Playable Idle MVP, the first promotion must create a visible and
+emotional change in the player's journey:
+
+- Junior QA teaches manual testing, reporting, money and basic upgrades.
+- Before promotion, the Junior QA Assistant may be teased lightly as upcoming
+  support.
+- Middle QA unlocks the Junior QA Assistant and the first passive Bugs Found
+  baseline.
+- The player should feel that they are no longer working alone, while still
+  using manual testing and manual reporting to make active progress.
+
+Required journey beats for Playable Idle MVP:
+
+- contextual onboarding at first manual action, first report, first purchase,
+  promotion, Assistant unlock and first passive production;
+- short-term motivation from the next purchase;
+- medium-term motivation from the first producer milestone;
+- long-term motivation from the Playable Idle MVP endpoint defined in
+  `08-MVP_Vertical_Slice_Specification.md`;
+- a compact offline return moment after passive production is unlocked.
+
+This document owns the player-facing emotional journey. It does not own Junior QA
+Assistant runtime behavior, balance values or UI layout details.
+
+---
+
 # Designer Notes
 
 ## DN-01: Add emotional names to each career stage

@@ -33,6 +33,143 @@ It selects a subset of already approved systems and specifies exactly what must 
 
 ---
 
+# 0. Scope Status Update
+
+This document now distinguishes two related milestones.
+
+## Completed Technical Vertical Slice
+
+The completed Junior QA to Middle QA implementation is the accepted
+**Technical Vertical Slice**. Its purpose was to validate the foundational manual
+loop, Resource System, one-time Basic Upgrades, Promotion, Unlock System and
+Save / Load pipeline.
+
+For the Technical Vertical Slice, the following statements remain historically
+correct:
+
+- Manual Testing is the only production system.
+- There is no passive production, no active tick production and no offline gain.
+- All slice upgrades are one-time purchases.
+- Promotion to Middle QA is the implementation endpoint.
+- Middle QA gameplay, Team, Automation, auto-reporting and future systems remain
+  inactive or hidden.
+
+## Active Product Target: Playable Idle MVP
+
+The active product target is now the **Playable Idle MVP**. It preserves the
+accepted Technical Vertical Slice and extends it with the first post-promotion
+idle loop.
+
+Playable Idle MVP scope:
+
+- Junior QA teaches the manual testing, reporting, money and basic upgrade loop.
+- Middle QA begins the first idle expansion.
+- The Junior QA Assistant is the first passive producer and is the MVP subset of
+  the Team system.
+- The Junior QA Assistant produces Bugs Found only.
+- Reporting remains a manual player action.
+- Offline progress, once unlocked, produces Bugs Found only and is limited by an
+  offline-time cap.
+- Auto-reporting and Automation remain outside MVP scope, though auto-reporting
+  may be teased as a future system.
+
+Playable Idle MVP endpoint concept:
+
+```text
+Promote to Middle QA
+        ↓
+Unlock Junior QA Assistant
+        ↓
+Purchase the TBD Assistant level target
+        ↓
+Reach the first TBD producer milestone
+        ↓
+Demonstrate deterministic passive Bugs Found production
+```
+
+The exact Assistant level target, milestone level, cost scaling parameters,
+production scaling parameters, offline-time cap and validation targets are owned
+by `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` and remain `TBD` until
+the balance simulation pass.
+
+This document owns Playable Idle MVP inclusion boundaries and acceptance. It does
+not own the Junior QA Assistant runtime behavior; that belongs to
+`06-Game_Systems.md`.
+
+## Playable Idle MVP Acceptance Framework
+
+The Playable Idle MVP is accepted only when all of the following are true:
+
+1. The completed Technical Vertical Slice flow still works:
+   - New Game;
+   - Manual Testing;
+   - Bug Reporting;
+   - Money;
+   - Basic Upgrades;
+   - Junior QA to Middle QA promotion availability and confirmation;
+   - Save / Load.
+2. Middle QA promotion unlocks the Junior QA Assistant according to
+   `13-Unlock_System.md` and `14-Promotion_System.md`.
+3. The Junior QA Assistant produces passive Bugs Found according to
+   `06-Game_Systems.md`.
+4. Reporting remains manual and converts Bugs Found to Money according to
+   `02-Core_Gameplay _Loop.md`, `10-Economy_Framework.md` and
+   `11-Resource_System.md`.
+5. The player can purchase capped level-based Junior QA Assistant upgrades
+   according to `12-Upgrade_System.md`.
+6. The Playable Idle MVP includes exactly three optional one-time Junior QA
+   Assistant Support Upgrades. They are not required for the MVP endpoint, do
+   not introduce new systems, currencies, producers, Automation or
+   auto-reporting, and use the existing Upgrade and Modifier architecture
+   according to `12-Upgrade_System.md`.
+7. Buy Max behavior preserves milestone rewards and feedback for crossed
+   milestone levels.
+8. The player reaches the first producer milestone.
+9. Offline progress, after the Assistant is unlocked, produces Bugs Found only
+   and respects the offline-time cap.
+10. Auto-reporting, Automation, full Team management, Reputation, Contracts,
+   Office, Company, Prestige, Events, Achievements and Statistics remain outside
+   active MVP gameplay.
+11. Deterministic scripted validation passes the gates owned by
+    `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`.
+
+The following acceptance fields are intentionally unresolved until the balance
+simulation pass:
+
+| Field | Status | Owner |
+|---|---|---|
+| Assistant endpoint level target | TBD | `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` |
+| First producer milestone level | TBD | `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` |
+| Cost scaling parameters | TBD | `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` |
+| Production scaling parameters | TBD | `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` |
+| Assistant Support Upgrade prices, numeric effects and unlock thresholds | TBD | `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` |
+| Dominant strategy validation targets | TBD | `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` |
+| Offline-time cap value | TBD | `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` |
+| Playtime target band | TBD | `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` |
+| Purchase count band | TBD | `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` |
+| Stall and runaway validation targets | TBD | `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` |
+
+Document 15 must not be frozen while implementation-critical `TBD` fields remain.
+
+## Playable Idle MVP Authority Map
+
+| Rule Area | Authoritative Owner |
+|---|---|
+| MVP inclusion boundaries and acceptance | This document |
+| Junior QA Assistant runtime behavior | `06-Game_Systems.md` |
+| Junior and Middle career meaning | `04-Career_System.md` |
+| Active to passive loop shape | `02-Core_Gameplay _Loop.md` |
+| Economic flow and trade-offs | `10-Economy_Framework.md` |
+| Resource storage, transactions and cap terminology | `11-Resource_System.md` |
+| Level upgrades, caps, milestones and Buy Max behavior | `12-Upgrade_System.md` |
+| Modifier calculation order | `09-Modifier_System.md` |
+| Unlock sequence and teaser boundaries | `13-Unlock_System.md` |
+| Promotion workflow and coordinated outcome | `14-Promotion_System.md` |
+| Tick, offline, save versioning and diagnostics | `07-Technical_Rules.md` |
+| Balance placeholders and validation targets | `15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` |
+
+---
+
 # Designer Notes
 
 The following proposals are **approved design decisions** that should be considered during implementation.
@@ -186,6 +323,10 @@ Its purpose is to validate the project's design, architecture and implementation
 ---
 
 # 2. Scope
+
+The original scope section below is preserved as the accepted Technical Vertical
+Slice scope. For the active Playable Idle MVP, use the Scope Status Update and
+Playable Idle MVP Acceptance Framework at the top of this document.
 
 ## Included
 

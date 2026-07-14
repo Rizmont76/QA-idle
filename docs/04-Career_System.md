@@ -34,6 +34,35 @@ Its purpose is to establish the design philosophy behind career progression so e
 
 ---
 
+# Playable Idle MVP Addendum
+
+The completed Technical Vertical Slice may treat Middle QA as an inert reached
+stage for acceptance purposes. That remains historically correct for that
+milestone only.
+
+For the active Playable Idle MVP, Junior QA and Middle QA have distinct product
+roles:
+
+- **Junior QA** teaches the personal manual QA loop: find bugs, report bugs,
+  earn Money, buy basic improvements and prepare for promotion.
+- **Middle QA** begins the first responsibility expansion: the player receives
+  support from a Junior QA Assistant and starts balancing active manual effort
+  against a passive Bugs Found baseline.
+
+Career meaning of the Junior QA Assistant:
+
+- The Assistant represents the first moment where the player is no longer
+  working alone.
+- The Assistant is a responsibility fantasy for Middle QA: mentoring,
+  coordinating and benefiting from junior support.
+- This document owns that career meaning only.
+
+Runtime behavior, production rules and upgrade behavior for the Junior QA
+Assistant are owned by `06-Game_Systems.md`. MVP inclusion boundaries and
+acceptance are owned by `08-MVP_Vertical_Slice_Specification.md`.
+
+---
+
 # Designer Notes
 
 The following proposals are **not part of the current design**.

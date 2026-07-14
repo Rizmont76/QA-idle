@@ -29,6 +29,29 @@ Instead, systems create, remove or update Modifiers.
 
 The Modifier System is responsible for deterministic calculation, persistence, debugging, UI explanations and future compatibility with large-scale progression.
 
+## Playable Idle MVP Addendum
+
+The completed Technical Vertical Slice uses additive permanent modifiers only.
+That remains historically correct.
+
+The Playable Idle MVP may introduce at most one clearly gated producer milestone
+multiplier. Modifier calculation for that MVP must be deterministic:
+
+1. Resolve base gameplay stat values.
+2. Apply additive bonuses.
+3. Apply approved multiplier bonuses.
+4. Apply rounding only at the documented calculation boundary.
+5. Return display formatting to the UI layer rather than the Modifier System.
+
+Multiplier scope must be explicit. A producer milestone multiplier may affect
+only the Junior QA Assistant passive production path unless another authoritative
+document explicitly expands the target.
+
+If multiple multipliers are introduced after MVP, their stacking order and
+combination rule must be documented before implementation. Balance values and
+validation targets are owned by
+`15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`.
+
 This document intentionally does **not** define:
 
 - economy balance;

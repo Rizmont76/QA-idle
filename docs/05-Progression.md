@@ -35,6 +35,43 @@ Its purpose is to establish the design philosophy behind progression so every fu
 
 ---
 
+# Playable Idle MVP Addendum
+
+The active Playable Idle MVP uses three visible progression horizons:
+
+- **Short-term goal:** the next meaningful purchase.
+- **Medium-term goal:** the next Junior QA Assistant producer milestone.
+- **Long-term goal:** the Playable Idle MVP endpoint owned by
+  `08-MVP_Vertical_Slice_Specification.md`.
+
+Unlock pacing for the Playable Idle MVP follows this order:
+
+```text
+Manual loop
+        -> some manual upgrades
+        -> Junior QA Assistant teaser
+        -> Middle QA promotion
+        -> Junior QA Assistant active
+        -> producer upgrades
+        -> first producer milestone
+```
+
+Progression quality must be validated by later simulation before final values are
+approved. The following remain `TBD` and are owned by
+`15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`:
+
+- desired playtime band;
+- expected purchase count band;
+- time-to-next-meaningful-action stall limits;
+- runaway growth checks;
+- Assistant level endpoint target;
+- first producer milestone level.
+
+This document owns pacing philosophy and goal structure, not formulas or numeric
+targets.
+
+---
+
 # Designer Notes
 
 The following proposals are **not part of the current design**.

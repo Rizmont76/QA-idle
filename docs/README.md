@@ -6,7 +6,7 @@ Do not treat this index as a replacement for canonical design documents. It summ
 
 ## Source Of Truth Order
 
-1. `docs/00-Master_Project_Roadmap.md` through `docs/14-Promotion_System.md` define approved production direction.
+1. `docs/00-Master_Project_Roadmap.md` through `docs/14-Promotion_System.md` define approved production direction. `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` will define Playable Idle MVP balance placeholders and validation targets once created.
 2. `docs/07-Technical_Rules.md` defines implementation architecture and technical constraints.
 3. `docs/workflows/` defines active AI task workflow and prompt-template guidance.
 4. Task backlogs and epic files define execution order but do not authorize undocumented mechanics.
@@ -41,6 +41,7 @@ Do not treat this index as a replacement for canonical design documents. It summ
 | [12 - Upgrade System](12-Upgrade_System.md) | Gameplay System | Frozen | Upgrade lifecycle, definitions, purchase rules, costs, modifier/resource integration. | Game Systems, Technical Rules, Modifier System, Resource System, Economy Framework |
 | [13 - Unlock System](13-Unlock_System.md) | Gameplay System | Frozen | Unlock lifecycle, visibility states, requirements, transactions, UI integration. | Game Systems, Technical Rules, Career System, Progression, MVP Specification |
 | [14 - Promotion System](14-Promotion_System.md) | Gameplay System | Frozen | Promotion lifecycle, requirements, transactions, rewards, system integrations. | Career System, Progression, Game Systems, Technical Rules, Resource System, Upgrade System, Unlock System |
+| 15 - Playable Idle MVP Balance and Simulation Spec | Balance / Validation | Planned | Playable Idle MVP balance placeholders, simulation scenarios, validation gates, and final target values after approval. | Roadmap, MVP Specification, Technical Rules, Economy Framework, Upgrade System |
 
 ## Supporting Document Index
 
@@ -69,9 +70,10 @@ Do not treat this index as a replacement for canonical design documents. It summ
 | Gameplay stat modifiers and calculation order | `docs/09-Modifier_System.md` |
 | Economy flows, sources, sinks, balance philosophy | `docs/10-Economy_Framework.md` |
 | Resource registry, balances, resource transactions | `docs/11-Resource_System.md` |
-| Upgrade registry, costs, purchases, upgrade effects | `docs/12-Upgrade_System.md` |
+| Upgrade registry, lifecycle, purchase rules, level caps, one-time Support Upgrade classification and modifier integration | `docs/12-Upgrade_System.md` |
 | Unlock states, visibility, unlock evaluation | `docs/13-Unlock_System.md` |
 | Promotion availability, completion pipeline, promotion rewards | `docs/14-Promotion_System.md` |
+| Playable Idle MVP balance placeholders, prices, numeric effects, unlock thresholds, formulas, target bands, dominant-strategy checks, simulation scenarios, and validation gates | `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` |
 | Repository scalability epic state | `docs/EPIC-AI-Assisted-Repository-Scalability.md` |
 | MVP implementation task state | `docs/QA-Idle-MVP-Implementation-Backlog.md` |
 | AI task workflow and prompt templates | `docs/workflows/` |
@@ -85,7 +87,7 @@ Use the required context first. Load optional context only when the task touches
 | Task Type | Required Context | Optional Context | Excluded By Default |
 |---|---|---|---|
 | Gameplay feature implementation | `AGENTS.md`, relevant system doc, `docs/08-MVP_Vertical_Slice_Specification.md`, `docs/07-Technical_Rules.md` | `docs/06-Game_Systems.md`, `docs/02-Core_Gameplay _Loop.md`, nearest tests | Unrelated future-system docs, implementation reports |
-| Gameplay balancing | `docs/10-Economy_Framework.md`, relevant system doc, `docs/05-Progression.md` | `docs/08-MVP_Vertical_Slice_Specification.md`, `docs/09-Modifier_System.md` | Source files unrelated to tuned values |
+| Gameplay balancing | `docs/10-Economy_Framework.md`, relevant system doc, `docs/05-Progression.md` | `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` once created, `docs/08-MVP_Vertical_Slice_Specification.md`, `docs/09-Modifier_System.md` | Source files unrelated to tuned values |
 | Formula changes | `docs/09-Modifier_System.md`, relevant system doc, `docs/07-Technical_Rules.md` | `docs/10-Economy_Framework.md`, nearest logic tests | UI-only docs and unrelated backlog files |
 | UI implementation | `AGENTS.md`, `docs/03-Player_Journey.md`, `docs/13-Unlock_System.md`, relevant mechanic doc | `docs/08-MVP_Vertical_Slice_Specification.md`, `docs/07-Technical_Rules.md`, `src/main.tsx`, `src/styles.css` | Unrelated economy or future-system docs |
 | Visual design documentation | `docs/03-Player_Journey.md`, relevant feature doc | `docs/01-Vision.md`, `docs/08-MVP_Vertical_Slice_Specification.md` | Production source files unless documenting implemented UI |
@@ -108,6 +110,7 @@ Load these only when the task specifically touches the trigger:
 | Trigger | Add This Context |
 |---|---|
 | MVP scope or future-system exposure | `docs/00-Master_Project_Roadmap.md`, `docs/08-MVP_Vertical_Slice_Specification.md` |
+| Playable Idle MVP simulation, formulas, target bands, stall limits, runaway checks | `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md` once created |
 | Manual testing or bug reporting loop | `docs/02-Core_Gameplay _Loop.md`, `docs/08-MVP_Vertical_Slice_Specification.md` |
 | Career stage identity | `docs/04-Career_System.md`, `docs/03-Player_Journey.md` |
 | Economy prices, rewards, or sinks | `docs/10-Economy_Framework.md` |

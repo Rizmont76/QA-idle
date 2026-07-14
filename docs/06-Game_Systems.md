@@ -39,6 +39,38 @@ Every future design document should reference this document before introducing o
 
 ---
 
+# Playable Idle MVP Addendum
+
+This document is the authoritative owner of the Junior QA Assistant runtime
+behavior and system definition for the Playable Idle MVP.
+
+## Junior QA Assistant
+
+The Junior QA Assistant is the first MVP subset of the Team system. It is not the
+full Team system and must not imply full hiring, staffing, morale, office
+capacity, specialization or management gameplay.
+
+Runtime behavior:
+
+- unlocks after the player completes the Junior QA to Middle QA promotion;
+- produces Bugs Found passively;
+- does not produce Money directly;
+- does not report bugs automatically;
+- may contribute to offline progress after it is unlocked;
+- participates in producer upgrades and producer milestones;
+- remains separate from Automation.
+
+Automation and auto-reporting remain outside the Playable Idle MVP. Auto-reporting
+may be teased as a future system, but no automatic conversion from Bugs Found to
+Money is active in MVP.
+
+Career meaning for the Assistant is owned by `04-Career_System.md`. MVP inclusion
+boundaries and acceptance are owned by `08-MVP_Vertical_Slice_Specification.md`.
+Balance values and validation targets are owned by
+`15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`.
+
+---
+
 # Designer Notes
 
 The following proposals are **not part of the current design**.
