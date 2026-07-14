@@ -1,0 +1,2241 @@
+# VD-01 — UI Design System
+
+## Document Status
+
+**Project:** QA Idle
+
+**Document Type:** Visual Design Documentation
+
+**Owner Roles:**
+
+- Lead Product Designer
+- Senior Game UI Designer
+- Senior UX Designer
+- Design System Architect
+- Art Director
+
+**Status:** Frozen v1.0
+
+**Depends On:**
+
+- 01 - Vision.md
+- 02 - Core Gameplay Loop.md
+- 03 - Player Journey.md
+- 08 - MVP Vertical Slice Specification.md
+
+---
+
+# Purpose
+
+This document defines the complete visual design system used throughout QA Idle.
+
+It serves as the single source of truth for the visual language of the game and establishes the rules that every future interface, screen and component must follow.
+
+Unlike gameplay documentation, this document does not define mechanics, progression formulas or system behavior.
+
+Instead, it defines **how gameplay is visually communicated**.
+
+Its purpose is to ensure that every future UI implementation feels like it belongs to the same product, regardless of how much the game expands over time.
+
+The Design System must allow multiple developers to build new interfaces without inventing new visual patterns independently.
+
+---
+
+# Scope
+
+This document defines:
+
+- visual design philosophy;
+- workspace philosophy;
+- layout rules;
+- spacing system;
+- grid system;
+- design tokens;
+- color architecture;
+- typography;
+- iconography;
+- elevation;
+- corner radius;
+- motion language;
+- component states;
+- accessibility requirements;
+- responsive behavior;
+- implementation principles.
+
+This document intentionally does **not** define:
+
+- individual screen layouts;
+- exact HUD composition;
+- gameplay balancing;
+- artwork;
+- illustrations;
+- character design;
+- animations for specific gameplay events.
+
+Those topics belong to later Visual Design documents.
+
+---
+
+# Relationship to Game Design
+
+The UI Design System must never contradict the approved Game Design documentation.
+
+It exists to visually support the approved gameplay philosophy.
+
+In particular, it reinforces the following project principles:
+
+- Career progression is the primary reward.
+- UI is part of progression.
+- New systems should feel like new responsibilities.
+- Future gameplay remains hidden until unlocked.
+- The interface grows together with the player's career.
+- Workspace expansion is part of the player's emotional journey.
+
+Whenever a visual decision conflicts with gameplay clarity, gameplay clarity takes priority.
+
+---
+
+# Design Philosophy
+
+## Core Vision
+
+QA Idle should feel like:
+
+> **"A productivity application that secretly became an idle game."**
+
+The interface should immediately communicate professionalism, comfort and clarity before communicating progression.
+
+The player should feel like they are working inside a carefully organized workspace rather than playing a traditional clicker.
+
+The UI should encourage long play sessions without becoming visually exhausting.
+
+---
+
+## Workspace First
+
+The workspace is not merely the background behind gameplay.
+
+The workspace **is the game**.
+
+Every system appears as a natural extension of the player's working environment.
+
+Examples include:
+
+- an additional monitor;
+- a new notebook;
+- a planning board;
+- a testing tool;
+- a management panel;
+- an automation dashboard.
+
+Future systems should integrate into the workspace rather than replacing it.
+
+The player should feel that they are continuously improving their workplace.
+
+---
+
+## Progressive Complexity
+
+The interface must evolve at the same pace as gameplay complexity.
+
+The player should never encounter unnecessary visual complexity before it becomes useful.
+
+Early career stages prioritize:
+
+- simplicity;
+- whitespace;
+- clear hierarchy;
+- large interaction targets.
+
+Later career stages may gradually introduce:
+
+- additional panels;
+- secondary information;
+- advanced management tools;
+- larger dashboards.
+
+At every stage the interface should remain understandable within a few seconds.
+
+---
+
+## Calm Productivity
+
+The emotional tone of the interface should be calm.
+
+The game should never feel stressful despite growing complexity.
+
+Visual feedback should reward the player without overwhelming them.
+
+Animations should reinforce responsiveness rather than spectacle.
+
+The interface should encourage the feeling:
+
+> "Everything is under control."
+
+---
+
+## Friendly Professionalism
+
+QA Idle intentionally avoids two extremes.
+
+It should not resemble:
+
+- enterprise software;
+- accounting tools;
+- generic dashboards;
+- Jira;
+- Azure DevOps;
+- spreadsheet applications.
+
+Likewise, it should not resemble:
+
+- flashy mobile clickers;
+- casino interfaces;
+- exaggerated fantasy RPG menus;
+- cartoon management games.
+
+Instead, the desired tone is:
+
+- modern;
+- clean;
+- cozy;
+- inviting;
+- productivity-oriented;
+- playful through subtle details.
+
+Humor should emerge through content and small visual touches rather than loud visual effects.
+
+---
+
+# Design Principles
+
+Every future visual decision should support at least one of the following principles.
+
+## 1. Clarity Before Decoration
+
+Every element must have a clear purpose.
+
+Decorative details should never reduce readability.
+
+Visual hierarchy always takes priority over aesthetics.
+
+---
+
+## 2. Space Creates Comfort
+
+Whitespace is considered an active design element.
+
+Interfaces should breathe.
+
+The player should never feel that information is compressed simply to fit more content onto the screen.
+
+Comfortable spacing supports long idle sessions.
+
+---
+
+## 3. Components Are Reusable
+
+The Design System should rely on a relatively small number of reusable components.
+
+Future screens should be composed by combining existing components rather than inventing new ones.
+
+Consistency is preferred over uniqueness.
+
+---
+
+## 4. Visual Stability
+
+Frequent gameplay updates should not constantly rearrange the interface.
+
+Important UI regions should remain stable.
+
+Players should build long-term spatial memory.
+
+The game grows by extending the workspace, not by moving familiar elements.
+
+---
+
+## 5. Soft Gamification
+
+Game elements should integrate naturally into the workspace.
+
+Buttons, cards and indicators should resemble professional productivity tools while still providing satisfying game feedback.
+
+The player should feel rewarded without the interface becoming visually noisy.
+
+---
+
+## 6. Discovery Through Expansion
+
+Progress should become visible through the workspace itself.
+
+New mechanics should introduce:
+
+- new objects;
+- new panels;
+- new monitors;
+- new work surfaces;
+- new management tools.
+
+The interface should communicate growth before the player even interacts with the new mechanic.
+
+---
+
+## 7. Visual Noise Budget
+
+The interface has a limited visual complexity budget.
+
+Future systems must primarily reuse:
+
+- existing colors;
+- existing typography;
+- existing components;
+- existing spacing rules;
+- existing elevations;
+- existing interaction patterns.
+
+Every new gameplay system should consume as little additional visual complexity as possible.
+
+Growth should come from functionality rather than visual inconsistency.
+
+---
+
+## 8. UI Is Gameplay
+
+Every promotion should leave a visible footprint inside the workspace.
+
+The player should be able to recognize their career growth simply by looking at the screen.
+
+The interface itself becomes one of the primary progression rewards.
+
+---
+
+# Workspace Philosophy
+
+The workspace represents the player's professional environment.
+
+Rather than opening unrelated menus, the player gradually develops a single evolving workplace.
+
+The workspace should feel personal.
+
+As progression continues it becomes increasingly sophisticated without losing its identity.
+
+This philosophy creates a continuous emotional connection between the player and the environment.
+
+The workspace should always feel like:
+
+> "My workspace."
+
+not
+
+> "The next screen."
+
+This principle should remain true throughout the entire lifetime of QA Idle.
+# Grid System
+
+## Purpose
+
+The Grid System defines the spatial foundation of every interface in QA Idle.
+
+A consistent grid creates:
+
+- predictable layouts;
+- reusable components;
+- visual rhythm;
+- implementation consistency;
+- scalability for future workspace expansion.
+
+All interface elements should align to the same underlying structure.
+
+---
+
+# Base Unit
+
+QA Idle uses an **8px Grid System**.
+
+The 8px unit is considered the primary spacing unit for:
+
+- layout;
+- containers;
+- sections;
+- cards;
+- dialogs;
+- navigation;
+- page margins.
+
+This grid remains consistent throughout the entire game.
+
+---
+
+## Micro Grid
+
+Some UI elements require finer alignment.
+
+A secondary **4px Micro Grid** is permitted **only inside components**.
+
+Typical use cases:
+
+- icon spacing;
+- badge padding;
+- progress bars;
+- compact labels;
+- chip components;
+- toggle controls;
+- notification counters.
+
+The Micro Grid must never replace the primary layout grid.
+
+---
+
+# Grid Hierarchy
+
+The Design System uses three layout levels.
+
+## Level 1 — Page Grid
+
+Responsible for:
+
+- page margins;
+- overall workspace width;
+- screen structure.
+
+Uses:
+
+- 8px multiples only.
+
+---
+
+## Level 2 — Section Grid
+
+Responsible for:
+
+- panel spacing;
+- dashboard composition;
+- workspace zones.
+
+Uses:
+
+- 8px multiples only.
+
+---
+
+## Level 3 — Component Grid
+
+Responsible for:
+
+- internal card padding;
+- button content;
+- icons;
+- labels;
+- small controls.
+
+Uses:
+
+- 8px
+- optional 4px Micro Grid.
+
+---
+
+# Spacing Scale
+
+The Design System defines a fixed spacing scale.
+
+| Token | Value | Typical Usage |
+|--------|------:|---------------|
+| XS | 4px | Icon gaps, compact badges |
+| SM | 8px | Internal spacing |
+| MD | 16px | Card padding |
+| LG | 24px | Between related sections |
+| XL | 32px | Large groups |
+| XXL | 48px | Major workspace separation |
+| XXXL | 64px | Full-page breathing space |
+
+Additional custom spacing values should be avoided.
+
+Whenever possible, layouts should reuse these predefined tokens.
+
+---
+
+# Layout Rhythm
+
+Visual rhythm should feel calm and deliberate.
+
+The preferred pattern is:
+
+```text
+Small spacing
+↓
+
+Component
+
+↓
+
+Medium spacing
+
+↓
+
+Component Group
+
+↓
+
+Large spacing
+
+↓
+
+Workspace Section
+
+↓
+
+Extra Large spacing
+
+↓
+
+Major Workspace Area
+```
+
+The player should naturally understand grouping through spacing alone.
+
+---
+
+# Layout System
+
+The workspace is divided into persistent layout regions.
+
+These regions remain recognizable throughout the player's career.
+
+Future gameplay expands existing regions rather than replacing them.
+
+Typical layout hierarchy:
+
+```text
+Workspace
+│
+├── Header
+│
+├── Primary Workspace
+│
+├── Secondary Workspace
+│
+├── Sidebar (optional)
+│
+└── Footer / Status Area
+```
+
+Future systems should attach themselves to one of these existing regions.
+
+New top-level layout regions should be introduced only when absolutely necessary.
+
+---
+
+# Content Width
+
+The interface should avoid stretching content across extremely wide displays.
+
+Recommended maximum content width:
+
+- approximately 1440–1600px for the main workspace.
+
+On larger monitors:
+
+- increase outer whitespace;
+- avoid excessively long reading lines;
+- keep important interactions near the center of attention.
+
+The game should feel like a carefully arranged desk rather than a wall of widgets.
+
+---
+
+# Alignment Rules
+
+The Design System prefers strong alignment.
+
+Components should align to:
+
+- common edges;
+- shared baselines;
+- consistent columns.
+
+Random offsets should be avoided.
+
+Intentional asymmetry is acceptable only when supporting a clear gameplay purpose.
+
+---
+
+# Responsive Grid
+
+The Design System is desktop-first.
+
+Primary implementation target:
+
+- Desktop browser.
+
+Secondary support:
+
+- Large tablets.
+
+Mobile layouts are intentionally outside the MVP scope.
+
+The responsive system should therefore prioritize preserving workspace quality over fitting every possible screen size.
+
+---
+
+# Breakpoints
+
+Recommended implementation breakpoints:
+
+| Name | Width |
+|------|------:|
+| Small Desktop | 1280px |
+| Desktop | 1440px |
+| Large Desktop | 1600px |
+| Ultra Wide | 1920px+ |
+
+Workspace composition may adjust at these breakpoints without changing the player's mental model.
+
+Elements should reposition gracefully while preserving hierarchy.
+
+---
+
+# Layout Principles
+
+Every layout should satisfy the following principles.
+
+## Stable Navigation
+
+Navigation should remain in a predictable location.
+
+The player should never need to search for core interactions.
+
+---
+
+## Stable Resources
+
+Primary resources should occupy consistent positions.
+
+The player's eyes should learn where important information lives.
+
+---
+
+## Stable Primary Action
+
+The current primary gameplay action should always remain visually dominant.
+
+It should never compete with secondary actions.
+
+---
+
+## Expand Without Rearranging
+
+When a new gameplay system unlocks, existing components should remain where possible.
+
+Expansion is preferred over replacement.
+
+The player should perceive:
+
+> "My workspace became larger."
+
+instead of:
+
+> "Everything moved."
+
+---
+
+# Design Token Architecture
+
+## Purpose
+
+All visual values must originate from Design Tokens.
+
+Components should never contain hardcoded visual values.
+
+The token hierarchy ensures:
+
+- consistency;
+- maintainability;
+- theme support;
+- scalability.
+
+---
+
+## Token Layers
+
+The Design System uses three abstraction levels.
+
+```text
+Foundation Tokens
+        ↓
+Semantic Tokens
+        ↓
+Component Tokens
+```
+
+Only Component Tokens should be referenced directly by UI components.
+
+---
+
+## Foundation Tokens
+
+Foundation Tokens define raw visual primitives.
+
+Examples include:
+
+- grayscale palette;
+- brand palette;
+- spacing scale;
+- border radius;
+- typography scale;
+- elevation values;
+- animation durations.
+
+Foundation Tokens should never reference gameplay concepts.
+
+---
+
+## Semantic Tokens
+
+Semantic Tokens translate raw values into meaning.
+
+Examples:
+
+- Surface
+- Background
+- Text Primary
+- Text Secondary
+- Border
+- Primary
+- Success
+- Warning
+- Error
+- Accent
+
+Changing Foundation Tokens should automatically update Semantic Tokens.
+
+---
+
+## Component Tokens
+
+Component Tokens define appearance for individual UI elements.
+
+Examples:
+
+- Button Background
+- Card Border
+- Card Shadow
+- Panel Background
+- Progress Fill
+- Tooltip Surface
+- Navigation Background
+- Workspace Divider
+
+Components should consume only these tokens.
+
+This ensures that future visual refreshes require minimal implementation changes.
+# Color System
+
+## Purpose
+
+The Color System establishes the visual identity of QA Idle.
+
+Its primary purpose is **communication**, not decoration.
+
+Colors should help the player understand:
+
+- hierarchy;
+- interaction;
+- status;
+- progression;
+- feedback.
+
+The interface should never rely on color alone to communicate important information.
+
+---
+
+# Color Philosophy
+
+QA Idle follows a restrained color philosophy.
+
+The workspace should feel:
+
+- calm;
+- modern;
+- approachable;
+- productive.
+
+Most of the interface should consist of neutral surfaces.
+
+Accent colors should be used intentionally to direct attention.
+
+The player should immediately notice when something is important because color is relatively scarce.
+
+---
+
+# Design Token Hierarchy
+
+The color architecture follows the Design Token System.
+
+```text
+Foundation Palette
+        ↓
+Semantic Colors
+        ↓
+Component Colors
+```
+
+Raw colors must never be referenced directly inside components.
+
+---
+
+# Foundation Palette
+
+The Foundation Palette contains neutral and accent color families.
+
+Recommended families:
+
+- Neutral Gray
+- Brand Blue
+- Success Green
+- Warning Amber
+- Error Red
+- Information Cyan
+- Accent Purple (optional future use)
+
+The exact hexadecimal values are implementation details and may evolve over time.
+
+Only the semantic meaning of each family is fixed.
+
+---
+
+# Semantic Colors
+
+The Design System defines the following semantic color roles.
+
+## Background
+
+Used for the application background.
+
+Should remain visually quiet.
+
+---
+
+## Surface
+
+Used for cards, panels and containers.
+
+Surfaces should clearly separate interface layers without excessive contrast.
+
+---
+
+## Surface Elevated
+
+Used for floating UI.
+
+Examples:
+
+- popovers;
+- dropdowns;
+- dialogs;
+- floating inspectors.
+
+---
+
+## Border
+
+Used to define structure.
+
+Borders should be subtle.
+
+Spacing and elevation should communicate hierarchy before borders do.
+
+---
+
+## Text Primary
+
+Highest contrast text.
+
+Used for:
+
+- headings;
+- important values;
+- primary labels.
+
+---
+
+## Text Secondary
+
+Used for supporting information.
+
+Examples:
+
+- descriptions;
+- helper text;
+- metadata.
+
+---
+
+## Primary
+
+Represents the player's main interaction.
+
+Examples:
+
+- primary buttons;
+- selected controls;
+- important progress.
+
+Only one dominant primary action should exist within a local context.
+
+---
+
+## Success
+
+Represents positive outcomes.
+
+Examples:
+
+- completed purchase;
+- successful action;
+- unlocked promotion;
+- completed requirement.
+
+---
+
+## Warning
+
+Represents situations requiring attention.
+
+Examples:
+
+- nearly affordable upgrade;
+- incomplete requirement;
+- recommended action.
+
+Warnings should remain calm rather than alarming.
+
+---
+
+## Error
+
+Represents invalid actions.
+
+Examples:
+
+- insufficient money;
+- unavailable purchase;
+- failed validation.
+
+Errors should never feel punishing.
+
+---
+
+## Information
+
+Used for neutral educational feedback.
+
+Examples:
+
+- tutorials;
+- tips;
+- explanations;
+- onboarding.
+
+---
+
+# Color Usage Rules
+
+The interface should maintain a low color density.
+
+Recommended balance:
+
+- 70–80% neutral surfaces
+- 15–20% typography
+- 5–10% accent colors
+
+This restraint helps important gameplay feedback stand out naturally.
+
+---
+
+# Resource Colors
+
+Resources may use subtle identity colors.
+
+However:
+
+Resources must remain visually consistent across the game.
+
+The same resource should never change its identity color between screens.
+
+Resource colors should support recognition without dominating the interface.
+
+---
+
+# Promotion Colors
+
+Promotions represent major milestones.
+
+Promotion feedback may temporarily introduce richer accent colors than normal gameplay.
+
+Examples include:
+
+- banners;
+- celebration modals;
+- workspace glow;
+- promotion ribbon.
+
+After the promotion sequence completes, the interface should return to its normal restrained appearance.
+
+---
+
+# Typography System
+
+## Purpose
+
+Typography is responsible for creating visual hierarchy before any other design element.
+
+Good typography should make the interface understandable even without icons or colors.
+
+---
+
+# Typography Philosophy
+
+Typography should feel:
+
+- clean;
+- modern;
+- highly readable;
+- comfortable during long sessions.
+
+Decorative fonts should never be used for gameplay UI.
+
+The interface should resemble modern productivity software rather than fantasy games.
+
+---
+
+# Font Family
+
+The Design System should use one primary typeface.
+
+Requirements:
+
+- excellent readability;
+- modern appearance;
+- extensive language support;
+- variable font support preferred;
+- open-source preferred.
+
+Suitable examples include:
+
+- Inter
+- Geist
+- Manrope
+
+The final font selection should remain consistent throughout the project.
+
+---
+
+# Typography Scale
+
+A fixed typography scale should be used.
+
+| Style | Usage |
+|--------|-------|
+| Display | Major milestones |
+| H1 | Screen title |
+| H2 | Section title |
+| H3 | Card title |
+| Body Large | Primary reading |
+| Body | Standard text |
+| Body Small | Metadata |
+| Caption | Secondary information |
+| Label | Buttons and controls |
+
+Arbitrary font sizes should be avoided.
+
+---
+
+# Text Hierarchy
+
+Every screen should have a clear reading order.
+
+Preferred hierarchy:
+
+```text
+Screen Title
+
+↓
+
+Section Title
+
+↓
+
+Card Title
+
+↓
+
+Primary Value
+
+↓
+
+Supporting Description
+
+↓
+
+Metadata
+```
+
+The player should understand where to look first without relying on color.
+
+---
+
+# Numeric Typography
+
+Gameplay numbers deserve special treatment.
+
+Important values should:
+
+- align consistently;
+- avoid layout shifts;
+- remain easy to compare.
+
+Counters should animate smoothly while preserving readability.
+
+Rapidly changing numbers must never flicker.
+
+---
+
+# Corner Radius System
+
+## Philosophy
+
+Rounded corners reinforce the cozy and approachable nature of QA Idle.
+
+Sharp corners should be avoided.
+
+The radius language should remain subtle rather than exaggerated.
+
+---
+
+# Radius Scale
+
+Recommended scale:
+
+| Token | Usage |
+|--------|-------|
+| Small | Chips, badges |
+| Medium | Inputs, buttons |
+| Large | Cards |
+| Extra Large | Dialogs |
+| Full | Pills, avatars |
+
+Only these predefined radius values should exist.
+
+---
+
+# Radius Rules
+
+Cards and buttons should belong to the same visual family.
+
+Large differences in corner radius between neighboring components should be avoided.
+
+Consistency contributes more to quality than variety.
+
+---
+
+# Elevation System
+
+## Purpose
+
+Elevation communicates spatial hierarchy.
+
+It should never be used merely for decoration.
+
+The player should intuitively understand which elements are:
+
+- part of the workspace;
+- floating above it;
+- temporarily demanding attention.
+
+---
+
+# Elevation Levels
+
+QA Idle defines five elevation levels.
+
+| Level | Typical Usage |
+|--------|---------------|
+| E0 | Background |
+| E1 | Cards |
+| E2 | Floating panels |
+| E3 | Popovers, dropdowns |
+| E4 | Modals, promotion dialogs |
+
+No additional elevation levels should exist.
+
+---
+
+# Shadow Philosophy
+
+Shadows should be:
+
+- soft;
+- diffuse;
+- modern;
+- subtle.
+
+The interface should never resemble early Material Design with heavy shadows.
+
+Elevation should feel almost invisible until compared directly.
+
+---
+
+# Layering Rules
+
+Visual hierarchy should be established in the following order:
+
+1. Layout
+2. Whitespace
+3. Typography
+4. Surface
+5. Elevation
+6. Shadow
+
+Shadow is the final refinement, not the primary communication tool.
+
+---
+
+# Iconography System
+
+## Philosophy
+
+Icons support recognition.
+
+They should never replace readable labels during the early game.
+
+Icons become increasingly useful as the workspace expands.
+
+---
+
+# Icon Style
+
+QA Idle uses:
+
+- rounded;
+- outline;
+- geometric;
+- consistent stroke width.
+
+Icons should appear lightweight and modern.
+
+Filled icons should be reserved for active states or exceptional emphasis.
+
+---
+
+# Icon Size
+
+The Design System should define a limited icon scale.
+
+Examples:
+
+- Small
+- Medium
+- Large
+
+Intermediate custom sizes should be avoided.
+
+---
+
+# QA Identity
+
+Where appropriate, custom icons may be introduced for concepts unique to QA.
+
+Examples include:
+
+- bug report;
+- regression testing;
+- automation;
+- test suite;
+- CI pipeline;
+- release candidate.
+
+These custom icons should follow the same stroke, proportions and visual language as the standard icon library.
+
+---
+
+# Icon Usage Rules
+
+Icons should always improve scanning speed.
+
+Avoid using icons merely as decoration.
+
+When an icon and a label appear together:
+
+- the icon provides quick recognition;
+- the text provides clarity.
+
+The text should remain understandable even if the icon is removed.
+
+Players unfamiliar with QA terminology should still be able to understand the interface.
+# Motion Language
+
+## Purpose
+
+Motion is a communication tool.
+
+Animations should explain:
+
+- what changed;
+- why it changed;
+- where the player's attention should move.
+
+Motion should never exist solely for decoration.
+
+---
+
+# Motion Philosophy
+
+QA Idle follows a **Calm Productivity** motion philosophy.
+
+The interface should feel:
+
+- responsive;
+- alive;
+- confident;
+- effortless.
+
+Animations should reinforce the feeling that the workspace is reacting naturally to the player's actions.
+
+The player should never feel distracted by motion.
+
+---
+
+# Core Principles
+
+## Responsive
+
+Every interaction should acknowledge player input.
+
+Buttons should feel responsive without becoming exaggerated.
+
+The player should always know that the game accepted their action.
+
+---
+
+## Short
+
+Animations should complete quickly.
+
+Most interactions should finish before the player attempts the next action.
+
+The interface should never delay gameplay.
+
+---
+
+## Consistent
+
+Animations should follow a unified visual language.
+
+The same interaction should always produce the same type of feedback.
+
+Consistency improves learnability.
+
+---
+
+## Purposeful
+
+Every animation must answer one of the following questions:
+
+- What changed?
+- What appeared?
+- What disappeared?
+- What became available?
+- What deserves attention?
+
+If an animation answers none of these questions, it should not exist.
+
+---
+
+# Motion Categories
+
+The Design System defines five categories of motion.
+
+## Micro Motion
+
+Very small interactions.
+
+Examples:
+
+- button press;
+- hover;
+- toggle;
+- checkbox;
+- icon transition.
+
+Duration should be extremely short.
+
+---
+
+## Feedback Motion
+
+Used after successful player actions.
+
+Examples:
+
+- resource increase;
+- successful purchase;
+- completed report;
+- unlocked upgrade.
+
+These animations reinforce positive feedback without interrupting flow.
+
+---
+
+## Layout Motion
+
+Used when the interface changes.
+
+Examples:
+
+- expanding cards;
+- opening panels;
+- revealing new workspace sections.
+
+Layout changes should preserve spatial continuity.
+
+Elements should appear to move naturally rather than popping into existence.
+
+---
+
+## Milestone Motion
+
+Reserved for meaningful progression.
+
+Examples:
+
+- promotion;
+- unlocking a major system;
+- workspace expansion;
+- first automation;
+- prestige.
+
+Milestone animations may be noticeably richer than ordinary interactions.
+
+---
+
+## Ambient Motion
+
+Subtle continuous movement.
+
+Examples:
+
+- blinking monitor indicator;
+- loading terminal;
+- animated coffee steam;
+- monitor glow;
+- office lighting.
+
+Ambient motion should make the workspace feel alive without attracting attention.
+
+---
+
+# Motion Rules
+
+The interface should avoid:
+
+- large explosions;
+- excessive particles;
+- continuous bouncing;
+- aggressive scaling;
+- screen shake during normal gameplay.
+
+These techniques conflict with the desired emotional tone.
+
+---
+
+# Counter Animation
+
+Gameplay counters should animate smoothly.
+
+Counter animation should:
+
+- preserve readability;
+- avoid flickering;
+- avoid rapid font resizing;
+- never shift surrounding layout.
+
+Players should always be able to read changing values.
+
+---
+
+# Workspace Animation
+
+Workspace evolution should feel physical.
+
+When new systems unlock:
+
+preferred transitions include:
+
+- desk expansion;
+- monitor appearing;
+- drawer opening;
+- panel unfolding;
+- cable connecting;
+- shelf extending.
+
+The workspace should feel like it is growing rather than being replaced.
+
+---
+
+# Component States
+
+## Purpose
+
+Every interactive component must communicate its current state clearly.
+
+State changes should rely on multiple signals rather than color alone.
+
+---
+
+# Required States
+
+Every interactive component should support the following states where appropriate.
+
+- Default
+- Hover
+- Pressed
+- Focused
+- Active
+- Selected
+- Disabled
+- Loading
+
+No additional visual states should be introduced without strong justification.
+
+---
+
+# Default
+
+Neutral appearance.
+
+Represents the normal resting state.
+
+---
+
+# Hover
+
+Provides immediate feedback that the component is interactive.
+
+Hover effects should remain subtle.
+
+Examples:
+
+- slight elevation;
+- background tint;
+- border emphasis.
+
+---
+
+# Pressed
+
+Confirms the interaction.
+
+Pressed feedback should feel immediate.
+
+The component should never appear sluggish.
+
+---
+
+# Focus
+
+Keyboard navigation must be fully supported.
+
+Focused components should remain clearly distinguishable.
+
+Focus should never rely solely on browser defaults.
+
+---
+
+# Active
+
+Represents the currently active mode or tool.
+
+Only one primary active state should exist inside a local navigation context.
+
+---
+
+# Disabled
+
+Disabled controls should remain readable.
+
+The player should understand:
+
+- what the control is;
+- that it currently cannot be used.
+
+Disabled elements should never disappear unexpectedly.
+
+---
+
+# Loading
+
+Loading indicators should remain calm.
+
+Preferred indicators include:
+
+- subtle spinner;
+- skeleton loading;
+- shimmer.
+
+Large loading animations should be avoided.
+
+---
+
+# Feedback Language
+
+## Philosophy
+
+Feedback is one of the primary emotional rewards in QA Idle.
+
+The player should receive immediate confirmation after every meaningful interaction.
+
+---
+
+# Feedback Levels
+
+QA Idle uses three feedback levels.
+
+## Level 1 — Immediate
+
+Used for ordinary actions.
+
+Examples:
+
+- Manual Testing;
+- Report Bugs;
+- purchasing upgrades.
+
+Feedback duration should be nearly instantaneous.
+
+---
+
+## Level 2 — Significant
+
+Used for important progression.
+
+Examples:
+
+- expensive upgrade;
+- completed objective;
+- unlocked workspace area.
+
+These interactions may briefly attract the player's attention.
+
+---
+
+## Level 3 — Memorable
+
+Reserved exclusively for major milestones.
+
+Examples:
+
+- Promotion;
+- Prestige;
+- new gameplay layer.
+
+The player should remember these moments.
+
+These events may temporarily suspend ordinary UI motion to create a stronger emotional impact.
+
+---
+
+# Feedback Hierarchy
+
+Feedback should combine several channels.
+
+Preferred order:
+
+1. Motion
+2. Number change
+3. Color
+4. Sound (optional)
+5. Toast
+6. Modal
+
+Not every action requires every feedback channel.
+
+The smallest feedback capable of communicating the result should always be preferred.
+
+---
+
+# Accessibility
+
+## Purpose
+
+QA Idle should remain comfortable for long sessions.
+
+Accessibility is considered a core quality attribute rather than an optional enhancement.
+
+---
+
+# Readability
+
+The interface should maintain:
+
+- high contrast;
+- generous spacing;
+- readable typography;
+- predictable hierarchy.
+
+Long play sessions should never cause unnecessary visual fatigue.
+
+---
+
+# Color Independence
+
+Important information should never rely exclusively on color.
+
+Examples:
+
+Instead of:
+
+Green = success
+
+Use:
+
+Green
++
+Icon
++
+Text
++
+Animation
+
+Multiple cues improve accessibility for all players.
+
+---
+
+# Keyboard Navigation
+
+Every important interaction should be reachable using keyboard navigation.
+
+Focus order should follow visual hierarchy.
+
+Unexpected focus jumps should be avoided.
+
+---
+
+# Reduced Motion
+
+Players who prefer reduced motion should be supported.
+
+When reduced motion is enabled:
+
+- decorative animations should disappear;
+- transitions should become shorter;
+- milestone effects should simplify.
+
+Gameplay clarity must remain unaffected.
+
+---
+
+# Hit Areas
+
+Interactive elements should provide comfortable interaction targets.
+
+Small icons should receive invisible padding where necessary.
+
+The player should not need pixel-perfect precision.
+
+---
+
+# Workspace Evolution Rules
+
+## Philosophy
+
+Workspace evolution is one of QA Idle's defining mechanics.
+
+The player's environment should visibly mature alongside their career.
+
+The workspace itself becomes a permanent visual record of progression.
+
+---
+
+# Evolution Principles
+
+## Preserve Identity
+
+The workspace should always remain recognizable.
+
+Even after dozens of hours, players should feel:
+
+> "This is still my desk."
+
+rather than:
+
+> "This is an entirely different interface."
+
+---
+
+## Add Before Replace
+
+Whenever possible:
+
+add
+
+instead of
+
+replace.
+
+Existing components should remain familiar while new capabilities extend them.
+
+---
+
+## Physical Expansion
+
+Growth should resemble physical workspace expansion.
+
+Examples:
+
+- additional monitor;
+- larger desk;
+- side cabinet;
+- planning board;
+- wall display;
+- collaboration area.
+
+Expansion should feel believable before becoming intentionally exaggerated in later stages.
+
+---
+
+## Visible History
+
+Older career stages should leave traces.
+
+Examples:
+
+- original notebook still exists;
+- first monitor remains connected;
+- first QA tools remain visible.
+
+This creates emotional continuity across the player's journey.
+
+---
+
+## Layered Complexity
+
+Complexity should grow gradually.
+
+Every promotion should introduce only a manageable increase in visual density.
+
+The player should feel capable rather than overwhelmed.
+
+---
+
+## Future Compatibility
+
+Every new gameplay system should answer three questions before introducing new UI:
+
+1. Can an existing component be extended?
+2. Can an existing workspace region host this feature?
+3. Can the new functionality reuse existing interaction patterns?
+
+Only if all three answers are "No" should entirely new UI structures be introduced.
+
+This principle ensures that QA Idle can continue expanding for years without losing the clarity established by the original Design System.
+# Responsive Behavior
+
+## Purpose
+
+Although QA Idle is designed as a desktop-first experience, the interface should remain resilient across different desktop resolutions and future platforms.
+
+Responsive behavior should preserve usability without changing the player's mental model.
+
+The player should always recognize their workspace regardless of screen size.
+
+---
+
+# Responsive Philosophy
+
+Responsive design should prioritize:
+
+1. preserving workspace identity;
+2. maintaining visual hierarchy;
+3. avoiding hidden interactions;
+4. minimizing layout changes.
+
+The workspace should adapt gracefully rather than reorganize dramatically.
+
+---
+
+# Scaling Strategy
+
+Responsive behavior should follow these priorities:
+
+```text
+Increase whitespace
+        ↓
+Resize flexible panels
+        ↓
+Wrap secondary content
+        ↓
+Collapse optional information
+        ↓
+Introduce scrolling
+```
+
+The system should avoid changing navigation patterns whenever possible.
+
+---
+
+# Fixed vs Flexible Regions
+
+The workspace consists of both fixed and flexible regions.
+
+## Fixed Regions
+
+These should remain visually stable across all supported desktop sizes.
+
+Examples:
+
+- Header
+- Primary resource area
+- Primary action
+- Workspace navigation
+
+Stable placement improves long-term muscle memory.
+
+---
+
+## Flexible Regions
+
+These may grow or shrink depending on available space.
+
+Examples:
+
+- upgrade lists;
+- side panels;
+- statistics;
+- inspector panels;
+- future management systems.
+
+Flexible regions should never compress core gameplay interactions.
+
+---
+
+# Overflow Rules
+
+When available space becomes limited:
+
+1. Decorative elements collapse first.
+2. Secondary descriptions collapse second.
+3. Optional metadata collapses third.
+4. Core gameplay never disappears.
+
+Critical gameplay information must remain visible.
+
+---
+
+# Future Platform Support
+
+Although the MVP targets desktop browsers, the Design System should remain platform-agnostic.
+
+Future implementations may include:
+
+- Steam Desktop
+- Steam Deck
+- Tablets
+- Native desktop applications
+
+The Design System should support these platforms without requiring a redesign.
+
+---
+
+# React + TypeScript Implementation Guidelines
+
+## Purpose
+
+The Design System is intended for implementation using React and TypeScript.
+
+Its structure should encourage reusable, composable UI components rather than screen-specific implementations.
+
+---
+
+# Component Architecture
+
+Every UI element should belong to one of three categories.
+
+## Primitive Components
+
+Examples:
+
+- Button
+- Text
+- Icon
+- Divider
+- Badge
+- Progress Bar
+
+Primitive components contain no gameplay logic.
+
+---
+
+## Composite Components
+
+Examples:
+
+- Resource Card
+- Upgrade Card
+- Promotion Panel
+- Workspace Widget
+- Statistic Card
+
+Composite components combine multiple primitives into reusable gameplay UI.
+
+---
+
+## Screen Composition
+
+Screens should be assembled from composite components.
+
+Screens should contain as little presentation logic as possible.
+
+This separation keeps the UI maintainable as the game grows.
+
+---
+
+# Styling
+
+The Design System should support centralized styling.
+
+Recommended approaches include:
+
+- CSS Variables
+- Design Tokens
+- CSS Modules
+- Tailwind (using Design Tokens)
+- CSS-in-JS (if consistent)
+
+Hardcoded colors, spacing and typography should be avoided.
+
+---
+
+# Design Token Usage
+
+Every visual value should originate from the Design Token System.
+
+Examples include:
+
+- spacing;
+- colors;
+- border radius;
+- elevation;
+- typography;
+- motion durations.
+
+Components should never define independent visual constants.
+
+---
+
+# Component API Principles
+
+Reusable components should expose behavior through properties rather than visual overrides.
+
+Preferred examples:
+
+```text
+<Button variant="primary">
+
+<Card elevation="1">
+
+<Badge status="success">
+
+<Toast variant="warning">
+```
+
+Avoid APIs that expose raw visual values such as arbitrary colors, margins or shadows.
+
+---
+
+# State Management Independence
+
+Visual components should remain independent from gameplay systems.
+
+Components should receive data through props and remain unaware of:
+
+- economy logic;
+- progression rules;
+- save/load systems;
+- resource calculations.
+
+This separation reinforces the architectural boundaries established in the technical documentation.
+
+---
+
+# Animation Implementation
+
+Animations should be component-driven.
+
+Individual gameplay systems should request state changes rather than directly manipulating visual effects.
+
+This approach keeps motion consistent throughout the application.
+
+---
+
+# Design System Governance
+
+## Purpose
+
+As QA Idle expands, maintaining consistency becomes increasingly important.
+
+The Design System acts as the governing authority for all visual decisions.
+
+No new visual pattern should be introduced without clear justification.
+
+---
+
+# Reuse Before Creation
+
+Before creating a new component, designers and developers should ask:
+
+1. Can an existing component solve this problem?
+2. Can an existing variant be extended?
+3. Can composition solve the problem?
+
+Only if all answers are "No" should a new component be introduced.
+
+---
+
+# Single Source of Truth
+
+Every reusable visual rule must exist in exactly one place.
+
+Examples include:
+
+- spacing scale;
+- typography;
+- color tokens;
+- motion durations;
+- corner radius;
+- shadows.
+
+Duplicated design rules create long-term inconsistency.
+
+---
+
+# Consistency Over Novelty
+
+When choosing between:
+
+- a slightly more interesting screen;
+- a more consistent screen;
+
+consistency should be preferred.
+
+Long-term readability is more valuable than short-term visual variety.
+
+---
+
+# Future Expansion Rules
+
+Every future Visual Design document must follow this Design System.
+
+Future documents may define:
+
+- new layouts;
+- new components;
+- new animations;
+- new workspace objects.
+
+However, they must never redefine:
+
+- spacing scale;
+- typography hierarchy;
+- token architecture;
+- icon style;
+- motion philosophy;
+- elevation system;
+- workspace philosophy.
+
+If changes become necessary, they must be introduced by updating this document rather than creating conflicting standards.
+
+---
+
+# UI Consistency Checklist
+
+Every newly designed screen should satisfy the following checklist before implementation.
+
+## Layout
+
+- Uses the approved grid system.
+- Uses the approved spacing scale.
+- Maintains workspace hierarchy.
+- Preserves visual stability.
+
+---
+
+## Typography
+
+- Uses predefined text styles.
+- Avoids arbitrary font sizes.
+- Maintains clear reading order.
+
+---
+
+## Components
+
+- Reuses existing components.
+- Avoids one-off UI patterns.
+- Uses approved component states.
+
+---
+
+## Colors
+
+- Uses semantic tokens.
+- Avoids hardcoded colors.
+- Maintains restrained accent usage.
+
+---
+
+## Motion
+
+- Uses Calm Productivity principles.
+- Avoids unnecessary animation.
+- Preserves responsiveness.
+
+---
+
+## Accessibility
+
+- Supports keyboard navigation.
+- Does not rely on color alone.
+- Maintains readable contrast.
+- Respects reduced-motion preferences.
+
+---
+
+## Workspace
+
+- Feels like a natural extension of the existing workspace.
+- Leaves visible evidence of player progression.
+- Does not replace established UI unnecessarily.
+
+---
+
+# Final Design System Statement
+
+The QA Idle Design System exists to ensure that the game grows with the same consistency as the player's career.
+
+Every promotion should make the workspace feel more capable.
+
+Every new system should feel like a natural addition to the player's professional environment.
+
+Every component should reinforce the fantasy of becoming a more experienced QA Engineer.
+
+The interface should never feel like a collection of disconnected screens.
+
+Instead, it should feel like a single evolving workspace that accompanies the player from their first manually discovered bug to the largest QA organization imaginable.
+
+If implemented consistently, this Design System will allow QA Idle to expand across years of development while preserving its visual identity, usability and emotional progression.
+
+---
+
+# End of Document
