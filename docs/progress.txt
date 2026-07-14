@@ -3,3 +3,4 @@ QA-MVP-013 handoff: Modifier registry state now rebuilds active permanent upgrad
 QA-MVP-017 handoff: `npm run build` cannot write the existing local `dist/assets` directory on this machine (EPERM); temp outDir Vite build passed.
 QA-MVP-019 handoff: Local `dist/assets` still has EPERM on normal Vite clean; temp outDir build passed.
 QA-MVP-027 handoff: Promote action reveal now emits `unlock.revealed` through the promotion availability transition; normal Vite build still hits local `dist/assets` EPERM, temp outDir build passed.
+QA-MVP-046 follow-up: MVP acceptance passed, but `docs/00-Master_Project_Roadmap.md` still describes MVP implementation as not started; sync roadmap status in a future documentation task.
