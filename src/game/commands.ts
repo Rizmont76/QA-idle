@@ -284,7 +284,7 @@ export function purchaseUpgrade(
   }
 
   const { effects, upgrade, resolvedCost } = validation;
-  const previousLevel = game.upgrades[upgrade.id];
+  const previousLevel = game.upgrades[upgrade.id] ?? 0;
   const newLevel = 1 as const;
 
   const result = spendResource(game.resources, {

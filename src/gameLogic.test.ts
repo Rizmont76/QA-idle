@@ -207,7 +207,7 @@ describe("game logic", () => {
 
     const hiddenFutureUpgrade: Upgrade = {
       ...baseUpgrade,
-      id: "upgrade_future_automation" as Upgrade["id"],
+      id: "upgrade_future_automation",
       name: "Future Automation",
       visibility: "hidden",
       sortOrder: 999,

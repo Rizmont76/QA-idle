@@ -98,7 +98,7 @@ export function createActiveModifierRegistry(
         return activeModifiers;
       }
 
-      if (game.upgrades[modifier.sourceId as Upgrade["id"]] < 1) {
+      if ((game.upgrades[modifier.sourceId] ?? 0) < 1) {
         return activeModifiers;
       }
 

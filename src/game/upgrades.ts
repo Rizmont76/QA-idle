@@ -90,7 +90,7 @@ export function validateUpgradePurchase(
     };
   }
 
-  if (game.upgrades[upgrade.id] >= upgrade.maxLevel) {
+  if ((game.upgrades[upgrade.id] ?? 0) >= upgrade.maxLevel) {
     return {
       ok: false,
       failures: [

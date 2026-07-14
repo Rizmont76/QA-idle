@@ -21,6 +21,7 @@ import type {
   ResourceState,
   SaveData,
   SaveMetadata,
+  Upgrade,
   UpgradeId,
   UpgradeOwnershipLevel,
   UpgradeOwnershipState,
@@ -43,6 +44,11 @@ interface LegacySaveFields {
   money?: unknown;
 }
 
+const LEGACY_UPGRADE_ALIASES: Partial<Record<string, UpgradeId>> = {
+  checklist: MVP_IDS.upgrades.betterChecklist,
+  coffee: MVP_IDS.upgrades.coffee,
+};
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object";
 }
@@ -61,46 +67,39 @@ function safeTimestamp(value: unknown, fallback: number) {
 
 function normalizeUpgradeLevel(
   value: unknown,
-  upgradeId: UpgradeId,
+  maximumLevel: number,
 ): UpgradeOwnershipLevel {
   const numberValue = Math.floor(safeNumber(value));
-  const upgradeDefinition = upgrades.find((upgrade) => upgrade.id === upgradeId);
-  const maximumLevel = upgradeDefinition?.maxLevel ?? 0;
+  const normalizedMaximumLevel =
+    Number.isFinite(maximumLevel) && maximumLevel > 0 ? Math.floor(maximumLevel) : 0;
   const normalizedLevel = Number.isFinite(numberValue)
-    ? Math.min(numberValue, maximumLevel)
+    ? Math.min(numberValue, normalizedMaximumLevel)
     : 0;
 
-  return normalizedLevel >= 1 ? 1 : 0;
+  return normalizedLevel >= 1 ? normalizedLevel : 0;
 }
 
-function normalizeUpgrades(value: unknown): UpgradeOwnershipState {
-  const saved = value && typeof value === "object" ? value : {};
-  const savedUpgrades = saved as Partial<
-    Record<UpgradeId | "checklist" | "coffee", unknown>
-  >;
+export function normalizeUpgradeOwnership(
+  value: unknown,
+  upgradeDefinitions: readonly Upgrade[] = upgrades,
+): UpgradeOwnershipState {
+  const saved = isRecord(value) ? value : {};
+  const savedUpgrades = saved as Partial<Record<string, unknown>>;
+  const savedByStableId = { ...savedUpgrades };
 
-  return {
-    [MVP_IDS.upgrades.betterChecklist]: normalizeUpgradeLevel(
-      savedUpgrades[MVP_IDS.upgrades.betterChecklist] ?? savedUpgrades.checklist,
-      MVP_IDS.upgrades.betterChecklist,
-    ),
-    [MVP_IDS.upgrades.coffee]: normalizeUpgradeLevel(
-      savedUpgrades[MVP_IDS.upgrades.coffee] ?? savedUpgrades.coffee,
-      MVP_IDS.upgrades.coffee,
-    ),
-    [MVP_IDS.upgrades.keyboardShortcuts]: normalizeUpgradeLevel(
-      savedUpgrades[MVP_IDS.upgrades.keyboardShortcuts],
-      MVP_IDS.upgrades.keyboardShortcuts,
-    ),
-    [MVP_IDS.upgrades.bugReportTemplate]: normalizeUpgradeLevel(
-      savedUpgrades[MVP_IDS.upgrades.bugReportTemplate],
-      MVP_IDS.upgrades.bugReportTemplate,
-    ),
-    [MVP_IDS.upgrades.testCaseLibrary]: normalizeUpgradeLevel(
-      savedUpgrades[MVP_IDS.upgrades.testCaseLibrary],
-      MVP_IDS.upgrades.testCaseLibrary,
-    ),
-  };
+  for (const [legacyId, upgradeId] of Object.entries(LEGACY_UPGRADE_ALIASES)) {
+    if (upgradeId && savedByStableId[upgradeId] === undefined) {
+      savedByStableId[upgradeId] = savedUpgrades[legacyId];
+    }
+  }
+
+  return upgradeDefinitions.reduce<UpgradeOwnershipState>(
+    (normalizedUpgrades, upgrade) => ({
+      ...normalizedUpgrades,
+      [upgrade.id]: normalizeUpgradeLevel(savedByStableId[upgrade.id], upgrade.maxLevel),
+    }),
+    {} as UpgradeOwnershipState,
+  );
 }
 
 function normalizePromotionIds(value: unknown): PromotionId[] {
@@ -212,7 +211,7 @@ function normalizeGameState(value: unknown, now = Date.now()): GameState {
     promotion: normalizePromotionState(parsed.promotion),
     uiSurfaces: normalizeUiSurfaces(parsed.uiSurfaces),
     unlocks: normalizeUnlocks(parsed.unlocks),
-    upgrades: normalizeUpgrades(parsed.upgrades),
+    upgrades: normalizeUpgradeOwnership(parsed.upgrades),
   };
 }
 

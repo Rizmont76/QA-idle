@@ -63,7 +63,8 @@ export type GameplayStatId =
   (typeof MVP_IDS.gameplayStats)[keyof typeof MVP_IDS.gameplayStats];
 export type ActionId = (typeof MVP_IDS.actions)[keyof typeof MVP_IDS.actions];
 export type MvpEventId = (typeof MVP_IDS.events)[keyof typeof MVP_IDS.events];
-export type UpgradeId = (typeof MVP_IDS.upgrades)[keyof typeof MVP_IDS.upgrades];
+export type UpgradeId =
+  (typeof MVP_IDS.upgrades)[keyof typeof MVP_IDS.upgrades] | (string & {});
 export type TabId = typeof MVP_IDS.uiSurfaces.manualTesting;
 
 export type ResourceLifetimeCategory = "disposable" | "investment";
@@ -103,7 +104,7 @@ export type UpgradePurchaseValidationFailureCode =
   | "effect_failed"
   | "transaction_failed";
 export type UpgradeEffectChannel = "modifier_grant";
-export type UpgradeOwnershipLevel = 0 | 1;
+export type UpgradeOwnershipLevel = number;
 export type UpgradeOwnershipState = Record<UpgradeId, UpgradeOwnershipLevel>;
 export type ModifierType = "flat" | (string & {});
 export type ModifierDurationType = "permanent" | (string & {});
@@ -184,7 +185,7 @@ export interface Upgrade {
   name: string;
   description: string;
   flavor: string;
-  maxLevel: 1;
+  maxLevel: number;
   cost: {
     type: "fixed";
     resourceId: typeof MVP_IDS.resources.money;

@@ -262,7 +262,7 @@ function App() {
             <h2>Basic Upgrades</h2>
             <div className="shop-list">
               {visibleUpgrades.map((upgrade) => {
-                const owned = game.upgrades[upgrade.id];
+                const owned = game.upgrades[upgrade.id] ?? 0;
                 const cost = getUpgradeCost(upgrade);
                 const isOwned = owned >= upgrade.maxLevel;
                 const canBuy = !isOwned && money >= cost;

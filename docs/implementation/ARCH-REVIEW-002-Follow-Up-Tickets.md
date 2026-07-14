@@ -104,7 +104,7 @@ When no promotion exists for the current stage, return an empty progress list an
 
 ## ARCH-002-03 - Make Upgrade Save Normalization Registry-Driven
 
-Status: Ready
+Status: Completed
 
 Priority: P2
 
@@ -138,6 +138,7 @@ Preserve legacy aliases for previous raw save fields such as `checklist` and `co
 ### Verification
 
 - `cmd /c npm run check`
+- Passed on 2026-07-14.
 
 ---
 

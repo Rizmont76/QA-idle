@@ -700,7 +700,7 @@ function validateUpgradeDefinitions(
         );
       }
 
-      if (!upgradeIds.has(effect.modifier.sourceId as Upgrade["id"])) {
+      if (!upgradeIds.has(effect.modifier.sourceId)) {
         errors.push(
           buildContentValidationError(
             "missing_upgrade_reference",

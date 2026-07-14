@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SAVE_KEY, createNewGameState, initialState } from "./gameData";
+import { SAVE_KEY, createNewGameState, initialState, upgrades } from "./gameData";
 import {
   CURRENT_SAVE_SCHEMA_VERSION,
   clearSave,
   loadSave,
+  normalizeUpgradeOwnership,
   resetSave,
   saveGame,
   serializeGameForSave,
@@ -16,7 +17,7 @@ import {
   reportAllBugs,
 } from "./gameLogic";
 import { MVP_IDS } from "./types";
-import type { GameState } from "./types";
+import type { GameState, Upgrade } from "./types";
 
 describe("save storage", () => {
   beforeEach(() => {
@@ -551,6 +552,73 @@ describe("save storage", () => {
       [MVP_IDS.upgrades.coffee]: 1,
     });
     expect(loadSave().game.upgrades).not.toHaveProperty("upgrade_future_automation");
+  });
+
+  it("normalizes upgrade ownership from the registered upgrade definitions", () => {
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        game: {
+          upgrades: {
+            [MVP_IDS.upgrades.betterChecklist]: "1.8",
+            [MVP_IDS.upgrades.coffee]: Number.POSITIVE_INFINITY,
+            [MVP_IDS.upgrades.keyboardShortcuts]: -1,
+            [MVP_IDS.upgrades.bugReportTemplate]: 99,
+          },
+        },
+      }),
+    );
+
+    expect(loadSave().game.upgrades).toEqual({
+      ...initialState.upgrades,
+      [MVP_IDS.upgrades.betterChecklist]: 1,
+      [MVP_IDS.upgrades.coffee]: 0,
+      [MVP_IDS.upgrades.keyboardShortcuts]: 0,
+      [MVP_IDS.upgrades.bugReportTemplate]: 1,
+    });
+  });
+
+  it("normalizes a newly registered upgrade key without per-ID save code", () => {
+    const baseUpgrade = upgrades[0];
+
+    if (!baseUpgrade) {
+      throw new Error("Expected at least one MVP upgrade definition.");
+    }
+
+    const futureUpgrade: Upgrade = {
+      ...baseUpgrade,
+      id: "upgrade_future_refactor_tool",
+      maxLevel: 3,
+    };
+
+    expect(
+      normalizeUpgradeOwnership(
+        {
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+          upgrade_future_refactor_tool: 7,
+          upgrade_unknown_unregistered: 1,
+        },
+        [...upgrades, futureUpgrade],
+      ),
+    ).toEqual({
+      ...initialState.upgrades,
+      [MVP_IDS.upgrades.betterChecklist]: 1,
+      upgrade_future_refactor_tool: 3,
+    });
+  });
+
+  it("migrates legacy upgrade aliases while preferring stable IDs", () => {
+    expect(
+      normalizeUpgradeOwnership({
+        checklist: 1,
+        coffee: 1,
+        [MVP_IDS.upgrades.coffee]: 0,
+      }),
+    ).toEqual({
+      ...initialState.upgrades,
+      [MVP_IDS.upgrades.betterChecklist]: 1,
+      [MVP_IDS.upgrades.coffee]: 0,
+    });
   });
 
   it("restores promotion availability and completion runtime state separately", () => {
