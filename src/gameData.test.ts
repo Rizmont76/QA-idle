@@ -15,8 +15,43 @@ import {
   uiSurfaceDefinitions,
   unlockDefinitions,
   upgrades,
+  validateMvpContentRegistries,
 } from "./gameData";
 import { MVP_IDS } from "./types";
+import type { ContentRegistryValidationInput } from "./gameData";
+import type {
+  GameplayStatDefinition,
+  PromotionDefinition,
+  ResourceDefinition,
+  UiSurfaceDefinition,
+  UnlockDefinition,
+  Upgrade,
+} from "./types";
+
+function createValidationInput(
+  overrides: Partial<ContentRegistryValidationInput> = {},
+): ContentRegistryValidationInput {
+  return {
+    resources: resourceDefinitions,
+    gameplayStats: gameplayStatDefinitions,
+    upgrades,
+    careerStages,
+    promotions: promotionDefinitions,
+    uiSurfaces: uiSurfaceDefinitions,
+    unlocks: unlockDefinitions,
+    ...overrides,
+  };
+}
+
+function getFixture<T>(items: readonly T[], index: number): T {
+  const item = items[index];
+
+  if (item === undefined) {
+    throw new Error(`Missing test fixture at index ${String(index)}.`);
+  }
+
+  return item;
+}
 
 describe("MVP resource registry", () => {
   it("defines exactly the MVP resources", () => {
@@ -447,5 +482,203 @@ describe("MVP event contract IDs", () => {
       "game.saved",
       "game.loaded",
     ]);
+  });
+});
+
+describe("MVP content registry validation", () => {
+  it("accepts the registered MVP content definitions", () => {
+    expect(validateMvpContentRegistries()).toEqual({
+      ok: true,
+      errors: [],
+    });
+  });
+
+  it("detects duplicate IDs in each content registry", () => {
+    const duplicateResource = {
+      ...getFixture(resourceDefinitions, 0),
+    } as ResourceDefinition;
+    const result = validateMvpContentRegistries(
+      createValidationInput({
+        resources: [...resourceDefinitions, duplicateResource],
+      }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.errors).toContainEqual(
+      expect.objectContaining({
+        code: "duplicate_id",
+        registry: "resources",
+        id: MVP_IDS.resources.bugsFound,
+        field: "id",
+      }),
+    );
+  });
+
+  it("detects upgrade cost and modifier references to missing content", () => {
+    const betterChecklist = getFixture(upgrades, 0);
+    const coffee = getFixture(upgrades, 1);
+    const coffeeEffect = getFixture(coffee.effects, 0);
+    const missingResourceUpgrade = {
+      ...betterChecklist,
+      cost: {
+        ...betterChecklist.cost,
+        resourceId: "missing_money",
+      },
+    } as unknown as Upgrade;
+    const missingStatUpgrade = {
+      ...coffee,
+      effects: [
+        {
+          ...coffeeEffect,
+          modifier: {
+            ...coffeeEffect.modifier,
+            targetStatId: "missing_stat",
+          },
+        },
+      ],
+    } as unknown as Upgrade;
+    const result = validateMvpContentRegistries(
+      createValidationInput({
+        upgrades: [missingResourceUpgrade, missingStatUpgrade],
+      }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_resource_reference",
+          registry: "upgrades",
+          id: MVP_IDS.upgrades.betterChecklist,
+          field: "cost.resourceId",
+        }),
+        expect.objectContaining({
+          code: "missing_stat_reference",
+          registry: "upgrades",
+          id: MVP_IDS.upgrades.coffee,
+          field: "effects.modifier.targetStatId",
+        }),
+      ]),
+    );
+  });
+
+  it("detects promotion references to missing resources and career stages", () => {
+    const juniorPromotion = getFixture(promotionDefinitions, 0);
+    const invalidPromotion = {
+      ...juniorPromotion,
+      fromCareerStageId: "missing_stage",
+      requirements: [
+        {
+          ...getFixture(juniorPromotion.requirements, 0),
+          resourceId: "missing_resource",
+        },
+        getFixture(juniorPromotion.requirements, 1),
+        getFixture(juniorPromotion.requirements, 2),
+      ],
+    } as unknown as PromotionDefinition;
+    const result = validateMvpContentRegistries(
+      createValidationInput({
+        promotions: [invalidPromotion],
+      }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_career_stage_reference",
+          registry: "promotions",
+          id: MVP_IDS.promotions.juniorToMiddle,
+          field: "fromCareerStageId",
+        }),
+        expect.objectContaining({
+          code: "missing_resource_reference",
+          registry: "promotions",
+          id: MVP_IDS.promotions.juniorToMiddle,
+          field: "requirements.requirement_lifetime_bugs_found_100.resourceId",
+        }),
+      ]),
+    );
+  });
+
+  it("detects unlock and UI surface references to missing targets", () => {
+    const promoteUnlock = getFixture(unlockDefinitions, 0);
+    const invalidUnlock = {
+      ...promoteUnlock,
+      targetId: "missing_surface",
+      availabilityRequirement: {
+        ...promoteUnlock.availabilityRequirement,
+        promotionId: "missing_promotion",
+      },
+    } as unknown as UnlockDefinition;
+    const invalidUiSurface = {
+      ...getFixture(uiSurfaceDefinitions, 0),
+      controlledByUnlockId: "missing_unlock",
+    } as unknown as UiSurfaceDefinition;
+    const result = validateMvpContentRegistries(
+      createValidationInput({
+        uiSurfaces: [invalidUiSurface],
+        unlocks: [invalidUnlock],
+      }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "missing_unlock_reference",
+          registry: "uiSurfaces",
+          id: MVP_IDS.uiSurfaces.manualTesting,
+          field: "controlledByUnlockId",
+        }),
+        expect.objectContaining({
+          code: "missing_ui_surface_reference",
+          registry: "unlocks",
+          id: MVP_IDS.unlocks.promotionJuniorToMiddle,
+          field: "targetId",
+        }),
+        expect.objectContaining({
+          code: "missing_promotion_reference",
+          registry: "unlocks",
+          id: MVP_IDS.unlocks.promotionJuniorToMiddle,
+          field: "availabilityRequirement.promotionId",
+        }),
+      ]),
+    );
+  });
+
+  it("detects non-finite numeric content values", () => {
+    const invalidResource = {
+      ...getFixture(resourceDefinitions, 0),
+      initialValue: Number.NaN,
+    } as ResourceDefinition;
+    const invalidStat = {
+      ...getFixture(gameplayStatDefinitions, 0),
+      baseValue: Number.POSITIVE_INFINITY,
+    } as GameplayStatDefinition;
+    const result = validateMvpContentRegistries(
+      createValidationInput({
+        resources: [invalidResource],
+        gameplayStats: [invalidStat],
+      }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "invalid_number",
+          registry: "resources",
+          id: MVP_IDS.resources.bugsFound,
+          field: "initialValue",
+        }),
+        expect.objectContaining({
+          code: "invalid_number",
+          registry: "gameplayStats",
+          id: MVP_IDS.gameplayStats.manualBugsPerAction,
+          field: "baseValue",
+        }),
+      ]),
+    );
   });
 });

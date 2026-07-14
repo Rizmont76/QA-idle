@@ -1,9 +1,11 @@
 import { MVP_IDS } from "./types";
 import type {
   CareerStageDefinition,
+  GameplayStatId,
   GameState,
   GameplayStatDefinition,
   PromotionDefinition,
+  ResourceId,
   ResourceDefinition,
   UiSurfaceDefinition,
   UnlockDefinition,
@@ -464,3 +466,448 @@ export function createNewGameState(now = Date.now()): GameState {
 }
 
 export const initialState: GameState = createNewGameState();
+
+export type ContentRegistryName =
+  | "resources"
+  | "gameplayStats"
+  | "upgrades"
+  | "careerStages"
+  | "promotions"
+  | "uiSurfaces"
+  | "unlocks";
+
+export type ContentValidationErrorCode =
+  | "duplicate_id"
+  | "invalid_number"
+  | "invalid_initial_value"
+  | "missing_resource_reference"
+  | "missing_stat_reference"
+  | "missing_upgrade_reference"
+  | "missing_career_stage_reference"
+  | "missing_promotion_reference"
+  | "missing_ui_surface_reference"
+  | "missing_unlock_reference"
+  | "invalid_promotion_requirement"
+  | "invalid_unlock_target";
+
+export interface ContentValidationError {
+  code: ContentValidationErrorCode;
+  registry: ContentRegistryName;
+  id: string;
+  field: string;
+  message: string;
+}
+
+export interface ContentRegistryValidationInput {
+  resources: readonly ResourceDefinition[];
+  gameplayStats: readonly GameplayStatDefinition[];
+  upgrades: readonly Upgrade[];
+  careerStages: readonly CareerStageDefinition[];
+  promotions: readonly PromotionDefinition[];
+  uiSurfaces: readonly UiSurfaceDefinition[];
+  unlocks: readonly UnlockDefinition[];
+}
+
+export interface ContentRegistryValidationResult {
+  ok: boolean;
+  errors: readonly ContentValidationError[];
+}
+
+const mvpContentRegistries: ContentRegistryValidationInput = {
+  resources: resourceDefinitions,
+  gameplayStats: gameplayStatDefinitions,
+  upgrades,
+  careerStages,
+  promotions: promotionDefinitions,
+  uiSurfaces: uiSurfaceDefinitions,
+  unlocks: unlockDefinitions,
+};
+
+function buildContentValidationError(
+  code: ContentValidationErrorCode,
+  registry: ContentRegistryName,
+  id: string,
+  field: string,
+  message: string,
+): ContentValidationError {
+  return {
+    code,
+    registry,
+    id,
+    field,
+    message,
+  };
+}
+
+function appendDuplicateIdErrors(
+  errors: ContentValidationError[],
+  registry: ContentRegistryName,
+  definitions: readonly { id: string }[],
+) {
+  const seenIds = new Set<string>();
+  const duplicateIds = new Set<string>();
+
+  for (const definition of definitions) {
+    if (seenIds.has(definition.id)) {
+      duplicateIds.add(definition.id);
+    }
+    seenIds.add(definition.id);
+  }
+
+  for (const duplicateId of duplicateIds) {
+    errors.push(
+      buildContentValidationError(
+        "duplicate_id",
+        registry,
+        duplicateId,
+        "id",
+        `Duplicate ${registry} content id: ${duplicateId}.`,
+      ),
+    );
+  }
+}
+
+function appendInvalidNumberError(
+  errors: ContentValidationError[],
+  registry: ContentRegistryName,
+  id: string,
+  field: string,
+  value: number,
+) {
+  if (Number.isFinite(value)) {
+    return;
+  }
+
+  errors.push(
+    buildContentValidationError(
+      "invalid_number",
+      registry,
+      id,
+      field,
+      `${registry} ${id} has a non-finite ${field} value.`,
+    ),
+  );
+}
+
+function validateResourceDefinitions(
+  errors: ContentValidationError[],
+  resources: readonly ResourceDefinition[],
+) {
+  for (const resource of resources) {
+    appendInvalidNumberError(
+      errors,
+      "resources",
+      resource.id,
+      "initialValue",
+      resource.initialValue,
+    );
+    appendInvalidNumberError(
+      errors,
+      "resources",
+      resource.id,
+      "minimumValue",
+      resource.minimumValue,
+    );
+    appendInvalidNumberError(
+      errors,
+      "resources",
+      resource.id,
+      "maximumValue",
+      resource.maximumValue,
+    );
+
+    if (
+      Number.isFinite(resource.initialValue) &&
+      Number.isFinite(resource.minimumValue) &&
+      Number.isFinite(resource.maximumValue) &&
+      (resource.initialValue < resource.minimumValue ||
+        resource.initialValue > resource.maximumValue)
+    ) {
+      errors.push(
+        buildContentValidationError(
+          "invalid_initial_value",
+          "resources",
+          resource.id,
+          "initialValue",
+          `Resource ${resource.id} initial value must be within its min/max bounds.`,
+        ),
+      );
+    }
+  }
+}
+
+function validateGameplayStatDefinitions(
+  errors: ContentValidationError[],
+  gameplayStats: readonly GameplayStatDefinition[],
+) {
+  for (const stat of gameplayStats) {
+    appendInvalidNumberError(
+      errors,
+      "gameplayStats",
+      stat.id,
+      "baseValue",
+      stat.baseValue,
+    );
+    appendInvalidNumberError(
+      errors,
+      "gameplayStats",
+      stat.id,
+      "minimumValue",
+      stat.minimumValue,
+    );
+  }
+}
+
+function validateUpgradeDefinitions(
+  errors: ContentValidationError[],
+  input: ContentRegistryValidationInput,
+  resourceIds: ReadonlySet<ResourceId>,
+  statIds: ReadonlySet<GameplayStatId>,
+) {
+  const upgradeIds = new Set<Upgrade["id"]>(input.upgrades.map((upgrade) => upgrade.id));
+
+  for (const upgrade of input.upgrades) {
+    if (!resourceIds.has(upgrade.cost.resourceId)) {
+      errors.push(
+        buildContentValidationError(
+          "missing_resource_reference",
+          "upgrades",
+          upgrade.id,
+          "cost.resourceId",
+          `Upgrade ${upgrade.id} references missing resource ${upgrade.cost.resourceId}.`,
+        ),
+      );
+    }
+
+    appendInvalidNumberError(
+      errors,
+      "upgrades",
+      upgrade.id,
+      "cost.amount",
+      upgrade.cost.amount,
+    );
+
+    for (const effect of upgrade.effects) {
+      if (!statIds.has(effect.modifier.targetStatId)) {
+        errors.push(
+          buildContentValidationError(
+            "missing_stat_reference",
+            "upgrades",
+            upgrade.id,
+            "effects.modifier.targetStatId",
+            `Upgrade ${upgrade.id} references missing gameplay stat ${effect.modifier.targetStatId}.`,
+          ),
+        );
+      }
+
+      if (!upgradeIds.has(effect.modifier.sourceId as Upgrade["id"])) {
+        errors.push(
+          buildContentValidationError(
+            "missing_upgrade_reference",
+            "upgrades",
+            upgrade.id,
+            "effects.modifier.sourceId",
+            `Upgrade ${upgrade.id} has a modifier source for missing upgrade ${effect.modifier.sourceId}.`,
+          ),
+        );
+      }
+    }
+  }
+}
+
+function validatePromotionDefinitions(
+  errors: ContentValidationError[],
+  input: ContentRegistryValidationInput,
+  resourceIds: ReadonlySet<ResourceId>,
+) {
+  const careerStageIds = new Set(input.careerStages.map((stage) => stage.id));
+  const promotionIds = new Set(input.promotions.map((promotion) => promotion.id));
+
+  for (const promotion of input.promotions) {
+    if (!careerStageIds.has(promotion.fromCareerStageId)) {
+      errors.push(
+        buildContentValidationError(
+          "missing_career_stage_reference",
+          "promotions",
+          promotion.id,
+          "fromCareerStageId",
+          `Promotion ${promotion.id} references missing source career stage ${promotion.fromCareerStageId}.`,
+        ),
+      );
+    }
+
+    if (!careerStageIds.has(promotion.toCareerStageId)) {
+      errors.push(
+        buildContentValidationError(
+          "missing_career_stage_reference",
+          "promotions",
+          promotion.id,
+          "toCareerStageId",
+          `Promotion ${promotion.id} references missing target career stage ${promotion.toCareerStageId}.`,
+        ),
+      );
+    }
+
+    if (!promotionIds.has(promotion.outcome.completedPromotionId)) {
+      errors.push(
+        buildContentValidationError(
+          "missing_promotion_reference",
+          "promotions",
+          promotion.id,
+          "outcome.completedPromotionId",
+          `Promotion ${promotion.id} outcome references missing completed promotion ${promotion.outcome.completedPromotionId}.`,
+        ),
+      );
+    }
+
+    if (!careerStageIds.has(promotion.outcome.setCurrentStageId)) {
+      errors.push(
+        buildContentValidationError(
+          "missing_career_stage_reference",
+          "promotions",
+          promotion.id,
+          "outcome.setCurrentStageId",
+          `Promotion ${promotion.id} outcome references missing career stage ${promotion.outcome.setCurrentStageId}.`,
+        ),
+      );
+    }
+
+    for (const requirement of promotion.requirements) {
+      appendInvalidNumberError(
+        errors,
+        "promotions",
+        promotion.id,
+        `requirements.${requirement.id}.amount`,
+        requirement.amount,
+      );
+
+      if (requirement.amount < 0) {
+        errors.push(
+          buildContentValidationError(
+            "invalid_promotion_requirement",
+            "promotions",
+            promotion.id,
+            `requirements.${requirement.id}.amount`,
+            `Promotion ${promotion.id} requirement ${requirement.id} must not require a negative amount.`,
+          ),
+        );
+      }
+
+      if (
+        requirement.type === "lifetime_resource_at_least" &&
+        !resourceIds.has(requirement.resourceId)
+      ) {
+        errors.push(
+          buildContentValidationError(
+            "missing_resource_reference",
+            "promotions",
+            promotion.id,
+            `requirements.${requirement.id}.resourceId`,
+            `Promotion ${promotion.id} requirement ${requirement.id} references missing resource ${requirement.resourceId}.`,
+          ),
+        );
+      }
+    }
+  }
+}
+
+function validateUiSurfaceDefinitions(
+  errors: ContentValidationError[],
+  input: ContentRegistryValidationInput,
+) {
+  const unlockIds = new Set(input.unlocks.map((unlock) => unlock.id));
+
+  for (const surface of input.uiSurfaces) {
+    if (
+      surface.controlledByUnlockId !== null &&
+      !unlockIds.has(surface.controlledByUnlockId)
+    ) {
+      errors.push(
+        buildContentValidationError(
+          "missing_unlock_reference",
+          "uiSurfaces",
+          surface.id,
+          "controlledByUnlockId",
+          `UI surface ${surface.id} references missing unlock ${surface.controlledByUnlockId}.`,
+        ),
+      );
+    }
+  }
+}
+
+function validateUnlockDefinitions(
+  errors: ContentValidationError[],
+  input: ContentRegistryValidationInput,
+) {
+  const promotionIds = new Set(input.promotions.map((promotion) => promotion.id));
+  const uiSurfaceIds = new Set(input.uiSurfaces.map((surface) => surface.id));
+
+  for (const unlock of input.unlocks) {
+    if (!uiSurfaceIds.has(unlock.targetId)) {
+      errors.push(
+        buildContentValidationError(
+          "missing_ui_surface_reference",
+          "unlocks",
+          unlock.id,
+          "targetId",
+          `Unlock ${unlock.id} references missing UI surface ${unlock.targetId}.`,
+        ),
+      );
+    }
+
+    const unlockId: string = unlock.id;
+    const targetId: string = unlock.targetId;
+
+    if (unlockId === targetId) {
+      errors.push(
+        buildContentValidationError(
+          "invalid_unlock_target",
+          "unlocks",
+          unlock.id,
+          "targetId",
+          `Unlock ${unlock.id} must not use its own ID as the controlled UI surface target.`,
+        ),
+      );
+    }
+
+    if (!promotionIds.has(unlock.availabilityRequirement.promotionId)) {
+      errors.push(
+        buildContentValidationError(
+          "missing_promotion_reference",
+          "unlocks",
+          unlock.id,
+          "availabilityRequirement.promotionId",
+          `Unlock ${unlock.id} references missing promotion ${unlock.availabilityRequirement.promotionId}.`,
+        ),
+      );
+    }
+  }
+}
+
+export function validateMvpContentRegistries(
+  input: ContentRegistryValidationInput = mvpContentRegistries,
+): ContentRegistryValidationResult {
+  const errors: ContentValidationError[] = [];
+  const resourceIds = new Set<ResourceId>(input.resources.map((resource) => resource.id));
+  const statIds = new Set<GameplayStatId>(input.gameplayStats.map((stat) => stat.id));
+
+  appendDuplicateIdErrors(errors, "resources", input.resources);
+  appendDuplicateIdErrors(errors, "gameplayStats", input.gameplayStats);
+  appendDuplicateIdErrors(errors, "upgrades", input.upgrades);
+  appendDuplicateIdErrors(errors, "careerStages", input.careerStages);
+  appendDuplicateIdErrors(errors, "promotions", input.promotions);
+  appendDuplicateIdErrors(errors, "uiSurfaces", input.uiSurfaces);
+  appendDuplicateIdErrors(errors, "unlocks", input.unlocks);
+
+  validateResourceDefinitions(errors, input.resources);
+  validateGameplayStatDefinitions(errors, input.gameplayStats);
+  validateUpgradeDefinitions(errors, input, resourceIds, statIds);
+  validatePromotionDefinitions(errors, input, resourceIds);
+  validateUiSurfaceDefinitions(errors, input);
+  validateUnlockDefinitions(errors, input);
+
+  return {
+    ok: errors.length === 0,
+    errors,
+  };
+}

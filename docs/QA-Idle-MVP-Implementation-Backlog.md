@@ -2127,6 +2127,7 @@ Related Documentation Sections:
 
 ### QA-MVP-039 - Add Content Registry Validation
 
+Status: Complete
 Priority: Medium  
 Parent Phase: Phase 12 - Validation and Tests  
 Suggested Order: 1
@@ -2169,6 +2170,9 @@ Expected Deliverables:
 
 Risks:
 - Production behavior for validation failures must fail safely and not show broken UI.
+
+Implementation Note:
+- Added a pure MVP content registry validator for resource, gameplay stat, upgrade, career stage, promotion, UI surface, and unlock definitions. The validator returns structured diagnostics for duplicate IDs, non-finite numeric values, invalid resource bounds, missing upgrade cost/stat references, promotion career/resource references, UI unlock references, and unlock target/promotion references. Focused tests cover valid MVP content plus representative duplicate and missing-reference failures.
 
 Related Documentation Sections:
 - `docs/07 - Technical Rules.md` - Content Validation
