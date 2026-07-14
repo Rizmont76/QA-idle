@@ -8,6 +8,13 @@ import {
   saveGame,
   serializeGameForSave,
 } from "./save";
+import {
+  acceptPromotion,
+  getDerivedStats,
+  getUiVisibilitySelectors,
+  performManualTest,
+  reportAllBugs,
+} from "./gameLogic";
 import { MVP_IDS } from "./types";
 import type { GameState } from "./types";
 
@@ -398,6 +405,111 @@ describe("save storage", () => {
         },
       },
     ]);
+  });
+
+  it("round-trips MVP progress and restores upgrade-driven gameplay after reload", () => {
+    const promotionReadyGame: GameState = {
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.bugsFound]: 4,
+        [MVP_IDS.resources.money]: 85,
+      },
+      totalBugsFound: 100,
+      totalMoneyEarned: 150,
+      careerStage: MVP_IDS.careerStages.juniorQa,
+      promotion: {
+        availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        completedPromotionIds: [],
+      },
+      uiSurfaces: {
+        ...initialState.uiSurfaces,
+        [MVP_IDS.uiSurfaces.promoteAction]: "active",
+      },
+      unlocks: {
+        [MVP_IDS.unlocks.promotionJuniorToMiddle]: "available",
+      },
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+        [MVP_IDS.upgrades.coffee]: 1,
+        [MVP_IDS.upgrades.bugReportTemplate]: 1,
+      },
+    };
+
+    saveGame(promotionReadyGame);
+
+    const loadedReadyGame = loadSave().game;
+
+    expect(loadedReadyGame).toMatchObject({
+      resources: {
+        [MVP_IDS.resources.bugsFound]: 4,
+        [MVP_IDS.resources.money]: 85,
+      },
+      totalBugsFound: 100,
+      totalMoneyEarned: 150,
+      careerStage: MVP_IDS.careerStages.juniorQa,
+      promotion: {
+        availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        completedPromotionIds: [],
+      },
+      unlocks: {
+        [MVP_IDS.unlocks.promotionJuniorToMiddle]: "available",
+      },
+    });
+    expect(getDerivedStats(loadedReadyGame)).toEqual({
+      bugsPerClick: 3,
+      moneyPerBug: 2,
+    });
+    expect(getUiVisibilitySelectors(loadedReadyGame).promoteAction).toEqual([
+      MVP_IDS.uiSurfaces.promoteAction,
+    ]);
+
+    const manualResult = performManualTest(loadedReadyGame, Date.now());
+
+    expect(manualResult.ok).toBe(true);
+    if (!manualResult.ok) {
+      throw new Error("Expected Manual Testing to succeed after loading upgrades.");
+    }
+    expect(manualResult.game.resources[MVP_IDS.resources.bugsFound]).toBe(7);
+    expect(manualResult.game.totalBugsFound).toBe(103);
+
+    const reportResult = reportAllBugs(manualResult.game, Date.now());
+
+    expect(reportResult.ok).toBe(true);
+    if (!reportResult.ok) {
+      throw new Error("Expected Bug Reporting to use restored reporting modifiers.");
+    }
+    expect(reportResult.game.resources[MVP_IDS.resources.bugsFound]).toBe(0);
+    expect(reportResult.game.resources[MVP_IDS.resources.money]).toBe(99);
+    expect(reportResult.game.totalMoneyEarned).toBe(164);
+
+    const promotionResult = acceptPromotion(loadedReadyGame, Date.now());
+
+    expect(promotionResult.ok).toBe(true);
+    if (!promotionResult.ok) {
+      throw new Error("Expected restored Promotion Available state to be confirmable.");
+    }
+
+    saveGame(promotionResult.game);
+
+    const loadedCompletedGame = loadSave().game;
+
+    expect(loadedCompletedGame).toMatchObject({
+      careerStage: MVP_IDS.careerStages.middleQa,
+      promotion: {
+        availablePromotionIds: [],
+        completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      },
+      uiSurfaces: {
+        [MVP_IDS.uiSurfaces.promoteAction]: "hidden",
+      },
+      unlocks: {
+        [MVP_IDS.unlocks.promotionJuniorToMiddle]: "hidden",
+      },
+    });
+    expect(getUiVisibilitySelectors(loadedCompletedGame).promoteAction).toEqual([]);
+    expect(loadedCompletedGame.resources).not.toHaveProperty("reputation");
   });
 
   it("falls back safely when a versioned save has an unsupported schema", () => {

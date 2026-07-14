@@ -2373,6 +2373,7 @@ Related Documentation Sections:
 
 ### QA-MVP-044 - Add Save/Load Tests
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 12 - Validation and Tests  
 Suggested Order: 6
@@ -2410,6 +2411,9 @@ Definition of Done:
 
 Expected Deliverables:
 - Save/Load test suite.
+
+Implementation Note:
+- Extended `src/save.test.ts` with a round-trip MVP persistence regression covering restored resources, purchased upgrades, upgrade-derived Manual Testing and Bug Reporting modifiers, lifetime counters, Promotion Available confirmation after reload, Promotion Completed reload state, persisted unlock visibility, no offline gain, and continued absence of future resources.
 
 Risks:
 - Browser/localStorage testing may require test environment setup.
