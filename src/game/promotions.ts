@@ -125,7 +125,9 @@ function getPromotionRequirementPrefix(source: PromotionRequirementSource) {
 }
 
 export function getPromotionProgress(game: GameState): PromotionProgressItem[] {
-  const promotionDefinition = promotionDefinitions[0];
+  const promotionDefinition = promotionDefinitions.find(
+    (promotion) => promotion.fromCareerStageId === game.careerStage,
+  );
 
   if (!promotionDefinition) {
     return [];

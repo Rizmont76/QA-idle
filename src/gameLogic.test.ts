@@ -782,6 +782,15 @@ describe("game logic", () => {
     ]);
   });
 
+  it("returns no promotion progress rows when the current stage has no active promotion", () => {
+    expect(
+      getPromotionProgress({
+        ...initialState,
+        careerStage: MVP_IDS.careerStages.middleQa,
+      }),
+    ).toEqual([]);
+  });
+
   it("returns inspectable shared requirement evaluation rows", () => {
     const promotionDefinition = promotionDefinitions[0];
 

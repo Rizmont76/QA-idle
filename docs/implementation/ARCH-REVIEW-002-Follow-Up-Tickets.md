@@ -64,7 +64,7 @@ Keep authoritative visibility in the game layer. UI should display selector outp
 
 ## ARCH-002-02 - Make Promotion Progress Stage-Aware
 
-Status: Ready
+Status: Completed
 
 Priority: P1
 
@@ -98,6 +98,7 @@ When no promotion exists for the current stage, return an empty progress list an
 ### Verification
 
 - `cmd /c npm run check`
+- Passed on 2026-07-14.
 
 ---
 

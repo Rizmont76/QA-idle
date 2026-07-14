@@ -105,6 +105,9 @@ describe("MVP UI smoke tests", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Middle QA reached")).toBeInTheDocument();
     expect(screen.getAllByText("Promotion completed").length).toBeGreaterThan(0);
+    expect(screen.getByText("Complete")).toBeInTheDocument();
+    expect(screen.queryByText("0 / 0")).not.toBeInTheDocument();
+    expect(screen.queryByText("Lifetime bugs found")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /promote to/i })).not.toBeInTheDocument();
     expectFutureSystemsToStayHidden();
   });

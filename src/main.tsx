@@ -57,16 +57,22 @@ function App() {
   );
   const promotionStage = isPromotionActionActive ? getPromotionStage(game) : null;
   const promotionProgress = getPromotionProgress(game);
+  const isMvpComplete = game.careerStage === MVP_IDS.careerStages.middleQa;
   const completedPromotionRequirements = promotionProgress.filter(
     (item) => item.complete,
   ).length;
-  const promotionProgressPercent =
-    promotionProgress.length > 0
+  const promotionGoalSummary = isMvpComplete
+    ? "Complete"
+    : `${String(completedPromotionRequirements)} / ${String(promotionProgress.length)}`;
+  const promotionProgressPercent = isMvpComplete
+    ? FULL_PROGRESS_PERCENT
+    : promotionProgress.length > 0
       ? (completedPromotionRequirements / promotionProgress.length) *
         FULL_PROGRESS_PERCENT
       : 0;
-  const activeRequirementText =
-    promotionProgress.length === MVP_PROMOTION_REQUIREMENT_COUNT
+  const activeRequirementText = isMvpComplete
+    ? "The MVP endpoint has been reached."
+    : promotionProgress.length === MVP_PROMOTION_REQUIREMENT_COUNT
       ? `Find ${formatNumber(
           promotionProgress[0]?.required ?? 0,
         )} lifetime bugs, earn ${formatCurrency(
@@ -75,7 +81,6 @@ function App() {
           promotionProgress[2]?.required ?? 0,
         )} upgrades.`
       : currentStage?.requirementText;
-  const isMvpComplete = game.careerStage === MVP_IDS.careerStages.middleQa;
   const footerTargetLabel = isMvpComplete
     ? "MVP endpoint"
     : (currentStage?.nextLabel ?? "Middle QA");
@@ -308,9 +313,7 @@ function App() {
               </div>
             </div>
             <div className="goal-summary">
-              <strong>
-                {completedPromotionRequirements} / {promotionProgress.length}
-              </strong>
+              <strong>{promotionGoalSummary}</strong>
               <span>
                 {isMvpComplete
                   ? "Promotion completed"
@@ -322,34 +325,36 @@ function App() {
             <div className="panel-progress" aria-hidden="true">
               <span style={{ width: `${String(promotionProgressPercent)}%` }} />
             </div>
-            <dl className="progress-list">
-              {promotionProgress.map((item) => {
-                return (
-                  <div
-                    className={item.complete ? "requirement complete" : "requirement"}
-                    key={item.id}
-                  >
-                    <dt>
-                      <span>{item.complete ? "Complete" : "Pending"}</span>
-                      {item.label}
-                    </dt>
-                    <dd>
-                      <strong>
-                        {item.prefix === "$"
-                          ? formatCurrency(item.current)
-                          : formatNumber(item.current)}
-                      </strong>
-                      <span>
-                        of{" "}
-                        {item.prefix === "$"
-                          ? formatCurrency(item.required)
-                          : formatNumber(item.required)}
-                      </span>
-                    </dd>
-                  </div>
-                );
-              })}
-            </dl>
+            {promotionProgress.length > 0 && (
+              <dl className="progress-list">
+                {promotionProgress.map((item) => {
+                  return (
+                    <div
+                      className={item.complete ? "requirement complete" : "requirement"}
+                      key={item.id}
+                    >
+                      <dt>
+                        <span>{item.complete ? "Complete" : "Pending"}</span>
+                        {item.label}
+                      </dt>
+                      <dd>
+                        <strong>
+                          {item.prefix === "$"
+                            ? formatCurrency(item.current)
+                            : formatNumber(item.current)}
+                        </strong>
+                        <span>
+                          of{" "}
+                          {item.prefix === "$"
+                            ? formatCurrency(item.required)
+                            : formatNumber(item.required)}
+                        </span>
+                      </dd>
+                    </div>
+                  );
+                })}
+              </dl>
+            )}
             {isPromotionActionActive && promotionStage && (
               <button className="promote-button" type="button" onClick={promote}>
                 Promote to {promotionStage.label}
