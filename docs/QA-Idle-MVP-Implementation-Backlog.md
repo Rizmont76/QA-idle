@@ -2324,6 +2324,7 @@ Related Documentation Sections:
 
 ### QA-MVP-043 - Add Promotion and Unlock Tests
 
+Status: Complete
 Priority: High  
 Parent Phase: Phase 12 - Validation and Tests  
 Suggested Order: 5
@@ -2358,6 +2359,9 @@ Definition of Done:
 
 Expected Deliverables:
 - Promotion/Unlock test suite.
+
+Implementation Note:
+- Added focused promotion/unlock gameplay tests covering new-game unavailability, each unmet requirement, all-requirements availability, Promote action reveal, availability versus completion state, confirmed `middle_qa` transition, and continued absence of Team/Automation/Reputation surfaces or resources after promotion.
 
 Risks:
 - Existing code may have OR-based promotion conditions; tests should catch that regression.

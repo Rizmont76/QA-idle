@@ -38,6 +38,7 @@ import {
 } from "./gameLogic";
 import { MVP_IDS } from "./types";
 import type {
+  GameState,
   ModifierDefinition,
   ResourceDefinition,
   ResourceId,
@@ -1999,5 +2000,161 @@ describe("modifier and upgrade MVP coverage", () => {
     };
 
     expect(getPurchasedUpgradeCount(game)).toBe(3);
+  });
+});
+
+describe("promotion and unlock MVP coverage", () => {
+  function buildPromotionReadyGame(
+    overrides: Partial<
+      Pick<GameState, "totalBugsFound" | "totalMoneyEarned" | "upgrades">
+    > = {},
+  ): GameState {
+    return {
+      ...initialState,
+      totalBugsFound: 100,
+      totalMoneyEarned: 150,
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+        [MVP_IDS.upgrades.coffee]: 1,
+        [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+      },
+      ...overrides,
+    };
+  }
+
+  const incompleteRequirementCases = [
+    {
+      name: "lifetime Bugs Found is below the requirement",
+      game: buildPromotionReadyGame({ totalBugsFound: 99 }),
+      failedRequirementId: "requirement_lifetime_bugs_found_100",
+    },
+    {
+      name: "lifetime Money Earned is below the requirement",
+      game: buildPromotionReadyGame({ totalMoneyEarned: 149 }),
+      failedRequirementId: "requirement_lifetime_money_earned_150",
+    },
+    {
+      name: "fewer than three MVP upgrades are purchased",
+      game: buildPromotionReadyGame({
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+          [MVP_IDS.upgrades.coffee]: 1,
+        },
+      }),
+      failedRequirementId: "requirement_purchased_upgrades_3",
+    },
+  ];
+
+  it("keeps promotion unavailable on a new game", () => {
+    const game = evaluatePromotionAvailability(initialState);
+
+    expect(game.promotion).toEqual({
+      availablePromotionIds: [],
+      completedPromotionIds: [],
+    });
+    expect(getUnlockState(game, MVP_IDS.unlocks.promotionJuniorToMiddle)).toBe("hidden");
+    expect(getUiVisibilitySelectors(game).promoteAction).toEqual([]);
+  });
+
+  it.each(incompleteRequirementCases)(
+    "requires all promotion conditions when $name",
+    ({ game, failedRequirementId }) => {
+      const promotionDefinition = promotionDefinitions[0];
+
+      if (!promotionDefinition) {
+        throw new Error("Expected MVP promotion definition is missing.");
+      }
+
+      const evaluatedGame = evaluatePromotionAvailability(game);
+      const requirementEvaluation = evaluatePromotionRequirements(
+        game,
+        promotionDefinition.requirements,
+      );
+
+      expect(requirementEvaluation.allRequirementsPassed).toBe(false);
+      expect(
+        requirementEvaluation.requirements.find(
+          (requirement) => requirement.id === failedRequirementId,
+        )?.passed,
+      ).toBe(false);
+      expect(evaluatedGame.promotion.availablePromotionIds).toEqual([]);
+      expect(getUnlockState(evaluatedGame, MVP_IDS.unlocks.promotionJuniorToMiddle)).toBe(
+        "hidden",
+      );
+      expect(getUiVisibilitySelectors(evaluatedGame).promoteAction).toEqual([]);
+    },
+  );
+
+  it("reveals Promote only after every promotion requirement passes", () => {
+    const game = evaluatePromotionAvailability(buildPromotionReadyGame());
+
+    expect(game.promotion).toEqual({
+      availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      completedPromotionIds: [],
+    });
+    expect(getUnlockState(game, MVP_IDS.unlocks.promotionJuniorToMiddle)).toBe(
+      "available",
+    );
+    expect(getUiVisibilitySelectors(game).promoteAction).toEqual([
+      MVP_IDS.uiSurfaces.promoteAction,
+    ]);
+  });
+
+  it("keeps promotion availability distinct from completed promotion state", () => {
+    const availableGame = evaluatePromotionAvailability(buildPromotionReadyGame());
+    const result = acceptPromotion(availableGame, 90);
+
+    expect(availableGame.careerStage).toBe(MVP_IDS.careerStages.juniorQa);
+    expect(availableGame.promotion).toEqual({
+      availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      completedPromotionIds: [],
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Promotion should succeed.");
+    }
+
+    expect(result.game.careerStage).toBe(MVP_IDS.careerStages.middleQa);
+    expect(result.game.promotion).toEqual({
+      availablePromotionIds: [],
+      completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+    });
+    expect(result.game.unlocks[MVP_IDS.unlocks.promotionJuniorToMiddle]).toBe("hidden");
+    expect(result.game.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction]).toBe("hidden");
+  });
+
+  it("does not unlock future systems after confirmed promotion", () => {
+    const result = acceptPromotion(
+      evaluatePromotionAvailability(buildPromotionReadyGame()),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error("Promotion should succeed.");
+    }
+
+    expect(result.game.careerStage).toBe(MVP_IDS.careerStages.middleQa);
+    expect(Object.keys(result.game.resources)).toEqual([
+      MVP_IDS.resources.bugsFound,
+      MVP_IDS.resources.money,
+    ]);
+    expect(Object.keys(result.game.uiSurfaces)).toEqual([
+      MVP_IDS.uiSurfaces.manualTesting,
+      MVP_IDS.uiSurfaces.bugReporting,
+      MVP_IDS.uiSurfaces.resourcesBasic,
+      MVP_IDS.uiSurfaces.upgradesBasic,
+      MVP_IDS.uiSurfaces.promotionProgress,
+      MVP_IDS.uiSurfaces.promoteAction,
+    ]);
+    expect(Object.keys(result.game.unlocks)).toEqual([
+      MVP_IDS.unlocks.promotionJuniorToMiddle,
+    ]);
+    expect(result.game.resources).not.toHaveProperty("reputation");
+    expect(result.game.uiSurfaces).not.toHaveProperty("ui_team");
+    expect(result.game.uiSurfaces).not.toHaveProperty("ui_automation");
+    expect(result.game.uiSurfaces).not.toHaveProperty("ui_reputation");
   });
 });
