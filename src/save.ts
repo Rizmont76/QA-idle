@@ -12,6 +12,8 @@ import {
 } from "./gameData";
 import { MVP_IDS } from "./types";
 import type {
+  GameLoadedEventDescriptor,
+  GameSavedEventDescriptor,
   GameState,
   MvpSaveGameData,
   PromotionId,
@@ -25,6 +27,16 @@ import type {
 } from "./types";
 
 export const CURRENT_SAVE_SCHEMA_VERSION = 1 as const;
+
+export interface LoadSaveResult {
+  game: GameState;
+  events: readonly GameLoadedEventDescriptor[];
+}
+
+export interface SaveGameResult {
+  saveData: SaveData;
+  events: readonly GameSavedEventDescriptor[];
+}
 
 interface LegacySaveFields {
   bugs?: unknown;
@@ -287,27 +299,67 @@ function readExistingSaveMetadata(now: number): SaveData["meta"] {
   }
 }
 
-export function loadSave(): { game: GameState } {
+function buildGameLoadedEvent(
+  loadedAt: number,
+  migratedFromVersions: readonly string[],
+): GameLoadedEventDescriptor {
+  return {
+    id: MVP_IDS.events.gameLoaded,
+    payload: {
+      schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+      loadedAt,
+      migratedFromVersions,
+    },
+  };
+}
+
+function buildGameSavedEvent(saveData: SaveData): GameSavedEventDescriptor {
+  return {
+    id: MVP_IDS.events.gameSaved,
+    payload: {
+      schemaVersion: saveData.meta.schemaVersion,
+      savedAt: saveData.meta.lastSavedAt,
+      lastActiveAt: saveData.meta.lastActiveAt,
+    },
+  };
+}
+
+function getMigratedFromVersions(parsed: unknown) {
+  if (!isRecord(parsed) || !isRecord(parsed["meta"])) {
+    return ["legacy_raw_game_state"];
+  }
+
+  const meta = parsed["meta"];
+
+  return Array.isArray(meta["migratedFromVersions"])
+    ? meta["migratedFromVersions"].filter(
+        (version): version is string => typeof version === "string",
+      )
+    : [];
+}
+
+export function loadSave(): LoadSaveResult {
   try {
     const now = Date.now();
     const rawSave = localStorage.getItem(SAVE_KEY);
 
     if (!rawSave) {
-      return { game: createNewGameState(now) };
+      return { game: createNewGameState(now), events: [] };
     }
 
     const parsed = JSON.parse(rawSave) as unknown;
     const savedGamePayload = getSavedGamePayload(parsed);
 
     if (!savedGamePayload) {
-      return { game: createNewGameState(now) };
+      return { game: createNewGameState(now), events: [] };
     }
 
     return {
       game: normalizeGameState(savedGamePayload, now),
+      events: [buildGameLoadedEvent(now, getMigratedFromVersions(parsed))],
     };
   } catch {
-    return { game: createNewGameState() };
+    return { game: createNewGameState(), events: [] };
   }
 }
 
@@ -318,13 +370,16 @@ export function serializeGameForSave(game: GameState, now = Date.now()): SaveDat
   };
 }
 
-export function saveGame(game: GameState) {
+export function saveGame(game: GameState): SaveGameResult {
   const now = Date.now();
   const saveData = serializeGameForSave(game, now);
 
   localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
 
-  return saveData;
+  return {
+    saveData,
+    events: [buildGameSavedEvent(saveData)],
+  };
 }
 
 export function clearSave() {

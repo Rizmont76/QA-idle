@@ -19,7 +19,7 @@ describe("save storage", () => {
   });
 
   it("loads the initial state when no save exists", () => {
-    expect(loadSave()).toEqual({ game: createNewGameState(Date.now()) });
+    expect(loadSave()).toEqual({ game: createNewGameState(Date.now()), events: [] });
   });
 
   it("normalizes invalid saved values", () => {
@@ -70,7 +70,7 @@ describe("save storage", () => {
       },
     };
 
-    saveGame(game);
+    const result = saveGame(game);
 
     expect(JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}")).toMatchObject({
       meta: {
@@ -88,6 +88,16 @@ describe("save storage", () => {
         lastPlayedAt: Date.now(),
       },
     });
+    expect(result.events).toEqual([
+      {
+        id: MVP_IDS.events.gameSaved,
+        payload: {
+          schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+          savedAt: Date.now(),
+          lastActiveAt: Date.now(),
+        },
+      },
+    ]);
 
     clearSave();
 
@@ -202,13 +212,13 @@ describe("save storage", () => {
   });
 
   it("returns the exact payload written to storage", () => {
-    const saved = saveGame({
+    const result = saveGame({
       ...initialState,
       totalBugsFound: 34,
       totalMoneyEarned: 55,
     });
 
-    expect(JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}")).toEqual(saved);
+    expect(JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}")).toEqual(result.saveData);
   });
 
   it("loads versioned saves and migrates legacy raw saves on write", () => {
@@ -240,7 +250,9 @@ describe("save storage", () => {
       }),
     );
 
-    expect(loadSave().game).toMatchObject({
+    const loadedVersionedSave = loadSave();
+
+    expect(loadedVersionedSave.game).toMatchObject({
       resources: {
         [MVP_IDS.resources.bugsFound]: 8,
         [MVP_IDS.resources.money]: 14,
@@ -252,6 +264,16 @@ describe("save storage", () => {
         [MVP_IDS.upgrades.betterChecklist]: 1,
       },
     });
+    expect(loadedVersionedSave.events).toEqual([
+      {
+        id: MVP_IDS.events.gameLoaded,
+        payload: {
+          schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+          loadedAt: Date.now(),
+          migratedFromVersions: ["legacy_raw_game_state"],
+        },
+      },
+    ]);
 
     localStorage.setItem(
       SAVE_KEY,
@@ -263,7 +285,20 @@ describe("save storage", () => {
       }),
     );
 
-    saveGame(loadSave().game);
+    const loadedLegacySave = loadSave();
+
+    expect(loadedLegacySave.events).toEqual([
+      {
+        id: MVP_IDS.events.gameLoaded,
+        payload: {
+          schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+          loadedAt: Date.now(),
+          migratedFromVersions: ["legacy_raw_game_state"],
+        },
+      },
+    ]);
+
+    saveGame(loadedLegacySave.game);
 
     expect(JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}")).toMatchObject({
       meta: {
@@ -322,7 +357,9 @@ describe("save storage", () => {
       }),
     );
 
-    expect(loadSave().game).toEqual({
+    const loadedSave = loadSave();
+
+    expect(loadedSave.game).toEqual({
       ...initialState,
       resources: {
         ...initialState.resources,
@@ -351,6 +388,16 @@ describe("save storage", () => {
         [MVP_IDS.upgrades.keyboardShortcuts]: 1,
       },
     });
+    expect(loadedSave.events).toEqual([
+      {
+        id: MVP_IDS.events.gameLoaded,
+        payload: {
+          schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+          loadedAt: Date.now(),
+          migratedFromVersions: [],
+        },
+      },
+    ]);
   });
 
   it("falls back safely when a versioned save has an unsupported schema", () => {
@@ -369,7 +416,7 @@ describe("save storage", () => {
       }),
     );
 
-    expect(loadSave().game).toEqual(createNewGameState(Date.now()));
+    expect(loadSave()).toEqual({ game: createNewGameState(Date.now()), events: [] });
   });
 
   it("restores MVP upgrade ownership by stable ID and ignores unknown saved upgrades", () => {

@@ -2497,6 +2497,55 @@ Related Documentation Sections:
 - `docs/08-MVP_Vertical_Slice_Specification.md` - Acceptance Criteria
 - `docs/00 - Master Project Roadmap.md` - Current Milestone Definition of Done
 
+## Post-MVP Technical Debt
+
+### TECH-DEBT-007 - Split Oversized Source and Test Files
+
+Status: Pending  
+Priority: Low  
+Parent Phase: Post-MVP Technical Debt  
+Suggested Order: After MVP acceptance or when touching the affected area
+
+Purpose: Reduce maintenance cost from large files reported by the repository health check without interrupting MVP stabilization.
+
+Scope:
+- Review health warnings for oversized files.
+- Split only files where the affected domain is actively being changed.
+- Prefer domain-based extraction over mechanical churn.
+- Preserve behavior and public exports.
+
+Files or Systems Expected to Be Modified:
+- Candidate files include `src/gameLogic.test.ts`, `src/gameData.ts`, `src/types.ts`, `src/styles.css`, `src/save.test.ts`, and `src/gameData.test.ts`.
+- New domain-specific modules or test files as needed.
+
+Dependencies:
+- QA-MVP-046, unless a smaller split directly supports an active implementation task.
+
+Estimated Complexity: Medium
+
+Acceptance Criteria:
+- The selected file split has a clear domain boundary.
+- Existing imports and tests continue to pass.
+- No gameplay, save, or UI behavior changes are introduced.
+- Repository health warnings are reduced where practical.
+
+Definition of Done:
+- Oversized-file cleanup is handled incrementally with green project checks after each split.
+
+Expected Deliverables:
+- Focused file/module split for one affected area at a time.
+- Verification note with exact check command and result.
+
+Risks:
+- A broad refactor could create needless review churn. Do not split all warned files in one session unless explicitly requested.
+
+Implementation Note:
+- Added after deep-review on 2026-07-14 because `npm.cmd run check` passed with health warnings only. Current recommendation is to defer this work until it supports active development, with `src/gameLogic.test.ts` as the first likely candidate.
+
+Related Documentation Sections:
+- `AGENTS.md` - Repository Hygiene
+- `src/AGENTS.md` - Tests
+
 ## Final Backlog Review
 
 ### Missing Work Review
