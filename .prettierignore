@@ -1,6 +1,7 @@
 dist
 docs
 node_modules
+artifacts/balance
 *.tsbuildinfo
 pnpm-lock.yaml
 vite.config.d.ts

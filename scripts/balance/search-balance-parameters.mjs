@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
+import { assertWritableBalanceArtifact } from "./artifact-protection.mjs";
 import { PARAMETER_VERSION, PARAMS } from "./parameters.mjs";
 import { runCompleteSimulationSuite } from "./simulator.mjs";
 
@@ -834,6 +835,41 @@ export async function writePhase6BArtifacts() {
         parameter_diff: searchResults.recommended.parameter_diff,
       }
     : null;
+  const artifactPaths = [
+    new URL(
+      "../../artifacts/balance/phase-6b.2-feasibility-analysis.json",
+      import.meta.url,
+    ),
+    new URL(
+      "../../artifacts/balance/phase-6b.2-expanded-search-space.json",
+      import.meta.url,
+    ),
+    new URL(
+      "../../artifacts/balance/phase-6b.2-expanded-candidate-results.json",
+      import.meta.url,
+    ),
+    new URL(
+      "../../artifacts/balance/phase-6b.2-expanded-sensitivity-results.json",
+      import.meta.url,
+    ),
+    new URL(
+      "../../docs/reports/phase-6b.2-expanded-passive-economy-report.md",
+      import.meta.url,
+    ),
+  ];
+
+  if (recommendedParameters) {
+    artifactPaths.push(
+      new URL(
+        "../../artifacts/balance/phase-6b.2-recommended-parameters.json",
+        import.meta.url,
+      ),
+    );
+  }
+
+  for (const artifactPath of artifactPaths) {
+    assertWritableBalanceArtifact(artifactPath);
+  }
 
   await mkdir(new URL("../../artifacts/balance/", import.meta.url), {
     recursive: true,
