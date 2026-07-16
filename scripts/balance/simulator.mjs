@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { Fixed } from "./fixed-point.mjs";
 import { JUNIOR_BASELINE_SNAPSHOT } from "./junior-baseline-snapshot.mjs";
 import {
+  getParameterProfile,
   PARAMETER_VERSION,
   PARAMS,
   SUPPORT_DEFINITIONS,
@@ -14,22 +15,26 @@ const SECOND = 1;
 const MAX_SCENARIO_SECONDS = 20000;
 let activeParams = PARAMS;
 let activeParameterVersion = PARAMETER_VERSION;
+let activeProfileId = "historical-doc15-provisional-2026-07-14";
 const SCALE = activeParams.PARAM_NUMERIC_SCALE_DECIMAL_PLACES;
 
 export function getBaselineParams() {
   return structuredClone(PARAMS);
 }
 
-function withActiveParams(params, parameterVersion, run) {
+function withActiveParams(params, parameterVersion, profileId, run) {
   const previousParams = activeParams;
   const previousVersion = activeParameterVersion;
+  const previousProfileId = activeProfileId;
   activeParams = Object.freeze({ ...PARAMS, ...params });
   activeParameterVersion = parameterVersion;
+  activeProfileId = profileId;
   try {
     return run();
   } finally {
     activeParams = previousParams;
     activeParameterVersion = previousVersion;
+    activeProfileId = previousProfileId;
   }
 }
 
@@ -2025,6 +2030,7 @@ function runCompleteSimulationSuiteInternal() {
 
   return {
     parameter_version: activeParameterVersion,
+    parameter_profile_id: activeProfileId,
     simulator_version: SIMULATOR_VERSION,
     run_date: new Date().toISOString(),
     document_status_at_run: "DRAFT - Simulation Validation Required",
@@ -2039,10 +2045,21 @@ function runCompleteSimulationSuiteInternal() {
 export function runCompleteSimulationSuite({
   params = PARAMS,
   parameterVersion = PARAMETER_VERSION,
+  profileId = "historical-doc15-provisional-2026-07-14",
 } = {}) {
-  return withActiveParams(params, parameterVersion, () =>
+  return withActiveParams(params, parameterVersion, profileId, () =>
     runCompleteSimulationSuiteInternal(),
   );
+}
+
+export function runCompleteSimulationSuiteForProfile(profileId) {
+  const profile = getParameterProfile(profileId);
+
+  return runCompleteSimulationSuite({
+    params: profile.params,
+    parameterVersion: profile.version,
+    profileId: profile.id,
+  });
 }
 
 function inferStrategy(scenarioId) {

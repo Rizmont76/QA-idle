@@ -1,14 +1,72 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { runCompleteSimulationSuite } from "./simulator.mjs";
+import { pathToFileURL } from "node:url";
+import {
+  ACTIVE_CANDIDATE_PROFILE_ID,
+  HISTORICAL_BASELINE_PROFILE_ID,
+  getParameterProfile,
+} from "./parameters.mjs";
+import { runCompleteSimulationSuiteForProfile } from "./simulator.mjs";
 
-const resultPath = new URL(
-  "../../artifacts/balance/phase-6a.2-final-corrected-baseline-results.json",
-  import.meta.url,
-);
-const reportPath = new URL(
-  "../../docs/reports/phase-6a.2-final-corrected-balance-acceptance-report.md",
-  import.meta.url,
-);
+const DEFAULT_OUTPUTS_BY_PROFILE = Object.freeze({
+  [HISTORICAL_BASELINE_PROFILE_ID]: Object.freeze({
+    resultPath:
+      "../../artifacts/balance/phase-6a.2-final-corrected-baseline-results.json",
+    reportPath:
+      "../../docs/reports/phase-6a.2-final-corrected-balance-acceptance-report.md",
+  }),
+  [ACTIVE_CANDIDATE_PROFILE_ID]: Object.freeze({
+    resultPath:
+      "../../artifacts/balance/phase-6b.2-stage-a-003-active-candidate-results.json",
+    reportPath:
+      "../../docs/reports/phase-6b.2-stage-a-003-active-candidate-balance-validation-report.md",
+  }),
+});
+
+function getArgValue(flag, fallback = null) {
+  const index = process.argv.indexOf(flag);
+
+  if (index === -1) {
+    return fallback;
+  }
+
+  const value = process.argv[index + 1];
+
+  if (!value || value.startsWith("--")) {
+    throw new Error(`Missing value for ${flag}.`);
+  }
+
+  return value;
+}
+
+function outputUrl(pathOrUrl) {
+  if (pathOrUrl.startsWith("file:")) {
+    return new URL(pathOrUrl);
+  }
+
+  if (/^[A-Za-z]:[\\/]/.test(pathOrUrl)) {
+    return pathToFileURL(pathOrUrl);
+  }
+
+  return new URL(pathOrUrl, import.meta.url);
+}
+
+function resolveRunOptions() {
+  const profileId = getArgValue("--profile", HISTORICAL_BASELINE_PROFILE_ID);
+  const profile = getParameterProfile(profileId);
+  const defaults = DEFAULT_OUTPUTS_BY_PROFILE[profile.id];
+
+  if (!defaults) {
+    throw new Error(
+      `No default output paths are configured for profile "${profile.id}".`,
+    );
+  }
+
+  return {
+    profile,
+    resultPath: outputUrl(getArgValue("--result", defaults.resultPath)),
+    reportPath: outputUrl(getArgValue("--report", defaults.reportPath)),
+  };
+}
 
 function formatSeconds(seconds) {
   if (seconds === null || seconds === undefined) {
@@ -98,6 +156,7 @@ function buildReport(results) {
   return `# Playable Idle MVP Balance Acceptance Report
 
 Parameter version: ${results.parameter_version}
+Parameter profile: ${results.parameter_profile_id}
 Junior baseline version: ${results.junior_baseline_snapshot.snapshotVersion}
 Junior baseline source commit/version: ${results.junior_baseline_snapshot.sourceCommit}
 Junior baseline snapshot hash: ${results.junior_baseline_snapshot_hash}
@@ -229,11 +288,13 @@ Do not freeze doc 15 yet unless blocker and major failures are explicitly accept
 `;
 }
 
-const results = runCompleteSimulationSuite();
+const { profile, resultPath, reportPath } = resolveRunOptions();
+const results = runCompleteSimulationSuiteForProfile(profile.id);
 await mkdir(new URL("../../artifacts/balance/", import.meta.url), { recursive: true });
 await mkdir(new URL("../../docs/reports/", import.meta.url), { recursive: true });
 await writeFile(resultPath, JSON.stringify(results, null, 2) + "\n", "utf8");
 await writeFile(reportPath, buildReport(results), "utf8");
 
+console.log(`Profile ${profile.id} (${profile.version})`);
 console.log(`Wrote ${resultPath.pathname}`);
 console.log(`Wrote ${reportPath.pathname}`);

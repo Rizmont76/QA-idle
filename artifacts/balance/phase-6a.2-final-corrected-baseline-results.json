@@ -1,7 +1,8 @@
 {
   "parameter_version": "doc15-provisional-2026-07-14",
+  "parameter_profile_id": "historical-doc15-provisional-2026-07-14",
   "simulator_version": "phase-6a.2-simulator-v3",
-  "run_date": "2026-07-15T09:21:35.773Z",
+  "run_date": "2026-07-16T13:30:08.474Z",
   "document_status_at_run": "DRAFT - Simulation Validation Required",
   "junior_baseline_snapshot": {
     "snapshotVersion": "junior-baseline-a1e0570-2026-07-14",
@@ -2863,18 +2864,18 @@
       "junior_baseline_snapshot_hash": "1fe7f506367c028b441ee6ca3781b06a9b1f2bc9ab0ce8a238466c00f5a6c3e8",
       "scenario_start_snapshot_id": "post-promotion-1fe7f506367c",
       "endpoint_completed": true,
-      "endpoint_time_seconds": 1231,
+      "endpoint_time_seconds": 991,
       "junior_phase_seconds": 330,
-      "middle_phase_seconds": 901,
-      "total_online_gameplay_seconds": 1231,
-      "total_wall_clock_elapsed_seconds": 1231,
+      "middle_phase_seconds": 661,
+      "total_online_gameplay_seconds": 991,
+      "total_wall_clock_elapsed_seconds": 991,
       "pre_offline_online_seconds": 0,
       "wall_clock_offline_elapsed_seconds": 0,
-      "post_return_online_seconds": 901,
+      "post_return_online_seconds": 661,
       "capstone_reached": false,
       "capstone_time_seconds": null,
-      "purchase_action_count": 10,
-      "meaningful_purchase_decision_count": 8,
+      "purchase_action_count": 8,
+      "meaningful_purchase_decision_count": 5,
       "meaningful_purchase_decision_events": [
         {
           "category": "meaningful_purchase_decision",
@@ -2925,19 +2926,22 @@
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 810,
-          "onlineSeconds": 480,
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
           ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
+          "affordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover"
           ],
-          "moneyRatePerSecond": 0.791667,
-          "signature": "3e9b0865b64119fadd7f4ba3291fb2af48cb7f476d6bfd0ea5bcea7a01e5aecb"
+          "nearAffordablePurchaseCategories": ["support_training_economics"],
+          "moneyRatePerSecond": 0.706667,
+          "signature": "242b11f20c94144cea0eedc2d6f41fbf3746ea5e45c8fb3324b81a555289f09e"
         },
         {
           "category": "meaningful_purchase_decision",
@@ -2945,67 +2949,19 @@
           "onlineSeconds": 600,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
-          "moneyRatePerSecond": 0.826667,
-          "signature": "8764a1116a2d0e3dc551dcf131d1f9a18d3e556f3e88d8ce7400fb86ceb2eea9"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "affordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "nearAffordablePurchaseCategories": [],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "abe6484b1e96691a0ee54b36e3bcf4bb05cba229d45d81f3cba42f28c85d691f"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1170,
-          "onlineSeconds": 840,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "619493963e80b1fd4bfbee0b57d400309d150b3e5487729d4dfe1e8e64a54c69"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1231,
-          "onlineSeconds": 901,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 1.064667,
-          "signature": "f3787f3abdb0c791ec99071a66c4d60ee90e1184429509cb8895001721670906"
+          "moneyRatePerSecond": 0.741667,
+          "signature": "11d0ff24b625a05f9cbe0f8e13f95ae56df267c911673345a7b8d9ff409d4605"
         }
       ],
       "purchase_action_events": [
@@ -3063,14 +3019,6 @@
           "category": "purchase_action",
           "timeSeconds": 750,
           "onlineSeconds": 420,
-          "action": "buy_support_upgrade",
-          "supportId": "support_immediate_production",
-          "cost": "95"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 870,
-          "onlineSeconds": 540,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 5,
@@ -3079,8 +3027,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 990,
-          "onlineSeconds": 660,
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 6,
@@ -3089,73 +3037,46 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "action": "buy_support_upgrade",
-          "supportId": "support_training_economics",
-          "cost": "140"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
+          "timeSeconds": 990,
+          "onlineSeconds": 660,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 7,
           "newLevel": 8,
-          "cost": "89"
+          "cost": "101"
         }
       ],
-      "manual_action_count": 131,
-      "report_action_count": 26,
+      "manual_action_count": 111,
+      "report_action_count": 22,
       "assistant_final_level": 8,
-      "supports_owned": ["support_immediate_production", "support_training_economics"],
+      "supports_owned": [],
       "milestones_reached": ["milestone_assistant_first"],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
       "offline_bugs_found_total": 0,
       "money_from_offline_reports_after_return": "0",
-      "max_bugs_found": "51.7",
-      "max_money": "151.565",
-      "final_bugs_found_exact": "0.648",
-      "final_money_exact": "25.965",
+      "max_bugs_found": "44.5",
+      "max_money": "122.765",
+      "final_bugs_found_exact": "0.486",
+      "final_money_exact": "21.765",
       "numeric_scale_decimal_places": 6,
-      "max_assistant_rate": "0.648",
-      "max_level_cost": "104",
-      "support_purchase_analysis": [
-        {
-          "supportId": "support_immediate_production",
-          "timeSeconds": 750,
-          "cost": "95",
-          "paybackSeconds": 791.667,
-          "opportunityCostAssistantLevels": "1.319444",
-          "endpointUtilitySeconds": -85.689,
-          "justifiedByScenarioObjective": false
-        },
-        {
-          "supportId": "support_training_economics",
-          "timeSeconds": 1110,
-          "cost": "140",
-          "paybackSeconds": 300,
-          "opportunityCostAssistantLevels": "1.386139",
-          "endpointUtilitySeconds": -89.867,
-          "justifiedByScenarioObjective": false
-        }
-      ],
+      "max_assistant_rate": "0.486",
+      "max_level_cost": "118",
+      "support_purchase_analysis": [],
       "stall_windows": {
         "maxSeconds": 120,
         "endpointMaxSeconds": 120,
         "capstonePostEndpointMaxSeconds": 0,
-        "phaseSeconds": 901
+        "phaseSeconds": 661
       },
       "gate_results": [
         {
           "gate_id": "gate_middle_duration",
           "scenario": "scenario_mixed",
           "target": "900-1500 seconds after promotion",
-          "actual": 901,
-          "pass": true,
+          "actual": 661,
+          "pass": false,
           "severity": "Blocker",
           "permitted_parameter_group": "group_assistant_cost",
           "diagnostic": "Mixed strategy Middle endpoint time from shared post-promotion snapshot."
@@ -3164,7 +3085,7 @@
           "gate_id": "gate_purchase_actions",
           "scenario": "scenario_mixed",
           "target": "10-16 purchase actions",
-          "actual": 14,
+          "actual": 12,
           "pass": true,
           "severity": "Major",
           "permitted_parameter_group": "group_cost",
@@ -3174,8 +3095,8 @@
           "gate_id": "gate_meaningful_decisions",
           "scenario": "scenario_mixed",
           "target": "3-5 decisions, deduped",
-          "actual": 8,
-          "pass": false,
+          "actual": 5,
+          "pass": true,
           "severity": "Major",
           "permitted_parameter_group": "group_decisions",
           "diagnostic": "Meaningful decisions are signature-deduped after material state changes."
@@ -3244,14 +3165,14 @@
           "gate_id": "gate_mixed_support_utility",
           "scenario": "scenario_mixed",
           "target": "mixed does not buy unsupported negative-utility Support Upgrades",
-          "actual": "support_immediate_production, support_training_economics",
-          "pass": false,
+          "actual": "no negative utility support purchases",
+          "pass": true,
           "severity": "Major",
           "permitted_parameter_group": "group_support_effects",
           "diagnostic": "Mixed policy support purchases must have non-negative endpoint utility unless scenario objectives justify them."
         }
       ],
-      "event_log_digest": "0b4b9675ea8462406d74fab347fd956b8dafb7fed9d0805ec3b4c482b4e412b1",
+      "event_log_digest": "e1e0cfbea063ce3aa68df692b0905293ead824269819aed40e3ed0e95bf5508c",
       "event_log": [
         {
           "category": "meaningful_purchase_decision",
@@ -3613,9 +3534,11 @@
           "category": "purchase_action",
           "timeSeconds": 750,
           "onlineSeconds": 420,
-          "action": "buy_support_upgrade",
-          "supportId": "support_immediate_production",
-          "cost": "95"
+          "action": "buy_assistant_level_1",
+          "levelsPurchased": 1,
+          "previousLevel": 5,
+          "newLevel": 6,
+          "cost": "72"
         },
         {
           "category": "manual_action",
@@ -3651,24 +3574,8 @@
           "category": "report_action",
           "timeSeconds": 810,
           "onlineSeconds": 480,
-          "reportedBugs": "47.5",
-          "earnedMoney": "47.5"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 810,
-          "onlineSeconds": 480,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 0.791667,
-          "signature": "3e9b0865b64119fadd7f4ba3291fb2af48cb7f476d6bfd0ea5bcea7a01e5aecb"
+          "reportedBugs": "42.4",
+          "earnedMoney": "42.4"
         },
         {
           "category": "manual_action",
@@ -3704,8 +3611,27 @@
           "category": "report_action",
           "timeSeconds": 870,
           "onlineSeconds": 540,
-          "reportedBugs": "47.5",
-          "earnedMoney": "47.5"
+          "reportedBugs": "42.4",
+          "earnedMoney": "42.4"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
+          ],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": ["support_training_economics"],
+          "moneyRatePerSecond": 0.706667,
+          "signature": "242b11f20c94144cea0eedc2d6f41fbf3746ea5e45c8fb3324b81a555289f09e"
         },
         {
           "category": "purchase_action",
@@ -3713,9 +3639,9 @@
           "onlineSeconds": 540,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
-          "previousLevel": 5,
-          "newLevel": 6,
-          "cost": "72"
+          "previousLevel": 6,
+          "newLevel": 7,
+          "cost": "85"
         },
         {
           "category": "manual_action",
@@ -3751,8 +3677,8 @@
           "category": "report_action",
           "timeSeconds": 930,
           "onlineSeconds": 600,
-          "reportedBugs": "49.6",
-          "earnedMoney": "49.6"
+          "reportedBugs": "44.5",
+          "earnedMoney": "44.5"
         },
         {
           "category": "meaningful_purchase_decision",
@@ -3760,17 +3686,19 @@
           "onlineSeconds": 600,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
-          "moneyRatePerSecond": 0.826667,
-          "signature": "8764a1116a2d0e3dc551dcf131d1f9a18d3e556f3e88d8ce7400fb86ceb2eea9"
+          "moneyRatePerSecond": 0.741667,
+          "signature": "11d0ff24b625a05f9cbe0f8e13f95ae56df267c911673345a7b8d9ff409d4605"
         },
         {
           "category": "manual_action",
@@ -3806,8 +3734,8 @@
           "category": "report_action",
           "timeSeconds": 990,
           "onlineSeconds": 660,
-          "reportedBugs": "49.6",
-          "earnedMoney": "49.6"
+          "reportedBugs": "44.5",
+          "earnedMoney": "44.5"
         },
         {
           "category": "purchase_action",
@@ -3815,237 +3743,21 @@
           "onlineSeconds": 660,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
-          "previousLevel": 6,
-          "newLevel": 7,
-          "cost": "85"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1002,
-          "onlineSeconds": 672,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1014,
-          "onlineSeconds": 684,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1026,
-          "onlineSeconds": 696,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1038,
-          "onlineSeconds": 708,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1050,
-          "onlineSeconds": 720,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 1050,
-          "onlineSeconds": 720,
-          "reportedBugs": "51.7",
-          "earnedMoney": "51.7"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1062,
-          "onlineSeconds": 732,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1074,
-          "onlineSeconds": 744,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1086,
-          "onlineSeconds": 756,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1098,
-          "onlineSeconds": 768,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "reportedBugs": "51.7",
-          "earnedMoney": "51.7"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "affordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "nearAffordablePurchaseCategories": [],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "abe6484b1e96691a0ee54b36e3bcf4bb05cba229d45d81f3cba42f28c85d691f"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "action": "buy_support_upgrade",
-          "supportId": "support_training_economics",
-          "cost": "140"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1122,
-          "onlineSeconds": 792,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1134,
-          "onlineSeconds": 804,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1146,
-          "onlineSeconds": 816,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1158,
-          "onlineSeconds": 828,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1170,
-          "onlineSeconds": 840,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 1170,
-          "onlineSeconds": 840,
-          "reportedBugs": "51.7",
-          "earnedMoney": "51.7"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1170,
-          "onlineSeconds": 840,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "619493963e80b1fd4bfbee0b57d400309d150b3e5487729d4dfe1e8e64a54c69"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1182,
-          "onlineSeconds": 852,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1194,
-          "onlineSeconds": 864,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1206,
-          "onlineSeconds": 876,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1218,
-          "onlineSeconds": 888,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
-          "reportedBugs": "51.7",
-          "earnedMoney": "51.7"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
-          "action": "buy_assistant_level_1",
-          "levelsPurchased": 1,
           "previousLevel": 7,
           "newLevel": 8,
-          "cost": "89"
+          "cost": "101"
         },
         {
           "category": "milestone_event",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
+          "timeSeconds": 990,
+          "onlineSeconds": 660,
           "id": "milestone_assistant_first",
           "level": 8
         },
         {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1231,
-          "onlineSeconds": 901,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 1.064667,
-          "signature": "f3787f3abdb0c791ec99071a66c4d60ee90e1184429509cb8895001721670906"
-        },
-        {
           "category": "endpoint_event",
-          "timeSeconds": 1231,
-          "onlineSeconds": 901,
+          "timeSeconds": 991,
+          "onlineSeconds": 661,
           "endpoint": "playable_idle_mvp",
           "assistantLevel": 8
         }
@@ -4908,17 +4620,17 @@
       "junior_baseline_snapshot_hash": "1fe7f506367c028b441ee6ca3781b06a9b1f2bc9ab0ce8a238466c00f5a6c3e8",
       "scenario_start_snapshot_id": "post-promotion-1fe7f506367c",
       "endpoint_completed": true,
-      "endpoint_time_seconds": 1321,
+      "endpoint_time_seconds": 1231,
       "junior_phase_seconds": 330,
-      "middle_phase_seconds": 991,
-      "total_online_gameplay_seconds": 1321,
-      "total_wall_clock_elapsed_seconds": 1321,
+      "middle_phase_seconds": 901,
+      "total_online_gameplay_seconds": 1231,
+      "total_wall_clock_elapsed_seconds": 1231,
       "pre_offline_online_seconds": 0,
       "wall_clock_offline_elapsed_seconds": 0,
-      "post_return_online_seconds": 991,
+      "post_return_online_seconds": 901,
       "capstone_reached": false,
       "capstone_time_seconds": null,
-      "purchase_action_count": 9,
+      "purchase_action_count": 8,
       "meaningful_purchase_decision_count": 5,
       "meaningful_purchase_decision_events": [
         {
@@ -4952,16 +4664,20 @@
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 960,
-          "onlineSeconds": 630,
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_training_economics"
+            "support_immediate_production",
+            "support_offline_handover"
           ],
           "affordablePurchaseCategories": ["assistant_level"],
-          "nearAffordablePurchaseCategories": ["support_training_economics"],
-          "moneyRatePerSecond": 0.59,
-          "signature": "1bd101cc76ba0a21ba645590405f62082e58813400e63cf5de360e7e733b4e58"
+          "nearAffordablePurchaseCategories": [
+            "support_immediate_production",
+            "support_offline_handover"
+          ],
+          "moneyRatePerSecond": 0.505,
+          "signature": "2a2b034609e75157177220b3b3bb7674e8b788abc905a29305553546211dde72"
         },
         {
           "category": "meaningful_purchase_decision",
@@ -4969,32 +4685,36 @@
           "onlineSeconds": 720,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["assistant_level"],
-          "nearAffordablePurchaseCategories": [
-            "support_offline_handover",
-            "support_training_economics"
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover"
           ],
-          "moneyRatePerSecond": 0.625,
-          "signature": "8392d42041e7e69175c1e2eed57651bee8efd8a97aa0a663e7117495ad8ea8e6"
+          "nearAffordablePurchaseCategories": ["support_training_economics"],
+          "moneyRatePerSecond": 0.54,
+          "signature": "242b11f20c94144cea0eedc2d6f41fbf3746ea5e45c8fb3324b81a555289f09e"
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
+          "timeSeconds": 1140,
+          "onlineSeconds": 810,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover"
           ],
-          "moneyRatePerSecond": 0.695,
-          "signature": "3e9b0865b64119fadd7f4ba3291fb2af48cb7f476d6bfd0ea5bcea7a01e5aecb"
+          "moneyRatePerSecond": 0.575,
+          "signature": "e4596fdc90f15595c4243e48e2376f5ec5a6ad62c731accb4391ac3fd67b3326"
         }
       ],
       "purchase_action_events": [
@@ -5042,14 +4762,6 @@
           "category": "purchase_action",
           "timeSeconds": 780,
           "onlineSeconds": 450,
-          "action": "buy_support_upgrade",
-          "supportId": "support_immediate_production",
-          "cost": "95"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 960,
-          "onlineSeconds": 630,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 4,
@@ -5058,8 +4770,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 1050,
-          "onlineSeconds": 720,
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 5,
@@ -5068,8 +4780,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 1140,
-          "onlineSeconds": 810,
+          "timeSeconds": 1050,
+          "onlineSeconds": 720,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 6,
@@ -5078,8 +4790,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 1320,
-          "onlineSeconds": 990,
+          "timeSeconds": 1230,
+          "onlineSeconds": 900,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 7,
@@ -5087,46 +4799,36 @@
           "cost": "101"
         }
       ],
-      "manual_action_count": 105,
-      "report_action_count": 22,
+      "manual_action_count": 101,
+      "report_action_count": 21,
       "assistant_final_level": 8,
-      "supports_owned": ["support_immediate_production"],
+      "supports_owned": [],
       "milestones_reached": ["milestone_assistant_first"],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
       "offline_bugs_found_total": 0,
       "money_from_offline_reports_after_return": "0",
-      "max_bugs_found": "65.05",
-      "max_money": "132.015",
-      "final_bugs_found_exact": "0.648",
-      "final_money_exact": "31.015",
+      "max_bugs_found": "54.25",
+      "max_money": "128.715",
+      "final_bugs_found_exact": "0.486",
+      "final_money_exact": "27.715",
       "numeric_scale_decimal_places": 6,
-      "max_assistant_rate": "0.648",
+      "max_assistant_rate": "0.486",
       "max_level_cost": "118",
-      "support_purchase_analysis": [
-        {
-          "supportId": "support_immediate_production",
-          "timeSeconds": 780,
-          "cost": "95",
-          "paybackSeconds": 791.667,
-          "opportunityCostAssistantLevels": "1.583333",
-          "endpointUtilitySeconds": -65.409,
-          "justifiedByScenarioObjective": false
-        }
-      ],
+      "support_purchase_analysis": [],
       "stall_windows": {
         "maxSeconds": 180,
         "endpointMaxSeconds": 180,
         "capstonePostEndpointMaxSeconds": 0,
-        "phaseSeconds": 991
+        "phaseSeconds": 901
       },
       "gate_results": [
         {
           "gate_id": "gate_low_click_middle_completion",
           "scenario": "scenario_low_click_middle",
           "target": "<= 1500 seconds after promotion",
-          "actual": 991,
+          "actual": 901,
           "pass": true,
           "severity": "Blocker",
           "permitted_parameter_group": "group_passive_baseline",
@@ -5173,7 +4875,7 @@
           "diagnostic": "Runaway detection for Buy Max collapsing too many levels into one transaction."
         }
       ],
-      "event_log_digest": "f1b41a296572e1f297d70f516ffb80bc68c19d57d10bfd986e4c1b41d9e31b93",
+      "event_log_digest": "c60773aff3583b34ae6f9c0581b024b42396fbba880f2652942558a18bb4e7b8",
       "event_log": [
         {
           "category": "purchase_action",
@@ -5415,9 +5117,11 @@
           "category": "purchase_action",
           "timeSeconds": 780,
           "onlineSeconds": 450,
-          "action": "buy_support_upgrade",
-          "supportId": "support_immediate_production",
-          "cost": "95"
+          "action": "buy_assistant_level_1",
+          "levelsPurchased": 1,
+          "previousLevel": 4,
+          "newLevel": 5,
+          "cost": "60"
         },
         {
           "category": "manual_action",
@@ -5453,8 +5157,35 @@
           "category": "report_action",
           "timeSeconds": 870,
           "onlineSeconds": 540,
-          "reportedBugs": "55.6",
-          "earnedMoney": "55.6"
+          "reportedBugs": "47.95",
+          "earnedMoney": "47.95"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover"
+          ],
+          "affordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "support_immediate_production",
+            "support_offline_handover"
+          ],
+          "moneyRatePerSecond": 0.505,
+          "signature": "2a2b034609e75157177220b3b3bb7674e8b788abc905a29305553546211dde72"
+        },
+        {
+          "category": "purchase_action",
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
+          "action": "buy_assistant_level_1",
+          "levelsPurchased": 1,
+          "previousLevel": 5,
+          "newLevel": 6,
+          "cost": "72"
         },
         {
           "category": "manual_action",
@@ -5484,31 +5215,8 @@
           "category": "report_action",
           "timeSeconds": 960,
           "onlineSeconds": 630,
-          "reportedBugs": "50.6",
-          "earnedMoney": "50.6"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 960,
-          "onlineSeconds": 630,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_training_economics"
-          ],
-          "affordablePurchaseCategories": ["assistant_level"],
-          "nearAffordablePurchaseCategories": ["support_training_economics"],
-          "moneyRatePerSecond": 0.59,
-          "signature": "1bd101cc76ba0a21ba645590405f62082e58813400e63cf5de360e7e733b4e58"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 960,
-          "onlineSeconds": 630,
-          "action": "buy_assistant_level_1",
-          "levelsPurchased": 1,
-          "previousLevel": 4,
-          "newLevel": 5,
-          "cost": "60"
+          "reportedBugs": "46.1",
+          "earnedMoney": "46.1"
         },
         {
           "category": "manual_action",
@@ -5544,8 +5252,8 @@
           "category": "report_action",
           "timeSeconds": 1050,
           "onlineSeconds": 720,
-          "reportedBugs": "58.75",
-          "earnedMoney": "58.75"
+          "reportedBugs": "51.1",
+          "earnedMoney": "51.1"
         },
         {
           "category": "meaningful_purchase_decision",
@@ -5553,16 +5261,18 @@
           "onlineSeconds": 720,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["assistant_level"],
-          "nearAffordablePurchaseCategories": [
-            "support_offline_handover",
-            "support_training_economics"
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover"
           ],
-          "moneyRatePerSecond": 0.625,
-          "signature": "8392d42041e7e69175c1e2eed57651bee8efd8a97aa0a663e7117495ad8ea8e6"
+          "nearAffordablePurchaseCategories": ["support_training_economics"],
+          "moneyRatePerSecond": 0.54,
+          "signature": "242b11f20c94144cea0eedc2d6f41fbf3746ea5e45c8fb3324b81a555289f09e"
         },
         {
           "category": "purchase_action",
@@ -5570,9 +5280,9 @@
           "onlineSeconds": 720,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
-          "previousLevel": 5,
-          "newLevel": 6,
-          "cost": "72"
+          "previousLevel": 6,
+          "newLevel": 7,
+          "cost": "85"
         },
         {
           "category": "manual_action",
@@ -5602,18 +5312,26 @@
           "category": "report_action",
           "timeSeconds": 1140,
           "onlineSeconds": 810,
-          "reportedBugs": "56.9",
-          "earnedMoney": "56.9"
+          "reportedBugs": "49.25",
+          "earnedMoney": "49.25"
         },
         {
-          "category": "purchase_action",
+          "category": "meaningful_purchase_decision",
           "timeSeconds": 1140,
           "onlineSeconds": 810,
-          "action": "buy_assistant_level_1",
-          "levelsPurchased": 1,
-          "previousLevel": 6,
-          "newLevel": 7,
-          "cost": "85"
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover"
+          ],
+          "affordablePurchaseCategories": [],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover"
+          ],
+          "moneyRatePerSecond": 0.575,
+          "signature": "e4596fdc90f15595c4243e48e2376f5ec5a6ad62c731accb4391ac3fd67b3326"
         },
         {
           "category": "manual_action",
@@ -5649,60 +5367,13 @@
           "category": "report_action",
           "timeSeconds": 1230,
           "onlineSeconds": 900,
-          "reportedBugs": "65.05",
-          "earnedMoney": "65.05"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 0.695,
-          "signature": "3e9b0865b64119fadd7f4ba3291fb2af48cb7f476d6bfd0ea5bcea7a01e5aecb"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1250,
-          "onlineSeconds": 920,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1270,
-          "onlineSeconds": 940,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1290,
-          "onlineSeconds": 960,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1310,
-          "onlineSeconds": 980,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 1320,
-          "onlineSeconds": 990,
-          "reportedBugs": "60.05",
-          "earnedMoney": "60.05"
+          "reportedBugs": "54.25",
+          "earnedMoney": "54.25"
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 1320,
-          "onlineSeconds": 990,
+          "timeSeconds": 1230,
+          "onlineSeconds": 900,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 7,
@@ -5711,15 +5382,15 @@
         },
         {
           "category": "milestone_event",
-          "timeSeconds": 1320,
-          "onlineSeconds": 990,
+          "timeSeconds": 1230,
+          "onlineSeconds": 900,
           "id": "milestone_assistant_first",
           "level": 8
         },
         {
           "category": "endpoint_event",
-          "timeSeconds": 1321,
-          "onlineSeconds": 991,
+          "timeSeconds": 1231,
+          "onlineSeconds": 901,
           "endpoint": "playable_idle_mvp",
           "assistantLevel": 8
         }
@@ -5734,18 +5405,18 @@
       "junior_baseline_snapshot_hash": "1fe7f506367c028b441ee6ca3781b06a9b1f2bc9ab0ce8a238466c00f5a6c3e8",
       "scenario_start_snapshot_id": "post-promotion-1fe7f506367c",
       "endpoint_completed": true,
-      "endpoint_time_seconds": 736,
+      "endpoint_time_seconds": 646,
       "junior_phase_seconds": 330,
-      "middle_phase_seconds": 406,
-      "total_online_gameplay_seconds": 736,
-      "total_wall_clock_elapsed_seconds": 736,
+      "middle_phase_seconds": 316,
+      "total_online_gameplay_seconds": 646,
+      "total_wall_clock_elapsed_seconds": 646,
       "pre_offline_online_seconds": 0,
       "wall_clock_offline_elapsed_seconds": 0,
-      "post_return_online_seconds": 406,
+      "post_return_online_seconds": 316,
       "capstone_reached": false,
       "capstone_time_seconds": null,
-      "purchase_action_count": 10,
-      "meaningful_purchase_decision_count": 10,
+      "purchase_action_count": 8,
+      "meaningful_purchase_decision_count": 8,
       "meaningful_purchase_decision_events": [
         {
           "category": "meaningful_purchase_decision",
@@ -5817,100 +5488,80 @@
           "onlineSeconds": 136,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_training_economics"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_training_economics"
-          ],
-          "moneyRatePerSecond": 1.59,
-          "signature": "9752bc73da3adf9313fd5e63b414b43875977da985ca7f8f739138912f51aa3b"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 511,
-          "onlineSeconds": 181,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
-          "moneyRatePerSecond": 1.625,
-          "signature": "8764a1116a2d0e3dc551dcf131d1f9a18d3e556f3e88d8ce7400fb86ceb2eea9"
+          "moneyRatePerSecond": 1.505,
+          "signature": "11d0ff24b625a05f9cbe0f8e13f95ae56df267c911673345a7b8d9ff409d4605"
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 600,
-          "onlineSeconds": 270,
+          "timeSeconds": 555,
+          "onlineSeconds": 225,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "affordablePurchaseCategories": ["assistant_level"],
-          "nearAffordablePurchaseCategories": [
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "moneyRatePerSecond": 1.66,
-          "signature": "8392d42041e7e69175c1e2eed57651bee8efd8a97aa0a663e7117495ad8ea8e6"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 690,
-          "onlineSeconds": 360,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
           "affordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "support_offline_handover",
+            "support_training_economics"
+          ],
+          "moneyRatePerSecond": 1.54,
+          "signature": "296ca40d43f35b94d28a0a85d5fcd385bdde102c8f2d6d03ba919338cb52a7a1"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 645,
+          "onlineSeconds": 315,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
+          ],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
           "nearAffordablePurchaseCategories": [],
-          "moneyRatePerSecond": 1.695,
-          "signature": "abe6484b1e96691a0ee54b36e3bcf4bb05cba229d45d81f3cba42f28c85d691f"
+          "moneyRatePerSecond": 1.575,
+          "signature": "43fbe2d4bb722feb7910a127c03685986270eaf0023cf689d0a22422c7c9ba42"
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 691,
-          "onlineSeconds": 361,
+          "timeSeconds": 646,
+          "onlineSeconds": 316,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
           ],
-          "moneyRatePerSecond": 1.695,
-          "signature": "619493963e80b1fd4bfbee0b57d400309d150b3e5487729d4dfe1e8e64a54c69"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 736,
-          "onlineSeconds": 406,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 1.898,
-          "signature": "f3787f3abdb0c791ec99071a66c4d60ee90e1184429509cb8895001721670906"
+          "moneyRatePerSecond": 1.736,
+          "signature": "de23499d4ec97ba233cc0ca7d7e0ea7ec22c0881c948324941a1bc651c09fd69"
         }
       ],
       "purchase_action_events": [
@@ -5958,14 +5609,6 @@
           "category": "purchase_action",
           "timeSeconds": 465,
           "onlineSeconds": 135,
-          "action": "buy_support_upgrade",
-          "supportId": "support_immediate_production",
-          "cost": "95"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 510,
-          "onlineSeconds": 180,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 4,
@@ -5974,8 +5617,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 555,
-          "onlineSeconds": 225,
+          "timeSeconds": 510,
+          "onlineSeconds": 180,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 5,
@@ -5984,8 +5627,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 600,
-          "onlineSeconds": 270,
+          "timeSeconds": 555,
+          "onlineSeconds": 225,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 6,
@@ -5994,72 +5637,45 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 690,
-          "onlineSeconds": 360,
-          "action": "buy_support_upgrade",
-          "supportId": "support_training_economics",
-          "cost": "140"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 735,
-          "onlineSeconds": 405,
+          "timeSeconds": 645,
+          "onlineSeconds": 315,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 7,
           "newLevel": 8,
-          "cost": "89"
+          "cost": "101"
         }
       ],
-      "manual_action_count": 157,
-      "report_action_count": 20,
+      "manual_action_count": 135,
+      "report_action_count": 18,
       "assistant_final_level": 8,
-      "supports_owned": ["support_immediate_production", "support_training_economics"],
+      "supports_owned": [],
       "milestones_reached": ["milestone_assistant_first"],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
       "offline_bugs_found_total": 0,
       "money_from_offline_reports_after_return": "0",
-      "max_bugs_found": "80.025",
-      "max_money": "159.005",
-      "final_bugs_found_exact": "0.648",
-      "final_money_exact": "5.03",
+      "max_bugs_found": "71.475",
+      "max_money": "157.105",
+      "final_bugs_found_exact": "5.486",
+      "final_money_exact": "56.105",
       "numeric_scale_decimal_places": 6,
-      "max_assistant_rate": "0.648",
-      "max_level_cost": "104",
-      "support_purchase_analysis": [
-        {
-          "supportId": "support_immediate_production",
-          "timeSeconds": 465,
-          "cost": "95",
-          "paybackSeconds": 791.667,
-          "opportunityCostAssistantLevels": "1.583333",
-          "endpointUtilitySeconds": -48.316,
-          "justifiedByScenarioObjective": false
-        },
-        {
-          "supportId": "support_training_economics",
-          "timeSeconds": 690,
-          "cost": "140",
-          "paybackSeconds": 300,
-          "opportunityCostAssistantLevels": "1.386139",
-          "endpointUtilitySeconds": -41.295,
-          "justifiedByScenarioObjective": false
-        }
-      ],
+      "max_assistant_rate": "0.486",
+      "max_level_cost": "118",
+      "support_purchase_analysis": [],
       "stall_windows": {
         "maxSeconds": 90,
         "endpointMaxSeconds": 90,
         "capstonePostEndpointMaxSeconds": 0,
-        "phaseSeconds": 406
+        "phaseSeconds": 316
       },
       "gate_results": [
         {
           "gate_id": "gate_active_not_trivial",
           "scenario": "scenario_active_click_middle",
           "target": "active/mixed ratio 0.70-0.90",
-          "actual": 0.451,
+          "actual": 0.478,
           "pass": false,
           "severity": "Major",
           "permitted_parameter_group": "group_manual_cadence",
@@ -6106,7 +5722,7 @@
           "diagnostic": "Runaway detection for Buy Max collapsing too many levels into one transaction."
         }
       ],
-      "event_log_digest": "a375e8743a2fea4efecceb46e12f130b0b0650d22003d5c20fedd8174fee4b08",
+      "event_log_digest": "af46a0d426ebd7f0e549a68f81065764b9d7f0f0a681a68539cd82158dd9182f",
       "event_log": [
         {
           "category": "meaningful_purchase_decision",
@@ -6435,9 +6051,11 @@
           "category": "purchase_action",
           "timeSeconds": 465,
           "onlineSeconds": 135,
-          "action": "buy_support_upgrade",
-          "supportId": "support_immediate_production",
-          "cost": "95"
+          "action": "buy_assistant_level_1",
+          "levelsPurchased": 1,
+          "previousLevel": 4,
+          "newLevel": 5,
+          "cost": "60"
         },
         {
           "category": "manual_action",
@@ -6451,15 +6069,19 @@
           "onlineSeconds": 136,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover",
             "support_training_economics"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover",
             "support_training_economics"
           ],
-          "moneyRatePerSecond": 1.59,
-          "signature": "9752bc73da3adf9313fd5e63b414b43875977da985ca7f8f739138912f51aa3b"
+          "moneyRatePerSecond": 1.505,
+          "signature": "11d0ff24b625a05f9cbe0f8e13f95ae56df267c911673345a7b8d9ff409d4605"
         },
         {
           "category": "manual_action",
@@ -6531,8 +6153,8 @@
           "category": "report_action",
           "timeSeconds": 510,
           "onlineSeconds": 180,
-          "reportedBugs": "75.3",
-          "earnedMoney": "75.3"
+          "reportedBugs": "71.475",
+          "earnedMoney": "71.475"
         },
         {
           "category": "purchase_action",
@@ -6540,27 +6162,9 @@
           "onlineSeconds": 180,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
-          "previousLevel": 4,
-          "newLevel": 5,
-          "cost": "60"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 511,
-          "onlineSeconds": 181,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "moneyRatePerSecond": 1.625,
-          "signature": "8764a1116a2d0e3dc551dcf131d1f9a18d3e556f3e88d8ce7400fb86ceb2eea9"
+          "previousLevel": 5,
+          "newLevel": 6,
+          "cost": "72"
         },
         {
           "category": "manual_action",
@@ -6632,8 +6236,29 @@
           "category": "report_action",
           "timeSeconds": 555,
           "onlineSeconds": 225,
-          "reportedBugs": "71.875",
-          "earnedMoney": "71.875"
+          "reportedBugs": "68.05",
+          "earnedMoney": "68.05"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 555,
+          "onlineSeconds": 225,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
+          ],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "support_offline_handover",
+            "support_training_economics"
+          ],
+          "moneyRatePerSecond": 1.54,
+          "signature": "296ca40d43f35b94d28a0a85d5fcd385bdde102c8f2d6d03ba919338cb52a7a1"
         },
         {
           "category": "purchase_action",
@@ -6641,9 +6266,9 @@
           "onlineSeconds": 225,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
-          "previousLevel": 5,
-          "newLevel": 6,
-          "cost": "72"
+          "previousLevel": 6,
+          "newLevel": 7,
+          "cost": "85"
         },
         {
           "category": "manual_action",
@@ -6715,35 +6340,8 @@
           "category": "report_action",
           "timeSeconds": 600,
           "onlineSeconds": 270,
-          "reportedBugs": "73.45",
-          "earnedMoney": "73.45"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 600,
-          "onlineSeconds": 270,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "affordablePurchaseCategories": ["assistant_level"],
-          "nearAffordablePurchaseCategories": [
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "moneyRatePerSecond": 1.66,
-          "signature": "8392d42041e7e69175c1e2eed57651bee8efd8a97aa0a663e7117495ad8ea8e6"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 600,
-          "onlineSeconds": 270,
-          "action": "buy_assistant_level_1",
-          "levelsPurchased": 1,
-          "previousLevel": 6,
-          "newLevel": 7,
-          "cost": "85"
+          "reportedBugs": "69.625",
+          "earnedMoney": "69.625"
         },
         {
           "category": "manual_action",
@@ -6815,8 +6413,45 @@
           "category": "report_action",
           "timeSeconds": 645,
           "onlineSeconds": 315,
-          "reportedBugs": "75.025",
-          "earnedMoney": "75.025"
+          "reportedBugs": "69.625",
+          "earnedMoney": "69.625"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 645,
+          "onlineSeconds": 315,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
+          ],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [],
+          "moneyRatePerSecond": 1.575,
+          "signature": "43fbe2d4bb722feb7910a127c03685986270eaf0023cf689d0a22422c7c9ba42"
+        },
+        {
+          "category": "purchase_action",
+          "timeSeconds": 645,
+          "onlineSeconds": 315,
+          "action": "buy_assistant_level_1",
+          "levelsPurchased": 1,
+          "previousLevel": 7,
+          "newLevel": 8,
+          "cost": "101"
+        },
+        {
+          "category": "milestone_event",
+          "timeSeconds": 645,
+          "onlineSeconds": 315,
+          "id": "milestone_assistant_first",
+          "level": 8
         },
         {
           "category": "manual_action",
@@ -6825,230 +6460,29 @@
           "bugsFound": "5"
         },
         {
-          "category": "manual_action",
-          "timeSeconds": 650,
-          "onlineSeconds": 320,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 654,
-          "onlineSeconds": 324,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 658,
-          "onlineSeconds": 328,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 662,
-          "onlineSeconds": 332,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 666,
-          "onlineSeconds": 336,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 670,
-          "onlineSeconds": 340,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 674,
-          "onlineSeconds": 344,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 678,
-          "onlineSeconds": 348,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 682,
-          "onlineSeconds": 352,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 686,
-          "onlineSeconds": 356,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 690,
-          "onlineSeconds": 360,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 690,
-          "onlineSeconds": 360,
-          "reportedBugs": "80.025",
-          "earnedMoney": "80.025"
-        },
-        {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 690,
-          "onlineSeconds": 360,
+          "timeSeconds": 646,
+          "onlineSeconds": 316,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
-          ],
-          "affordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "nearAffordablePurchaseCategories": [],
-          "moneyRatePerSecond": 1.695,
-          "signature": "abe6484b1e96691a0ee54b36e3bcf4bb05cba229d45d81f3cba42f28c85d691f"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 690,
-          "onlineSeconds": 360,
-          "action": "buy_support_upgrade",
-          "supportId": "support_training_economics",
-          "cost": "140"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 691,
-          "onlineSeconds": 361,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
           ],
-          "moneyRatePerSecond": 1.695,
-          "signature": "619493963e80b1fd4bfbee0b57d400309d150b3e5487729d4dfe1e8e64a54c69"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 694,
-          "onlineSeconds": 364,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 698,
-          "onlineSeconds": 368,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 702,
-          "onlineSeconds": 372,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 706,
-          "onlineSeconds": 376,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 710,
-          "onlineSeconds": 380,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 714,
-          "onlineSeconds": 384,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 718,
-          "onlineSeconds": 388,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 722,
-          "onlineSeconds": 392,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 726,
-          "onlineSeconds": 396,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 730,
-          "onlineSeconds": 400,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 734,
-          "onlineSeconds": 404,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 735,
-          "onlineSeconds": 405,
-          "reportedBugs": "75.025",
-          "earnedMoney": "75.025"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 735,
-          "onlineSeconds": 405,
-          "action": "buy_assistant_level_1",
-          "levelsPurchased": 1,
-          "previousLevel": 7,
-          "newLevel": 8,
-          "cost": "89"
-        },
-        {
-          "category": "milestone_event",
-          "timeSeconds": 735,
-          "onlineSeconds": 405,
-          "id": "milestone_assistant_first",
-          "level": 8
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 736,
-          "onlineSeconds": 406,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 1.898,
-          "signature": "f3787f3abdb0c791ec99071a66c4d60ee90e1184429509cb8895001721670906"
+          "moneyRatePerSecond": 1.736,
+          "signature": "de23499d4ec97ba233cc0ca7d7e0ea7ec22c0881c948324941a1bc651c09fd69"
         },
         {
           "category": "endpoint_event",
-          "timeSeconds": 736,
-          "onlineSeconds": 406,
+          "timeSeconds": 646,
+          "onlineSeconds": 316,
           "endpoint": "playable_idle_mvp",
           "assistantLevel": 8
         }
@@ -7063,18 +6497,18 @@
       "junior_baseline_snapshot_hash": "1fe7f506367c028b441ee6ca3781b06a9b1f2bc9ab0ce8a238466c00f5a6c3e8",
       "scenario_start_snapshot_id": "post-promotion-1fe7f506367c",
       "endpoint_completed": true,
-      "endpoint_time_seconds": 9388,
+      "endpoint_time_seconds": 9371,
       "junior_phase_seconds": 330,
-      "middle_phase_seconds": 58,
-      "total_online_gameplay_seconds": 388,
-      "total_wall_clock_elapsed_seconds": 9388,
+      "middle_phase_seconds": 41,
+      "total_online_gameplay_seconds": 371,
+      "total_wall_clock_elapsed_seconds": 9371,
       "pre_offline_online_seconds": 0,
       "wall_clock_offline_elapsed_seconds": 9000,
-      "post_return_online_seconds": 58,
+      "post_return_online_seconds": 41,
       "capstone_reached": false,
       "capstone_time_seconds": null,
-      "purchase_action_count": 9,
-      "meaningful_purchase_decision_count": 5,
+      "purchase_action_count": 8,
+      "meaningful_purchase_decision_count": 6,
       "meaningful_purchase_decision_events": [
         {
           "category": "meaningful_purchase_decision",
@@ -7094,67 +6528,91 @@
         },
         {
           "category": "meaningful_purchase_decision",
+          "timeSeconds": 9334,
+          "onlineSeconds": 4,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_training_economics"
+          ],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [],
+          "moneyRatePerSecond": 0.601667,
+          "signature": "ee87b380c97dc8671c758e9dbdf55c6323441448fdf616ae7a5638af63683881"
+        },
+        {
+          "category": "meaningful_purchase_decision",
           "timeSeconds": 9335,
           "onlineSeconds": 5,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production"
+          ],
           "nearAffordablePurchaseCategories": ["support_training_economics"],
-          "moneyRatePerSecond": 0.721667,
-          "signature": "1bd101cc76ba0a21ba645590405f62082e58813400e63cf5de360e7e733b4e58"
+          "moneyRatePerSecond": 0.636667,
+          "signature": "73f9bb2be7ec1b4cb091a9846a42f1146a0e253342b288e9da5a4a2e405fb7ea"
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 9347,
-          "onlineSeconds": 17,
+          "timeSeconds": 9336,
+          "onlineSeconds": 6,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 0.791667,
-          "signature": "1dce7fc1ab4ac85c316a5326f5e1f52c94d8fe3286bc8bbdd5b2e90e5aa1992d"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 9365,
-          "onlineSeconds": 35,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "moneyRatePerSecond": 0.826667,
-          "signature": "68dd51127979dc6e7a70d55f6dc94a65edc9b20f6d0f89f954cea3cb466397ac"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 9387,
-          "onlineSeconds": 57,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
           "affordablePurchaseCategories": ["assistant_level"],
           "nearAffordablePurchaseCategories": [
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "3accd8dc907e4295de75c7a32263183fea9612b01a75fed8019f330a7696fa61"
+          "moneyRatePerSecond": 0.671667,
+          "signature": "63075ce6b69c2255976d76a268746912e73ee0897ddd3424e1e518a708c28002"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 9341,
+          "onlineSeconds": 11,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production"
+          ],
+          "affordablePurchaseCategories": [],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production"
+          ],
+          "moneyRatePerSecond": 0.706667,
+          "signature": "91c2ff712cacf9d48a45bcfd3365470c8622f142b96ea3c315df74f192433113"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 9359,
+          "onlineSeconds": 29,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover"
+          ],
+          "affordablePurchaseCategories": [],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover"
+          ],
+          "moneyRatePerSecond": 0.741667,
+          "signature": "59854704b10847ae489c9a04d0ea9d5c0b9dbf82f048123e2ae2c1b2281399bb"
         }
       ],
       "purchase_action_events": [
@@ -7162,14 +6620,6 @@
           "category": "purchase_action",
           "timeSeconds": 9331,
           "onlineSeconds": 1,
-          "action": "buy_support_upgrade",
-          "supportId": "support_immediate_production",
-          "cost": "95"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 9332,
-          "onlineSeconds": 2,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 0,
@@ -7178,8 +6628,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9333,
-          "onlineSeconds": 3,
+          "timeSeconds": 9332,
+          "onlineSeconds": 2,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 1,
@@ -7188,8 +6638,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9334,
-          "onlineSeconds": 4,
+          "timeSeconds": 9333,
+          "onlineSeconds": 3,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 2,
@@ -7198,8 +6648,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9335,
-          "onlineSeconds": 5,
+          "timeSeconds": 9334,
+          "onlineSeconds": 4,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 3,
@@ -7208,8 +6658,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9339,
-          "onlineSeconds": 9,
+          "timeSeconds": 9335,
+          "onlineSeconds": 5,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 4,
@@ -7218,8 +6668,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9353,
-          "onlineSeconds": 23,
+          "timeSeconds": 9336,
+          "onlineSeconds": 6,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 5,
@@ -7228,8 +6678,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9368,
-          "onlineSeconds": 38,
+          "timeSeconds": 9351,
+          "onlineSeconds": 21,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 6,
@@ -7238,8 +6688,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9387,
-          "onlineSeconds": 57,
+          "timeSeconds": 9370,
+          "onlineSeconds": 40,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 7,
@@ -7247,10 +6697,10 @@
           "cost": "101"
         }
       ],
-      "manual_action_count": 114,
-      "report_action_count": 70,
+      "manual_action_count": 97,
+      "report_action_count": 53,
       "assistant_final_level": 8,
-      "supports_owned": ["support_immediate_production"],
+      "supports_owned": [],
       "milestones_reached": ["milestone_assistant_first"],
       "offline_sessions_count": 1,
       "offline_elapsed_seconds_total": 9000,
@@ -7260,26 +6710,16 @@
       "max_bugs_found": "201.6",
       "max_money": "262.68",
       "final_bugs_found_exact": "0",
-      "final_money_exact": "8.553",
+      "final_money_exact": "7.616",
       "numeric_scale_decimal_places": 6,
-      "max_assistant_rate": "0.648",
+      "max_assistant_rate": "0.486",
       "max_level_cost": "118",
-      "support_purchase_analysis": [
-        {
-          "supportId": "support_immediate_production",
-          "timeSeconds": 9331,
-          "cost": "95",
-          "paybackSeconds": 791.667,
-          "opportunityCostAssistantLevels": "3.8",
-          "endpointUtilitySeconds": -74.001,
-          "justifiedByScenarioObjective": false
-        }
-      ],
+      "support_purchase_analysis": [],
       "stall_windows": {
-        "maxSeconds": 19,
-        "endpointMaxSeconds": 19,
+        "maxSeconds": 11,
+        "endpointMaxSeconds": 11,
         "capstonePostEndpointMaxSeconds": 0,
-        "phaseSeconds": 58
+        "phaseSeconds": 41
       },
       "gate_results": [
         {
@@ -7323,7 +6763,7 @@
           "diagnostic": "Runaway detection for Buy Max collapsing too many levels into one transaction."
         }
       ],
-      "event_log_digest": "05b57aba9195713b5ddadce8a238dc63e0662581667b0e3088d20cbfbd73f118",
+      "event_log_digest": "5bd68d782243244afe500c027145637fbdacb33f5d82d00c17430c0650a76a09",
       "event_log": [
         {
           "category": "offline_return",
@@ -7377,27 +6817,6 @@
           "category": "purchase_action",
           "timeSeconds": 9331,
           "onlineSeconds": 1,
-          "action": "buy_support_upgrade",
-          "supportId": "support_immediate_production",
-          "cost": "95"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9332,
-          "onlineSeconds": 2,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9332,
-          "onlineSeconds": 2,
-          "reportedBugs": "5.2",
-          "earnedMoney": "5.2"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 9332,
-          "onlineSeconds": 2,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 0,
@@ -7406,21 +6825,21 @@
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9333,
-          "onlineSeconds": 3,
+          "timeSeconds": 9332,
+          "onlineSeconds": 2,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9333,
-          "onlineSeconds": 3,
-          "reportedBugs": "5.235",
-          "earnedMoney": "5.235"
+          "timeSeconds": 9332,
+          "onlineSeconds": 2,
+          "reportedBugs": "5.115",
+          "earnedMoney": "5.115"
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9333,
-          "onlineSeconds": 3,
+          "timeSeconds": 9332,
+          "onlineSeconds": 2,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 1,
@@ -7429,21 +6848,21 @@
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9334,
-          "onlineSeconds": 4,
+          "timeSeconds": 9333,
+          "onlineSeconds": 3,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9334,
-          "onlineSeconds": 4,
-          "reportedBugs": "5.27",
-          "earnedMoney": "5.27"
+          "timeSeconds": 9333,
+          "onlineSeconds": 3,
+          "reportedBugs": "5.15",
+          "earnedMoney": "5.15"
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9334,
-          "onlineSeconds": 4,
+          "timeSeconds": 9333,
+          "onlineSeconds": 3,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 2,
@@ -7452,34 +6871,39 @@
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9335,
-          "onlineSeconds": 5,
+          "timeSeconds": 9334,
+          "onlineSeconds": 4,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9335,
-          "onlineSeconds": 5,
-          "reportedBugs": "5.305",
-          "earnedMoney": "5.305"
+          "timeSeconds": 9334,
+          "onlineSeconds": 4,
+          "reportedBugs": "5.185",
+          "earnedMoney": "5.185"
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 9335,
-          "onlineSeconds": 5,
+          "timeSeconds": 9334,
+          "onlineSeconds": 4,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["assistant_level"],
-          "nearAffordablePurchaseCategories": ["support_training_economics"],
-          "moneyRatePerSecond": 0.721667,
-          "signature": "1bd101cc76ba0a21ba645590405f62082e58813400e63cf5de360e7e733b4e58"
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [],
+          "moneyRatePerSecond": 0.601667,
+          "signature": "ee87b380c97dc8671c758e9dbdf55c6323441448fdf616ae7a5638af63683881"
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9335,
-          "onlineSeconds": 5,
+          "timeSeconds": 9334,
+          "onlineSeconds": 4,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 3,
@@ -7488,60 +6912,38 @@
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9336,
-          "onlineSeconds": 6,
+          "timeSeconds": 9335,
+          "onlineSeconds": 5,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9336,
-          "onlineSeconds": 6,
-          "reportedBugs": "5.34",
-          "earnedMoney": "5.34"
+          "timeSeconds": 9335,
+          "onlineSeconds": 5,
+          "reportedBugs": "5.22",
+          "earnedMoney": "5.22"
         },
         {
-          "category": "manual_action",
-          "timeSeconds": 9337,
-          "onlineSeconds": 7,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9337,
-          "onlineSeconds": 7,
-          "reportedBugs": "5.34",
-          "earnedMoney": "5.34"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9338,
-          "onlineSeconds": 8,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9338,
-          "onlineSeconds": 8,
-          "reportedBugs": "5.34",
-          "earnedMoney": "5.34"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9339,
-          "onlineSeconds": 9,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9339,
-          "onlineSeconds": 9,
-          "reportedBugs": "5.34",
-          "earnedMoney": "5.34"
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 9335,
+          "onlineSeconds": 5,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_training_economics"
+          ],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": ["support_training_economics"],
+          "moneyRatePerSecond": 0.636667,
+          "signature": "73f9bb2be7ec1b4cb091a9846a42f1146a0e253342b288e9da5a4a2e405fb7ea"
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9339,
-          "onlineSeconds": 9,
+          "timeSeconds": 9335,
+          "onlineSeconds": 5,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 4,
@@ -7550,206 +6952,40 @@
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9340,
-          "onlineSeconds": 10,
+          "timeSeconds": 9336,
+          "onlineSeconds": 6,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9340,
-          "onlineSeconds": 10,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9341,
-          "onlineSeconds": 11,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9341,
-          "onlineSeconds": 11,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9342,
-          "onlineSeconds": 12,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9342,
-          "onlineSeconds": 12,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9343,
-          "onlineSeconds": 13,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9343,
-          "onlineSeconds": 13,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9344,
-          "onlineSeconds": 14,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9344,
-          "onlineSeconds": 14,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9345,
-          "onlineSeconds": 15,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9345,
-          "onlineSeconds": 15,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9346,
-          "onlineSeconds": 16,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9346,
-          "onlineSeconds": 16,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9347,
-          "onlineSeconds": 17,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9347,
-          "onlineSeconds": 17,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
+          "timeSeconds": 9336,
+          "onlineSeconds": 6,
+          "reportedBugs": "5.255",
+          "earnedMoney": "5.255"
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 9347,
-          "onlineSeconds": 17,
+          "timeSeconds": 9336,
+          "onlineSeconds": 6,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
           ],
-          "affordablePurchaseCategories": [],
+          "affordablePurchaseCategories": ["assistant_level"],
           "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
           ],
-          "moneyRatePerSecond": 0.791667,
-          "signature": "1dce7fc1ab4ac85c316a5326f5e1f52c94d8fe3286bc8bbdd5b2e90e5aa1992d"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9348,
-          "onlineSeconds": 18,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9348,
-          "onlineSeconds": 18,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9349,
-          "onlineSeconds": 19,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9349,
-          "onlineSeconds": 19,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9350,
-          "onlineSeconds": 20,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9350,
-          "onlineSeconds": 20,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9351,
-          "onlineSeconds": 21,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9351,
-          "onlineSeconds": 21,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9352,
-          "onlineSeconds": 22,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9352,
-          "onlineSeconds": 22,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9353,
-          "onlineSeconds": 23,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9353,
-          "onlineSeconds": 23,
-          "reportedBugs": "5.375",
-          "earnedMoney": "5.375"
+          "moneyRatePerSecond": 0.671667,
+          "signature": "63075ce6b69c2255976d76a268746912e73ee0897ddd3424e1e518a708c28002"
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9353,
-          "onlineSeconds": 23,
+          "timeSeconds": 9336,
+          "onlineSeconds": 6,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 5,
@@ -7758,221 +6994,219 @@
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9354,
-          "onlineSeconds": 24,
+          "timeSeconds": 9337,
+          "onlineSeconds": 7,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9354,
-          "onlineSeconds": 24,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
+          "timeSeconds": 9337,
+          "onlineSeconds": 7,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9355,
-          "onlineSeconds": 25,
+          "timeSeconds": 9338,
+          "onlineSeconds": 8,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9355,
-          "onlineSeconds": 25,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
+          "timeSeconds": 9338,
+          "onlineSeconds": 8,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9356,
-          "onlineSeconds": 26,
+          "timeSeconds": 9339,
+          "onlineSeconds": 9,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9356,
-          "onlineSeconds": 26,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
+          "timeSeconds": 9339,
+          "onlineSeconds": 9,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9357,
-          "onlineSeconds": 27,
+          "timeSeconds": 9340,
+          "onlineSeconds": 10,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9357,
-          "onlineSeconds": 27,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
+          "timeSeconds": 9340,
+          "onlineSeconds": 10,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9358,
-          "onlineSeconds": 28,
+          "timeSeconds": 9341,
+          "onlineSeconds": 11,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9358,
-          "onlineSeconds": 28,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9359,
-          "onlineSeconds": 29,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9359,
-          "onlineSeconds": 29,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9360,
-          "onlineSeconds": 30,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9360,
-          "onlineSeconds": 30,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9361,
-          "onlineSeconds": 31,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9361,
-          "onlineSeconds": 31,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9362,
-          "onlineSeconds": 32,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9362,
-          "onlineSeconds": 32,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9363,
-          "onlineSeconds": 33,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9363,
-          "onlineSeconds": 33,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9364,
-          "onlineSeconds": 34,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9364,
-          "onlineSeconds": 34,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9365,
-          "onlineSeconds": 35,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9365,
-          "onlineSeconds": 35,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
+          "timeSeconds": 9341,
+          "onlineSeconds": 11,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 9365,
-          "onlineSeconds": 35,
+          "timeSeconds": 9341,
+          "onlineSeconds": 11,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
+            "support_immediate_production"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
+            "support_immediate_production"
           ],
-          "moneyRatePerSecond": 0.826667,
-          "signature": "68dd51127979dc6e7a70d55f6dc94a65edc9b20f6d0f89f954cea3cb466397ac"
+          "moneyRatePerSecond": 0.706667,
+          "signature": "91c2ff712cacf9d48a45bcfd3365470c8622f142b96ea3c315df74f192433113"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9366,
-          "onlineSeconds": 36,
+          "timeSeconds": 9342,
+          "onlineSeconds": 12,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9366,
-          "onlineSeconds": 36,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
+          "timeSeconds": 9342,
+          "onlineSeconds": 12,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9367,
-          "onlineSeconds": 37,
+          "timeSeconds": 9343,
+          "onlineSeconds": 13,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9367,
-          "onlineSeconds": 37,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
+          "timeSeconds": 9343,
+          "onlineSeconds": 13,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9368,
-          "onlineSeconds": 38,
+          "timeSeconds": 9344,
+          "onlineSeconds": 14,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9368,
-          "onlineSeconds": 38,
-          "reportedBugs": "5.41",
-          "earnedMoney": "5.41"
+          "timeSeconds": 9344,
+          "onlineSeconds": 14,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9345,
+          "onlineSeconds": 15,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9345,
+          "onlineSeconds": 15,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9346,
+          "onlineSeconds": 16,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9346,
+          "onlineSeconds": 16,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9347,
+          "onlineSeconds": 17,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9347,
+          "onlineSeconds": 17,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9348,
+          "onlineSeconds": 18,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9348,
+          "onlineSeconds": 18,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9349,
+          "onlineSeconds": 19,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9349,
+          "onlineSeconds": 19,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9350,
+          "onlineSeconds": 20,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9350,
+          "onlineSeconds": 20,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9351,
+          "onlineSeconds": 21,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9351,
+          "onlineSeconds": 21,
+          "reportedBugs": "5.29",
+          "earnedMoney": "5.29"
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9368,
-          "onlineSeconds": 38,
+          "timeSeconds": 9351,
+          "onlineSeconds": 21,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 6,
@@ -7981,272 +7215,273 @@
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9369,
-          "onlineSeconds": 39,
+          "timeSeconds": 9352,
+          "onlineSeconds": 22,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9369,
-          "onlineSeconds": 39,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
+          "timeSeconds": 9352,
+          "onlineSeconds": 22,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9370,
-          "onlineSeconds": 40,
+          "timeSeconds": 9353,
+          "onlineSeconds": 23,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9370,
-          "onlineSeconds": 40,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
+          "timeSeconds": 9353,
+          "onlineSeconds": 23,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9371,
-          "onlineSeconds": 41,
+          "timeSeconds": 9354,
+          "onlineSeconds": 24,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9371,
-          "onlineSeconds": 41,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
+          "timeSeconds": 9354,
+          "onlineSeconds": 24,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9372,
-          "onlineSeconds": 42,
+          "timeSeconds": 9355,
+          "onlineSeconds": 25,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9372,
-          "onlineSeconds": 42,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
+          "timeSeconds": 9355,
+          "onlineSeconds": 25,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9373,
-          "onlineSeconds": 43,
+          "timeSeconds": 9356,
+          "onlineSeconds": 26,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9373,
-          "onlineSeconds": 43,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
+          "timeSeconds": 9356,
+          "onlineSeconds": 26,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9374,
-          "onlineSeconds": 44,
+          "timeSeconds": 9357,
+          "onlineSeconds": 27,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9374,
-          "onlineSeconds": 44,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
+          "timeSeconds": 9357,
+          "onlineSeconds": 27,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9375,
-          "onlineSeconds": 45,
+          "timeSeconds": 9358,
+          "onlineSeconds": 28,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9375,
-          "onlineSeconds": 45,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
+          "timeSeconds": 9358,
+          "onlineSeconds": 28,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9376,
-          "onlineSeconds": 46,
+          "timeSeconds": 9359,
+          "onlineSeconds": 29,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9376,
-          "onlineSeconds": 46,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9377,
-          "onlineSeconds": 47,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9377,
-          "onlineSeconds": 47,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9378,
-          "onlineSeconds": 48,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9378,
-          "onlineSeconds": 48,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9379,
-          "onlineSeconds": 49,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9379,
-          "onlineSeconds": 49,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9380,
-          "onlineSeconds": 50,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9380,
-          "onlineSeconds": 50,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9381,
-          "onlineSeconds": 51,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9381,
-          "onlineSeconds": 51,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9382,
-          "onlineSeconds": 52,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9382,
-          "onlineSeconds": 52,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9383,
-          "onlineSeconds": 53,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9383,
-          "onlineSeconds": 53,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9384,
-          "onlineSeconds": 54,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9384,
-          "onlineSeconds": 54,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9385,
-          "onlineSeconds": 55,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9385,
-          "onlineSeconds": 55,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9386,
-          "onlineSeconds": 56,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9386,
-          "onlineSeconds": 56,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 9387,
-          "onlineSeconds": 57,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 9387,
-          "onlineSeconds": 57,
-          "reportedBugs": "5.445",
-          "earnedMoney": "5.445"
+          "timeSeconds": 9359,
+          "onlineSeconds": 29,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 9387,
-          "onlineSeconds": 57,
+          "timeSeconds": 9359,
+          "onlineSeconds": 29,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
+            "support_immediate_production",
+            "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
-            "support_offline_handover",
-            "support_training_economics"
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover"
           ],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "3accd8dc907e4295de75c7a32263183fea9612b01a75fed8019f330a7696fa61"
+          "moneyRatePerSecond": 0.741667,
+          "signature": "59854704b10847ae489c9a04d0ea9d5c0b9dbf82f048123e2ae2c1b2281399bb"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9360,
+          "onlineSeconds": 30,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9360,
+          "onlineSeconds": 30,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9361,
+          "onlineSeconds": 31,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9361,
+          "onlineSeconds": 31,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9362,
+          "onlineSeconds": 32,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9362,
+          "onlineSeconds": 32,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9363,
+          "onlineSeconds": 33,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9363,
+          "onlineSeconds": 33,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9364,
+          "onlineSeconds": 34,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9364,
+          "onlineSeconds": 34,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9365,
+          "onlineSeconds": 35,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9365,
+          "onlineSeconds": 35,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9366,
+          "onlineSeconds": 36,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9366,
+          "onlineSeconds": 36,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9367,
+          "onlineSeconds": 37,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9367,
+          "onlineSeconds": 37,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9368,
+          "onlineSeconds": 38,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9368,
+          "onlineSeconds": 38,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9369,
+          "onlineSeconds": 39,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9369,
+          "onlineSeconds": 39,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
+        },
+        {
+          "category": "manual_action",
+          "timeSeconds": 9370,
+          "onlineSeconds": 40,
+          "bugsFound": "5"
+        },
+        {
+          "category": "report_action",
+          "timeSeconds": 9370,
+          "onlineSeconds": 40,
+          "reportedBugs": "5.325",
+          "earnedMoney": "5.325"
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 9387,
-          "onlineSeconds": 57,
+          "timeSeconds": 9370,
+          "onlineSeconds": 40,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 7,
@@ -8255,28 +7490,28 @@
         },
         {
           "category": "milestone_event",
-          "timeSeconds": 9387,
-          "onlineSeconds": 57,
+          "timeSeconds": 9370,
+          "onlineSeconds": 40,
           "id": "milestone_assistant_first",
           "level": 8
         },
         {
           "category": "manual_action",
-          "timeSeconds": 9388,
-          "onlineSeconds": 58,
+          "timeSeconds": 9371,
+          "onlineSeconds": 41,
           "bugsFound": "5"
         },
         {
           "category": "report_action",
-          "timeSeconds": 9388,
-          "onlineSeconds": 58,
-          "reportedBugs": "5.648",
-          "earnedMoney": "5.648"
+          "timeSeconds": 9371,
+          "onlineSeconds": 41,
+          "reportedBugs": "5.486",
+          "earnedMoney": "5.486"
         },
         {
           "category": "endpoint_event",
-          "timeSeconds": 9388,
-          "onlineSeconds": 58,
+          "timeSeconds": 9371,
+          "onlineSeconds": 41,
           "endpoint": "playable_idle_mvp",
           "assistantLevel": 8
         }
@@ -10286,18 +9521,18 @@
       "junior_baseline_snapshot_hash": "1fe7f506367c028b441ee6ca3781b06a9b1f2bc9ab0ce8a238466c00f5a6c3e8",
       "scenario_start_snapshot_id": "post-promotion-1fe7f506367c",
       "endpoint_completed": true,
-      "endpoint_time_seconds": 1231,
+      "endpoint_time_seconds": 991,
       "junior_phase_seconds": 330,
-      "middle_phase_seconds": 901,
-      "total_online_gameplay_seconds": 1231,
-      "total_wall_clock_elapsed_seconds": 1231,
+      "middle_phase_seconds": 661,
+      "total_online_gameplay_seconds": 991,
+      "total_wall_clock_elapsed_seconds": 991,
       "pre_offline_online_seconds": 0,
       "wall_clock_offline_elapsed_seconds": 0,
-      "post_return_online_seconds": 901,
+      "post_return_online_seconds": 661,
       "capstone_reached": false,
       "capstone_time_seconds": null,
-      "purchase_action_count": 10,
-      "meaningful_purchase_decision_count": 8,
+      "purchase_action_count": 8,
+      "meaningful_purchase_decision_count": 5,
       "meaningful_purchase_decision_events": [
         {
           "category": "meaningful_purchase_decision",
@@ -10348,19 +9583,22 @@
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 810,
-          "onlineSeconds": 480,
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
           ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
+          "affordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover"
           ],
-          "moneyRatePerSecond": 0.791667,
-          "signature": "3e9b0865b64119fadd7f4ba3291fb2af48cb7f476d6bfd0ea5bcea7a01e5aecb"
+          "nearAffordablePurchaseCategories": ["support_training_economics"],
+          "moneyRatePerSecond": 0.706667,
+          "signature": "242b11f20c94144cea0eedc2d6f41fbf3746ea5e45c8fb3324b81a555289f09e"
         },
         {
           "category": "meaningful_purchase_decision",
@@ -10368,67 +9606,19 @@
           "onlineSeconds": 600,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
-          "moneyRatePerSecond": 0.826667,
-          "signature": "8764a1116a2d0e3dc551dcf131d1f9a18d3e556f3e88d8ce7400fb86ceb2eea9"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "affordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "nearAffordablePurchaseCategories": [],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "abe6484b1e96691a0ee54b36e3bcf4bb05cba229d45d81f3cba42f28c85d691f"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1170,
-          "onlineSeconds": 840,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "619493963e80b1fd4bfbee0b57d400309d150b3e5487729d4dfe1e8e64a54c69"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1231,
-          "onlineSeconds": 901,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 1.064667,
-          "signature": "f3787f3abdb0c791ec99071a66c4d60ee90e1184429509cb8895001721670906"
+          "moneyRatePerSecond": 0.741667,
+          "signature": "11d0ff24b625a05f9cbe0f8e13f95ae56df267c911673345a7b8d9ff409d4605"
         }
       ],
       "purchase_action_events": [
@@ -10486,14 +9676,6 @@
           "category": "purchase_action",
           "timeSeconds": 750,
           "onlineSeconds": 420,
-          "action": "buy_support_upgrade",
-          "supportId": "support_immediate_production",
-          "cost": "95"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 870,
-          "onlineSeconds": 540,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 5,
@@ -10502,8 +9684,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 990,
-          "onlineSeconds": 660,
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 6,
@@ -10512,65 +9694,38 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "action": "buy_support_upgrade",
-          "supportId": "support_training_economics",
-          "cost": "140"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
+          "timeSeconds": 990,
+          "onlineSeconds": 660,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 7,
           "newLevel": 8,
-          "cost": "89"
+          "cost": "101"
         }
       ],
-      "manual_action_count": 131,
-      "report_action_count": 26,
+      "manual_action_count": 111,
+      "report_action_count": 22,
       "assistant_final_level": 8,
-      "supports_owned": ["support_immediate_production", "support_training_economics"],
+      "supports_owned": [],
       "milestones_reached": ["milestone_assistant_first"],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
       "offline_bugs_found_total": 0,
       "money_from_offline_reports_after_return": "0",
-      "max_bugs_found": "51.7",
-      "max_money": "151.565",
-      "final_bugs_found_exact": "0.648",
-      "final_money_exact": "25.965",
+      "max_bugs_found": "44.5",
+      "max_money": "122.765",
+      "final_bugs_found_exact": "0.486",
+      "final_money_exact": "21.765",
       "numeric_scale_decimal_places": 6,
-      "max_assistant_rate": "0.648",
-      "max_level_cost": "104",
-      "support_purchase_analysis": [
-        {
-          "supportId": "support_immediate_production",
-          "timeSeconds": 750,
-          "cost": "95",
-          "paybackSeconds": 791.667,
-          "opportunityCostAssistantLevels": "1.319444",
-          "endpointUtilitySeconds": -85.689,
-          "justifiedByScenarioObjective": false
-        },
-        {
-          "supportId": "support_training_economics",
-          "timeSeconds": 1110,
-          "cost": "140",
-          "paybackSeconds": 300,
-          "opportunityCostAssistantLevels": "1.386139",
-          "endpointUtilitySeconds": -89.867,
-          "justifiedByScenarioObjective": false
-        }
-      ],
+      "max_assistant_rate": "0.486",
+      "max_level_cost": "118",
+      "support_purchase_analysis": [],
       "stall_windows": {
         "maxSeconds": 120,
         "endpointMaxSeconds": 120,
         "capstonePostEndpointMaxSeconds": 0,
-        "phaseSeconds": 901
+        "phaseSeconds": 661
       },
       "gate_results": [
         {
@@ -10614,7 +9769,7 @@
           "diagnostic": "Runaway detection for Buy Max collapsing too many levels into one transaction."
         }
       ],
-      "event_log_digest": "0b4b9675ea8462406d74fab347fd956b8dafb7fed9d0805ec3b4c482b4e412b1",
+      "event_log_digest": "e1e0cfbea063ce3aa68df692b0905293ead824269819aed40e3ed0e95bf5508c",
       "event_log": [
         {
           "category": "meaningful_purchase_decision",
@@ -10976,9 +10131,11 @@
           "category": "purchase_action",
           "timeSeconds": 750,
           "onlineSeconds": 420,
-          "action": "buy_support_upgrade",
-          "supportId": "support_immediate_production",
-          "cost": "95"
+          "action": "buy_assistant_level_1",
+          "levelsPurchased": 1,
+          "previousLevel": 5,
+          "newLevel": 6,
+          "cost": "72"
         },
         {
           "category": "manual_action",
@@ -11014,24 +10171,8 @@
           "category": "report_action",
           "timeSeconds": 810,
           "onlineSeconds": 480,
-          "reportedBugs": "47.5",
-          "earnedMoney": "47.5"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 810,
-          "onlineSeconds": 480,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 0.791667,
-          "signature": "3e9b0865b64119fadd7f4ba3291fb2af48cb7f476d6bfd0ea5bcea7a01e5aecb"
+          "reportedBugs": "42.4",
+          "earnedMoney": "42.4"
         },
         {
           "category": "manual_action",
@@ -11067,8 +10208,27 @@
           "category": "report_action",
           "timeSeconds": 870,
           "onlineSeconds": 540,
-          "reportedBugs": "47.5",
-          "earnedMoney": "47.5"
+          "reportedBugs": "42.4",
+          "earnedMoney": "42.4"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
+          ],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": ["support_training_economics"],
+          "moneyRatePerSecond": 0.706667,
+          "signature": "242b11f20c94144cea0eedc2d6f41fbf3746ea5e45c8fb3324b81a555289f09e"
         },
         {
           "category": "purchase_action",
@@ -11076,9 +10236,9 @@
           "onlineSeconds": 540,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
-          "previousLevel": 5,
-          "newLevel": 6,
-          "cost": "72"
+          "previousLevel": 6,
+          "newLevel": 7,
+          "cost": "85"
         },
         {
           "category": "manual_action",
@@ -11114,8 +10274,8 @@
           "category": "report_action",
           "timeSeconds": 930,
           "onlineSeconds": 600,
-          "reportedBugs": "49.6",
-          "earnedMoney": "49.6"
+          "reportedBugs": "44.5",
+          "earnedMoney": "44.5"
         },
         {
           "category": "meaningful_purchase_decision",
@@ -11123,17 +10283,19 @@
           "onlineSeconds": 600,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
-          "moneyRatePerSecond": 0.826667,
-          "signature": "8764a1116a2d0e3dc551dcf131d1f9a18d3e556f3e88d8ce7400fb86ceb2eea9"
+          "moneyRatePerSecond": 0.741667,
+          "signature": "11d0ff24b625a05f9cbe0f8e13f95ae56df267c911673345a7b8d9ff409d4605"
         },
         {
           "category": "manual_action",
@@ -11169,8 +10331,8 @@
           "category": "report_action",
           "timeSeconds": 990,
           "onlineSeconds": 660,
-          "reportedBugs": "49.6",
-          "earnedMoney": "49.6"
+          "reportedBugs": "44.5",
+          "earnedMoney": "44.5"
         },
         {
           "category": "purchase_action",
@@ -11178,237 +10340,21 @@
           "onlineSeconds": 660,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
-          "previousLevel": 6,
-          "newLevel": 7,
-          "cost": "85"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1002,
-          "onlineSeconds": 672,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1014,
-          "onlineSeconds": 684,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1026,
-          "onlineSeconds": 696,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1038,
-          "onlineSeconds": 708,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1050,
-          "onlineSeconds": 720,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 1050,
-          "onlineSeconds": 720,
-          "reportedBugs": "51.7",
-          "earnedMoney": "51.7"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1062,
-          "onlineSeconds": 732,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1074,
-          "onlineSeconds": 744,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1086,
-          "onlineSeconds": 756,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1098,
-          "onlineSeconds": 768,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "reportedBugs": "51.7",
-          "earnedMoney": "51.7"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "affordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "nearAffordablePurchaseCategories": [],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "abe6484b1e96691a0ee54b36e3bcf4bb05cba229d45d81f3cba42f28c85d691f"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "action": "buy_support_upgrade",
-          "supportId": "support_training_economics",
-          "cost": "140"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1122,
-          "onlineSeconds": 792,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1134,
-          "onlineSeconds": 804,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1146,
-          "onlineSeconds": 816,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1158,
-          "onlineSeconds": 828,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1170,
-          "onlineSeconds": 840,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 1170,
-          "onlineSeconds": 840,
-          "reportedBugs": "51.7",
-          "earnedMoney": "51.7"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1170,
-          "onlineSeconds": 840,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "619493963e80b1fd4bfbee0b57d400309d150b3e5487729d4dfe1e8e64a54c69"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1182,
-          "onlineSeconds": 852,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1194,
-          "onlineSeconds": 864,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1206,
-          "onlineSeconds": 876,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1218,
-          "onlineSeconds": 888,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
-          "reportedBugs": "51.7",
-          "earnedMoney": "51.7"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
-          "action": "buy_assistant_level_1",
-          "levelsPurchased": 1,
           "previousLevel": 7,
           "newLevel": 8,
-          "cost": "89"
+          "cost": "101"
         },
         {
           "category": "milestone_event",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
+          "timeSeconds": 990,
+          "onlineSeconds": 660,
           "id": "milestone_assistant_first",
           "level": 8
         },
         {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1231,
-          "onlineSeconds": 901,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 1.064667,
-          "signature": "f3787f3abdb0c791ec99071a66c4d60ee90e1184429509cb8895001721670906"
-        },
-        {
           "category": "endpoint_event",
-          "timeSeconds": 1231,
-          "onlineSeconds": 901,
+          "timeSeconds": 991,
+          "onlineSeconds": 661,
           "endpoint": "playable_idle_mvp",
           "assistantLevel": 8
         }
@@ -11423,7 +10369,7 @@
       "junior_baseline_snapshot_hash": "1fe7f506367c028b441ee6ca3781b06a9b1f2bc9ab0ce8a238466c00f5a6c3e8",
       "scenario_start_snapshot_id": "post-promotion-1fe7f506367c",
       "endpoint_completed": true,
-      "endpoint_time_seconds": 1231,
+      "endpoint_time_seconds": 991,
       "junior_phase_seconds": 330,
       "middle_phase_seconds": 5940,
       "total_online_gameplay_seconds": 6270,
@@ -11485,19 +10431,22 @@
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 810,
-          "onlineSeconds": 480,
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
           ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
+          "affordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover"
           ],
-          "moneyRatePerSecond": 0.791667,
-          "signature": "3e9b0865b64119fadd7f4ba3291fb2af48cb7f476d6bfd0ea5bcea7a01e5aecb"
+          "nearAffordablePurchaseCategories": ["support_training_economics"],
+          "moneyRatePerSecond": 0.706667,
+          "signature": "242b11f20c94144cea0eedc2d6f41fbf3746ea5e45c8fb3324b81a555289f09e"
         },
         {
           "category": "meaningful_purchase_decision",
@@ -11505,40 +10454,44 @@
           "onlineSeconds": 600,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
-          "moneyRatePerSecond": 0.826667,
-          "signature": "8764a1116a2d0e3dc551dcf131d1f9a18d3e556f3e88d8ce7400fb86ceb2eea9"
+          "moneyRatePerSecond": 0.741667,
+          "signature": "11d0ff24b625a05f9cbe0f8e13f95ae56df267c911673345a7b8d9ff409d4605"
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
+          "timeSeconds": 1050,
+          "onlineSeconds": 720,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": [
+          "affordablePurchaseCategories": [],
+          "nearAffordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": [],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "abe6484b1e96691a0ee54b36e3bcf4bb05cba229d45d81f3cba42f28c85d691f"
+          "moneyRatePerSecond": 0.902667,
+          "signature": "de23499d4ec97ba233cc0ca7d7e0ea7ec22c0881c948324941a1bc651c09fd69"
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 1170,
-          "onlineSeconds": 840,
+          "timeSeconds": 1111,
+          "onlineSeconds": 781,
           "visibleViablePurchaseCategories": [
             "assistant_level",
             "support_offline_handover"
@@ -11548,8 +10501,8 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "619493963e80b1fd4bfbee0b57d400309d150b3e5487729d4dfe1e8e64a54c69"
+          "moneyRatePerSecond": 1.064667,
+          "signature": "193847f5a6a91ff59611ab7dfb631a6bb97b84f140c95bacaa7054c46aacc167"
         },
         {
           "category": "meaningful_purchase_decision",
@@ -11569,19 +10522,6 @@
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 1350,
-          "onlineSeconds": 1020,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
-          "nearAffordablePurchaseCategories": [],
-          "moneyRatePerSecond": 1.064667,
-          "signature": "cf59105e39b04550a06290f69e59b3c8f68e7008a4537c29f018c052e1abedc9"
-        },
-        {
-          "category": "meaningful_purchase_decision",
           "timeSeconds": 1410,
           "onlineSeconds": 1080,
           "visibleViablePurchaseCategories": [
@@ -11592,6 +10532,19 @@
           "nearAffordablePurchaseCategories": ["assistant_level"],
           "moneyRatePerSecond": 1.111917,
           "signature": "daf36c02abae798c436d87519207d2eca76d073daa13e406f6ea1d04ecd6c1ce"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 1590,
+          "onlineSeconds": 1260,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
+          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "nearAffordablePurchaseCategories": [],
+          "moneyRatePerSecond": 1.159167,
+          "signature": "cf59105e39b04550a06290f69e59b3c8f68e7008a4537c29f018c052e1abedc9"
         }
       ],
       "purchase_action_events": [
@@ -11649,14 +10602,6 @@
           "category": "purchase_action",
           "timeSeconds": 750,
           "onlineSeconds": 420,
-          "action": "buy_support_upgrade",
-          "supportId": "support_immediate_production",
-          "cost": "95"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 870,
-          "onlineSeconds": 540,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 5,
@@ -11665,8 +10610,8 @@
         },
         {
           "category": "purchase_action",
-          "timeSeconds": 990,
-          "onlineSeconds": 660,
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
           "previousLevel": 6,
@@ -11675,21 +10620,29 @@
         },
         {
           "category": "purchase_action",
+          "timeSeconds": 990,
+          "onlineSeconds": 660,
+          "action": "buy_assistant_level_1",
+          "levelsPurchased": 1,
+          "previousLevel": 7,
+          "newLevel": 8,
+          "cost": "101"
+        },
+        {
+          "category": "purchase_action",
           "timeSeconds": 1110,
           "onlineSeconds": 780,
           "action": "buy_support_upgrade",
-          "supportId": "support_training_economics",
-          "cost": "140"
+          "supportId": "support_immediate_production",
+          "cost": "95"
         },
         {
           "category": "purchase_action",
           "timeSeconds": 1230,
           "onlineSeconds": 900,
-          "action": "buy_assistant_level_1",
-          "levelsPurchased": 1,
-          "previousLevel": 7,
-          "newLevel": 8,
-          "cost": "89"
+          "action": "buy_support_upgrade",
+          "supportId": "support_training_economics",
+          "cost": "140"
         },
         {
           "category": "purchase_action",
@@ -11873,29 +10826,29 @@
       "offline_bugs_found_total": 0,
       "money_from_offline_reports_after_return": "0",
       "max_bugs_found": "109.24",
-      "max_money": "1253.55",
+      "max_money": "1250.43",
       "final_bugs_found_exact": "0",
-      "final_money_exact": "21.55",
+      "final_money_exact": "18.43",
       "numeric_scale_decimal_places": 6,
       "max_assistant_rate": "1.45125",
       "max_level_cost": "1000000000",
       "support_purchase_analysis": [
         {
           "supportId": "support_immediate_production",
-          "timeSeconds": 750,
+          "timeSeconds": 1110,
           "cost": "95",
           "paybackSeconds": 791.667,
-          "opportunityCostAssistantLevels": "1.319444",
-          "endpointUtilitySeconds": -85.689,
+          "opportunityCostAssistantLevels": "0.805085",
+          "endpointUtilitySeconds": 0,
           "justifiedByScenarioObjective": false
         },
         {
           "supportId": "support_training_economics",
-          "timeSeconds": 1110,
+          "timeSeconds": 1230,
           "cost": "140",
-          "paybackSeconds": 300,
-          "opportunityCostAssistantLevels": "1.386139",
-          "endpointUtilitySeconds": -89.867,
+          "paybackSeconds": 257.143,
+          "opportunityCostAssistantLevels": "1.186441",
+          "endpointUtilitySeconds": 0,
           "justifiedByScenarioObjective": false
         }
       ],
@@ -11967,7 +10920,7 @@
           "diagnostic": "Post-endpoint capstone wait is informational and does not fail MVP endpoint stall gates."
         }
       ],
-      "event_log_digest": "b59b5c044dcff7ddc4e9e75acc112488819feb62e0c7d32f265569723eae3314",
+      "event_log_digest": "19c2ef3cce9075db46ff99920e28285169cc3981c69fe2815b4e5267ec2f2de5",
       "event_log": [
         {
           "category": "meaningful_purchase_decision",
@@ -12329,9 +11282,11 @@
           "category": "purchase_action",
           "timeSeconds": 750,
           "onlineSeconds": 420,
-          "action": "buy_support_upgrade",
-          "supportId": "support_immediate_production",
-          "cost": "95"
+          "action": "buy_assistant_level_1",
+          "levelsPurchased": 1,
+          "previousLevel": 5,
+          "newLevel": 6,
+          "cost": "72"
         },
         {
           "category": "manual_action",
@@ -12367,24 +11322,8 @@
           "category": "report_action",
           "timeSeconds": 810,
           "onlineSeconds": 480,
-          "reportedBugs": "47.5",
-          "earnedMoney": "47.5"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 810,
-          "onlineSeconds": 480,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 0.791667,
-          "signature": "3e9b0865b64119fadd7f4ba3291fb2af48cb7f476d6bfd0ea5bcea7a01e5aecb"
+          "reportedBugs": "42.4",
+          "earnedMoney": "42.4"
         },
         {
           "category": "manual_action",
@@ -12420,8 +11359,27 @@
           "category": "report_action",
           "timeSeconds": 870,
           "onlineSeconds": 540,
-          "reportedBugs": "47.5",
-          "earnedMoney": "47.5"
+          "reportedBugs": "42.4",
+          "earnedMoney": "42.4"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 870,
+          "onlineSeconds": 540,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
+          ],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": ["support_training_economics"],
+          "moneyRatePerSecond": 0.706667,
+          "signature": "242b11f20c94144cea0eedc2d6f41fbf3746ea5e45c8fb3324b81a555289f09e"
         },
         {
           "category": "purchase_action",
@@ -12429,9 +11387,9 @@
           "onlineSeconds": 540,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
-          "previousLevel": 5,
-          "newLevel": 6,
-          "cost": "72"
+          "previousLevel": 6,
+          "newLevel": 7,
+          "cost": "85"
         },
         {
           "category": "manual_action",
@@ -12467,8 +11425,8 @@
           "category": "report_action",
           "timeSeconds": 930,
           "onlineSeconds": 600,
-          "reportedBugs": "49.6",
-          "earnedMoney": "49.6"
+          "reportedBugs": "44.5",
+          "earnedMoney": "44.5"
         },
         {
           "category": "meaningful_purchase_decision",
@@ -12476,17 +11434,19 @@
           "onlineSeconds": 600,
           "visibleViablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
+            "support_immediate_production",
             "support_offline_handover",
             "support_training_economics"
           ],
-          "moneyRatePerSecond": 0.826667,
-          "signature": "8764a1116a2d0e3dc551dcf131d1f9a18d3e556f3e88d8ce7400fb86ceb2eea9"
+          "moneyRatePerSecond": 0.741667,
+          "signature": "11d0ff24b625a05f9cbe0f8e13f95ae56df267c911673345a7b8d9ff409d4605"
         },
         {
           "category": "manual_action",
@@ -12522,8 +11482,8 @@
           "category": "report_action",
           "timeSeconds": 990,
           "onlineSeconds": 660,
-          "reportedBugs": "49.6",
-          "earnedMoney": "49.6"
+          "reportedBugs": "44.5",
+          "earnedMoney": "44.5"
         },
         {
           "category": "purchase_action",
@@ -12531,9 +11491,23 @@
           "onlineSeconds": 660,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
-          "previousLevel": 6,
-          "newLevel": 7,
-          "cost": "85"
+          "previousLevel": 7,
+          "newLevel": 8,
+          "cost": "101"
+        },
+        {
+          "category": "milestone_event",
+          "timeSeconds": 990,
+          "onlineSeconds": 660,
+          "id": "milestone_assistant_first",
+          "level": 8
+        },
+        {
+          "category": "endpoint_event",
+          "timeSeconds": 991,
+          "onlineSeconds": 661,
+          "endpoint": "playable_idle_mvp",
+          "assistantLevel": 8
         },
         {
           "category": "manual_action",
@@ -12569,8 +11543,28 @@
           "category": "report_action",
           "timeSeconds": 1050,
           "onlineSeconds": 720,
-          "reportedBugs": "51.7",
-          "earnedMoney": "51.7"
+          "reportedBugs": "54.16",
+          "earnedMoney": "54.16"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 1050,
+          "onlineSeconds": 720,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
+          ],
+          "affordablePurchaseCategories": [],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level",
+            "support_immediate_production",
+            "support_offline_handover",
+            "support_training_economics"
+          ],
+          "moneyRatePerSecond": 0.902667,
+          "signature": "de23499d4ec97ba233cc0ca7d7e0ea7ec22c0881c948324941a1bc651c09fd69"
         },
         {
           "category": "manual_action",
@@ -12606,34 +11600,32 @@
           "category": "report_action",
           "timeSeconds": 1110,
           "onlineSeconds": 780,
-          "reportedBugs": "51.7",
-          "earnedMoney": "51.7"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1110,
-          "onlineSeconds": 780,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "affordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover",
-            "support_training_economics"
-          ],
-          "nearAffordablePurchaseCategories": [],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "abe6484b1e96691a0ee54b36e3bcf4bb05cba229d45d81f3cba42f28c85d691f"
+          "reportedBugs": "54.16",
+          "earnedMoney": "54.16"
         },
         {
           "category": "purchase_action",
           "timeSeconds": 1110,
           "onlineSeconds": 780,
           "action": "buy_support_upgrade",
-          "supportId": "support_training_economics",
-          "cost": "140"
+          "supportId": "support_immediate_production",
+          "cost": "95"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 1111,
+          "onlineSeconds": 781,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
+          "affordablePurchaseCategories": [],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
+          "moneyRatePerSecond": 1.064667,
+          "signature": "193847f5a6a91ff59611ab7dfb631a6bb97b84f140c95bacaa7054c46aacc167"
         },
         {
           "category": "manual_action",
@@ -12669,24 +11661,8 @@
           "category": "report_action",
           "timeSeconds": 1170,
           "onlineSeconds": 840,
-          "reportedBugs": "51.7",
-          "earnedMoney": "51.7"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1170,
-          "onlineSeconds": 840,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": [],
-          "nearAffordablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "moneyRatePerSecond": 0.861667,
-          "signature": "619493963e80b1fd4bfbee0b57d400309d150b3e5487729d4dfe1e8e64a54c69"
+          "reportedBugs": "63.88",
+          "earnedMoney": "63.88"
         },
         {
           "category": "manual_action",
@@ -12722,25 +11698,16 @@
           "category": "report_action",
           "timeSeconds": 1230,
           "onlineSeconds": 900,
-          "reportedBugs": "51.7",
-          "earnedMoney": "51.7"
+          "reportedBugs": "63.88",
+          "earnedMoney": "63.88"
         },
         {
           "category": "purchase_action",
           "timeSeconds": 1230,
           "onlineSeconds": 900,
-          "action": "buy_assistant_level_1",
-          "levelsPurchased": 1,
-          "previousLevel": 7,
-          "newLevel": 8,
-          "cost": "89"
-        },
-        {
-          "category": "milestone_event",
-          "timeSeconds": 1230,
-          "onlineSeconds": 900,
-          "id": "milestone_assistant_first",
-          "level": 8
+          "action": "buy_support_upgrade",
+          "supportId": "support_training_economics",
+          "cost": "140"
         },
         {
           "category": "meaningful_purchase_decision",
@@ -12757,13 +11724,6 @@
           ],
           "moneyRatePerSecond": 1.064667,
           "signature": "f3787f3abdb0c791ec99071a66c4d60ee90e1184429509cb8895001721670906"
-        },
-        {
-          "category": "endpoint_event",
-          "timeSeconds": 1231,
-          "onlineSeconds": 901,
-          "endpoint": "playable_idle_mvp",
-          "assistantLevel": 8
         },
         {
           "category": "manual_action",
@@ -12838,19 +11798,6 @@
           "onlineSeconds": 1020,
           "reportedBugs": "63.88",
           "earnedMoney": "63.88"
-        },
-        {
-          "category": "meaningful_purchase_decision",
-          "timeSeconds": 1350,
-          "onlineSeconds": 1020,
-          "visibleViablePurchaseCategories": [
-            "assistant_level",
-            "support_offline_handover"
-          ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
-          "nearAffordablePurchaseCategories": [],
-          "moneyRatePerSecond": 1.064667,
-          "signature": "cf59105e39b04550a06290f69e59b3c8f68e7008a4537c29f018c052e1abedc9"
         },
         {
           "category": "purchase_action",
@@ -13032,6 +11979,19 @@
           "onlineSeconds": 1260,
           "reportedBugs": "69.55",
           "earnedMoney": "69.55"
+        },
+        {
+          "category": "meaningful_purchase_decision",
+          "timeSeconds": 1590,
+          "onlineSeconds": 1260,
+          "visibleViablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
+          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "nearAffordablePurchaseCategories": [],
+          "moneyRatePerSecond": 1.159167,
+          "signature": "cf59105e39b04550a06290f69e59b3c8f68e7008a4537c29f018c052e1abedc9"
         },
         {
           "category": "purchase_action",
@@ -16087,17 +15047,17 @@
       "junior_baseline_snapshot_hash": "1fe7f506367c028b441ee6ca3781b06a9b1f2bc9ab0ce8a238466c00f5a6c3e8",
       "scenario_start_snapshot_id": "post-promotion-1fe7f506367c",
       "endpoint_completed": true,
-      "endpoint_time_seconds": 1951,
+      "endpoint_time_seconds": 1771,
       "junior_phase_seconds": 330,
-      "middle_phase_seconds": 1621,
-      "total_online_gameplay_seconds": 1951,
-      "total_wall_clock_elapsed_seconds": 1951,
+      "middle_phase_seconds": 1441,
+      "total_online_gameplay_seconds": 1771,
+      "total_wall_clock_elapsed_seconds": 1771,
       "pre_offline_online_seconds": 0,
       "wall_clock_offline_elapsed_seconds": 0,
-      "post_return_online_seconds": 1621,
+      "post_return_online_seconds": 1441,
       "capstone_reached": false,
       "capstone_time_seconds": null,
-      "purchase_action_count": 10,
+      "purchase_action_count": 9,
       "meaningful_purchase_decision_count": 7,
       "meaningful_purchase_decision_events": [
         {
@@ -16178,28 +15138,35 @@
           "onlineSeconds": 1440,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_offline_handover",
+            "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover",
+            "support_training_economics"
+          ],
           "nearAffordablePurchaseCategories": [],
-          "moneyRatePerSecond": 0.521111,
-          "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
+          "moneyRatePerSecond": 0.556111,
+          "signature": "abe6484b1e96691a0ee54b36e3bcf4bb05cba229d45d81f3cba42f28c85d691f"
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 1951,
-          "onlineSeconds": 1621,
+          "timeSeconds": 1771,
+          "onlineSeconds": 1441,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_offline_handover",
+            "support_training_economics"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_offline_handover",
+            "support_training_economics"
           ],
           "moneyRatePerSecond": 0.759111,
-          "signature": "f3787f3abdb0c791ec99071a66c4d60ee90e1184429509cb8895001721670906"
+          "signature": "9153afa7f616f09d10bf9559fa63f6b68f3b166c985316341bb320ed1f98c798"
         }
       ],
       "purchase_action_events": [
@@ -16275,9 +15242,11 @@
           "category": "purchase_action",
           "timeSeconds": 1590,
           "onlineSeconds": 1260,
-          "action": "buy_support_upgrade",
-          "supportId": "support_training_economics",
-          "cost": "140"
+          "action": "buy_assistant_level_1",
+          "levelsPurchased": 1,
+          "previousLevel": 6,
+          "newLevel": 7,
+          "cost": "85"
         },
         {
           "category": "purchase_action",
@@ -16285,25 +15254,15 @@
           "onlineSeconds": 1440,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
-          "previousLevel": 6,
-          "newLevel": 7,
-          "cost": "75"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 1950,
-          "onlineSeconds": 1620,
-          "action": "buy_assistant_level_1",
-          "levelsPurchased": 1,
           "previousLevel": 7,
           "newLevel": 8,
-          "cost": "89"
+          "cost": "101"
         }
       ],
-      "manual_action_count": 92,
-      "report_action_count": 20,
+      "manual_action_count": 88,
+      "report_action_count": 19,
       "assistant_final_level": 8,
-      "supports_owned": ["support_immediate_production", "support_training_economics"],
+      "supports_owned": ["support_immediate_production"],
       "milestones_reached": ["milestone_assistant_first"],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
@@ -16311,12 +15270,12 @@
       "offline_bugs_found_total": 0,
       "money_from_offline_reports_after_return": "0",
       "max_bugs_found": "100.1",
-      "max_money": "158.365",
+      "max_money": "173.465",
       "final_bugs_found_exact": "0.648",
-      "final_money_exact": "48.265",
+      "final_money_exact": "72.465",
       "numeric_scale_decimal_places": 6,
       "max_assistant_rate": "0.648",
-      "max_level_cost": "104",
+      "max_level_cost": "118",
       "support_purchase_analysis": [
         {
           "supportId": "support_immediate_production",
@@ -16326,22 +15285,13 @@
           "opportunityCostAssistantLevels": "1.9",
           "endpointUtilitySeconds": 34.684,
           "justifiedByScenarioObjective": false
-        },
-        {
-          "supportId": "support_training_economics",
-          "timeSeconds": 1590,
-          "cost": "140",
-          "paybackSeconds": 350,
-          "opportunityCostAssistantLevels": "1.647059",
-          "endpointUtilitySeconds": -226.439,
-          "justifiedByScenarioObjective": false
         }
       ],
       "stall_windows": {
         "maxSeconds": 180,
         "endpointMaxSeconds": 180,
         "capstonePostEndpointMaxSeconds": 0,
-        "phaseSeconds": 1621
+        "phaseSeconds": 1441
       },
       "gate_results": [
         {
@@ -16385,7 +15335,7 @@
           "diagnostic": "Runaway detection for Buy Max collapsing too many levels into one transaction."
         }
       ],
-      "event_log_digest": "bc6a54cc7b252255890da9cdbf85c53a62a2b2d3a30113c4f6817c12678ed81c",
+      "event_log_digest": "28a5f45a89b6a551d29360126901e8680b22830f979a4a0243b59a87bc46fdf8",
       "event_log": [
         {
           "category": "purchase_action",
@@ -16748,9 +15698,11 @@
           "category": "purchase_action",
           "timeSeconds": 1590,
           "onlineSeconds": 1260,
-          "action": "buy_support_upgrade",
-          "supportId": "support_training_economics",
-          "cost": "140"
+          "action": "buy_assistant_level_1",
+          "levelsPurchased": 1,
+          "previousLevel": 6,
+          "newLevel": 7,
+          "cost": "85"
         },
         {
           "category": "manual_action",
@@ -16780,8 +15732,8 @@
           "category": "report_action",
           "timeSeconds": 1770,
           "onlineSeconds": 1440,
-          "reportedBugs": "93.8",
-          "earnedMoney": "93.8"
+          "reportedBugs": "100.1",
+          "earnedMoney": "100.1"
         },
         {
           "category": "meaningful_purchase_decision",
@@ -16789,12 +15741,17 @@
           "onlineSeconds": 1440,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_offline_handover",
+            "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover",
+            "support_training_economics"
+          ],
           "nearAffordablePurchaseCategories": [],
-          "moneyRatePerSecond": 0.521111,
-          "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
+          "moneyRatePerSecond": 0.556111,
+          "signature": "abe6484b1e96691a0ee54b36e3bcf4bb05cba229d45d81f3cba42f28c85d691f"
         },
         {
           "category": "purchase_action",
@@ -16802,78 +15759,39 @@
           "onlineSeconds": 1440,
           "action": "buy_assistant_level_1",
           "levelsPurchased": 1,
-          "previousLevel": 6,
-          "newLevel": 7,
-          "cost": "75"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1815,
-          "onlineSeconds": 1485,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1860,
-          "onlineSeconds": 1530,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1905,
-          "onlineSeconds": 1575,
-          "bugsFound": "5"
-        },
-        {
-          "category": "manual_action",
-          "timeSeconds": 1950,
-          "onlineSeconds": 1620,
-          "bugsFound": "5"
-        },
-        {
-          "category": "report_action",
-          "timeSeconds": 1950,
-          "onlineSeconds": 1620,
-          "reportedBugs": "100.1",
-          "earnedMoney": "100.1"
-        },
-        {
-          "category": "purchase_action",
-          "timeSeconds": 1950,
-          "onlineSeconds": 1620,
-          "action": "buy_assistant_level_1",
-          "levelsPurchased": 1,
           "previousLevel": 7,
           "newLevel": 8,
-          "cost": "89"
+          "cost": "101"
         },
         {
           "category": "milestone_event",
-          "timeSeconds": 1950,
-          "onlineSeconds": 1620,
+          "timeSeconds": 1770,
+          "onlineSeconds": 1440,
           "id": "milestone_assistant_first",
           "level": 8
         },
         {
           "category": "meaningful_purchase_decision",
-          "timeSeconds": 1951,
-          "onlineSeconds": 1621,
+          "timeSeconds": 1771,
+          "onlineSeconds": 1441,
           "visibleViablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_offline_handover",
+            "support_training_economics"
           ],
           "affordablePurchaseCategories": [],
           "nearAffordablePurchaseCategories": [
             "assistant_level",
-            "support_offline_handover"
+            "support_offline_handover",
+            "support_training_economics"
           ],
           "moneyRatePerSecond": 0.759111,
-          "signature": "f3787f3abdb0c791ec99071a66c4d60ee90e1184429509cb8895001721670906"
+          "signature": "9153afa7f616f09d10bf9559fa63f6b68f3b166c985316341bb320ed1f98c798"
         },
         {
           "category": "endpoint_event",
-          "timeSeconds": 1951,
-          "onlineSeconds": 1621,
+          "timeSeconds": 1771,
+          "onlineSeconds": 1441,
           "endpoint": "playable_idle_mvp",
           "assistantLevel": 8
         }
@@ -16915,8 +15833,8 @@
       "gate_id": "gate_middle_duration",
       "scenario": "scenario_mixed",
       "target": "900-1500 seconds after promotion",
-      "actual": 901,
-      "pass": true,
+      "actual": 661,
+      "pass": false,
       "severity": "Blocker",
       "permitted_parameter_group": "group_assistant_cost",
       "diagnostic": "Mixed strategy Middle endpoint time from shared post-promotion snapshot."
@@ -16925,7 +15843,7 @@
       "gate_id": "gate_total_duration",
       "scenario": "scenario_junior_baseline + scenario_mixed",
       "target": "1500-2400 seconds",
-      "actual": 1231,
+      "actual": 991,
       "pass": false,
       "severity": "Blocker",
       "permitted_parameter_group": "group_cost",
@@ -16935,7 +15853,7 @@
       "gate_id": "gate_purchase_actions",
       "scenario": "scenario_mixed",
       "target": "10-16 purchase actions",
-      "actual": 14,
+      "actual": 12,
       "pass": true,
       "severity": "Major",
       "permitted_parameter_group": "group_cost",
@@ -16945,8 +15863,8 @@
       "gate_id": "gate_meaningful_decisions",
       "scenario": "scenario_mixed",
       "target": "3-5 decisions, deduped",
-      "actual": 8,
-      "pass": false,
+      "actual": 5,
+      "pass": true,
       "severity": "Major",
       "permitted_parameter_group": "group_decisions",
       "diagnostic": "Meaningful decisions are signature-deduped after material state changes."
@@ -16955,7 +15873,7 @@
       "gate_id": "gate_low_click_middle_completion",
       "scenario": "scenario_low_click_middle",
       "target": "<= 1500 seconds after promotion",
-      "actual": 991,
+      "actual": 901,
       "pass": true,
       "severity": "Blocker",
       "permitted_parameter_group": "group_passive_baseline",
@@ -16965,7 +15883,7 @@
       "gate_id": "gate_active_not_trivial",
       "scenario": "scenario_active_click_middle",
       "target": "active/mixed ratio 0.70-0.90",
-      "actual": 0.451,
+      "actual": 0.478,
       "pass": false,
       "severity": "Major",
       "permitted_parameter_group": "group_manual_cadence",
@@ -17105,7 +16023,7 @@
       "gate_id": "gate_phase_specific_stalls",
       "scenario": "Junior and Middle phases",
       "target": "each scenario stall <= 180s",
-      "actual": "scenario_junior_baseline:120; scenario_level_first:120; scenario_support_first:120; scenario_mixed:120; scenario_skip_supports:120; scenario_low_click_middle:180; scenario_active_click_middle:90; scenario_offline_return_without_support:19; scenario_offline_return_with_support:60; scenario_no_support_completion:120; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:120; scenario_capstone_reachability_sanity:120; scenario_full_run_low_engagement_info:180",
+      "actual": "scenario_junior_baseline:120; scenario_level_first:120; scenario_support_first:120; scenario_mixed:120; scenario_skip_supports:120; scenario_low_click_middle:180; scenario_active_click_middle:90; scenario_offline_return_without_support:11; scenario_offline_return_with_support:60; scenario_no_support_completion:120; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:120; scenario_capstone_reachability_sanity:120",
       "pass": true,
       "severity": "Major",
       "permitted_parameter_group": "group_stall",
@@ -17115,7 +16033,7 @@
       "gate_id": "gate_endpoint_not_earlier_than_min_duration",
       "scenario": "scenario_junior_baseline + scenario_mixed",
       "target": ">= 1500s total online gameplay",
-      "actual": 1231,
+      "actual": 991,
       "pass": false,
       "severity": "Blocker",
       "permitted_parameter_group": "group_cost",
@@ -17165,8 +16083,8 @@
       "gate_id": "gate_mixed_support_utility",
       "scenario": "scenario_mixed",
       "target": "mixed does not buy unsupported negative-utility Support Upgrades",
-      "actual": "support_immediate_production, support_training_economics",
-      "pass": false,
+      "actual": "no negative utility support purchases",
+      "pass": true,
       "severity": "Major",
       "permitted_parameter_group": "group_support_effects",
       "diagnostic": "Mixed policy support purchases must have non-negative endpoint utility unless scenario objectives justify them."

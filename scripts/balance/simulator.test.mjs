@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { Fixed } from "./fixed-point.mjs";
 import {
@@ -6,10 +9,23 @@ import {
   emitStrategicDecisionForTest,
   moneyAcquisitionRatePerSecond,
   runCompleteSimulationSuite,
+  runCompleteSimulationSuiteForProfile,
   strategicDecisionSignatureForTest,
   validateJuniorBaselineSnapshot,
 } from "./simulator.mjs";
-import { SUPPORTS } from "./parameters.mjs";
+import {
+  ACTIVE_CANDIDATE_PARAMS,
+  ACTIVE_CANDIDATE_PARAMETER_VERSION,
+  ACTIVE_CANDIDATE_PROFILE_ID,
+  HISTORICAL_BASELINE_PROFILE_ID,
+  PARAMETER_PROFILES,
+  PARAMETER_VERSION,
+  PARAMS,
+  SUPPORTS,
+  getParameterProfile,
+} from "./parameters.mjs";
+
+const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));
 
 function scenario(results, id) {
   const found = results.scenarios.find((item) => item.scenario_id === id);
@@ -19,7 +35,102 @@ function scenario(results, id) {
   return found;
 }
 
+function parseDocument15CandidateTable() {
+  const document15 = readFileSync(
+    resolve(
+      CURRENT_DIR,
+      "../../docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md",
+    ),
+    "utf8",
+  );
+  const rows = document15.split("\n").filter((line) => line.startsWith("| `PARAM_"));
+  const params = {};
+
+  for (const row of rows) {
+    const cells = row.split("|").map((cell) => cell.trim());
+    const id = cells[1]?.replaceAll("`", "");
+    const rawValue = cells[3];
+
+    if (!id || rawValue === undefined) {
+      continue;
+    }
+
+    if (rawValue === "true") {
+      params[id] = true;
+      continue;
+    }
+
+    const numericValue = Number(rawValue);
+    params[id] = Number.isFinite(numericValue) ? numericValue : rawValue;
+  }
+
+  return params;
+}
+
 describe("Phase 6A balance simulator", () => {
+  it("keeps historical defaults and explicit historical profile preserved", () => {
+    const historical = getParameterProfile(HISTORICAL_BASELINE_PROFILE_ID);
+
+    expect(historical.version).toBe(PARAMETER_VERSION);
+    expect(historical.params).toBe(PARAMS);
+    expect(PARAMS.PARAM_ASSISTANT_LEVEL_BASE_COST).toBe(25);
+    expect(PARAMS.PARAM_SUPPORT_TRAINING_UNLOCK_LEVEL).toBe(3);
+  });
+
+  it("selects the active candidate profile explicitly", () => {
+    const candidate = getParameterProfile(ACTIVE_CANDIDATE_PROFILE_ID);
+    const results = runCompleteSimulationSuiteForProfile(ACTIVE_CANDIDATE_PROFILE_ID);
+
+    expect(candidate.params).toBe(ACTIVE_CANDIDATE_PARAMS);
+    expect(candidate.version).toBe(ACTIVE_CANDIDATE_PARAMETER_VERSION);
+    expect(results.parameter_profile_id).toBe(ACTIVE_CANDIDATE_PROFILE_ID);
+    expect(results.parameter_version).toBe(ACTIVE_CANDIDATE_PARAMETER_VERSION);
+  });
+
+  it("fails clearly when a parameter profile is missing", () => {
+    expect(() => getParameterProfile("missing-profile")).toThrow(
+      /Unknown balance parameter profile "missing-profile"/,
+    );
+  });
+
+  it("matches document 15 active candidate parameter values", () => {
+    const documentParams = parseDocument15CandidateTable();
+
+    expect(Object.keys(documentParams).length).toBeGreaterThan(40);
+    for (const [parameterId, expectedValue] of Object.entries(documentParams)) {
+      expect(ACTIVE_CANDIDATE_PARAMS[parameterId]).toBe(expectedValue);
+    }
+  });
+
+  it("records parameter version in historical and active candidate outputs", () => {
+    const historical = runCompleteSimulationSuite();
+    const candidate = runCompleteSimulationSuiteForProfile(ACTIVE_CANDIDATE_PROFILE_ID);
+
+    expect(historical.parameter_profile_id).toBe(HISTORICAL_BASELINE_PROFILE_ID);
+    expect(historical.parameter_version).toBe(PARAMETER_VERSION);
+    expect(candidate.parameter_profile_id).toBe(ACTIVE_CANDIDATE_PROFILE_ID);
+    expect(candidate.parameter_version).toBe(ACTIVE_CANDIDATE_PARAMETER_VERSION);
+  });
+
+  it("passes active candidate base Blocker and Major gates", () => {
+    const results = runCompleteSimulationSuiteForProfile(ACTIVE_CANDIDATE_PROFILE_ID);
+    const failedBaseGates = results.gates.filter(
+      (gate) => !gate.pass && (gate.severity === "Blocker" || gate.severity === "Major"),
+    );
+
+    expect(failedBaseGates).toEqual([]);
+  });
+
+  it("keeps balance profiles independent from runtime gameplay modules", () => {
+    const profileSource = readFileSync(resolve(CURRENT_DIR, "./parameters.mjs"), "utf8");
+
+    expect(profileSource).not.toMatch(/from ["']\.\.\/\.\.\/src/);
+    expect(Object.keys(PARAMETER_PROFILES).sort()).toEqual([
+      HISTORICAL_BASELINE_PROFILE_ID,
+      ACTIVE_CANDIDATE_PROFILE_ID,
+    ]);
+  });
+
   it("runs deterministically", () => {
     const first = runCompleteSimulationSuite();
     const second = runCompleteSimulationSuite();
