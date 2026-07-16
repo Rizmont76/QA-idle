@@ -107,7 +107,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Define runtime candidate parameter contract
 - Epic: Epic 0 - Tooling and Contract Protection
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Create a runtime-facing contract for active candidate parameters without coupling gameplay code to simulator-only assumptions.
 - Scope: Define a typed parameter shape for Assistant levels, costs, production, milestones, Support Upgrades, endpoint, formatting and offline progress; expose active profile ID and parameter version.
 - Out of Scope: Implementing production ticks; implementing purchases; changing simulator strategy profiles.
