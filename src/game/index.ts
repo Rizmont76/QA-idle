@@ -4,6 +4,7 @@ export * from "./formatting";
 export * from "./modifiers";
 export * from "./promotions";
 export * from "./resources";
+export * from "./runtimeCandidateParameters";
 export * from "./stats";
 export * from "./unlocks";
 export * from "./upgrades";
