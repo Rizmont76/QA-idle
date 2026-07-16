@@ -8,6 +8,7 @@
     "format:check": "prettier . --check",
     "health": "node scripts/repository-health.mjs",
     "balance:baseline": "node scripts/balance/run-balance-simulation.mjs",
+    "balance:candidate": "node scripts/balance/run-balance-simulation.mjs --profile phase-6b.2-stage-a-003",
     "balance:search": "node scripts/balance/search-balance-parameters.mjs",
     "test": "vitest",
     "test:run": "vitest run",
