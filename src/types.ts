@@ -1,4 +1,7 @@
 export const MVP_IDS = {
+  assistants: {
+    juniorQa: "assistant_junior_qa",
+  },
   careerStages: {
     juniorQa: "junior_qa",
     middleQa: "middle_qa",
@@ -53,6 +56,7 @@ export const MVP_IDS = {
   },
 } as const;
 
+export type AssistantId = (typeof MVP_IDS.assistants)[keyof typeof MVP_IDS.assistants];
 export type CareerStage =
   (typeof MVP_IDS.careerStages)[keyof typeof MVP_IDS.careerStages];
 export type PromotionId = (typeof MVP_IDS.promotions)[keyof typeof MVP_IDS.promotions];

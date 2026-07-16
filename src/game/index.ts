@@ -1,3 +1,4 @@
+export * from "./assistant";
 export * from "./commands";
 export * from "./events";
 export * from "./formatting";
