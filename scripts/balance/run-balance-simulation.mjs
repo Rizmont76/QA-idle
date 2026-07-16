@@ -2,11 +2,11 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { runCompleteSimulationSuite } from "./simulator.mjs";
 
 const resultPath = new URL(
-  "../../artifacts/balance/phase-6a.1-corrected-baseline-results.json",
+  "../../artifacts/balance/phase-6a.2-final-corrected-baseline-results.json",
   import.meta.url,
 );
 const reportPath = new URL(
-  "../../docs/reports/phase-6a.1-corrected-balance-acceptance-report.md",
+  "../../docs/reports/phase-6a.2-final-corrected-balance-acceptance-report.md",
   import.meta.url,
 );
 
@@ -186,6 +186,23 @@ ${results.scenarios
       `| ${scenario.scenario_id} | ${scenario.pre_offline_online_seconds} | ${scenario.wall_clock_offline_elapsed_seconds} | ${scenario.offline_eligible_seconds_total} | ${scenario.post_return_online_seconds} | ${scenario.middle_phase_seconds} | ${scenario.total_wall_clock_elapsed_seconds} | ${scenario.offline_bugs_found_total} |`,
   )
   .join("\n")}
+
+## Controlled Handover Comparison
+
+| Field | Value |
+| --- | --- |
+| Reference Assistant level | ${results.controlled_offline_support_comparison.reference_assistant_level} |
+| Base online production rate | ${results.controlled_offline_support_comparison.base_online_production_rate} |
+| Reference supports before fork | ${results.controlled_offline_support_comparison.reference_supports_before_fork.join(", ")} |
+| Without Handover efficiency | ${results.controlled_offline_support_comparison.without_handover.offline_efficiency} |
+| With Handover efficiency | ${results.controlled_offline_support_comparison.with_handover.offline_efficiency} |
+| Eligible seconds | ${results.controlled_offline_support_comparison.with_handover.eligible_seconds} |
+| Bugs gained without Handover | ${results.controlled_offline_support_comparison.without_handover.bugs_found_gained} |
+| Bugs gained with Handover | ${results.controlled_offline_support_comparison.with_handover.bugs_found_gained} |
+| Normalized improvement ratio | ${results.controlled_offline_support_comparison.normalized_improvement_ratio} |
+| Expected efficiency ratio | ${results.controlled_offline_support_comparison.expected_ratio_from_efficiency_values} |
+| Tolerance | ${results.controlled_offline_support_comparison.tolerance} |
+| Result | ${results.controlled_offline_support_comparison.pass ? "PASS" : "FAIL"} |
 
 ## Parameter Changes Recommended
 

@@ -1,0 +1,118 @@
+{
+  "baselineParameterVersion": "doc15-provisional-2026-07-14",
+  "searchId": "phase-6b.1-passive-economy-robustness-search",
+  "rejectedHistoricalVersion": "phase-6b-recommended-candidate-v1",
+  "lockedCadenceProfiles": {
+    "PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS": 9,
+    "PARAM_JUNIOR_BASELINE_REPORT_INTERVAL_SECONDS": 25,
+    "PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS": 10,
+    "PARAM_BASELINE_MIDDLE_REPORT_INTERVAL_SECONDS": 60,
+    "PARAM_ACTIVE_CLICK_MANUAL_ACTION_INTERVAL_SECONDS": 4,
+    "PARAM_ACTIVE_CLICK_REPORT_INTERVAL_SECONDS": 45,
+    "PARAM_LOW_CLICK_MANUAL_ACTION_INTERVAL_SECONDS": 20,
+    "PARAM_LOW_CLICK_REPORT_INTERVAL_SECONDS": 90
+  },
+  "coarseToFine": {
+    "coarseSamples": 36,
+    "fineSeeds": 8,
+    "fineSamplesPerSeed": 3,
+    "note": "Deterministic bounded samples sweep every required passive, cost and Support variable, then refine around the strongest coarse regions without changing cadence profiles."
+  },
+  "parameters": {
+    "PARAM_ASSISTANT_BASE_BUGS_PER_SECOND": {
+      "min": 0.1,
+      "max": 0.34,
+      "coarse": [0.1, 0.18, 0.26, 0.34],
+      "fine": [0.3, 0.34]
+    },
+    "PARAM_ASSISTANT_BUGS_PER_SECOND_PER_LEVEL": {
+      "min": 0.025,
+      "max": 0.085,
+      "coarse": [0.025, 0.045, 0.065, 0.085],
+      "fine": [0.07, 0.085]
+    },
+    "PARAM_ASSISTANT_LEVEL_BASE_COST": {
+      "min": 45,
+      "max": 160,
+      "coarse": [45, 80, 110, 160],
+      "fine": [90, 100, 120]
+    },
+    "PARAM_ASSISTANT_LEVEL_COST_GROWTH": {
+      "min": 1.12,
+      "max": 1.3,
+      "coarse": [1.12, 1.18, 1.24, 1.3],
+      "fine": [1.12, 1.14, 1.16]
+    },
+    "PARAM_ASSISTANT_LEVEL_LINEAR_COST": {
+      "min": 0,
+      "max": 14,
+      "coarse": [0, 5, 10, 14],
+      "fine": [0, 10, 14]
+    },
+    "PARAM_FIRST_MILESTONE_PRODUCTION_MULTIPLIER": {
+      "min": 1.15,
+      "max": 1.8,
+      "coarse": [1.15, 1.35, 1.55, 1.8],
+      "fine": [1.55, 1.8]
+    },
+    "PARAM_SUPPORT_IMMEDIATE_PRICE": {
+      "min": 60,
+      "max": 240,
+      "coarse": [60, 120, 180, 240],
+      "fine": [60, 120]
+    },
+    "PARAM_SUPPORT_IMMEDIATE_ADD_BUGS_PER_SECOND": {
+      "min": 0.04,
+      "max": 0.32,
+      "coarse": [0.04, 0.12, 0.22, 0.32],
+      "fine": [0.22, 0.32]
+    },
+    "PARAM_SUPPORT_TRAINING_PRICE": {
+      "min": 80,
+      "max": 300,
+      "coarse": [80, 160, 240, 300],
+      "fine": [80, 160]
+    },
+    "PARAM_SUPPORT_TRAINING_COST_MULTIPLIER": {
+      "min": 0.76,
+      "max": 0.94,
+      "coarse": [0.76, 0.82, 0.88, 0.94],
+      "fine": [0.76, 0.82]
+    },
+    "PARAM_SUPPORT_TRAINING_UNLOCK_LEVEL": {
+      "min": 2,
+      "max": 7,
+      "coarse": [2, 3, 5, 7],
+      "fine": [2, 3]
+    },
+    "PARAM_SUPPORT_OFFLINE_PRICE": {
+      "min": 90,
+      "max": 280,
+      "coarse": [90, 150, 220, 280],
+      "fine": [110, 180]
+    },
+    "PARAM_OFFLINE_EFFICIENCY_WITH_SUPPORT": {
+      "min": 0.45,
+      "max": 0.7,
+      "coarse": [0.45, 0.55, 0.62, 0.7],
+      "fine": [0.55, 0.62]
+    },
+    "PARAM_SUPPORT_OFFLINE_UNLOCK_LEVEL": {
+      "min": 5,
+      "max": 8,
+      "coarse": [5, 6, 7, 8],
+      "fine": [5, 6]
+    }
+  },
+  "robustnessCriteria": {
+    "base": "zero Blocker and Major failures",
+    "individualSensitivity": "zero Blocker failures under individual +/-5% core production/cost sensitivity",
+    "severeSensitivity": "avoid endpoint loss or safe-bound failure under +/-10%",
+    "combinedPerturbations": [
+      "production -5%, cost +5%",
+      "production +5%, cost -5%",
+      "Support price +10%, effect -10%",
+      "Support price -10%, effect +10%"
+    ]
+  }
+}

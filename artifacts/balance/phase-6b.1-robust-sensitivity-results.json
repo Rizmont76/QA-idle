@@ -1,0 +1,379 @@
+{
+  "recommendation_status": "no robust recommendation found within locked Phase 6B.1 search space",
+  "recommended_candidate_id": null,
+  "sensitivity": [
+    {
+      "candidate_id": "phase-6b.1-fine-01-2",
+      "runs": [
+        {
+          "id": "base",
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            }
+          ],
+          "blocker_failures": 1,
+          "major_failures": 1,
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "active_mixed_ratio": 0.638,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5",
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major"
+            }
+          ],
+          "blocker_failures": 1,
+          "major_failures": 4,
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "active_mixed_ratio": 0.607,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5",
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major"
+            }
+          ],
+          "blocker_failures": 1,
+          "major_failures": 4,
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "active_mixed_ratio": 0.638,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-5",
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            }
+          ],
+          "blocker_failures": 0,
+          "major_failures": 2,
+          "total_duration_seconds": 1581,
+          "middle_duration_seconds": 1081,
+          "active_mixed_ratio": 0.625,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-5",
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major"
+            }
+          ],
+          "blocker_failures": 1,
+          "major_failures": 3,
+          "total_duration_seconds": 1941,
+          "middle_duration_seconds": 1441,
+          "active_mixed_ratio": 0.625,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-10",
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major"
+            }
+          ],
+          "blocker_failures": 1,
+          "major_failures": 4,
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "active_mixed_ratio": 0.58,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-10",
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            }
+          ],
+          "blocker_failures": 0,
+          "major_failures": 2,
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "active_mixed_ratio": 0.6,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-10",
+          "failed_gates": [
+            {
+              "gate_id": "gate_total_duration",
+              "severity": "Blocker"
+            },
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_endpoint_not_earlier_than_min_duration",
+              "severity": "Blocker"
+            }
+          ],
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "total_duration_seconds": 1401,
+          "middle_duration_seconds": 901,
+          "active_mixed_ratio": 0.65,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-10",
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_capstone_sanity",
+              "severity": "Minor"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major"
+            }
+          ],
+          "blocker_failures": 2,
+          "major_failures": 3,
+          "total_duration_seconds": 2181,
+          "middle_duration_seconds": 1681,
+          "active_mixed_ratio": 0.643,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5-cost-plus-5",
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major"
+            }
+          ],
+          "blocker_failures": 2,
+          "major_failures": 3,
+          "total_duration_seconds": 2001,
+          "middle_duration_seconds": 1501,
+          "active_mixed_ratio": 0.6,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5-cost-minus-5",
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            }
+          ],
+          "blocker_failures": 0,
+          "major_failures": 2,
+          "total_duration_seconds": 1521,
+          "middle_duration_seconds": 1021,
+          "active_mixed_ratio": 0.618,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-plus-10-effect-minus-10",
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            }
+          ],
+          "blocker_failures": 1,
+          "major_failures": 2,
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "active_mixed_ratio": 0.638,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-minus-10-effect-plus-10",
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker"
+            },
+            {
+              "gate_id": "gate_active_not_trivial",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major"
+            }
+          ],
+          "blocker_failures": 1,
+          "major_failures": 3,
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "active_mixed_ratio": 0.607,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        }
+      ],
+      "zero_blocker_failures_under_individual_5_percent": false,
+      "avoids_catastrophic_failure_under_10_percent": true,
+      "combined_perturbations_pass": false
+    }
+  ]
+}

@@ -3,8 +3,10 @@ import { Fixed } from "./fixed-point.mjs";
 import {
   assistantNextLevelCost,
   assistantRate,
+  emitStrategicDecisionForTest,
   moneyAcquisitionRatePerSecond,
   runCompleteSimulationSuite,
+  strategicDecisionSignatureForTest,
   validateJuniorBaselineSnapshot,
 } from "./simulator.mjs";
 import { SUPPORTS } from "./parameters.mjs";
@@ -158,6 +160,49 @@ describe("Phase 6A balance simulator", () => {
     ).toBe(true);
   });
 
+  it("deduplicates strategic signatures globally within a scenario", () => {
+    const seen = new Set();
+    const signatureA = strategicDecisionSignatureForTest({
+      viableCategories: ["assistant_level", SUPPORTS.immediate],
+      affordableCategories: ["assistant_level"],
+      nearAffordableCategories: [SUPPORTS.immediate],
+      strategicOrdering: ["assistant_level", SUPPORTS.immediate],
+    });
+    const signatureB = strategicDecisionSignatureForTest({
+      viableCategories: ["assistant_level", SUPPORTS.immediate],
+      affordableCategories: ["assistant_level", SUPPORTS.immediate],
+      nearAffordableCategories: [],
+      strategicOrdering: [SUPPORTS.immediate, "assistant_level"],
+    });
+
+    expect(emitStrategicDecisionForTest(seen, signatureA)).toBe(true);
+    expect(emitStrategicDecisionForTest(seen, signatureA)).toBe(false);
+    expect(emitStrategicDecisionForTest(seen, signatureB)).toBe(true);
+    expect(emitStrategicDecisionForTest(seen, signatureA)).toBe(false);
+  });
+
+  it("emits new signatures for unlocks and payback-order changes", () => {
+    const locked = strategicDecisionSignatureForTest({
+      viableCategories: ["assistant_level"],
+      affordableCategories: ["assistant_level"],
+      strategicOrdering: ["assistant_level"],
+    });
+    const unlockedSupport = strategicDecisionSignatureForTest({
+      viableCategories: ["assistant_level", SUPPORTS.training],
+      affordableCategories: ["assistant_level"],
+      nearAffordableCategories: [SUPPORTS.training],
+      strategicOrdering: ["assistant_level", SUPPORTS.training],
+    });
+    const paybackOrderChanged = strategicDecisionSignatureForTest({
+      viableCategories: ["assistant_level", SUPPORTS.training],
+      affordableCategories: ["assistant_level"],
+      nearAffordableCategories: [SUPPORTS.training],
+      strategicOrdering: [SUPPORTS.training, "assistant_level"],
+    });
+
+    expect(new Set([locked, unlockedSupport, paybackOrderChanged]).size).toBe(3);
+  });
+
   it("uses Money acquisition rate for near-affordability with money-per-bug above 1", () => {
     const state = {
       assistantUnlocked: true,
@@ -189,6 +234,21 @@ describe("Phase 6A balance simulator", () => {
     );
   });
 
+  it("isolates Handover Support in a controlled offline comparison", () => {
+    const results = runCompleteSimulationSuite();
+    const comparison = results.controlled_offline_support_comparison;
+
+    expect(comparison.pass).toBe(true);
+    expect(comparison.without_handover.assistant_level).toBe(
+      comparison.with_handover.assistant_level,
+    );
+    expect(comparison.with_handover.supports_owned).toContain(SUPPORTS.offline);
+    expect(comparison.normalized_improvement_ratio).toBeCloseTo(
+      comparison.expected_ratio_from_efficiency_values,
+      6,
+    );
+  });
+
   it("uses a genuine controlled multi-level Buy Max crossing", () => {
     const results = runCompleteSimulationSuite();
     const buyMax = scenario(results, "scenario_buy_max_milestone_crossing");
@@ -213,9 +273,16 @@ describe("Phase 6A balance simulator", () => {
     expect(gateIds).toContain("gate_support_offline_viability");
     expect(gateIds).toContain("gate_buy_max_safe_level_limit");
     expect(gateIds).toContain("gate_capstone_excluded_from_endpoint_scenarios");
+    expect(gateIds).toContain("gate_capstone_stall_informational");
     expect(scenario(results, "scenario_endpoint_completion").capstone_reached).toBe(
       false,
     );
+    expect(
+      results.gates.find((gate) => gate.gate_id === "gate_maximum_stall_window").pass,
+    ).toBe(true);
+    expect(
+      results.gates.find((gate) => gate.gate_id === "gate_phase_specific_stalls").pass,
+    ).toBe(true);
   });
 
   it("calculates Assistant rate with support and milestone multipliers", () => {

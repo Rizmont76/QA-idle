@@ -8,10 +8,48 @@ import {
   SUPPORTS,
 } from "./parameters.mjs";
 
-const SIMULATOR_VERSION = "phase-6a.1-simulator-v2";
+const SIMULATOR_VERSION = "phase-6a.2-simulator-v3";
+const OFFLINE_RATIO_TOLERANCE = 0.000001;
 const SECOND = 1;
 const MAX_SCENARIO_SECONDS = 20000;
-const SCALE = PARAMS.PARAM_NUMERIC_SCALE_DECIMAL_PLACES;
+let activeParams = PARAMS;
+let activeParameterVersion = PARAMETER_VERSION;
+const SCALE = activeParams.PARAM_NUMERIC_SCALE_DECIMAL_PLACES;
+
+export function getBaselineParams() {
+  return structuredClone(PARAMS);
+}
+
+function withActiveParams(params, parameterVersion, run) {
+  const previousParams = activeParams;
+  const previousVersion = activeParameterVersion;
+  activeParams = Object.freeze({ ...PARAMS, ...params });
+  activeParameterVersion = parameterVersion;
+  try {
+    return run();
+  } finally {
+    activeParams = previousParams;
+    activeParameterVersion = previousVersion;
+  }
+}
+
+function activeSupportDefinitions() {
+  return SUPPORT_DEFINITIONS.map((support) => {
+    if (support.id === SUPPORTS.training) {
+      return {
+        ...support,
+        unlockLevel: activeParams.PARAM_SUPPORT_TRAINING_UNLOCK_LEVEL,
+      };
+    }
+    if (support.id === SUPPORTS.offline) {
+      return {
+        ...support,
+        unlockLevel: activeParams.PARAM_SUPPORT_OFFLINE_UNLOCK_LEVEL,
+      };
+    }
+    return support;
+  });
+}
 
 function f(value) {
   return Fixed.from(value, SCALE);
@@ -19,6 +57,32 @@ function f(value) {
 
 function hashObject(value) {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
+}
+
+export function strategicDecisionSignatureForTest({
+  viableCategories,
+  affordableCategories = [],
+  nearAffordableCategories = [],
+  strategicOrdering,
+  supportsOwned = [],
+  milestonesReached = [],
+}) {
+  return hashObject({
+    viable: [...viableCategories].sort(),
+    affordable: [...affordableCategories].sort(),
+    nearAffordable: [...nearAffordableCategories].sort(),
+    strategicOrdering: [...strategicOrdering],
+    supportsOwned: [...supportsOwned].sort(),
+    milestonesReached: [...milestonesReached].sort(),
+  });
+}
+
+export function emitStrategicDecisionForTest(seenSignatures, signature) {
+  if (seenSignatures.has(signature)) {
+    return false;
+  }
+  seenSignatures.add(signature);
+  return true;
 }
 
 export function getJuniorBaselineSnapshotHash(snapshot = JUNIOR_BASELINE_SNAPSHOT) {
@@ -88,6 +152,9 @@ function cloneState(state) {
     meaningfulDecisionEvents: state.meaningfulDecisionEvents.map((event) => ({
       ...event,
     })),
+    meaningfulDecisionSignaturesSeen: new Set([
+      ...state.meaningfulDecisionSignaturesSeen,
+    ]),
     purchaseActionEvents: state.purchaseActionEvents.map((event) => ({ ...event })),
     lastProgressAt: { ...state.lastProgressAt },
   };
@@ -114,7 +181,7 @@ function createInitialState({ scenarioId, startSnapshotId = "new_run" }) {
     assistantProductionObserved: false,
     assistantPostMilestoneProductionObserved: false,
     assistantLevel: 0,
-    assistantMaxLevel: PARAMS.PARAM_ASSISTANT_MAX_LEVEL,
+    assistantMaxLevel: activeParams.PARAM_ASSISTANT_MAX_LEVEL,
     assistantSupportsOwned: new Set(),
     assistantMilestonesReached: new Set(),
     endpointCompleted: false,
@@ -122,6 +189,7 @@ function createInitialState({ scenarioId, startSnapshotId = "new_run" }) {
     purchaseActionCount: 0,
     meaningfulPurchaseDecisionCount: 0,
     meaningfulDecisionSignatureLast: "",
+    meaningfulDecisionSignaturesSeen: new Set(),
     materialStateChangeSinceLastDecision: true,
     unlockEvents: [],
     milestoneEvents: [],
@@ -318,17 +386,17 @@ function buyPromotion(state) {
 }
 
 function assistantNextLevelCostFor(level, supportsOwned) {
-  if (level >= PARAMS.PARAM_ASSISTANT_MAX_LEVEL) {
-    return f(PARAMS.PARAM_SAFE_MAX_COST_VALUE);
+  if (level >= activeParams.PARAM_ASSISTANT_MAX_LEVEL) {
+    return f(activeParams.PARAM_SAFE_MAX_COST_VALUE);
   }
 
   const nextLevel = level + 1;
   const base =
-    PARAMS.PARAM_ASSISTANT_LEVEL_BASE_COST *
-      PARAMS.PARAM_ASSISTANT_LEVEL_COST_GROWTH ** (nextLevel - 1) +
-    PARAMS.PARAM_ASSISTANT_LEVEL_LINEAR_COST * (nextLevel - 1);
+    activeParams.PARAM_ASSISTANT_LEVEL_BASE_COST *
+      activeParams.PARAM_ASSISTANT_LEVEL_COST_GROWTH ** (nextLevel - 1) +
+    activeParams.PARAM_ASSISTANT_LEVEL_LINEAR_COST * (nextLevel - 1);
   const discount = supportsOwned.has(SUPPORTS.training)
-    ? PARAMS.PARAM_SUPPORT_TRAINING_COST_MULTIPLIER
+    ? activeParams.PARAM_SUPPORT_TRAINING_COST_MULTIPLIER
     : 1;
 
   return Fixed.currency(base * discount, SCALE);
@@ -344,15 +412,15 @@ export function assistantRate(state) {
   }
 
   const levelAdditive =
-    PARAMS.PARAM_ASSISTANT_BASE_BUGS_PER_SECOND +
-    state.assistantLevel * PARAMS.PARAM_ASSISTANT_BUGS_PER_SECOND_PER_LEVEL;
+    activeParams.PARAM_ASSISTANT_BASE_BUGS_PER_SECOND +
+    state.assistantLevel * activeParams.PARAM_ASSISTANT_BUGS_PER_SECOND_PER_LEVEL;
   const supportAdditive = state.assistantSupportsOwned.has(SUPPORTS.immediate)
-    ? PARAMS.PARAM_SUPPORT_IMMEDIATE_ADD_BUGS_PER_SECOND
+    ? activeParams.PARAM_SUPPORT_IMMEDIATE_ADD_BUGS_PER_SECOND
     : 0;
   const milestoneMultiplier = state.assistantMilestonesReached.has(
     "milestone_assistant_first",
   )
-    ? PARAMS.PARAM_FIRST_MILESTONE_PRODUCTION_MULTIPLIER
+    ? activeParams.PARAM_FIRST_MILESTONE_PRODUCTION_MULTIPLIER
     : 1;
 
   return f(levelAdditive + supportAdditive).mul(f(milestoneMultiplier));
@@ -361,21 +429,21 @@ export function assistantRate(state) {
 function crossedMilestones(previousLevel, newLevel) {
   const milestones = [];
   if (
-    previousLevel < PARAMS.PARAM_FIRST_MILESTONE_LEVEL &&
-    newLevel >= PARAMS.PARAM_FIRST_MILESTONE_LEVEL
+    previousLevel < activeParams.PARAM_FIRST_MILESTONE_LEVEL &&
+    newLevel >= activeParams.PARAM_FIRST_MILESTONE_LEVEL
   ) {
     milestones.push({
       id: "milestone_assistant_first",
-      level: PARAMS.PARAM_FIRST_MILESTONE_LEVEL,
+      level: activeParams.PARAM_FIRST_MILESTONE_LEVEL,
     });
   }
   if (
-    previousLevel < PARAMS.PARAM_CAPSTONE_MILESTONE_LEVEL &&
-    newLevel >= PARAMS.PARAM_CAPSTONE_MILESTONE_LEVEL
+    previousLevel < activeParams.PARAM_CAPSTONE_MILESTONE_LEVEL &&
+    newLevel >= activeParams.PARAM_CAPSTONE_MILESTONE_LEVEL
   ) {
     milestones.push({
       id: "milestone_assistant_capstone",
-      level: PARAMS.PARAM_CAPSTONE_MILESTONE_LEVEL,
+      level: activeParams.PARAM_CAPSTONE_MILESTONE_LEVEL,
     });
   }
   return milestones;
@@ -395,7 +463,7 @@ function applyMilestones(state, previousLevel, newLevel) {
 function buyAssistantLevelOne(state) {
   if (
     !state.assistantUnlocked ||
-    state.assistantLevel >= PARAMS.PARAM_ASSISTANT_MAX_LEVEL
+    state.assistantLevel >= activeParams.PARAM_ASSISTANT_MAX_LEVEL
   ) {
     return false;
   }
@@ -435,7 +503,7 @@ function buyAssistantLevelMax(state) {
   let levelsToBuy = 0;
   let totalCost = f(0);
 
-  while (simulatedLevel < PARAMS.PARAM_ASSISTANT_MAX_LEVEL) {
+  while (simulatedLevel < activeParams.PARAM_ASSISTANT_MAX_LEVEL) {
     const cost = assistantNextLevelCostFor(simulatedLevel, state.assistantSupportsOwned);
     if (simulatedMoney.lt(cost)) {
       break;
@@ -471,8 +539,12 @@ function buyAssistantLevelMax(state) {
 }
 
 function supportPrice(supportId) {
-  const support = SUPPORT_DEFINITIONS.find((definition) => definition.id === supportId);
-  return support ? f(PARAMS[support.priceParam]) : f(PARAMS.PARAM_SAFE_MAX_COST_VALUE);
+  const support = activeSupportDefinitions().find(
+    (definition) => definition.id === supportId,
+  );
+  return support
+    ? f(activeParams[support.priceParam])
+    : f(activeParams.PARAM_SAFE_MAX_COST_VALUE);
 }
 
 function unlockedSupportIds(state) {
@@ -480,9 +552,9 @@ function unlockedSupportIds(state) {
     return [];
   }
 
-  return SUPPORT_DEFINITIONS.filter(
-    (support) => state.assistantLevel >= support.unlockLevel,
-  ).map((support) => support.id);
+  return activeSupportDefinitions()
+    .filter((support) => state.assistantLevel >= support.unlockLevel)
+    .map((support) => support.id);
 }
 
 function buySupport(state, supportId) {
@@ -558,13 +630,13 @@ function advanceOnline(state, seconds) {
 function advanceOffline(state, elapsedOfflineSeconds) {
   const eligibleSeconds = Math.min(
     elapsedOfflineSeconds,
-    PARAMS.PARAM_OFFLINE_TIME_CAP_SECONDS,
+    activeParams.PARAM_OFFLINE_TIME_CAP_SECONDS,
   );
   const beforeBugs = state.bugsFound;
   const beforeMoney = state.money;
   const efficiency = state.assistantSupportsOwned.has(SUPPORTS.offline)
-    ? PARAMS.PARAM_OFFLINE_EFFICIENCY_WITH_SUPPORT
-    : PARAMS.PARAM_OFFLINE_EFFICIENCY_BASE;
+    ? activeParams.PARAM_OFFLINE_EFFICIENCY_WITH_SUPPORT
+    : activeParams.PARAM_OFFLINE_EFFICIENCY_BASE;
   const gained = assistantRate(state).mul(f(eligibleSeconds)).mul(f(efficiency));
 
   state.simulationTimeSeconds += elapsedOfflineSeconds;
@@ -593,7 +665,7 @@ function checkEndpoint(state) {
     state.promotionCompleted &&
     state.assistantUnlocked &&
     state.assistantProductionObserved &&
-    state.assistantLevel >= PARAMS.PARAM_ENDPOINT_ASSISTANT_LEVEL_TARGET &&
+    state.assistantLevel >= activeParams.PARAM_ENDPOINT_ASSISTANT_LEVEL_TARGET &&
     state.assistantMilestonesReached.has("milestone_assistant_first") &&
     state.assistantPostMilestoneProductionObserved
   ) {
@@ -611,7 +683,7 @@ function availablePurchaseOptions(state) {
   const options = [];
   if (
     state.assistantUnlocked &&
-    state.assistantLevel < PARAMS.PARAM_ASSISTANT_MAX_LEVEL
+    state.assistantLevel < activeParams.PARAM_ASSISTANT_MAX_LEVEL
   ) {
     options.push({
       category: "assistant_level",
@@ -631,7 +703,8 @@ function availablePurchaseOptions(state) {
 
 export function moneyAcquisitionRatePerSecond(state, policy) {
   const manualInterval =
-    policy?.manualInterval ?? PARAMS.PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS;
+    policy?.manualInterval ??
+    activeParams.PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS;
   const manualBugsPerSecond =
     manualInterval > 0 ? manualBugsPerAction(state).toNumber() / manualInterval : 0;
   const passiveBugsPerSecond = assistantRate(state).toNumber();
@@ -672,11 +745,11 @@ function evaluateMeaningfulDecision(state, policy = state.scenarioPolicy) {
     }
     const needed = option.cost.sub(state.money).toNumber();
     return (
-      moneyRate > 0 && needed / moneyRate <= PARAMS.PARAM_DECISION_NEAR_AFFORD_SECONDS
+      moneyRate > 0 &&
+      needed / moneyRate <= activeParams.PARAM_DECISION_NEAR_AFFORD_SECONDS
     );
   });
 
-  const visibleCategories = options.map((option) => option.category).sort();
   const affordableCategories = viable
     .filter((option) => state.money.gte(option.cost))
     .map((option) => option.category)
@@ -698,18 +771,21 @@ function evaluateMeaningfulDecision(state, policy = state.scenarioPolicy) {
     }))
     .sort((left, right) => left.rank - right.rank || left.cost - right.cost)
     .map((option) => option.category);
-  const signature = hashObject({
-    visible: visibleCategories,
+  const signature = strategicDecisionSignatureForTest({
+    viableCategories: [...viableCategories],
+    affordableCategories,
+    nearAffordableCategories,
     strategicOrdering: orderedCategories,
     supportsOwned: [...state.assistantSupportsOwned].sort(),
     milestonesReached: [...state.assistantMilestonesReached].sort(),
   });
 
-  if (signature === state.meaningfulDecisionSignatureLast) {
+  if (state.meaningfulDecisionSignaturesSeen.has(signature)) {
     return;
   }
 
   state.meaningfulDecisionSignatureLast = signature;
+  state.meaningfulDecisionSignaturesSeen.add(signature);
   state.meaningfulPurchaseDecisionCount += 1;
   state.materialStateChangeSinceLastDecision = false;
   const event = recordEvent(state, "meaningful_purchase_decision", {
@@ -724,8 +800,8 @@ function evaluateMeaningfulDecision(state, policy = state.scenarioPolicy) {
 }
 
 function runJuniorBaseline({
-  manualInterval = PARAMS.PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS,
-  reportInterval = PARAMS.PARAM_JUNIOR_BASELINE_REPORT_INTERVAL_SECONDS,
+  manualInterval = activeParams.PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS,
+  reportInterval = activeParams.PARAM_JUNIOR_BASELINE_REPORT_INTERVAL_SECONDS,
 } = {}) {
   validateJuniorBaselineSnapshot();
   const state = createInitialState({ scenarioId: "scenario_junior_baseline" });
@@ -773,7 +849,7 @@ function runJuniorBaseline({
 function supportPaybackSeconds(state, supportId) {
   const price = supportPrice(supportId).toNumber();
   if (supportId === SUPPORTS.immediate) {
-    return price / PARAMS.PARAM_SUPPORT_IMMEDIATE_ADD_BUGS_PER_SECOND;
+    return price / activeParams.PARAM_SUPPORT_IMMEDIATE_ADD_BUGS_PER_SECOND;
   }
   if (supportId === SUPPORTS.training) {
     const nextCosts = [0, 1, 2, 3, 4].map(
@@ -790,11 +866,33 @@ function supportPaybackSeconds(state, supportId) {
   return 1800;
 }
 
+function estimateSupportEndpointUtilitySeconds(state, supportId) {
+  const beforeEndpointEstimate = estimateEndpointSeconds(state, state.scenarioPolicy);
+  if (beforeEndpointEstimate === null) {
+    return null;
+  }
+  const cost = supportPrice(supportId);
+  if (state.money.lt(cost)) {
+    return null;
+  }
+  const projected = cloneState(state);
+  projected.money = projected.money.sub(cost);
+  projected.assistantSupportsOwned.add(supportId);
+  const afterEndpointEstimate = estimateEndpointSeconds(
+    projected,
+    projected.scenarioPolicy,
+  );
+  if (afterEndpointEstimate === null) {
+    return null;
+  }
+  return Number((beforeEndpointEstimate - afterEndpointEstimate).toFixed(3));
+}
+
 function estimateEndpointSeconds(state, policy = state.scenarioPolicy) {
   if (!state.assistantUnlocked) {
     return null;
   }
-  if (state.assistantLevel >= PARAMS.PARAM_ENDPOINT_ASSISTANT_LEVEL_TARGET) {
+  if (state.assistantLevel >= activeParams.PARAM_ENDPOINT_ASSISTANT_LEVEL_TARGET) {
     return 0;
   }
 
@@ -808,7 +906,7 @@ function estimateEndpointSeconds(state, policy = state.scenarioPolicy) {
     return null;
   }
 
-  while (level < PARAMS.PARAM_ENDPOINT_ASSISTANT_LEVEL_TARGET) {
+  while (level < activeParams.PARAM_ENDPOINT_ASSISTANT_LEVEL_TARGET) {
     const cost = assistantNextLevelCostFor(level, supportsOwned);
     if (money.lt(cost)) {
       const waitSeconds = (cost.toNumber() - money.toNumber()) / moneyRate;
@@ -851,7 +949,16 @@ function choosePurchase(state, strategyId) {
         supportId === SUPPORTS.immediate ||
         (supportId === SUPPORTS.training && state.assistantLevel >= 3) ||
         (supportId === SUPPORTS.offline && state.scenarioId.includes("offline"));
-      if (isStrategic && payback <= 1200 && buySupport(state, supportId)) {
+      const endpointUtility = estimateSupportEndpointUtilitySeconds(state, supportId);
+      const hasRationalEndpointUtility = endpointUtility !== null && endpointUtility >= 0;
+      const hasScenarioObjective =
+        supportId === SUPPORTS.offline && state.scenarioId.includes("offline");
+      if (
+        isStrategic &&
+        payback <= 1200 &&
+        (hasRationalEndpointUtility || hasScenarioObjective) &&
+        buySupport(state, supportId)
+      ) {
         return true;
       }
     }
@@ -866,7 +973,7 @@ function previewBuyMaxLevels(state) {
   let simulatedMoney = state.money;
   let levelsToBuy = 0;
 
-  while (simulatedLevel < PARAMS.PARAM_ASSISTANT_MAX_LEVEL) {
+  while (simulatedLevel < activeParams.PARAM_ASSISTANT_MAX_LEVEL) {
     const cost = assistantNextLevelCostFor(simulatedLevel, state.assistantSupportsOwned);
     if (simulatedMoney.lt(cost)) {
       break;
@@ -882,8 +989,8 @@ function runMiddleScenario({
   scenarioId,
   strategyId,
   postPromotionState,
-  manualInterval = PARAMS.PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS,
-  reportInterval = PARAMS.PARAM_BASELINE_MIDDLE_REPORT_INTERVAL_SECONDS,
+  manualInterval = activeParams.PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS,
+  reportInterval = activeParams.PARAM_BASELINE_MIDDLE_REPORT_INTERVAL_SECONDS,
   cadenceProfile = "middle_baseline",
   useBuyMax = false,
   offlineMode = "none",
@@ -908,6 +1015,7 @@ function runMiddleScenario({
   state.supportPurchaseAnalysis = [];
   state.meaningfulPurchaseDecisionCount = 0;
   state.meaningfulDecisionSignatureLast = "";
+  state.meaningfulDecisionSignaturesSeen = new Set();
   state.materialStateChangeSinceLastDecision = true;
   state.lastProgressAt = {
     purchase: state.simulationTimeSeconds,
@@ -930,7 +1038,7 @@ function runMiddleScenario({
 
   if (offlineMode === "unsupported") {
     state.preOfflineOnlineSeconds = state.onlineGameplaySeconds;
-    advanceOffline(state, PARAMS.PARAM_OFFLINE_TIME_CAP_SECONDS + 1800);
+    advanceOffline(state, activeParams.PARAM_OFFLINE_TIME_CAP_SECONDS + 1800);
     reportAll(state, { offlineReturnReport: true });
   }
 
@@ -961,11 +1069,11 @@ function runMiddleScenario({
     if (
       offlineMode === "supported" &&
       state.wallClockOfflineElapsedSeconds === 0 &&
-      state.assistantLevel >= PARAMS.PARAM_SUPPORT_OFFLINE_UNLOCK_LEVEL &&
+      state.assistantLevel >= activeParams.PARAM_SUPPORT_OFFLINE_UNLOCK_LEVEL &&
       state.assistantSupportsOwned.has(SUPPORTS.offline)
     ) {
       state.preOfflineOnlineSeconds = state.onlineGameplaySeconds;
-      advanceOffline(state, PARAMS.PARAM_OFFLINE_TIME_CAP_SECONDS + 1800);
+      advanceOffline(state, activeParams.PARAM_OFFLINE_TIME_CAP_SECONDS + 1800);
       reportAll(state, { offlineReturnReport: true });
       nextManual = state.simulationTimeSeconds + manualInterval;
       nextReport = state.simulationTimeSeconds + reportInterval;
@@ -1000,6 +1108,7 @@ function runControlledBuyMaxMilestoneScenario(postPromotionState) {
   state.purchaseActionCount = 0;
   state.meaningfulPurchaseDecisionCount = 0;
   state.meaningfulDecisionSignatureLast = "";
+  state.meaningfulDecisionSignaturesSeen = new Set();
   state.onlineGameplaySeconds = 0;
   state.preOfflineOnlineSeconds = 0;
   state.postReturnOnlineSeconds = 0;
@@ -1012,15 +1121,15 @@ function runControlledBuyMaxMilestoneScenario(postPromotionState) {
     endpoint: state.simulationTimeSeconds,
     decision: state.simulationTimeSeconds,
   };
-  state.assistantLevel = PARAMS.PARAM_FIRST_MILESTONE_LEVEL - 2;
+  state.assistantLevel = activeParams.PARAM_FIRST_MILESTONE_LEVEL - 2;
   state.assistantMilestonesReached = new Set();
   state.assistantProductionObserved = true;
   state.assistantPostMilestoneProductionObserved = false;
   state.endpointCompleted = false;
   state.capstoneReached = false;
   state.scenarioPolicy = {
-    manualInterval: PARAMS.PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS,
-    reportInterval: PARAMS.PARAM_BASELINE_MIDDLE_REPORT_INTERVAL_SECONDS,
+    manualInterval: activeParams.PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS,
+    reportInterval: activeParams.PARAM_BASELINE_MIDDLE_REPORT_INTERVAL_SECONDS,
     cadenceProfile: "controlled_buy_max",
   };
 
@@ -1041,15 +1150,126 @@ function runControlledBuyMaxMilestoneScenario(postPromotionState) {
   return state;
 }
 
+function createControlledOfflineReferenceState(postPromotionState) {
+  const state = cloneState(postPromotionState);
+  state.scenarioId = "controlled_offline_handover_reference";
+  state.scenarioStartSnapshotId =
+    "controlled-offline-" + postPromotionState.juniorBaselineSnapshotHash.slice(0, 12);
+  state.eventLog = [];
+  state.unlockEvents = [];
+  state.milestoneEvents = [];
+  state.endpointEvents = [];
+  state.offlineSessions = [];
+  state.meaningfulDecisionEvents = [];
+  state.purchaseActionEvents = [];
+  state.supportPurchaseAnalysis = [];
+  state.meaningfulDecisionSignaturesSeen = new Set();
+  state.purchaseActionCount = 0;
+  state.meaningfulPurchaseDecisionCount = 0;
+  state.meaningfulDecisionSignatureLast = "";
+  state.onlineGameplaySeconds = 0;
+  state.preOfflineOnlineSeconds = 0;
+  state.postReturnOnlineSeconds = 0;
+  state.wallClockOfflineElapsedSeconds = 0;
+  state.materialStateChangeSinceLastDecision = true;
+  state.lastProgressAt = {
+    purchase: state.simulationTimeSeconds,
+    unlock: state.simulationTimeSeconds,
+    milestone: state.simulationTimeSeconds,
+    endpoint: state.simulationTimeSeconds,
+    decision: state.simulationTimeSeconds,
+  };
+  state.assistantLevel = activeParams.PARAM_SUPPORT_OFFLINE_UNLOCK_LEVEL;
+  state.assistantSupportsOwned = new Set([SUPPORTS.immediate, SUPPORTS.training]);
+  state.assistantMilestonesReached = new Set();
+  state.assistantProductionObserved = true;
+  state.assistantPostMilestoneProductionObserved = false;
+  state.endpointCompleted = false;
+  state.capstoneReached = false;
+  state.money = supportPrice(SUPPORTS.offline).add(f(100));
+  state.bugsFound = f(0);
+  state.totalBugsFound = f(1000);
+  state.totalMoneyEarned = f(1000);
+  state.scenarioPolicy = {
+    manualInterval: activeParams.PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS,
+    reportInterval: activeParams.PARAM_BASELINE_MIDDLE_REPORT_INTERVAL_SECONDS,
+    cadenceProfile: "controlled_offline_handover",
+  };
+
+  return state;
+}
+
+function runControlledOfflineSupportComparison(postPromotionState) {
+  const reference = createControlledOfflineReferenceState(postPromotionState);
+  const baseOnlineRate = assistantRate(reference);
+  const withoutHandover = cloneState(reference);
+  withoutHandover.scenarioId = "controlled_offline_without_handover";
+  advanceOffline(withoutHandover, activeParams.PARAM_OFFLINE_TIME_CAP_SECONDS);
+
+  const withHandover = cloneState(reference);
+  withHandover.scenarioId = "controlled_offline_with_handover";
+  const purchaseSucceeded = buySupport(withHandover, SUPPORTS.offline);
+  advanceOffline(withHandover, activeParams.PARAM_OFFLINE_TIME_CAP_SECONDS);
+
+  const withoutGain = Number(withoutHandover.offlineSessions[0]?.bugsFoundGained ?? 0);
+  const withGain = Number(withHandover.offlineSessions[0]?.bugsFoundGained ?? 0);
+  const normalizedImprovementRatio = withoutGain === 0 ? null : withGain / withoutGain;
+  const expectedRatio =
+    activeParams.PARAM_OFFLINE_EFFICIENCY_WITH_SUPPORT /
+    activeParams.PARAM_OFFLINE_EFFICIENCY_BASE;
+  const ratioDelta =
+    normalizedImprovementRatio === null
+      ? Number.POSITIVE_INFINITY
+      : Math.abs(normalizedImprovementRatio - expectedRatio);
+
+  return {
+    comparison_id: "controlled_offline_handover_isolated",
+    reference_assistant_level: reference.assistantLevel,
+    reference_money: reference.money.toString(),
+    reference_bugs_found: reference.bugsFound.toString(),
+    reference_total_bugs_found: reference.totalBugsFound.toString(),
+    reference_total_money_earned: reference.totalMoneyEarned.toString(),
+    reference_supports_before_fork: [...reference.assistantSupportsOwned].sort(),
+    base_online_production_rate: baseOnlineRate.toString(),
+    purchase_succeeded: purchaseSucceeded,
+    without_handover: {
+      offline_efficiency: activeParams.PARAM_OFFLINE_EFFICIENCY_BASE,
+      eligible_seconds: withoutHandover.offlineSessions[0]?.eligibleSeconds ?? 0,
+      bugs_found_gained: withoutGain,
+      assistant_level: withoutHandover.assistantLevel,
+      supports_owned: [...withoutHandover.assistantSupportsOwned].sort(),
+    },
+    with_handover: {
+      offline_efficiency: activeParams.PARAM_OFFLINE_EFFICIENCY_WITH_SUPPORT,
+      eligible_seconds: withHandover.offlineSessions[0]?.eligibleSeconds ?? 0,
+      bugs_found_gained: withGain,
+      assistant_level: withHandover.assistantLevel,
+      supports_owned: [...withHandover.assistantSupportsOwned].sort(),
+    },
+    normalized_improvement_ratio: normalizedImprovementRatio,
+    expected_ratio_from_efficiency_values: expectedRatio,
+    tolerance: OFFLINE_RATIO_TOLERANCE,
+    pass:
+      purchaseSucceeded &&
+      reference.assistantLevel === withoutHandover.assistantLevel &&
+      withoutHandover.assistantLevel === withHandover.assistantLevel &&
+      ratioDelta <= OFFLINE_RATIO_TOLERANCE,
+  };
+}
+
 function stallWindows(state, juniorPhaseSeconds = 0) {
-  const progressEvents = state.eventLog.filter((event) =>
-    [
-      "purchase_action",
-      "unlock_event",
-      "milestone_event",
-      "endpoint_event",
-      "meaningful_purchase_decision",
-    ].includes(event.category),
+  const endpointOnlineSeconds =
+    state.endpointEvents[0]?.onlineSeconds ?? state.onlineGameplaySeconds;
+  const progressEvents = state.eventLog.filter(
+    (event) =>
+      [
+        "purchase_action",
+        "unlock_event",
+        "milestone_event",
+        "endpoint_event",
+        "meaningful_purchase_decision",
+      ].includes(event.category) &&
+      (event.onlineSeconds ?? event.timeSeconds) <= endpointOnlineSeconds,
   );
   let last = 0;
   let max = 0;
@@ -1058,9 +1278,33 @@ function stallWindows(state, juniorPhaseSeconds = 0) {
     max = Math.max(max, eventOnlineSeconds - last);
     last = eventOnlineSeconds;
   }
-  max = Math.max(max, state.onlineGameplaySeconds - last);
+  max = Math.max(max, endpointOnlineSeconds - last);
+  const postEndpointProgressEvents = state.eventLog.filter((event) => {
+    const eventOnlineSeconds = event.onlineSeconds ?? event.timeSeconds;
+
+    return (
+      eventOnlineSeconds > endpointOnlineSeconds &&
+      [
+        "purchase_action",
+        "unlock_event",
+        "milestone_event",
+        "meaningful_purchase_decision",
+      ].includes(event.category)
+    );
+  });
+  let capstoneLast = endpointOnlineSeconds;
+  let capstoneMax = 0;
+  for (const event of postEndpointProgressEvents) {
+    const eventOnlineSeconds = event.onlineSeconds ?? event.timeSeconds;
+    capstoneMax = Math.max(capstoneMax, eventOnlineSeconds - capstoneLast);
+    capstoneLast = eventOnlineSeconds;
+  }
+  capstoneMax = Math.max(capstoneMax, state.onlineGameplaySeconds - capstoneLast);
+
   return {
     maxSeconds: max,
+    endpointMaxSeconds: max,
+    capstonePostEndpointMaxSeconds: state.capstoneReached ? capstoneMax : 0,
     phaseSeconds:
       state.scenarioId === "scenario_junior_baseline"
         ? juniorPhaseSeconds
@@ -1081,7 +1325,7 @@ function summarizeScenario(state, strategyId, juniorPhaseSeconds = 0) {
   return {
     scenario_id: state.scenarioId,
     strategy_id: strategyId,
-    parameter_version: PARAMETER_VERSION,
+    parameter_version: activeParameterVersion,
     junior_baseline_version: state.juniorBaselineVersion,
     junior_baseline_source_commit: state.juniorBaselineSourceCommit,
     junior_baseline_snapshot_hash: state.juniorBaselineSnapshotHash,
@@ -1161,7 +1405,7 @@ function gate(
   };
 }
 
-function evaluateGates(scenarios) {
+function evaluateGates(scenarios, controlledOfflineComparison) {
   const byId = new Map(scenarios.map((scenario) => [scenario.scenario_id, scenario]));
   const junior = byId.get("scenario_junior_baseline");
   const mixed = byId.get("scenario_mixed");
@@ -1204,8 +1448,8 @@ function evaluateGates(scenarios) {
       "scenario_junior_baseline",
       "480-720 seconds",
       junior.junior_phase_seconds,
-      junior.junior_phase_seconds >= PARAMS.PARAM_JUNIOR_DURATION_MIN_SECONDS &&
-        junior.junior_phase_seconds <= PARAMS.PARAM_JUNIOR_DURATION_MAX_SECONDS,
+      junior.junior_phase_seconds >= activeParams.PARAM_JUNIOR_DURATION_MIN_SECONDS &&
+        junior.junior_phase_seconds <= activeParams.PARAM_JUNIOR_DURATION_MAX_SECONDS,
       "Major",
       "group_manual",
       "Junior baseline uses explicit simulator cadence parameters against current slice data.",
@@ -1216,9 +1460,9 @@ function evaluateGates(scenarios) {
       "gate_junior_baseline_cadence_validity",
       "scenario_junior_baseline",
       "explicit positive Junior baseline manual/report cadence",
-      `manual ${PARAMS.PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS}s, report ${PARAMS.PARAM_JUNIOR_BASELINE_REPORT_INTERVAL_SECONDS}s`,
-      PARAMS.PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS > 0 &&
-        PARAMS.PARAM_JUNIOR_BASELINE_REPORT_INTERVAL_SECONDS > 0,
+      `manual ${activeParams.PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS}s, report ${activeParams.PARAM_JUNIOR_BASELINE_REPORT_INTERVAL_SECONDS}s`,
+      activeParams.PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS > 0 &&
+        activeParams.PARAM_JUNIOR_BASELINE_REPORT_INTERVAL_SECONDS > 0,
       "Blocker",
       "group_manual_cadence",
       "Junior baseline cadence is parameterized rather than hard-coded.",
@@ -1230,8 +1474,8 @@ function evaluateGates(scenarios) {
       "scenario_mixed",
       "900-1500 seconds after promotion",
       mixed.middle_phase_seconds,
-      mixed.middle_phase_seconds >= PARAMS.PARAM_MIDDLE_DURATION_MIN_SECONDS &&
-        mixed.middle_phase_seconds <= PARAMS.PARAM_MIDDLE_DURATION_MAX_SECONDS,
+      mixed.middle_phase_seconds >= activeParams.PARAM_MIDDLE_DURATION_MIN_SECONDS &&
+        mixed.middle_phase_seconds <= activeParams.PARAM_MIDDLE_DURATION_MAX_SECONDS,
       "Blocker",
       "group_assistant_cost",
       "Mixed strategy Middle endpoint time from shared post-promotion snapshot.",
@@ -1244,9 +1488,9 @@ function evaluateGates(scenarios) {
       "1500-2400 seconds",
       junior.junior_phase_seconds + mixed.middle_phase_seconds,
       junior.junior_phase_seconds + mixed.middle_phase_seconds >=
-        PARAMS.PARAM_TOTAL_DURATION_MIN_SECONDS &&
+        activeParams.PARAM_TOTAL_DURATION_MIN_SECONDS &&
         junior.junior_phase_seconds + mixed.middle_phase_seconds <=
-          PARAMS.PARAM_TOTAL_DURATION_MAX_SECONDS,
+          activeParams.PARAM_TOTAL_DURATION_MAX_SECONDS,
       "Blocker",
       "group_cost",
       "Combined accepted Junior baseline and mixed Middle endpoint time.",
@@ -1259,9 +1503,9 @@ function evaluateGates(scenarios) {
       "10-16 purchase actions",
       mixed.purchase_action_count + junior.purchase_action_count,
       mixed.purchase_action_count + junior.purchase_action_count >=
-        PARAMS.PARAM_PURCHASE_ACTIONS_MIN &&
+        activeParams.PARAM_PURCHASE_ACTIONS_MIN &&
         mixed.purchase_action_count + junior.purchase_action_count <=
-          PARAMS.PARAM_PURCHASE_ACTIONS_MAX,
+          activeParams.PARAM_PURCHASE_ACTIONS_MAX,
       "Major",
       "group_cost",
       "Counts Junior upgrades/promotion plus Middle purchases.",
@@ -1273,8 +1517,10 @@ function evaluateGates(scenarios) {
       "scenario_mixed",
       "3-5 decisions, deduped",
       mixed.meaningful_purchase_decision_count,
-      mixed.meaningful_purchase_decision_count >= PARAMS.PARAM_MEANINGFUL_DECISIONS_MIN &&
-        mixed.meaningful_purchase_decision_count <= PARAMS.PARAM_MEANINGFUL_DECISIONS_MAX,
+      mixed.meaningful_purchase_decision_count >=
+        activeParams.PARAM_MEANINGFUL_DECISIONS_MIN &&
+        mixed.meaningful_purchase_decision_count <=
+          activeParams.PARAM_MEANINGFUL_DECISIONS_MAX,
       "Major",
       "group_decisions",
       "Meaningful decisions are signature-deduped after material state changes.",
@@ -1287,7 +1533,7 @@ function evaluateGates(scenarios) {
       "<= 1500 seconds after promotion",
       lowClick.middle_phase_seconds,
       lowClick.endpoint_completed &&
-        lowClick.middle_phase_seconds <= PARAMS.PARAM_LOW_CLICK_MIDDLE_MAX_SECONDS,
+        lowClick.middle_phase_seconds <= activeParams.PARAM_LOW_CLICK_MIDDLE_MAX_SECONDS,
       "Blocker",
       "group_passive_baseline",
       "Low-click scenario must complete from the common post-promotion snapshot.",
@@ -1330,7 +1576,7 @@ function evaluateGates(scenarios) {
     gate(
       "gate_offline_cap",
       "offline scenarios",
-      `<= ${PARAMS.PARAM_OFFLINE_TIME_CAP_SECONDS} eligible seconds`,
+      `<= ${activeParams.PARAM_OFFLINE_TIME_CAP_SECONDS} eligible seconds`,
       Math.max(
         offlineUnsupported.offline_eligible_seconds_total,
         offlineSupported.offline_eligible_seconds_total,
@@ -1338,7 +1584,7 @@ function evaluateGates(scenarios) {
       Math.max(
         offlineUnsupported.offline_eligible_seconds_total,
         offlineSupported.offline_eligible_seconds_total,
-      ) <= PARAMS.PARAM_OFFLINE_TIME_CAP_SECONDS,
+      ) <= activeParams.PARAM_OFFLINE_TIME_CAP_SECONDS,
       "Blocker",
       "group_offline",
       "Offline elapsed time is capped before production is calculated.",
@@ -1365,8 +1611,8 @@ function evaluateGates(scenarios) {
   const buyMaxGenuine =
     buyMax.purchase_action_count === 1 &&
     buyMaxPurchase?.levelsPurchased >= 2 &&
-    buyMaxPurchase.previousLevel < PARAMS.PARAM_FIRST_MILESTONE_LEVEL &&
-    buyMaxPurchase.newLevel >= PARAMS.PARAM_FIRST_MILESTONE_LEVEL &&
+    buyMaxPurchase.previousLevel < activeParams.PARAM_FIRST_MILESTONE_LEVEL &&
+    buyMaxPurchase.newLevel >= activeParams.PARAM_FIRST_MILESTONE_LEVEL &&
     buyMax.endpoint_completed &&
     buyMaxHasMilestone;
   results.push(
@@ -1420,7 +1666,7 @@ function evaluateGates(scenarios) {
         .every(
           (scenario) =>
             (scenario.middle_phase_seconds - best) / scenario.middle_phase_seconds >
-            PARAMS.PARAM_DOMINANT_STRATEGY_MAX_ADVANTAGE_RATIO,
+            activeParams.PARAM_DOMINANT_STRATEGY_MAX_ADVANTAGE_RATIO,
         ),
   );
   results.push(
@@ -1451,10 +1697,10 @@ function evaluateGates(scenarios) {
   );
   const safe = scenarios.every(
     (scenario) =>
-      Number(scenario.max_bugs_found) <= PARAMS.PARAM_SAFE_MAX_RESOURCE_VALUE &&
-      Number(scenario.max_money) <= PARAMS.PARAM_SAFE_MAX_RESOURCE_VALUE &&
-      Number(scenario.max_assistant_rate) <= PARAMS.PARAM_SAFE_MAX_RATE_VALUE &&
-      Number(scenario.max_level_cost) <= PARAMS.PARAM_SAFE_MAX_COST_VALUE,
+      Number(scenario.max_bugs_found) <= activeParams.PARAM_SAFE_MAX_RESOURCE_VALUE &&
+      Number(scenario.max_money) <= activeParams.PARAM_SAFE_MAX_RESOURCE_VALUE &&
+      Number(scenario.max_assistant_rate) <= activeParams.PARAM_SAFE_MAX_RATE_VALUE &&
+      Number(scenario.max_level_cost) <= activeParams.PARAM_SAFE_MAX_COST_VALUE,
   );
   results.push(
     gate(
@@ -1516,16 +1762,19 @@ function evaluateGates(scenarios) {
       "Every required Middle endpoint scenario must complete.",
     ),
   );
+  const stallGateScenarios = scenarios.filter(
+    (scenario) => scenario.scenario_id !== "scenario_full_run_low_engagement_info",
+  );
   const maxStall = Math.max(
-    ...scenarios.map((scenario) => scenario.stall_windows.maxSeconds),
+    ...stallGateScenarios.map((scenario) => scenario.stall_windows.maxSeconds),
   );
   results.push(
     gate(
       "gate_maximum_stall_window",
       "all",
-      `<= ${PARAMS.PARAM_MAX_STALL_SECONDS}s`,
+      `<= ${activeParams.PARAM_MAX_STALL_SECONDS}s`,
       maxStall,
-      maxStall <= PARAMS.PARAM_MAX_STALL_SECONDS,
+      maxStall <= activeParams.PARAM_MAX_STALL_SECONDS,
       "Major",
       "group_stall",
       "Checks the maximum recorded stall window across all scenarios.",
@@ -1535,12 +1784,13 @@ function evaluateGates(scenarios) {
     gate(
       "gate_phase_specific_stalls",
       "Junior and Middle phases",
-      `each scenario stall <= ${PARAMS.PARAM_MAX_STALL_SECONDS}s`,
-      scenarios
+      `each scenario stall <= ${activeParams.PARAM_MAX_STALL_SECONDS}s`,
+      stallGateScenarios
         .map((scenario) => `${scenario.scenario_id}:${scenario.stall_windows.maxSeconds}`)
         .join("; "),
-      scenarios.every(
-        (scenario) => scenario.stall_windows.maxSeconds <= PARAMS.PARAM_MAX_STALL_SECONDS,
+      stallGateScenarios.every(
+        (scenario) =>
+          scenario.stall_windows.maxSeconds <= activeParams.PARAM_MAX_STALL_SECONDS,
       ),
       "Major",
       "group_stall",
@@ -1551,10 +1801,10 @@ function evaluateGates(scenarios) {
     gate(
       "gate_endpoint_not_earlier_than_min_duration",
       "scenario_junior_baseline + scenario_mixed",
-      `>= ${PARAMS.PARAM_TOTAL_DURATION_MIN_SECONDS}s total online gameplay`,
+      `>= ${activeParams.PARAM_TOTAL_DURATION_MIN_SECONDS}s total online gameplay`,
       junior.junior_phase_seconds + mixed.middle_phase_seconds,
       junior.junior_phase_seconds + mixed.middle_phase_seconds >=
-        PARAMS.PARAM_TOTAL_DURATION_MIN_SECONDS,
+        activeParams.PARAM_TOTAL_DURATION_MIN_SECONDS,
       "Blocker",
       "group_cost",
       "Runaway detection for endpoint before the minimum total duration.",
@@ -1565,7 +1815,7 @@ function evaluateGates(scenarios) {
       .filter(
         (event) =>
           event.action === "buy_assistant_level_max" &&
-          event.levelsPurchased > PARAMS.PARAM_BUY_MAX_SAFE_LEVELS_PER_ACTION,
+          event.levelsPurchased > activeParams.PARAM_BUY_MAX_SAFE_LEVELS_PER_ACTION,
       )
       .map((event) => `${scenario.scenario_id}:${event.levelsPurchased}`),
   );
@@ -1573,7 +1823,7 @@ function evaluateGates(scenarios) {
     gate(
       "gate_buy_max_safe_level_limit",
       "all",
-      `<= ${PARAMS.PARAM_BUY_MAX_SAFE_LEVELS_PER_ACTION} levels per Buy Max before endpoint`,
+      `<= ${activeParams.PARAM_BUY_MAX_SAFE_LEVELS_PER_ACTION} levels per Buy Max before endpoint`,
       unsafeBuyMaxEvents.join(", ") || "within limit",
       unsafeBuyMaxEvents.length === 0,
       "Blocker",
@@ -1587,9 +1837,7 @@ function evaluateGates(scenarios) {
   const trainingPurchased = [supportFirst, active, capstone].some((scenario) =>
     scenario.supports_owned.includes(SUPPORTS.training),
   );
-  const offlineImproves =
-    offlineSupported.offline_bugs_found_total >
-    offlineUnsupported.offline_bugs_found_total;
+  const offlineImproves = controlledOfflineComparison.pass;
   const mixedNegativeSupport = mixed.support_purchase_analysis.filter(
     (purchase) =>
       purchase.endpointUtilitySeconds !== null &&
@@ -1627,13 +1875,13 @@ function evaluateGates(scenarios) {
   results.push(
     gate(
       "gate_support_offline_viability",
-      "offline scenarios",
-      "Handover Support improves supported offline result",
-      `${offlineUnsupported.offline_bugs_found_total} -> ${offlineSupported.offline_bugs_found_total}`,
+      "controlled offline handover comparison",
+      "isolated Handover ratio matches offline efficiency ratio",
+      `${controlledOfflineComparison.without_handover.bugs_found_gained} -> ${controlledOfflineComparison.with_handover.bugs_found_gained}; ratio ${controlledOfflineComparison.normalized_improvement_ratio}`,
       offlineImproves,
       "Major",
       "group_offline",
-      "Supported offline scenario legally unlocks and buys Handover Support before absence.",
+      "Controlled fork keeps Assistant level, resources, lifetime state and other Support ownership identical before Handover purchase.",
     ),
   );
   results.push(
@@ -1650,11 +1898,23 @@ function evaluateGates(scenarios) {
       "Mixed policy support purchases must have non-negative endpoint utility unless scenario objectives justify them.",
     ),
   );
+  results.push(
+    gate(
+      "gate_capstone_stall_informational",
+      "scenario_capstone_reachability_sanity",
+      "capstone post-endpoint stall reported separately",
+      capstone.stall_windows.capstonePostEndpointMaxSeconds,
+      true,
+      "Minor",
+      "group_capstone",
+      "Post-endpoint capstone wait is informational and does not fail MVP endpoint stall gates.",
+    ),
+  );
 
   return results;
 }
 
-export function runCompleteSimulationSuite() {
+function runCompleteSimulationSuiteInternal() {
   const juniorState = runJuniorBaseline();
   const juniorPhaseSeconds = juniorState.simulationTimeSeconds;
   const postPromotion = cloneState(juniorState);
@@ -1684,16 +1944,16 @@ export function runCompleteSimulationSuite() {
       scenarioId: "scenario_low_click_middle",
       strategyId: "mixed",
       postPromotionState: postPromotion,
-      manualInterval: PARAMS.PARAM_LOW_CLICK_MANUAL_ACTION_INTERVAL_SECONDS,
-      reportInterval: PARAMS.PARAM_LOW_CLICK_REPORT_INTERVAL_SECONDS,
+      manualInterval: activeParams.PARAM_LOW_CLICK_MANUAL_ACTION_INTERVAL_SECONDS,
+      reportInterval: activeParams.PARAM_LOW_CLICK_REPORT_INTERVAL_SECONDS,
       cadenceProfile: "middle_low_click",
     }),
     runMiddleScenario({
       scenarioId: "scenario_active_click_middle",
       strategyId: "mixed",
       postPromotionState: postPromotion,
-      manualInterval: PARAMS.PARAM_ACTIVE_CLICK_MANUAL_ACTION_INTERVAL_SECONDS,
-      reportInterval: PARAMS.PARAM_ACTIVE_CLICK_REPORT_INTERVAL_SECONDS,
+      manualInterval: activeParams.PARAM_ACTIVE_CLICK_MANUAL_ACTION_INTERVAL_SECONDS,
+      reportInterval: activeParams.PARAM_ACTIVE_CLICK_REPORT_INTERVAL_SECONDS,
       cadenceProfile: "middle_active_click",
     }),
     runMiddleScenario({
@@ -1747,7 +2007,9 @@ export function runCompleteSimulationSuite() {
         : juniorPhaseSeconds,
     ),
   );
-  const gates = evaluateGates(scenarios);
+  const controlledOfflineComparison =
+    runControlledOfflineSupportComparison(postPromotion);
+  const gates = evaluateGates(scenarios, controlledOfflineComparison);
 
   for (const scenario of scenarios) {
     scenario.gate_results = gates.filter(
@@ -1762,15 +2024,25 @@ export function runCompleteSimulationSuite() {
   }
 
   return {
-    parameter_version: PARAMETER_VERSION,
+    parameter_version: activeParameterVersion,
     simulator_version: SIMULATOR_VERSION,
     run_date: new Date().toISOString(),
     document_status_at_run: "DRAFT - Simulation Validation Required",
     junior_baseline_snapshot: JUNIOR_BASELINE_SNAPSHOT,
     junior_baseline_snapshot_hash: getJuniorBaselineSnapshotHash(),
+    controlled_offline_support_comparison: controlledOfflineComparison,
     scenarios,
     gates,
   };
+}
+
+export function runCompleteSimulationSuite({
+  params = PARAMS,
+  parameterVersion = PARAMETER_VERSION,
+} = {}) {
+  return withActiveParams(params, parameterVersion, () =>
+    runCompleteSimulationSuiteInternal(),
+  );
 }
 
 function inferStrategy(scenarioId) {

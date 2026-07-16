@@ -1,0 +1,101 @@
+{
+  "baselineParameterVersion": "doc15-provisional-2026-07-14",
+  "stages": [
+    {
+      "id": "phase_6b_1_behavioral_baseline",
+      "parameterGroup": "group_manual_cadence",
+      "reason": "Calibrate Junior baseline to approved 480-720s without changing Junior data.",
+      "parameters": {
+        "PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS": {
+          "min": 8,
+          "max": 12,
+          "candidates": [8, 9, 10, 11, 12]
+        },
+        "PARAM_JUNIOR_BASELINE_REPORT_INTERVAL_SECONDS": {
+          "min": 25,
+          "max": 60,
+          "candidates": [25, 30, 45, 60]
+        }
+      },
+      "selected": {
+        "PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS": 9,
+        "PARAM_JUNIOR_BASELINE_REPORT_INTERVAL_SECONDS": 25
+      }
+    },
+    {
+      "id": "phase_6b_2_coupled_passive_cost",
+      "parameterGroup": "group_assistant_cost",
+      "reason": "Lengthen Middle while preserving active/mixed ratio through coupled cost pacing.",
+      "parameters": {
+        "PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS": {
+          "min": 8,
+          "max": 14,
+          "candidates": [8, 10, 12, 14]
+        },
+        "PARAM_ACTIVE_CLICK_MANUAL_ACTION_INTERVAL_SECONDS": {
+          "min": 5,
+          "max": 8,
+          "candidates": [5, 6, 7, 8]
+        },
+        "PARAM_ASSISTANT_LEVEL_BASE_COST": {
+          "min": 45,
+          "max": 120,
+          "candidates": [45, 60, 80, 100, 120]
+        },
+        "PARAM_ASSISTANT_LEVEL_LINEAR_COST": {
+          "min": 3,
+          "max": 10,
+          "candidates": [3, 6, 10]
+        },
+        "PARAM_ASSISTANT_LEVEL_COST_GROWTH": {
+          "min": 1.16,
+          "max": 1.24,
+          "candidates": [1.16, 1.18, 1.22, 1.24]
+        }
+      },
+      "selected": {
+        "PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS": 10,
+        "PARAM_ACTIVE_CLICK_MANUAL_ACTION_INTERVAL_SECONDS": 7,
+        "PARAM_ASSISTANT_LEVEL_BASE_COST": 60,
+        "PARAM_ASSISTANT_LEVEL_LINEAR_COST": 3,
+        "PARAM_ASSISTANT_LEVEL_COST_GROWTH": 1.18
+      }
+    },
+    {
+      "id": "phase_6b_3_low_click_and_decisions",
+      "parameterGroup": "group_decisions",
+      "reason": "Keep low-click viable and reduce duplicate strategic decisions without changing target bands.",
+      "parameters": {
+        "PARAM_LOW_CLICK_MANUAL_ACTION_INTERVAL_SECONDS": {
+          "min": 12,
+          "max": 20,
+          "candidates": [12, 14, 16, 20]
+        },
+        "PARAM_LOW_CLICK_REPORT_INTERVAL_SECONDS": {
+          "min": 60,
+          "max": 90,
+          "candidates": [60, 75, 90]
+        },
+        "PARAM_DECISION_NEAR_AFFORD_SECONDS": {
+          "min": 15,
+          "max": 90,
+          "candidates": [15, 30, 45, 60, 90]
+        },
+        "PARAM_SUPPORT_TRAINING_UNLOCK_LEVEL": {
+          "min": 5,
+          "max": 7,
+          "candidates": [5, 6, 7]
+        },
+        "PARAM_SUPPORT_OFFLINE_UNLOCK_LEVEL": {
+          "min": 5,
+          "max": 7,
+          "candidates": [5, 6, 7]
+        }
+      },
+      "selectedBase": {
+        "PARAM_LOW_CLICK_MANUAL_ACTION_INTERVAL_SECONDS": 12,
+        "PARAM_LOW_CLICK_REPORT_INTERVAL_SECONDS": 60
+      }
+    }
+  ]
+}
