@@ -2,11 +2,11 @@
 
 ## 1. Document Status and Ownership
 
-**Status:** DRAFT — Simulation Validation Required
+**Status:** IMPLEMENTATION CANDIDATE — PLAYTEST VALIDATION REQUIRED
 
 This document owns the Playable Idle MVP balance hypothesis, deterministic simulator requirements, provisional numeric parameters and simulation validation gates for the first passive Junior QA Assistant slice.
 
-This document is not Frozen and is not Production-Ready. All numeric balance values in this document are **PROVISIONAL** until deterministic simulation executes every required scenario and an acceptance report records the result.
+This document is not Frozen and is not Production-Ready. The numeric balance values in this document are the approved **Provisional Implementation Balance Candidate v1** until implementation verification, playtest validation and any simulator-rerun tuning produce an approved final balance.
 
 ## 2. Purpose
 
@@ -75,7 +75,7 @@ Approved Phase 5A and Phase 5A.1 targets:
 - Passive production starts immediately after Middle QA promotion.
 - Assistant is one persistent leveled producer.
 - Assistant produces Bugs Found at level 0.
-- Assistant cap is medium finite; exact value is provisional in this draft.
+- Assistant cap is medium finite and recorded by the implementation candidate.
 - First producer milestone is early, around 25-35% of cap.
 - Capstone milestone exists but is not endpoint-required.
 - Assistant scaling is additive per-level growth before milestone effects.
@@ -279,7 +279,7 @@ Rules:
 
 ## 13. Assistant Level Cap
 
-`PARAM_ASSISTANT_MAX_LEVEL` is **PROVISIONAL: 25**.
+`PARAM_ASSISTANT_MAX_LEVEL` is **IMPLEMENTATION CANDIDATE: 25**.
 
 Rules:
 
@@ -291,14 +291,14 @@ Rules:
 
 Milestone events are distinct from purchase actions and endpoint events.
 
-Provisional milestone model:
+Implementation candidate milestone model:
 
 | Milestone ID | Level | Role | Effect |
 | --- | ---: | --- | --- |
-| `milestone_assistant_first` | **PROVISIONAL: 8** | First producer milestone and endpoint target | Apply one MVP producer multiplier |
-| `milestone_assistant_capstone` | **PROVISIONAL: 25** | Capstone sanity marker | Feedback/status only |
+| `milestone_assistant_first` | **IMPLEMENTATION CANDIDATE: 8** | First producer milestone and endpoint target | Apply one MVP producer multiplier |
+| `milestone_assistant_capstone` | **IMPLEMENTATION CANDIDATE: 25** | Capstone sanity marker | Feedback/status only |
 
-First milestone placement is 32% of the provisional level cap, within the approved 25-35% target range.
+First milestone placement is 32% of the implementation candidate level cap, within the approved 25-35% target range.
 
 Milestone detection:
 
@@ -338,13 +338,13 @@ Constraints:
 
 Support Upgrades should be staged through Middle QA unless simulation proves simultaneous reveal is required.
 
-Provisional unlock thresholds:
+Implementation candidate unlock thresholds:
 
 | Support ID | Unlock Condition | Purpose |
 | --- | --- | --- |
 | `support_immediate_production` | Assistant unlocked | Provides early immediate-output alternative to levels |
-| `support_training_economics` | Assistant level >= **PROVISIONAL: 3** | Creates early-investment versus immediate-output decision |
-| `support_offline_handover` | Assistant level >= **PROVISIONAL: 5** | Introduces offline value after player understands passive production |
+| `support_training_economics` | Assistant level >= **IMPLEMENTATION CANDIDATE: 2** | Creates early-investment versus immediate-output decision |
+| `support_offline_handover` | Assistant level >= **IMPLEMENTATION CANDIDATE: 5** | Introduces offline value after player understands passive production |
 
 Unlock thresholds are not endpoint conditions.
 
@@ -461,13 +461,13 @@ Endpoint completion requires all of the following:
 5. First producer milestone reached.
 6. At least one post-milestone passive production tick occurs.
 
-Provisional endpoint:
+Implementation candidate endpoint:
 
 ```text
 PARAM_ENDPOINT_ASSISTANT_LEVEL_TARGET = PARAM_FIRST_MILESTONE_LEVEL
 ```
 
-With current provisional values, endpoint target level is **PROVISIONAL: 8**.
+With current implementation candidate values, endpoint target level is **IMPLEMENTATION CANDIDATE: 8**.
 
 Support Upgrades are not endpoint requirements.
 
@@ -727,155 +727,193 @@ event_log_digest
 1. Generate or load the versioned Junior baseline input snapshot.
 2. Run `scenario_junior_baseline` and record the post-promotion snapshot.
 3. Run all Middle-focused scenarios from the same post-promotion snapshot.
-4. Produce the acceptance report using the template in this document.
-5. Mark each validation gate pass/fail.
-6. For each failure, adjust only the parameter groups permitted by the failed gate.
-7. Record changed parameter IDs, old values, new values and reason.
-8. Re-run the Junior baseline and all required Middle-focused scenarios after any parameter change that can affect the snapshot or downstream pacing.
-9. Do not freeze this document until all blocker and major gates pass.
+4. Produce an acceptance report and mark each validation gate pass/fail.
+5. For each failure, adjust only the parameter groups permitted by the failed gate.
+6. Record changed parameter IDs, old values, new values and reason.
+7. Re-run the Junior baseline and all required Middle-focused scenarios after any parameter change that can affect the snapshot or downstream pacing.
+8. Do not freeze this document until implementation verification and playtest validation meet the freeze criteria in section 36.
 
-## 31. Acceptance Report Template
+## 31. Provisional Implementation Balance Candidate v1
 
-```text
-# Playable Idle MVP Balance Acceptance Report
+Approved implementation candidate:
 
-Parameter version:
-Junior baseline version:
-Junior baseline source commit/version:
-Junior baseline snapshot hash:
-Simulator version:
-Run date:
-Document status at run:
+`phase-6b.2-stage-a-003`
 
-## Summary
-- Overall result:
-- Blocker failures:
-- Major failures:
-- Minor failures:
+This candidate is approved for implementation as `Provisional Implementation Balance Candidate v1`. It is not Frozen and is not final player-validated balance.
 
-## Scenario Results
-| Scenario | Strategy | Start Snapshot | Endpoint Time | Purchase Actions | Meaningful Decisions | Supports Owned | Result |
+Validation source:
 
-## Gate Results
-| Gate | Metric | Target | Actual | Result | Severity |
+- Phase 6B.2 expanded passive/cost feasibility search.
+- Deterministic simulator using `doc15-provisional-2026-07-14` baseline inputs.
+- Fixed locked cadence profiles from Phase 6B.1 and Phase 6B.2.
 
-## Junior Baseline Inputs
-| Field | Recorded Value | Source |
+Base validation result:
 
-## Precision Check
-| Field | Expected | Actual | Result |
+| Metric | Result |
+| --- | ---: |
+| Junior baseline | 500 seconds |
+| Middle mixed | 1261 seconds |
+| Total | 1761 seconds |
+| Level-first Middle | 1441 seconds |
+| Mixed Middle | 1261 seconds |
+| Support-first Middle | 1261 seconds |
+| No-support Middle | 1441 seconds |
+| Meaningful decisions | 4 |
+| Base Blocker gates | all passed |
+| Base Major gates | all passed |
 
-## Parameter Changes Recommended
-| Parameter ID | Current | Recommended | Reason | Related Gate |
+Support evidence:
 
-## Known Risks
+| Support | Evidence |
+| --- | --- |
+| Immediate Support | Positive online utility in active, support-first, mixed, endpoint, low-click and capstone paths. Mixed path utility: 231.791 seconds. |
+| Training Support | Positive utility when purchased early. Mixed path purchase at 1100 seconds records 54.442 second payback and 174.057 second endpoint utility. |
+| Offline Support | Controlled Handover remains isolated; offline Support improves offline Bugs Found only through offline efficiency. |
+| Optionality | No-support endpoint remains valid at 1441 seconds. Supports are not endpoint requirements. |
+| Resource safety | No Support Upgrade produces Money directly, and no Support automates Report. Offline progress produces Bugs Found only until explicit Report. |
 
-## Freeze Recommendation
-```
+Controlled Handover comparison remains an isolated simulator diagnostic and must not be implemented as a direct Money or auto-reporting feature.
 
-## 32. Provisional Parameter Table
+Production-share evidence:
 
-All values in this table are **PROVISIONAL** and exist only to make the first deterministic simulation executable.
+| Assistant Level | Passive Bugs/sec | Baseline Passive Share | Baseline Manual Share | Active Passive Share | Active Manual Share | Low-click Passive Share | Low-click Manual Share |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 | 0.8 | 0.6154 | 0.3846 | 0.3902 | 0.6098 | 0.7619 | 0.2381 |
+| 3 | 1.4 | 0.7368 | 0.2632 | 0.5283 | 0.4717 | 0.8485 | 0.1515 |
+| 5 | 1.8 | 0.7826 | 0.2174 | 0.5902 | 0.4098 | 0.8780 | 0.1220 |
+| 8 | 3.12 | 0.8619 | 0.1381 | 0.7140 | 0.2860 | 0.9258 | 0.0742 |
 
-| Parameter ID | Group | Provisional Value | Notes |
+Interpretation:
+
+- Passive production is already the majority of baseline Middle production at Assistant level 0 and becomes stronger by the first milestone.
+- Active manual play remains a burst that accelerates progression without dominating total production by the first milestone.
+- Low-click remains viable because passive production carries most production even when manual input is sparse.
+
+Known sensitivity risks:
+
+- The strict optional +/-5% robustness requirement did not pass.
+- Production -5% misses the low-click target by approximately 31 seconds in the reference sensitivity run.
+- Cost +5% can cross Middle and low-click limits; reference `cost-plus-5` reached 1501 seconds Middle and 1711 seconds low-click.
+- The candidate is sensitive around Assistant cost thresholds.
+- Cost -5% can shorten total duration toward the approved minimum boundary.
+- Tuning must be performed through the deterministic simulator and rerun through the required scenarios.
+- Player behavior may differ from deterministic strategies.
+- Final balance requires playtest telemetry or structured manual observations.
+
+These risks do not invalidate implementation candidacy. They prevent Frozen or final Production-Ready status.
+
+Historical references:
+
+- Phase 6A.2 corrected baseline established trustworthy simulator correctness and baseline failures before tuning.
+- Phase 6B rejected `phase-6b-recommended-candidate-v1` remains historical only because it changed locked behavior profiles.
+- Phase 6B.1 returned no recommendation under narrower passive/cost bounds.
+- Phase 6B.2 proved base feasibility with expanded passive production and paired costs.
+
+Reference artifacts:
+
+- `docs/reports/phase-6a.2-final-corrected-balance-acceptance-report.md`
+- `docs/reports/phase-6b-balance-tuning-report.md`
+- `docs/reports/phase-6b.1-passive-economy-report.md`
+- `artifacts/balance/phase-6b.2-feasibility-analysis.json`
+- `artifacts/balance/phase-6b.2-expanded-search-space.json`
+- `artifacts/balance/phase-6b.2-expanded-candidate-results.json`
+- `artifacts/balance/phase-6b.2-expanded-sensitivity-results.json`
+- `docs/reports/phase-6b.2-expanded-passive-economy-report.md`
+
+## 32. Authoritative Implementation Candidate Parameter Table
+
+All values in this table are the active **Implementation Candidate v1** values for implementation. They remain provisional until playtest validation.
+
+| Parameter ID | Group | Candidate Value | Notes |
 | --- | --- | ---: | --- |
-| `PARAM_TOTAL_DURATION_MIN_SECONDS` | `group_targets` | **PROVISIONAL: 1500** | 25 minutes |
-| `PARAM_TOTAL_DURATION_MAX_SECONDS` | `group_targets` | **PROVISIONAL: 2400** | 40 minutes |
-| `PARAM_JUNIOR_DURATION_MIN_SECONDS` | `group_targets` | **PROVISIONAL: 480** | 8 minutes |
-| `PARAM_JUNIOR_DURATION_MAX_SECONDS` | `group_targets` | **PROVISIONAL: 720** | 12 minutes |
-| `PARAM_MIDDLE_DURATION_MIN_SECONDS` | `group_targets` | **PROVISIONAL: 900** | 15 minutes |
-| `PARAM_MIDDLE_DURATION_MAX_SECONDS` | `group_targets` | **PROVISIONAL: 1500** | 25 minutes |
-| `PARAM_PURCHASE_ACTIONS_MIN` | `group_targets` | **PROVISIONAL: 10** | Lower full endpoint purchase-action target |
-| `PARAM_PURCHASE_ACTIONS_MAX` | `group_targets` | **PROVISIONAL: 16** | Upper full endpoint purchase-action target |
-| `PARAM_MEANINGFUL_DECISIONS_MIN` | `group_targets` | **PROVISIONAL: 3** | Lower genuine decision target |
-| `PARAM_MEANINGFUL_DECISIONS_MAX` | `group_targets` | **PROVISIONAL: 5** | Upper genuine decision target |
-| `PARAM_JUNIOR_BASELINE_REQUIRED` | `group_junior_baseline_inputs` | **PROVISIONAL: true** | Acceptance runs fail without versioned Junior snapshot |
-| `PARAM_MANUAL_BASE_BUGS_PER_TEST` | `group_manual` | **FROM VERSIONED JUNIOR SNAPSHOT** | Do not substitute a default if authoritative data differs |
-| `PARAM_REPORT_MONEY_PER_BUG` | `group_reporting` | **FROM VERSIONED JUNIOR SNAPSHOT** | Do not substitute a default if authoritative data differs |
-| `PARAM_ASSISTANT_MAX_LEVEL` | `group_assistant_levels` | **PROVISIONAL: 25** | Medium finite cap hypothesis |
-| `PARAM_FIRST_MILESTONE_LEVEL` | `group_milestones` | **PROVISIONAL: 8** | 32% of cap |
-| `PARAM_CAPSTONE_MILESTONE_LEVEL` | `group_milestones` | **PROVISIONAL: 25** | Feedback/status only |
-| `PARAM_ENDPOINT_ASSISTANT_LEVEL_TARGET` | `group_endpoint` | **PROVISIONAL: 8** | Same as first milestone |
-| `PARAM_ASSISTANT_LEVEL_BASE_COST` | `group_assistant_cost` | **PROVISIONAL: 25** | First level cost |
-| `PARAM_ASSISTANT_LEVEL_COST_GROWTH` | `group_assistant_cost` | **PROVISIONAL: 1.18** | Geometric growth |
-| `PARAM_ASSISTANT_LEVEL_LINEAR_COST` | `group_assistant_cost` | **PROVISIONAL: 3** | Stabilizer |
-| `PARAM_ASSISTANT_BASE_BUGS_PER_SECOND` | `group_assistant_production` | **PROVISIONAL: 0.08** | Level 0 production |
-| `PARAM_ASSISTANT_BUGS_PER_SECOND_PER_LEVEL` | `group_assistant_production` | **PROVISIONAL: 0.035** | Additive per level |
-| `PARAM_FIRST_MILESTONE_PRODUCTION_MULTIPLIER` | `group_milestones` | **PROVISIONAL: 1.35** | One producer multiplier |
-| `PARAM_SUPPORT_IMMEDIATE_PRICE` | `group_support_prices` | **PROVISIONAL: 95** | Competes with several early levels |
-| `PARAM_SUPPORT_IMMEDIATE_ADD_BUGS_PER_SECOND` | `group_support_effects` | **PROVISIONAL: 0.12** | Immediate additive production |
-| `PARAM_SUPPORT_TRAINING_PRICE` | `group_support_prices` | **PROVISIONAL: 140** | Long-term economics |
-| `PARAM_SUPPORT_TRAINING_COST_MULTIPLIER` | `group_support_effects` | **PROVISIONAL: 0.88** | Future level cost multiplier |
-| `PARAM_SUPPORT_OFFLINE_PRICE` | `group_support_prices` | **PROVISIONAL: 110** | Optional offline value |
-| `PARAM_SUPPORT_OFFLINE_UNLOCK_LEVEL` | `group_unlock_thresholds` | **PROVISIONAL: 5** | Staged reveal |
-| `PARAM_SUPPORT_TRAINING_UNLOCK_LEVEL` | `group_unlock_thresholds` | **PROVISIONAL: 3** | Staged reveal |
-| `PARAM_OFFLINE_TIME_CAP_SECONDS` | `group_offline` | **PROVISIONAL: 7200** | 2 hours |
-| `PARAM_OFFLINE_EFFICIENCY_BASE` | `group_offline` | **PROVISIONAL: 0.35** | Lower than online |
-| `PARAM_OFFLINE_EFFICIENCY_WITH_SUPPORT` | `group_offline` | **PROVISIONAL: 0.55** | Still lower than online |
-| `PARAM_LOW_CLICK_MANUAL_ACTION_INTERVAL_SECONDS` | `group_scenarios` | **PROVISIONAL: 20** | Low-click cadence |
-| `PARAM_LOW_CLICK_REPORT_INTERVAL_SECONDS` | `group_scenarios` | **PROVISIONAL: 90** | Low-click cadence |
-| `PARAM_ACTIVE_CLICK_MANUAL_ACTION_INTERVAL_SECONDS` | `group_scenarios` | **PROVISIONAL: 4** | Active but reasonable cadence |
-| `PARAM_ACTIVE_CLICK_REPORT_INTERVAL_SECONDS` | `group_scenarios` | **PROVISIONAL: 45** | Active cadence |
-| `PARAM_LOW_CLICK_MIDDLE_MAX_SECONDS` | `group_scenarios` | **PROVISIONAL: 1500** | Post-promotion low-click maximum |
-| `PARAM_DECISION_NEAR_AFFORD_SECONDS` | `group_decisions` | **PROVISIONAL: 90** | Decision measurement window |
-| `PARAM_PAYBACK_BUCKET_CHANGE_RATIO` | `group_decisions` | **PROVISIONAL: 0.15** | Material payback comparison change threshold |
-| `PARAM_MAX_STALL_SECONDS` | `group_stall` | **PROVISIONAL: 180** | 3 minutes |
-| `PARAM_DOMINANT_STRATEGY_MAX_ADVANTAGE_RATIO` | `group_strategy` | **PROVISIONAL: 0.20** | 20% advantage limit |
-| `PARAM_BUY_MAX_SAFE_LEVELS_PER_ACTION` | `group_buy_max_rules` | **PROVISIONAL: 5** | Before endpoint |
-| `PARAM_NUMERIC_SCALE_DECIMAL_PLACES` | `group_precision` | **PROVISIONAL: 6** | Authoritative fixed-point scale |
-| `PARAM_FORMAT_DECIMAL_MAX_BELOW` | `group_formatting` | **PROVISIONAL: 100** | Display validation |
-| `PARAM_FORMAT_INTEGER_MIN` | `group_formatting` | **PROVISIONAL: 100** | Display validation |
-| `PARAM_FORMAT_COMPACT_MIN` | `group_formatting` | **PROVISIONAL: 1000000** | Display validation |
-| `PARAM_SAFE_MAX_RESOURCE_VALUE` | `group_safe_bounds` | **PROVISIONAL: 1000000000** | Resource bound |
-| `PARAM_SAFE_MAX_RATE_VALUE` | `group_safe_bounds` | **PROVISIONAL: 1000000** | Rate bound |
-| `PARAM_SAFE_MAX_COST_VALUE` | `group_safe_bounds` | **PROVISIONAL: 1000000000** | Cost bound |
+| `PARAM_TOTAL_DURATION_MIN_SECONDS` | `group_targets` | 1500 | 25 minutes |
+| `PARAM_TOTAL_DURATION_MAX_SECONDS` | `group_targets` | 2400 | 40 minutes |
+| `PARAM_JUNIOR_DURATION_MIN_SECONDS` | `group_targets` | 480 | 8 minutes |
+| `PARAM_JUNIOR_DURATION_MAX_SECONDS` | `group_targets` | 720 | 12 minutes |
+| `PARAM_MIDDLE_DURATION_MIN_SECONDS` | `group_targets` | 900 | 15 minutes |
+| `PARAM_MIDDLE_DURATION_MAX_SECONDS` | `group_targets` | 1500 | 25 minutes |
+| `PARAM_PURCHASE_ACTIONS_MIN` | `group_targets` | 10 | Lower full endpoint purchase-action target |
+| `PARAM_PURCHASE_ACTIONS_MAX` | `group_targets` | 16 | Upper full endpoint purchase-action target |
+| `PARAM_MEANINGFUL_DECISIONS_MIN` | `group_targets` | 3 | Lower genuine decision target |
+| `PARAM_MEANINGFUL_DECISIONS_MAX` | `group_targets` | 5 | Upper genuine decision target |
+| `PARAM_JUNIOR_BASELINE_REQUIRED` | `group_junior_baseline_inputs` | true | Acceptance runs fail without versioned Junior snapshot |
+| `PARAM_MANUAL_BASE_BUGS_PER_TEST` | `group_manual` | from versioned Junior snapshot | Do not substitute a default if authoritative data differs |
+| `PARAM_REPORT_MONEY_PER_BUG` | `group_reporting` | from versioned Junior snapshot | Do not substitute a default if authoritative data differs |
+| `PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS` | `group_scenarios` | 9 | Locked Junior baseline cadence |
+| `PARAM_JUNIOR_BASELINE_REPORT_INTERVAL_SECONDS` | `group_scenarios` | 25 | Locked Junior baseline cadence |
+| `PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS` | `group_scenarios` | 10 | Locked Middle baseline cadence |
+| `PARAM_BASELINE_MIDDLE_REPORT_INTERVAL_SECONDS` | `group_scenarios` | 60 | Locked Middle baseline cadence |
+| `PARAM_ACTIVE_CLICK_MANUAL_ACTION_INTERVAL_SECONDS` | `group_scenarios` | 4 | Locked active Middle cadence |
+| `PARAM_ACTIVE_CLICK_REPORT_INTERVAL_SECONDS` | `group_scenarios` | 45 | Locked active Middle cadence |
+| `PARAM_LOW_CLICK_MANUAL_ACTION_INTERVAL_SECONDS` | `group_scenarios` | 20 | Locked low-click cadence |
+| `PARAM_LOW_CLICK_REPORT_INTERVAL_SECONDS` | `group_scenarios` | 90 | Locked low-click cadence |
+| `PARAM_ASSISTANT_MAX_LEVEL` | `group_assistant_levels` | 25 | Medium finite cap |
+| `PARAM_FIRST_MILESTONE_LEVEL` | `group_milestones` | 8 | 32% of cap |
+| `PARAM_CAPSTONE_MILESTONE_LEVEL` | `group_milestones` | 25 | Feedback/status only |
+| `PARAM_ENDPOINT_ASSISTANT_LEVEL_TARGET` | `group_endpoint` | 8 | Same as first milestone |
+| `PARAM_ASSISTANT_LEVEL_BASE_COST` | `group_assistant_cost` | 200 | First level cost |
+| `PARAM_ASSISTANT_LEVEL_COST_GROWTH` | `group_assistant_cost` | 1.14 | Geometric growth |
+| `PARAM_ASSISTANT_LEVEL_LINEAR_COST` | `group_assistant_cost` | 10 | Linear stabilizer |
+| `PARAM_ASSISTANT_BASE_BUGS_PER_SECOND` | `group_assistant_production` | 0.8 | Level 0 production |
+| `PARAM_ASSISTANT_BUGS_PER_SECOND_PER_LEVEL` | `group_assistant_production` | 0.2 | Additive per level |
+| `PARAM_FIRST_MILESTONE_PRODUCTION_MULTIPLIER` | `group_milestones` | 1.3 | First producer multiplier |
+| `PARAM_SUPPORT_IMMEDIATE_PRICE` | `group_support_prices` | 120 | Immediate Support price |
+| `PARAM_SUPPORT_IMMEDIATE_ADD_BUGS_PER_SECOND` | `group_support_effects` | 0.22 | Immediate additive production |
+| `PARAM_SUPPORT_TRAINING_PRICE` | `group_support_prices` | 160 | Training Support price |
+| `PARAM_SUPPORT_TRAINING_COST_MULTIPLIER` | `group_support_effects` | 0.76 | Future level cost multiplier |
+| `PARAM_SUPPORT_TRAINING_UNLOCK_LEVEL` | `group_unlock_thresholds` | 2 | Early-purchase Training window |
+| `PARAM_SUPPORT_OFFLINE_PRICE` | `group_support_prices` | 150 | Optional offline value |
+| `PARAM_SUPPORT_OFFLINE_UNLOCK_LEVEL` | `group_unlock_thresholds` | 5 | Staged reveal |
+| `PARAM_OFFLINE_TIME_CAP_SECONDS` | `group_offline` | 7200 | 2 hours |
+| `PARAM_OFFLINE_EFFICIENCY_BASE` | `group_offline` | 0.35 | Lower than online |
+| `PARAM_OFFLINE_EFFICIENCY_WITH_SUPPORT` | `group_offline` | 0.62 | Still lower than online |
+| `PARAM_LOW_CLICK_MIDDLE_MAX_SECONDS` | `group_scenarios` | 1500 | Post-promotion low-click maximum |
+| `PARAM_DECISION_NEAR_AFFORD_SECONDS` | `group_decisions` | 90 | Decision measurement window |
+| `PARAM_PAYBACK_BUCKET_CHANGE_RATIO` | `group_decisions` | 0.15 | Material payback comparison change threshold |
+| `PARAM_MAX_STALL_SECONDS` | `group_stall` | 180 | 3 minutes |
+| `PARAM_DOMINANT_STRATEGY_MAX_ADVANTAGE_RATIO` | `group_strategy` | 0.20 | 20% advantage limit |
+| `PARAM_BUY_MAX_SAFE_LEVELS_PER_ACTION` | `group_buy_max_rules` | 5 | Before endpoint |
+| `PARAM_NUMERIC_SCALE_DECIMAL_PLACES` | `group_precision` | 6 | Authoritative fixed-point scale |
+| `PARAM_FORMAT_DECIMAL_MAX_BELOW` | `group_formatting` | 100 | Display validation |
+| `PARAM_FORMAT_INTEGER_MIN` | `group_formatting` | 100 | Display validation |
+| `PARAM_FORMAT_COMPACT_MIN` | `group_formatting` | 1000000 | Display validation |
+| `PARAM_SAFE_MAX_RESOURCE_VALUE` | `group_safe_bounds` | 1000000000 | Resource bound |
+| `PARAM_SAFE_MAX_RATE_VALUE` | `group_safe_bounds` | 1000000 | Rate bound |
+| `PARAM_SAFE_MAX_COST_VALUE` | `group_safe_bounds` | 1000000000 | Cost bound |
 
 ## 33. Remaining TBD Register
 
+Resolved by Implementation Candidate v1:
+
+- Assistant endpoint level target.
+- Assistant max level cap.
+- First producer milestone level.
+- Capstone milestone level.
+- Assistant base production value.
+- Assistant per-level production value.
+- First milestone multiplier.
+- Assistant level cost parameters.
+- Support Upgrade prices.
+- Support Upgrade numeric effects.
+- Support Upgrade unlock thresholds.
+- Offline-time cap.
+- Offline efficiency values.
+- Purchase action count bands.
+- Meaningful purchase decision count bands.
+- Stall bands.
+- Runaway thresholds.
+- Dominant-strategy thresholds.
+- Scenario action cadences.
+- Validation gates.
+
 Remaining TBD fields:
 
-- Final Assistant endpoint level target.
-- Final Assistant max level cap.
-- Final first producer milestone level.
-- Final capstone milestone level.
-- Final Assistant base production value.
-- Final per-level production value.
-- Final milestone multiplier.
-- Final Assistant level cost parameters.
-- Final Support Upgrade prices.
-- Final Support Upgrade numeric effects.
-- Final Support Upgrade unlock thresholds.
-- Final offline-time cap.
-- Final offline efficiency values.
-- Final number formatting thresholds.
-- Final deterministic numeric precision and normalization rule.
-- Final purchase action count bands.
-- Final meaningful purchase decision count bands.
-- Final stall bands.
-- Final runaway thresholds.
-- Final dominant-strategy thresholds.
-- Final scenario action cadences.
-- Final validation gates.
-- Final Junior baseline version and accepted source snapshot.
+- Player-validated balance adjustments after implementation.
+- Post-playtest tuning values, if deterministic simulator reruns support a change.
+- Final production-ready acceptance report.
+- Final Junior baseline source snapshot for the implementation branch if runtime data changes before implementation verification.
 
-Assumptions:
-
-- Existing Junior manual upgrade and promotion values will be imported by the simulator from implementation data or exact current Technical Vertical Slice definitions rather than redefined here.
-- Authoritative Money and Bugs Found can be represented as fixed-point decimals without changing player-facing formatting.
-- Decimal Bugs Found, Money and rates are acceptable internally even if UI display rounds.
-- The first simulator may run as a script or test harness as long as it produces the required output schema.
-
-Known balance risks:
-
-- Provisional support prices may make support-first too strong or too weak.
-- A level 0 Assistant baseline may shorten low-click Middle phase too much if costs are too low.
-- Geometric cost growth may over-stall near the first milestone if Junior phase Money output is lower than assumed.
-- Offline efficiency may create too much deferred Bugs Found if the cap is too high.
-- Buy Max may collapse milestone pacing if early costs are too cheap.
-- Incorrect Junior baseline extraction may invalidate every Middle-focused scenario even if the Middle formulas are deterministic.
-- Meaningful decision signatures may be too coarse or too sensitive until simulator output is reviewed.
-
-Exact simulator requirements:
+## 34. Exact Simulator Requirements
 
 - Deterministic, seedless acceptance runs.
 - Uses fixed-point decimal arithmetic with `PARAM_NUMERIC_SCALE_DECIMAL_PLACES`.
@@ -890,25 +928,23 @@ Exact simulator requirements:
 - Reports every validation gate with metric, target, actual result, severity and permitted parameter group.
 - Records parameter version for every run.
 - Records Junior baseline version for every acceptance run.
-- Does not claim balance validity unless all required scenarios have executed.
+- Does not claim final balance validity unless all required scenarios have executed and playtest validation has approved the result.
 
-Confirmation:
+## 35. Implementation Candidate Confirmation
 
-- All critical values are provisional.
-- This document is DRAFT — Simulation Validation Required.
+- This document is not Frozen.
+- This document is not Production-Ready.
+- Provisional Implementation Balance Candidate v1 is approved for implementation.
 - No implementation code is changed by this document.
 - The implementation backlog is not changed by this document.
 
-## 34. Freeze Criteria
+## 36. Freeze Criteria
 
-This document may be considered for Frozen or Production-Ready status only after:
+This document may become Frozen only after:
 
-1. A deterministic simulator implements the state model, formulas, actions, scenarios and output schema in this document.
-2. All required scenarios have executed against a recorded parameter version.
-3. All blocker and major validation gates pass.
-4. Remaining minor failures are accepted explicitly or fixed.
-5. The acceptance report is attached or referenced.
-6. Final numeric parameters are promoted from PROVISIONAL to validated values.
-7. Documents 00-14 and VD-01 have no unresolved contradiction with the validated balance.
-
-Until those criteria are met, this document must remain **DRAFT — Simulation Validation Required**.
+1. Implementation matches the recorded candidate.
+2. Automated gameplay tests pass.
+3. Internal playthrough confirms basic usability.
+4. External or structured playtests validate pacing.
+5. Necessary balance adjustments are rerun through the simulator.
+6. Final acceptance report is approved.

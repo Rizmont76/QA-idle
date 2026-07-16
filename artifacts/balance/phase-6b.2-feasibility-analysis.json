@@ -1,0 +1,81 @@
+{
+  "manualBugsPerActionAfterPromotion": 5,
+  "moneyPerBugAfterPromotion": 1,
+  "manualProductionRates": [
+    {
+      "id": "baseline_middle",
+      "manualIntervalSeconds": 10,
+      "manualBugsPerSecond": 0.5,
+      "manualMoneyPerSecond": 0.5
+    },
+    {
+      "id": "active_middle",
+      "manualIntervalSeconds": 4,
+      "manualBugsPerSecond": 1.25,
+      "manualMoneyPerSecond": 1.25
+    },
+    {
+      "id": "low_click_middle",
+      "manualIntervalSeconds": 20,
+      "manualBugsPerSecond": 0.25,
+      "manualMoneyPerSecond": 0.25
+    }
+  ],
+  "phase6b1BestAssistantProductionLevels0To8": [
+    {
+      "level": 0,
+      "assistantBugsPerSecond": 0.34
+    },
+    {
+      "level": 1,
+      "assistantBugsPerSecond": 0.41
+    },
+    {
+      "level": 2,
+      "assistantBugsPerSecond": 0.48
+    },
+    {
+      "level": 3,
+      "assistantBugsPerSecond": 0.55
+    },
+    {
+      "level": 4,
+      "assistantBugsPerSecond": 0.62
+    },
+    {
+      "level": 5,
+      "assistantBugsPerSecond": 0.69
+    },
+    {
+      "level": 6,
+      "assistantBugsPerSecond": 0.76
+    },
+    {
+      "level": 7,
+      "assistantBugsPerSecond": 0.83
+    },
+    {
+      "level": 8,
+      "assistantBugsPerSecond": 1.395
+    }
+  ],
+  "requiredPassiveForActiveMixedRatios": [
+    {
+      "activeMixedRatio": 0.7,
+      "requiredPassiveBugsPerSecond": 1.25
+    },
+    {
+      "activeMixedRatio": 0.75,
+      "requiredPassiveBugsPerSecond": 1.75
+    },
+    {
+      "activeMixedRatio": 0.8,
+      "requiredPassiveBugsPerSecond": 2.5
+    },
+    {
+      "activeMixedRatio": 0.85,
+      "requiredPassiveBugsPerSecond": 3.75
+    }
+  ],
+  "expandedSearchRangeRationale": "Formula estimates put 0.70 active/mixed near 1.25 passive Bugs/sec before simulator timing effects, so 6B.2 expands base/per-level production well beyond the 6B.1 0.34/0.085 ceilings and pairs those rates with higher cost curves."
+}

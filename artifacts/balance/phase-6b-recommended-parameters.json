@@ -1,0 +1,47 @@
+{
+  "parameter_version": "phase-6b-recommended-candidate-v1",
+  "source_candidate_id": "phase-6b-candidate-002",
+  "baseline_parameter_version": "doc15-provisional-2026-07-14",
+  "parameter_diff": {
+    "PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS": {
+      "from": 6,
+      "to": 9
+    },
+    "PARAM_JUNIOR_BASELINE_REPORT_INTERVAL_SECONDS": {
+      "from": 30,
+      "to": 25
+    },
+    "PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS": {
+      "from": 12,
+      "to": 10
+    },
+    "PARAM_ACTIVE_CLICK_MANUAL_ACTION_INTERVAL_SECONDS": {
+      "from": 4,
+      "to": 7
+    },
+    "PARAM_LOW_CLICK_MANUAL_ACTION_INTERVAL_SECONDS": {
+      "from": 20,
+      "to": 12
+    },
+    "PARAM_LOW_CLICK_REPORT_INTERVAL_SECONDS": {
+      "from": 90,
+      "to": 60
+    },
+    "PARAM_ASSISTANT_LEVEL_BASE_COST": {
+      "from": 25,
+      "to": 60
+    },
+    "PARAM_DECISION_NEAR_AFFORD_SECONDS": {
+      "from": 90,
+      "to": 15
+    },
+    "PARAM_SUPPORT_TRAINING_UNLOCK_LEVEL": {
+      "from": 3,
+      "to": 5
+    },
+    "PARAM_SUPPORT_OFFLINE_UNLOCK_LEVEL": {
+      "from": 5,
+      "to": 6
+    }
+  }
+}

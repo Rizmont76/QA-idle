@@ -1,0 +1,1956 @@
+{
+  "recommendation_status": "no robust recommendation found after expanded boundary-aware search",
+  "recommended_candidate_id": null,
+  "sensitivity": [
+    {
+      "candidate_id": "phase-6b.2-stage-a-003",
+      "zero_blocker_failures_under_individual_5_percent": false,
+      "avoids_catastrophic_failure_under_10_percent": true,
+      "combined_perturbations_pass": false,
+      "runs": [
+        {
+          "id": "base",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.715,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5",
+          "blocker_failures": 1,
+          "major_failures": 3,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 6,
+              "target": "3-5 decisions, deduped"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 239,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:239; scenario_support_first:180; scenario_mixed:180; scenario_skip_supports:239; scenario_low_click_middle:180; scenario_active_click_middle:135; scenario_offline_return_without_support:60; scenario_offline_return_with_support:180; scenario_no_support_completion:239; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:180; scenario_capstone_reachability_sanity:180",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.716,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 7,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1581,
+          "middle_duration_seconds": 1081,
+          "low_click_middle_seconds": 1261,
+          "active_mixed_ratio": 0.709,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-5",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1501,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1711,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 299,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:299; scenario_support_first:240; scenario_mixed:240; scenario_skip_supports:299; scenario_low_click_middle:270; scenario_active_click_middle:180; scenario_offline_return_without_support:94; scenario_offline_return_with_support:180; scenario_no_support_completion:299; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:240; scenario_capstone_reachability_sanity:240",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2001,
+          "middle_duration_seconds": 1501,
+          "low_click_middle_seconds": 1711,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-10",
+          "blocker_failures": 1,
+          "major_failures": 0,
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            }
+          ],
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.716,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-10",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 6,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1351,
+          "active_mixed_ratio": 0.713,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-10",
+          "blocker_failures": 2,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_total_duration",
+              "severity": "Blocker",
+              "actual": 1401,
+              "target": "1500-2400 seconds"
+            },
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 7,
+              "target": "3-5 decisions, deduped"
+            },
+            {
+              "gate_id": "gate_endpoint_not_earlier_than_min_duration",
+              "severity": "Blocker",
+              "actual": 1401,
+              "target": ">= 1500s total online gameplay"
+            }
+          ],
+          "total_duration_seconds": 1401,
+          "middle_duration_seconds": 901,
+          "low_click_middle_seconds": 1081,
+          "active_mixed_ratio": 0.7,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-10",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1801,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 2071,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_capstone_sanity",
+              "severity": "Minor",
+              "actual": "not reached",
+              "target": "capstone reachable in dedicated capstone scenario"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 360,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:360; scenario_support_first:300; scenario_mixed:300; scenario_skip_supports:360; scenario_low_click_middle:360; scenario_active_click_middle:225; scenario_offline_return_without_support:120; scenario_offline_return_with_support:240; scenario_no_support_completion:360; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:300; scenario_capstone_reachability_sanity:300",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2301,
+          "middle_duration_seconds": 1801,
+          "low_click_middle_seconds": 2071,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5-cost-plus-5",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1561,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1801,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 270,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:240; scenario_support_first:240; scenario_mixed:240; scenario_skip_supports:240; scenario_low_click_middle:270; scenario_active_click_middle:180; scenario_offline_return_without_support:139; scenario_offline_return_with_support:180; scenario_no_support_completion:240; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:240; scenario_capstone_reachability_sanity:240",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2061,
+          "middle_duration_seconds": 1561,
+          "low_click_middle_seconds": 1801,
+          "active_mixed_ratio": 0.721,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5-cost-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 7,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1521,
+          "middle_duration_seconds": 1021,
+          "low_click_middle_seconds": 1171,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-plus-10-effect-minus-10",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 6,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-minus-10-effect-plus-10",
+          "blocker_failures": 1,
+          "major_failures": 0,
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            }
+          ],
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        }
+      ]
+    },
+    {
+      "candidate_id": "phase-6b.2-stage-b-01-03",
+      "zero_blocker_failures_under_individual_5_percent": false,
+      "avoids_catastrophic_failure_under_10_percent": true,
+      "combined_perturbations_pass": false,
+      "runs": [
+        {
+          "id": "base",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.715,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5",
+          "blocker_failures": 1,
+          "major_failures": 3,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 6,
+              "target": "3-5 decisions, deduped"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 239,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:239; scenario_support_first:180; scenario_mixed:180; scenario_skip_supports:239; scenario_low_click_middle:180; scenario_active_click_middle:135; scenario_offline_return_without_support:60; scenario_offline_return_with_support:180; scenario_no_support_completion:239; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:180; scenario_capstone_reachability_sanity:180",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.716,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 7,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1581,
+          "middle_duration_seconds": 1081,
+          "low_click_middle_seconds": 1261,
+          "active_mixed_ratio": 0.709,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-5",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1501,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1711,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 299,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:299; scenario_support_first:240; scenario_mixed:240; scenario_skip_supports:299; scenario_low_click_middle:270; scenario_active_click_middle:180; scenario_offline_return_without_support:94; scenario_offline_return_with_support:180; scenario_no_support_completion:299; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:240; scenario_capstone_reachability_sanity:240",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2001,
+          "middle_duration_seconds": 1501,
+          "low_click_middle_seconds": 1711,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-10",
+          "blocker_failures": 1,
+          "major_failures": 0,
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            }
+          ],
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.716,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-10",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 6,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1351,
+          "active_mixed_ratio": 0.713,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-10",
+          "blocker_failures": 2,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_total_duration",
+              "severity": "Blocker",
+              "actual": 1401,
+              "target": "1500-2400 seconds"
+            },
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 7,
+              "target": "3-5 decisions, deduped"
+            },
+            {
+              "gate_id": "gate_endpoint_not_earlier_than_min_duration",
+              "severity": "Blocker",
+              "actual": 1401,
+              "target": ">= 1500s total online gameplay"
+            }
+          ],
+          "total_duration_seconds": 1401,
+          "middle_duration_seconds": 901,
+          "low_click_middle_seconds": 1081,
+          "active_mixed_ratio": 0.7,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-10",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1801,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 2071,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_capstone_sanity",
+              "severity": "Minor",
+              "actual": "not reached",
+              "target": "capstone reachable in dedicated capstone scenario"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 360,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:360; scenario_support_first:300; scenario_mixed:300; scenario_skip_supports:360; scenario_low_click_middle:360; scenario_active_click_middle:225; scenario_offline_return_without_support:120; scenario_offline_return_with_support:240; scenario_no_support_completion:360; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:300; scenario_capstone_reachability_sanity:300",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2301,
+          "middle_duration_seconds": 1801,
+          "low_click_middle_seconds": 2071,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5-cost-plus-5",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1561,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1801,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 270,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:240; scenario_support_first:240; scenario_mixed:240; scenario_skip_supports:240; scenario_low_click_middle:270; scenario_active_click_middle:180; scenario_offline_return_without_support:139; scenario_offline_return_with_support:180; scenario_no_support_completion:240; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:240; scenario_capstone_reachability_sanity:240",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2061,
+          "middle_duration_seconds": 1561,
+          "low_click_middle_seconds": 1801,
+          "active_mixed_ratio": 0.721,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5-cost-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 7,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1521,
+          "middle_duration_seconds": 1021,
+          "low_click_middle_seconds": 1171,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-plus-10-effect-minus-10",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 6,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-minus-10-effect-plus-10",
+          "blocker_failures": 1,
+          "major_failures": 0,
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            }
+          ],
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        }
+      ]
+    },
+    {
+      "candidate_id": "phase-6b.2-stage-c-01-01-1",
+      "zero_blocker_failures_under_individual_5_percent": false,
+      "avoids_catastrophic_failure_under_10_percent": true,
+      "combined_perturbations_pass": false,
+      "runs": [
+        {
+          "id": "base",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.715,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5",
+          "blocker_failures": 1,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 239,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:239; scenario_support_first:180; scenario_mixed:180; scenario_skip_supports:239; scenario_low_click_middle:180; scenario_active_click_middle:135; scenario_offline_return_without_support:60; scenario_offline_return_with_support:180; scenario_no_support_completion:239; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:180; scenario_capstone_reachability_sanity:180",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.716,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1581,
+          "middle_duration_seconds": 1081,
+          "low_click_middle_seconds": 1261,
+          "active_mixed_ratio": 0.709,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-5",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1501,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1711,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 299,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:299; scenario_support_first:240; scenario_mixed:240; scenario_skip_supports:299; scenario_low_click_middle:180; scenario_active_click_middle:180; scenario_offline_return_without_support:94; scenario_offline_return_with_support:180; scenario_no_support_completion:299; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:240; scenario_capstone_reachability_sanity:240",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2001,
+          "middle_duration_seconds": 1501,
+          "low_click_middle_seconds": 1711,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-10",
+          "blocker_failures": 1,
+          "major_failures": 0,
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            }
+          ],
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.716,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-10",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1351,
+          "active_mixed_ratio": 0.713,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-10",
+          "blocker_failures": 2,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_total_duration",
+              "severity": "Blocker",
+              "actual": 1401,
+              "target": "1500-2400 seconds"
+            },
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 7,
+              "target": "3-5 decisions, deduped"
+            },
+            {
+              "gate_id": "gate_endpoint_not_earlier_than_min_duration",
+              "severity": "Blocker",
+              "actual": 1401,
+              "target": ">= 1500s total online gameplay"
+            }
+          ],
+          "total_duration_seconds": 1401,
+          "middle_duration_seconds": 901,
+          "low_click_middle_seconds": 1081,
+          "active_mixed_ratio": 0.7,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-10",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1801,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 2071,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_capstone_sanity",
+              "severity": "Minor",
+              "actual": "not reached",
+              "target": "capstone reachable in dedicated capstone scenario"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 360,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:360; scenario_support_first:300; scenario_mixed:300; scenario_skip_supports:360; scenario_low_click_middle:270; scenario_active_click_middle:225; scenario_offline_return_without_support:120; scenario_offline_return_with_support:240; scenario_no_support_completion:360; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:300; scenario_capstone_reachability_sanity:300",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2301,
+          "middle_duration_seconds": 1801,
+          "low_click_middle_seconds": 2071,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 3,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5-cost-plus-5",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1561,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1801,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 270,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:240; scenario_support_first:240; scenario_mixed:240; scenario_skip_supports:240; scenario_low_click_middle:270; scenario_active_click_middle:180; scenario_offline_return_without_support:139; scenario_offline_return_with_support:180; scenario_no_support_completion:240; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:240; scenario_capstone_reachability_sanity:240",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2061,
+          "middle_duration_seconds": 1561,
+          "low_click_middle_seconds": 1801,
+          "active_mixed_ratio": 0.721,
+          "meaningful_decisions": 3,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5-cost-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 7,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1521,
+          "middle_duration_seconds": 1021,
+          "low_click_middle_seconds": 1171,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-plus-10-effect-minus-10",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-minus-10-effect-plus-10",
+          "blocker_failures": 1,
+          "major_failures": 0,
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            }
+          ],
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        }
+      ]
+    },
+    {
+      "candidate_id": "phase-6b.2-stage-c-01-01-2",
+      "zero_blocker_failures_under_individual_5_percent": false,
+      "avoids_catastrophic_failure_under_10_percent": true,
+      "combined_perturbations_pass": false,
+      "runs": [
+        {
+          "id": "base",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.715,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5",
+          "blocker_failures": 1,
+          "major_failures": 3,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 6,
+              "target": "3-5 decisions, deduped"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 239,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:239; scenario_support_first:180; scenario_mixed:180; scenario_skip_supports:239; scenario_low_click_middle:180; scenario_active_click_middle:135; scenario_offline_return_without_support:60; scenario_offline_return_with_support:180; scenario_no_support_completion:239; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:180; scenario_capstone_reachability_sanity:180",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.716,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 7,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1581,
+          "middle_duration_seconds": 1081,
+          "low_click_middle_seconds": 1261,
+          "active_mixed_ratio": 0.709,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-5",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1501,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1711,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 299,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:299; scenario_support_first:240; scenario_mixed:240; scenario_skip_supports:299; scenario_low_click_middle:270; scenario_active_click_middle:180; scenario_offline_return_without_support:94; scenario_offline_return_with_support:180; scenario_no_support_completion:299; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:240; scenario_capstone_reachability_sanity:240",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2001,
+          "middle_duration_seconds": 1501,
+          "low_click_middle_seconds": 1711,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-10",
+          "blocker_failures": 1,
+          "major_failures": 0,
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            }
+          ],
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.716,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-10",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 6,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1351,
+          "active_mixed_ratio": 0.713,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-10",
+          "blocker_failures": 2,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_total_duration",
+              "severity": "Blocker",
+              "actual": 1401,
+              "target": "1500-2400 seconds"
+            },
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 7,
+              "target": "3-5 decisions, deduped"
+            },
+            {
+              "gate_id": "gate_endpoint_not_earlier_than_min_duration",
+              "severity": "Blocker",
+              "actual": 1401,
+              "target": ">= 1500s total online gameplay"
+            }
+          ],
+          "total_duration_seconds": 1401,
+          "middle_duration_seconds": 901,
+          "low_click_middle_seconds": 1081,
+          "active_mixed_ratio": 0.7,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-10",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1801,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 2071,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_capstone_sanity",
+              "severity": "Minor",
+              "actual": "not reached",
+              "target": "capstone reachable in dedicated capstone scenario"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 360,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:360; scenario_support_first:300; scenario_mixed:300; scenario_skip_supports:360; scenario_low_click_middle:360; scenario_active_click_middle:225; scenario_offline_return_without_support:120; scenario_offline_return_with_support:240; scenario_no_support_completion:360; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:300; scenario_capstone_reachability_sanity:300",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2301,
+          "middle_duration_seconds": 1801,
+          "low_click_middle_seconds": 2071,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5-cost-plus-5",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1561,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1801,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 270,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:240; scenario_support_first:240; scenario_mixed:240; scenario_skip_supports:240; scenario_low_click_middle:270; scenario_active_click_middle:180; scenario_offline_return_without_support:139; scenario_offline_return_with_support:180; scenario_no_support_completion:240; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:240; scenario_capstone_reachability_sanity:240",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2061,
+          "middle_duration_seconds": 1561,
+          "low_click_middle_seconds": 1801,
+          "active_mixed_ratio": 0.721,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5-cost-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 7,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1521,
+          "middle_duration_seconds": 1021,
+          "low_click_middle_seconds": 1171,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-plus-10-effect-minus-10",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 6,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-minus-10-effect-plus-10",
+          "blocker_failures": 1,
+          "major_failures": 0,
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            }
+          ],
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.75,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        }
+      ]
+    },
+    {
+      "candidate_id": "phase-6b.2-stage-c-02-02-2",
+      "zero_blocker_failures_under_individual_5_percent": false,
+      "avoids_catastrophic_failure_under_10_percent": true,
+      "combined_perturbations_pass": false,
+      "runs": [
+        {
+          "id": "base",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "low_click_middle_seconds": 1351,
+          "active_mixed_ratio": 0.786,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.822,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1351,
+          "active_mixed_ratio": 0.825,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 6,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1581,
+          "middle_duration_seconds": 1081,
+          "low_click_middle_seconds": 1171,
+          "active_mixed_ratio": 0.792,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-5",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1501,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1621,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 270,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:239; scenario_support_first:240; scenario_mixed:240; scenario_skip_supports:239; scenario_low_click_middle:270; scenario_active_click_middle:180; scenario_offline_return_without_support:105; scenario_offline_return_with_support:180; scenario_no_support_completion:239; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:240; scenario_capstone_reachability_sanity:240",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2001,
+          "middle_duration_seconds": 1501,
+          "low_click_middle_seconds": 1621,
+          "active_mixed_ratio": 0.81,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-10",
+          "blocker_failures": 1,
+          "major_failures": 0,
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            }
+          ],
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.818,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-10",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1641,
+          "middle_duration_seconds": 1141,
+          "low_click_middle_seconds": 1261,
+          "active_mixed_ratio": 0.829,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-10",
+          "blocker_failures": 2,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_total_duration",
+              "severity": "Blocker",
+              "actual": 1401,
+              "target": "1500-2400 seconds"
+            },
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 7,
+              "target": "3-5 decisions, deduped"
+            },
+            {
+              "gate_id": "gate_endpoint_not_earlier_than_min_duration",
+              "severity": "Blocker",
+              "actual": 1401,
+              "target": ">= 1500s total online gameplay"
+            }
+          ],
+          "total_duration_seconds": 1401,
+          "middle_duration_seconds": 901,
+          "low_click_middle_seconds": 991,
+          "active_mixed_ratio": 0.8,
+          "meaningful_decisions": 7,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-10",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1741,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1981,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_capstone_sanity",
+              "severity": "Minor",
+              "actual": "not reached",
+              "target": "capstone reachable in dedicated capstone scenario"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 360,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:359; scenario_support_first:300; scenario_mixed:300; scenario_skip_supports:359; scenario_low_click_middle:360; scenario_active_click_middle:225; scenario_offline_return_without_support:185; scenario_offline_return_with_support:180; scenario_no_support_completion:359; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:300; scenario_capstone_reachability_sanity:300",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2241,
+          "middle_duration_seconds": 1741,
+          "low_click_middle_seconds": 1981,
+          "active_mixed_ratio": 0.828,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5-cost-plus-5",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1561,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1711,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 270,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:240; scenario_support_first:240; scenario_mixed:240; scenario_skip_supports:240; scenario_low_click_middle:270; scenario_active_click_middle:180; scenario_offline_return_without_support:132; scenario_offline_return_with_support:180; scenario_no_support_completion:240; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:240; scenario_capstone_reachability_sanity:240",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2061,
+          "middle_duration_seconds": 1561,
+          "low_click_middle_seconds": 1711,
+          "active_mixed_ratio": 0.779,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5-cost-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 1,
+          "failed_gates": [
+            {
+              "gate_id": "gate_meaningful_decisions",
+              "severity": "Major",
+              "actual": 6,
+              "target": "3-5 decisions, deduped"
+            }
+          ],
+          "total_duration_seconds": 1521,
+          "middle_duration_seconds": 1021,
+          "low_click_middle_seconds": 1081,
+          "active_mixed_ratio": 0.794,
+          "meaningful_decisions": 6,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-plus-10-effect-minus-10",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1351,
+          "active_mixed_ratio": 0.788,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-minus-10-effect-plus-10",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.784,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        }
+      ]
+    },
+    {
+      "candidate_id": "phase-6b.2-stage-c-02-04-2",
+      "zero_blocker_failures_under_individual_5_percent": false,
+      "avoids_catastrophic_failure_under_10_percent": true,
+      "combined_perturbations_pass": false,
+      "runs": [
+        {
+          "id": "base",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.822,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 239,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:239; scenario_support_first:180; scenario_mixed:180; scenario_skip_supports:239; scenario_low_click_middle:180; scenario_active_click_middle:135; scenario_offline_return_without_support:48; scenario_offline_return_with_support:180; scenario_no_support_completion:239; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:180; scenario_capstone_reachability_sanity:180",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.818,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1351,
+          "active_mixed_ratio": 0.825,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1581,
+          "middle_duration_seconds": 1081,
+          "low_click_middle_seconds": 1171,
+          "active_mixed_ratio": 0.792,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-5",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1501,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1711,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 270,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:239; scenario_support_first:239; scenario_mixed:180; scenario_skip_supports:239; scenario_low_click_middle:270; scenario_active_click_middle:180; scenario_offline_return_without_support:133; scenario_offline_return_with_support:180; scenario_no_support_completion:239; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:180; scenario_capstone_reachability_sanity:180",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2001,
+          "middle_duration_seconds": 1501,
+          "low_click_middle_seconds": 1711,
+          "active_mixed_ratio": 0.81,
+          "meaningful_decisions": 3,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-10",
+          "blocker_failures": 1,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1531,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 239,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:239; scenario_support_first:180; scenario_mixed:180; scenario_skip_supports:239; scenario_low_click_middle:180; scenario_active_click_middle:135; scenario_offline_return_without_support:81; scenario_offline_return_with_support:180; scenario_no_support_completion:239; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:180; scenario_capstone_reachability_sanity:180",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 1881,
+          "middle_duration_seconds": 1381,
+          "low_click_middle_seconds": 1531,
+          "active_mixed_ratio": 0.783,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-10",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1701,
+          "middle_duration_seconds": 1201,
+          "low_click_middle_seconds": 1351,
+          "active_mixed_ratio": 0.825,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-minus-10",
+          "blocker_failures": 2,
+          "major_failures": 0,
+          "failed_gates": [
+            {
+              "gate_id": "gate_total_duration",
+              "severity": "Blocker",
+              "actual": 1461,
+              "target": "1500-2400 seconds"
+            },
+            {
+              "gate_id": "gate_endpoint_not_earlier_than_min_duration",
+              "severity": "Blocker",
+              "actual": 1461,
+              "target": ">= 1500s total online gameplay"
+            }
+          ],
+          "total_duration_seconds": 1461,
+          "middle_duration_seconds": 961,
+          "low_click_middle_seconds": 1081,
+          "active_mixed_ratio": 0.797,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "cost-plus-10",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1801,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1981,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_capstone_sanity",
+              "severity": "Minor",
+              "actual": "not reached",
+              "target": "capstone reachable in dedicated capstone scenario"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 359,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:359; scenario_support_first:300; scenario_mixed:300; scenario_skip_supports:359; scenario_low_click_middle:270; scenario_active_click_middle:270; scenario_offline_return_without_support:162; scenario_offline_return_with_support:240; scenario_no_support_completion:359; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:300; scenario_capstone_reachability_sanity:300",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2301,
+          "middle_duration_seconds": 1801,
+          "low_click_middle_seconds": 1981,
+          "active_mixed_ratio": 0.825,
+          "meaningful_decisions": 3,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-minus-5-cost-plus-5",
+          "blocker_failures": 2,
+          "major_failures": 2,
+          "failed_gates": [
+            {
+              "gate_id": "gate_middle_duration",
+              "severity": "Blocker",
+              "actual": 1561,
+              "target": "900-1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_low_click_middle_completion",
+              "severity": "Blocker",
+              "actual": 1711,
+              "target": "<= 1500 seconds after promotion"
+            },
+            {
+              "gate_id": "gate_maximum_stall_window",
+              "severity": "Major",
+              "actual": 299,
+              "target": "<= 180s"
+            },
+            {
+              "gate_id": "gate_phase_specific_stalls",
+              "severity": "Major",
+              "actual": "scenario_junior_baseline:175; scenario_level_first:299; scenario_support_first:240; scenario_mixed:180; scenario_skip_supports:299; scenario_low_click_middle:180; scenario_active_click_middle:180; scenario_offline_return_without_support:110; scenario_offline_return_with_support:180; scenario_no_support_completion:299; scenario_buy_max_milestone_crossing:1; scenario_endpoint_completion:180; scenario_capstone_reachability_sanity:180",
+              "target": "each scenario stall <= 180s"
+            }
+          ],
+          "total_duration_seconds": 2061,
+          "middle_duration_seconds": 1561,
+          "low_click_middle_seconds": 1711,
+          "active_mixed_ratio": 0.808,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "production-plus-5-cost-minus-5",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1521,
+          "middle_duration_seconds": 1021,
+          "low_click_middle_seconds": 1171,
+          "active_mixed_ratio": 0.838,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-plus-10-effect-minus-10",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1761,
+          "middle_duration_seconds": 1261,
+          "low_click_middle_seconds": 1351,
+          "active_mixed_ratio": 0.786,
+          "meaningful_decisions": 5,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        },
+        {
+          "id": "support-price-minus-10-effect-plus-10",
+          "blocker_failures": 0,
+          "major_failures": 0,
+          "failed_gates": [],
+          "total_duration_seconds": 1821,
+          "middle_duration_seconds": 1321,
+          "low_click_middle_seconds": 1441,
+          "active_mixed_ratio": 0.818,
+          "meaningful_decisions": 4,
+          "endpoint_reachable": true,
+          "catastrophic_failure": false
+        }
+      ]
+    }
+  ]
+}

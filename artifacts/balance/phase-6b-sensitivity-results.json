@@ -1,0 +1,148 @@
+{
+  "recommended_candidate_id": "phase-6b-candidate-002",
+  "runs": [
+    {
+      "group": "assistant_cost",
+      "multiplier": 0.9,
+      "failed_gates": [
+        "gate_middle_duration",
+        "gate_total_duration",
+        "gate_endpoint_not_earlier_than_min_duration"
+      ],
+      "total_duration_seconds": 1281,
+      "middle_duration_seconds": 781,
+      "active_mixed_ratio": 0.808,
+      "meaningful_decisions": 3,
+      "endpoint_reachable": true,
+      "maximum_endpoint_stall_seconds": 175
+    },
+    {
+      "group": "assistant_cost",
+      "multiplier": 1,
+      "failed_gates": [],
+      "total_duration_seconds": 1821,
+      "middle_duration_seconds": 1321,
+      "active_mixed_ratio": 0.784,
+      "meaningful_decisions": 5,
+      "endpoint_reachable": true,
+      "maximum_endpoint_stall_seconds": 180
+    },
+    {
+      "group": "assistant_cost",
+      "multiplier": 1.1,
+      "failed_gates": [
+        "gate_middle_duration",
+        "gate_total_duration",
+        "gate_low_click_middle_completion",
+        "gate_capstone_sanity",
+        "gate_maximum_stall_window",
+        "gate_phase_specific_stalls"
+      ],
+      "total_duration_seconds": 2541,
+      "middle_duration_seconds": 2041,
+      "active_mixed_ratio": 0.794,
+      "meaningful_decisions": 5,
+      "endpoint_reachable": true,
+      "maximum_endpoint_stall_seconds": 540
+    },
+    {
+      "group": "support_prices",
+      "multiplier": 0.9,
+      "failed_gates": ["gate_maximum_stall_window", "gate_phase_specific_stalls"],
+      "total_duration_seconds": 1761,
+      "middle_duration_seconds": 1261,
+      "active_mixed_ratio": 0.822,
+      "meaningful_decisions": 4,
+      "endpoint_reachable": true,
+      "maximum_endpoint_stall_seconds": 240
+    },
+    {
+      "group": "support_prices",
+      "multiplier": 1,
+      "failed_gates": [],
+      "total_duration_seconds": 1821,
+      "middle_duration_seconds": 1321,
+      "active_mixed_ratio": 0.784,
+      "meaningful_decisions": 5,
+      "endpoint_reachable": true,
+      "maximum_endpoint_stall_seconds": 180
+    },
+    {
+      "group": "support_prices",
+      "multiplier": 1.1,
+      "failed_gates": ["gate_low_click_middle_completion"],
+      "total_duration_seconds": 1821,
+      "middle_duration_seconds": 1321,
+      "active_mixed_ratio": 0.784,
+      "meaningful_decisions": 4,
+      "endpoint_reachable": true,
+      "maximum_endpoint_stall_seconds": 180
+    },
+    {
+      "group": "support_effects",
+      "multiplier": 0.9,
+      "failed_gates": ["gate_low_click_middle_completion"],
+      "total_duration_seconds": 1821,
+      "middle_duration_seconds": 1321,
+      "active_mixed_ratio": 0.784,
+      "meaningful_decisions": 5,
+      "endpoint_reachable": true,
+      "maximum_endpoint_stall_seconds": 180
+    },
+    {
+      "group": "support_effects",
+      "multiplier": 1,
+      "failed_gates": [],
+      "total_duration_seconds": 1821,
+      "middle_duration_seconds": 1321,
+      "active_mixed_ratio": 0.784,
+      "meaningful_decisions": 5,
+      "endpoint_reachable": true,
+      "maximum_endpoint_stall_seconds": 180
+    },
+    {
+      "group": "support_effects",
+      "multiplier": 1.1,
+      "failed_gates": ["gate_maximum_stall_window", "gate_phase_specific_stalls"],
+      "total_duration_seconds": 1821,
+      "middle_duration_seconds": 1321,
+      "active_mixed_ratio": 0.784,
+      "meaningful_decisions": 5,
+      "endpoint_reachable": true,
+      "maximum_endpoint_stall_seconds": 240
+    },
+    {
+      "group": "offline_efficiency",
+      "multiplier": 0.9,
+      "failed_gates": [],
+      "total_duration_seconds": 1821,
+      "middle_duration_seconds": 1321,
+      "active_mixed_ratio": 0.784,
+      "meaningful_decisions": 5,
+      "endpoint_reachable": true,
+      "maximum_endpoint_stall_seconds": 180
+    },
+    {
+      "group": "offline_efficiency",
+      "multiplier": 1,
+      "failed_gates": [],
+      "total_duration_seconds": 1821,
+      "middle_duration_seconds": 1321,
+      "active_mixed_ratio": 0.784,
+      "meaningful_decisions": 5,
+      "endpoint_reachable": true,
+      "maximum_endpoint_stall_seconds": 180
+    },
+    {
+      "group": "offline_efficiency",
+      "multiplier": 1.1,
+      "failed_gates": [],
+      "total_duration_seconds": 1821,
+      "middle_duration_seconds": 1321,
+      "active_mixed_ratio": 0.784,
+      "meaningful_decisions": 5,
+      "endpoint_reachable": true,
+      "maximum_endpoint_stall_seconds": 180
+    }
+  ]
+}
