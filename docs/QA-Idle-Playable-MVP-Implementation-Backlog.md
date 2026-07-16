@@ -65,7 +65,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Protect historical balance artifacts from accidental overwrite
 - Epic: Epic 0 - Tooling and Contract Protection
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Add guardrails that keep historical balance artifacts and rejected candidates immutable during Playable Idle MVP work.
 - Scope: Identify historical artifact paths; add checks that fail if implementation commands overwrite historical Phase 6A/6B artifacts; document the protected-path policy near the balance tooling.
 - Out of Scope: Rewriting simulator behavior; changing balance values; modifying historical reports.

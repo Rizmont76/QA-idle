@@ -5,6 +5,7 @@ import {
   HISTORICAL_BASELINE_PROFILE_ID,
   getParameterProfile,
 } from "./parameters.mjs";
+import { assertWritableBalanceArtifact } from "./artifact-protection.mjs";
 import { runCompleteSimulationSuiteForProfile } from "./simulator.mjs";
 
 const DEFAULT_OUTPUTS_BY_PROFILE = Object.freeze({
@@ -289,6 +290,8 @@ Do not freeze doc 15 yet unless blocker and major failures are explicitly accept
 }
 
 const { profile, resultPath, reportPath } = resolveRunOptions();
+assertWritableBalanceArtifact(resultPath);
+assertWritableBalanceArtifact(reportPath);
 const results = runCompleteSimulationSuiteForProfile(profile.id);
 await mkdir(new URL("../../artifacts/balance/", import.meta.url), { recursive: true });
 await mkdir(new URL("../../docs/reports/", import.meta.url), { recursive: true });
