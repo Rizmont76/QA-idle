@@ -257,6 +257,9 @@ describe("MVP gameplay stat registry", () => {
     expect(gameplayStatDefinitions.map((stat) => stat.id)).toEqual([
       MVP_IDS.gameplayStats.manualBugsPerAction,
       MVP_IDS.gameplayStats.moneyPerBugReported,
+      MVP_IDS.gameplayStats.assistantBugsPerSecond,
+      MVP_IDS.gameplayStats.assistantFutureLevelCost,
+      MVP_IDS.gameplayStats.assistantOfflineEfficiency,
     ]);
   });
 
