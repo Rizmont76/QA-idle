@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   careerStages,
+  createInitialAssistantState,
   createInitialPromotionState,
   createInitialResourceState,
   createInitialUiSurfaceState,
@@ -159,6 +160,7 @@ describe("MVP new game state factory", () => {
       uiSurfaces: createInitialUiSurfaceState(),
       unlocks: createInitialUnlockState(),
       upgrades: createInitialUpgradeState(),
+      assistant: createInitialAssistantState(),
     });
   });
 

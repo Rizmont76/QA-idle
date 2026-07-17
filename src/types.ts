@@ -59,6 +59,11 @@ export const MVP_IDS = {
   },
 } as const;
 
+export const SAVE_SCHEMA_VERSION = {
+  v1: 1,
+  v2: 2,
+} as const;
+
 export type AssistantId = (typeof MVP_IDS.assistants)[keyof typeof MVP_IDS.assistants];
 export type CareerStage =
   (typeof MVP_IDS.careerStages)[keyof typeof MVP_IDS.careerStages];
@@ -72,6 +77,12 @@ export type ActionId = (typeof MVP_IDS.actions)[keyof typeof MVP_IDS.actions];
 export type MvpEventId = (typeof MVP_IDS.events)[keyof typeof MVP_IDS.events];
 export type UpgradeId =
   (typeof MVP_IDS.upgrades)[keyof typeof MVP_IDS.upgrades] | (string & {});
+export type AssistantSupportUpgradeId =
+  | "support_immediate_production"
+  | "support_training_economics"
+  | "support_offline_handover";
+export type AssistantMilestoneId =
+  "milestone_assistant_first" | "milestone_assistant_capstone";
 export type TabId = typeof MVP_IDS.uiSurfaces.manualTesting;
 
 export type ResourceLifetimeCategory = "disposable" | "investment";
@@ -518,9 +529,16 @@ export interface GameState {
   uiSurfaces: Record<UiSurfaceId, UiSurfaceVisibilityState>;
   unlocks: Record<UnlockId, UnlockInitialState | UnlockAvailableState>;
   upgrades: UpgradeOwnershipState;
+  assistant: {
+    unlocked: boolean;
+    level: number;
+    ownedSupportUpgradeIds: AssistantSupportUpgradeId[];
+    reachedMilestoneIds: AssistantMilestoneId[];
+  };
 }
 
-export type SaveSchemaVersion = 1;
+export type SaveSchemaVersion =
+  (typeof SAVE_SCHEMA_VERSION)["v1"] | (typeof SAVE_SCHEMA_VERSION)["v2"];
 
 export interface SaveMetadata {
   schemaVersion: SaveSchemaVersion;
@@ -540,6 +558,7 @@ export interface MvpSaveGameData {
   uiSurfaces: GameState["uiSurfaces"];
   unlocks: GameState["unlocks"];
   upgrades: UpgradeOwnershipState;
+  assistant: GameState["assistant"];
 }
 
 export interface SaveData {
