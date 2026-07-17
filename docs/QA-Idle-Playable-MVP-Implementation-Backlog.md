@@ -235,7 +235,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Extend Modifier System for Assistant path
 - Epic: Epic 1 - Runtime Data Contracts
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Add Modifier System support required by Assistant production, Support Upgrades, milestones and offline efficiency.
 - Scope: Support additive Assistant production, first-milestone production multiplier, future-level cost multiplier from Training Support, offline efficiency modifier from Handover Support, deterministic modifier ordering, scope/target validation, and runtime/simulator parity fixtures.
 - Out of Scope: Direct Money production; automatic reporting; bypassing Modifier System with hard-coded conditional formulas; adding future modifiers outside the approved Assistant path.

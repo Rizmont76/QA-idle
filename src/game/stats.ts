@@ -13,6 +13,24 @@ import type {
 } from "../types";
 import { createActiveModifierRegistry, getUpgradeModifierDefinitions } from "./modifiers";
 
+const FLAT_MODIFIER_TYPE_ORDER = 0;
+const MULTIPLICATIVE_MODIFIER_TYPE_ORDER = 1;
+const OVERRIDE_MODIFIER_TYPE_ORDER = 2;
+const UNSUPPORTED_MODIFIER_TYPE_ORDER = 3;
+
+function getModifierTypeOrder(modifierType: ModifierDefinition["modifierType"]): number {
+  switch (modifierType) {
+    case "flat":
+      return FLAT_MODIFIER_TYPE_ORDER;
+    case "multiplicative":
+      return MULTIPLICATIVE_MODIFIER_TYPE_ORDER;
+    case "override":
+      return OVERRIDE_MODIFIER_TYPE_ORDER;
+    default:
+      return UNSUPPORTED_MODIFIER_TYPE_ORDER;
+  }
+}
+
 function getGameplayStatDefinition(
   statId: GameplayStatId,
   definitions: readonly GameplayStatDefinition[] = gameplayStatDefinitions,
@@ -56,6 +74,12 @@ export function calculateGameplayStat(
       } => modifier !== null,
     )
     .sort((left, right) => {
+      const leftOrder = getModifierTypeOrder(left.definition.modifierType);
+      const rightOrder = getModifierTypeOrder(right.definition.modifierType);
+      if (leftOrder !== rightOrder) {
+        return leftOrder - rightOrder;
+      }
+
       const byDefinition = left.definition.definitionId.localeCompare(
         right.definition.definitionId,
       );
@@ -72,11 +96,21 @@ export function calculateGameplayStat(
     appliedModifiers: GameplayStatModifierBreakdownItem[];
   }>(
     (current, { instance, definition }) => {
-      if (definition.modifierType !== "flat") {
+      if (
+        definition.modifierType !== "flat" &&
+        definition.modifierType !== "multiplicative" &&
+        definition.modifierType !== "override"
+      ) {
         return current;
       }
 
-      const nextValue = Math.max(stat.minimumValue, current.value + definition.value);
+      const unboundedValue =
+        definition.modifierType === "flat"
+          ? current.value + definition.value
+          : definition.modifierType === "multiplicative"
+            ? current.value * definition.value
+            : definition.value;
+      const nextValue = Math.max(stat.minimumValue, unboundedValue);
 
       return {
         value: nextValue,

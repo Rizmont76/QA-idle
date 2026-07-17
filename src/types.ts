@@ -27,6 +27,9 @@ export const MVP_IDS = {
   gameplayStats: {
     manualBugsPerAction: "manual_bugs_per_action",
     moneyPerBugReported: "money_per_bug_reported",
+    assistantBugsPerSecond: "assistant_bugs_per_second",
+    assistantFutureLevelCost: "assistant_future_level_cost",
+    assistantOfflineEfficiency: "assistant_offline_efficiency",
   },
   actions: {
     manualTest: "action_manual_test",
@@ -87,7 +90,12 @@ export type ResourceTransactionValidationFailureCode =
   | "invalid_balance"
   | "balance_below_minimum"
   | "balance_above_maximum";
-export type GameplayStatCategory = "manual_testing" | "bug_reporting";
+export type GameplayStatCategory =
+  | "manual_testing"
+  | "bug_reporting"
+  | "assistant_production"
+  | "assistant_economy"
+  | "offline_progress";
 export type GameplayStatNumericType = "native_number";
 export type UpgradeCategory = "production" | "conversion";
 export type UpgradeType = "one_time";
@@ -110,10 +118,11 @@ export type UpgradePurchaseValidationFailureCode =
 export type UpgradeEffectChannel = "modifier_grant";
 export type UpgradeOwnershipLevel = number;
 export type UpgradeOwnershipState = Record<UpgradeId, UpgradeOwnershipLevel>;
-export type ModifierType = "flat" | (string & {});
+export type ModifierType = "flat" | "multiplicative" | "override" | (string & {});
 export type ModifierDurationType = "permanent" | (string & {});
 export type ModifierStackingPolicy = "ignore" | (string & {});
-export type ModifierSourceType = "upgrade" | (string & {});
+export type ModifierSourceType =
+  "upgrade" | "assistant_support" | "assistant_milestone" | (string & {});
 export type ModifierDefinitionId = string;
 export type ModifierInstanceId = string;
 export type ModifierRegistrationFailureCode =
@@ -121,7 +130,8 @@ export type ModifierRegistrationFailureCode =
   | "unsupported_modifier_source"
   | "unsupported_modifier_type"
   | "unsupported_modifier_duration"
-  | "unsupported_modifier_stacking";
+  | "unsupported_modifier_stacking"
+  | "unsupported_modifier_scope";
 export type PromotionRequirementType =
   "lifetime_resource_at_least" | "purchased_upgrades_at_least";
 export type PromotionRequirementSource =

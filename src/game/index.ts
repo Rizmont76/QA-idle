@@ -1,4 +1,5 @@
 export * from "./assistant";
+export * from "./assistantModifiers";
 export * from "./assistantProgression";
 export * from "./commands";
 export * from "./events";
