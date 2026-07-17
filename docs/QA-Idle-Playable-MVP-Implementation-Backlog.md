@@ -214,7 +214,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Separate simulation cadence from runtime cooldowns
 - Epic: Epic 1 - Runtime Data Contracts
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Prevent locked simulator cadence assumptions from becoming runtime action cooldowns.
 - Scope: Mark candidate cadence parameters as simulator-only; ensure runtime action timing continues to follow existing gameplay rules and documented runtime behavior.
 - Out of Scope: Changing simulator scenarios; adding real-time cooldown mechanics.

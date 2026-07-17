@@ -1432,6 +1432,25 @@ describe("resource operations", () => {
 });
 
 describe("gameplay action operations", () => {
+  it("keeps manual testing available without a simulator-cadence cooldown", () => {
+    const firstResult = performManualTest(initialState, 100);
+
+    expect(firstResult.ok).toBe(true);
+    if (!firstResult.ok) {
+      throw new Error("The first Manual Testing action should succeed.");
+    }
+
+    const immediateResult = performManualTest(firstResult.game, 101);
+
+    expect(immediateResult.ok).toBe(true);
+    if (!immediateResult.ok) {
+      throw new Error("Manual Testing must not wait for a simulator cadence.");
+    }
+
+    expect(immediateResult.game.resources[MVP_IDS.resources.bugsFound]).toBe(2);
+    expect(immediateResult.game.totalBugsFound).toBe(2);
+  });
+
   it("performs manual testing through a resource transaction", () => {
     const result = performManualTest(
       {
