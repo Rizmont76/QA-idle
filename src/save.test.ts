@@ -30,6 +30,15 @@ describe("save storage", () => {
     expect(loadSave()).toEqual({ game: createNewGameState(Date.now()), events: [] });
   });
 
+  it("creates schema v2 Assistant state for a new game", () => {
+    expect(createNewGameState(Date.now()).assistant).toEqual({
+      unlocked: false,
+      level: 0,
+      ownedSupportUpgradeIds: [],
+      reachedMilestoneIds: [],
+    });
+  });
+
   it("normalizes invalid saved values", () => {
     localStorage.setItem(
       SAVE_KEY,
@@ -82,7 +91,7 @@ describe("save storage", () => {
 
     expect(JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}")).toMatchObject({
       meta: {
-        schemaVersion: 1,
+        schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
         createdAt: Date.now(),
         lastSavedAt: Date.now(),
         lastActiveAt: Date.now(),
@@ -147,6 +156,7 @@ describe("save storage", () => {
     expect(Object.keys(saved.game).sort()).toEqual(
       [
         "careerStage",
+        "assistant",
         "lastPlayedAt",
         "promotion",
         "resources",
@@ -172,6 +182,7 @@ describe("save storage", () => {
       unlocks: {
         [MVP_IDS.unlocks.promotionJuniorToMiddle]: "available",
       },
+      assistant: initialState.assistant,
     });
   });
 
@@ -198,6 +209,12 @@ describe("save storage", () => {
         [MVP_IDS.upgrades.betterChecklist]: 1,
         [MVP_IDS.upgrades.bugReportTemplate]: 1,
       },
+      assistant: {
+        unlocked: true,
+        level: 8,
+        ownedSupportUpgradeIds: ["support_immediate_production"],
+        reachedMilestoneIds: ["milestone_assistant_first"],
+      },
     };
 
     const saved = serializeGameForSave(game);
@@ -212,6 +229,7 @@ describe("save storage", () => {
       uiSurfaces: game.uiSurfaces,
       unlocks: game.unlocks,
       upgrades: game.upgrades,
+      assistant: game.assistant,
     });
     expect(saved.game).not.toHaveProperty("modifiers");
     expect(saved.game).not.toHaveProperty("team");
@@ -271,6 +289,7 @@ describe("save storage", () => {
       upgrades: {
         [MVP_IDS.upgrades.betterChecklist]: 1,
       },
+      assistant: initialState.assistant,
     });
     expect(loadedVersionedSave.events).toEqual([
       {
@@ -278,7 +297,7 @@ describe("save storage", () => {
         payload: {
           schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
           loadedAt: Date.now(),
-          migratedFromVersions: ["legacy_raw_game_state"],
+          migratedFromVersions: ["legacy_raw_game_state", "schema_v1"],
         },
       },
     ]);
@@ -310,7 +329,7 @@ describe("save storage", () => {
 
     expect(JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}")).toMatchObject({
       meta: {
-        schemaVersion: 1,
+        schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
         migratedFromVersions: ["legacy_raw_game_state"],
       },
       game: {
@@ -319,6 +338,44 @@ describe("save storage", () => {
           [MVP_IDS.resources.money]: 4,
         },
       },
+    });
+  });
+
+  it("normalizes malformed Assistant state without granting progress", () => {
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        meta: {
+          schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+        },
+        game: {
+          assistant: {
+            unlocked: "yes",
+            level: 999,
+            ownedSupportUpgradeIds: [
+              "support_training_economics",
+              "support_unknown",
+              "support_immediate_production",
+              "support_immediate_production",
+            ],
+            reachedMilestoneIds: [
+              "milestone_assistant_capstone",
+              "milestone_unknown",
+              "milestone_assistant_first",
+            ],
+          },
+        },
+      }),
+    );
+
+    expect(loadSave().game.assistant).toEqual({
+      unlocked: false,
+      level: 25,
+      ownedSupportUpgradeIds: [
+        "support_immediate_production",
+        "support_training_economics",
+      ],
+      reachedMilestoneIds: ["milestone_assistant_first", "milestone_assistant_capstone"],
     });
   });
 

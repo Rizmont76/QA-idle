@@ -1,4 +1,5 @@
 import {
+  createInitialAssistantState,
   SAVE_KEY,
   createInitialPromotionState,
   createInitialResourceState,
@@ -10,7 +11,12 @@ import {
   unlockDefinitions,
   upgrades,
 } from "./gameData";
-import { MVP_IDS } from "./types";
+import {
+  assistantMilestoneDefinitions,
+  assistantSupportUpgradeDefinitions,
+} from "./game/assistantProgression";
+import { juniorQaAssistantDefinition } from "./game/assistant";
+import { MVP_IDS, SAVE_SCHEMA_VERSION } from "./types";
 import type {
   GameLoadedEventDescriptor,
   GameSavedEventDescriptor,
@@ -27,7 +33,7 @@ import type {
   UpgradeOwnershipState,
 } from "./types";
 
-export const CURRENT_SAVE_SCHEMA_VERSION = 1 as const;
+export const CURRENT_SAVE_SCHEMA_VERSION = SAVE_SCHEMA_VERSION.v2;
 
 export interface LoadSaveResult {
   game: GameState;
@@ -198,6 +204,43 @@ function normalizeCareerStage(value: unknown): GameState["careerStage"] {
     : MVP_IDS.careerStages.juniorQa;
 }
 
+function normalizeAssistantIds<T extends string>(
+  value: unknown,
+  definitions: readonly { readonly id: T }[],
+): T[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const savedIds = new Set(value.filter((id): id is T => typeof id === "string"));
+  return definitions.map((definition) => definition.id).filter((id) => savedIds.has(id));
+}
+
+export function normalizeAssistantState(value: unknown): GameState["assistant"] {
+  const saved = isRecord(value) ? value : {};
+  const defaults = createInitialAssistantState();
+  const savedLevel = Number(saved["level"]);
+  const normalizedLevel = Number.isFinite(savedLevel)
+    ? Math.floor(savedLevel)
+    : defaults.level;
+
+  return {
+    unlocked: saved["unlocked"] === true,
+    level: Math.min(
+      Math.max(normalizedLevel, juniorQaAssistantDefinition.level.minimum),
+      juniorQaAssistantDefinition.level.maximum,
+    ),
+    ownedSupportUpgradeIds: normalizeAssistantIds(
+      saved["ownedSupportUpgradeIds"],
+      assistantSupportUpgradeDefinitions,
+    ),
+    reachedMilestoneIds: normalizeAssistantIds(
+      saved["reachedMilestoneIds"],
+      assistantMilestoneDefinitions,
+    ),
+  };
+}
+
 function normalizeGameState(value: unknown, now = Date.now()): GameState {
   const parsed = (isRecord(value) ? value : {}) as Partial<GameState> & LegacySaveFields;
 
@@ -212,6 +255,7 @@ function normalizeGameState(value: unknown, now = Date.now()): GameState {
     uiSurfaces: normalizeUiSurfaces(parsed.uiSurfaces),
     unlocks: normalizeUnlocks(parsed.unlocks),
     upgrades: normalizeUpgradeOwnership(parsed.upgrades),
+    assistant: normalizeAssistantState(parsed.assistant),
   };
 }
 
@@ -220,7 +264,11 @@ function hasSupportedSchemaVersion(parsed: Record<string, unknown>) {
     return true;
   }
 
-  return parsed["meta"]["schemaVersion"] === CURRENT_SAVE_SCHEMA_VERSION;
+  const schemaVersion = parsed["meta"]["schemaVersion"];
+  return (
+    schemaVersion === SAVE_SCHEMA_VERSION.v1 ||
+    schemaVersion === CURRENT_SAVE_SCHEMA_VERSION
+  );
 }
 
 function getSavedGamePayload(parsed: unknown) {
@@ -250,6 +298,7 @@ function toMvpSaveGameData(game: GameState, lastPlayedAt: number): MvpSaveGameDa
     uiSurfaces: game.uiSurfaces,
     unlocks: game.unlocks,
     upgrades: game.upgrades,
+    assistant: game.assistant,
   };
 }
 
@@ -280,18 +329,12 @@ function readExistingSaveMetadata(now: number): SaveData["meta"] {
 
     const meta = parsed["meta"];
     const createdAt = safeNumber(meta["createdAt"]);
-    const migratedFromVersions = Array.isArray(meta["migratedFromVersions"])
-      ? meta["migratedFromVersions"].filter(
-          (version): version is string => typeof version === "string",
-        )
-      : [];
-
     return {
       schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
       createdAt: createdAt || now,
       lastSavedAt: now,
       lastActiveAt: now,
-      migratedFromVersions,
+      migratedFromVersions: getMigratedFromVersions(parsed),
     };
   } catch {
     return fallback;
@@ -329,12 +372,16 @@ function getMigratedFromVersions(parsed: unknown) {
   }
 
   const meta = parsed["meta"];
-
-  return Array.isArray(meta["migratedFromVersions"])
+  const migratedFromVersions = Array.isArray(meta["migratedFromVersions"])
     ? meta["migratedFromVersions"].filter(
         (version): version is string => typeof version === "string",
       )
     : [];
+
+  return meta["schemaVersion"] === SAVE_SCHEMA_VERSION.v1 &&
+    !migratedFromVersions.includes("schema_v1")
+    ? [...migratedFromVersions, "schema_v1"]
+    : migratedFromVersions;
 }
 
 export function loadSave(): LoadSaveResult {

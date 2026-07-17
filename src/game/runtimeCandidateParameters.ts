@@ -2,13 +2,7 @@ export const ACTIVE_RUNTIME_PARAMETER_PROFILE_ID = "phase-6b.2-stage-a-003";
 export const ACTIVE_RUNTIME_PARAMETER_VERSION =
   "doc15-provisional-implementation-candidate-v1-phase-6b.2-stage-a-003";
 
-export type AssistantSupportUpgradeId =
-  | "support_immediate_production"
-  | "support_training_economics"
-  | "support_offline_handover";
-
-export type AssistantMilestoneId =
-  "milestone_assistant_first" | "milestone_assistant_capstone";
+export type { AssistantMilestoneId, AssistantSupportUpgradeId } from "../types";
 
 export interface RuntimeCandidateParameterContract {
   profileId: string;

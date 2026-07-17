@@ -258,7 +258,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Introduce save schema v2 and Assistant state
 - Epic: Epic 2 - State and Save Schema v2
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Add save-compatible state for Assistant runtime progress.
 - Scope: Persist Assistant unlocked flag, level, max level reference or validated level cap, owned Support Upgrade IDs and reached milestone IDs.
 - Out of Scope: Offline progress calculation; purchases; UI display.

@@ -484,6 +484,15 @@ export function createInitialPromotionState(): GameState["promotion"] {
   };
 }
 
+export function createInitialAssistantState(): GameState["assistant"] {
+  return {
+    unlocked: false,
+    level: 0,
+    ownedSupportUpgradeIds: [],
+    reachedMilestoneIds: [],
+  };
+}
+
 export function createNewGameState(now = Date.now()): GameState {
   return {
     resources: createInitialResourceState(),
@@ -495,6 +504,7 @@ export function createNewGameState(now = Date.now()): GameState {
     uiSurfaces: createInitialUiSurfaceState(),
     unlocks: createInitialUnlockState(),
     upgrades: createInitialUpgradeState(),
+    assistant: createInitialAssistantState(),
   };
 }
 
