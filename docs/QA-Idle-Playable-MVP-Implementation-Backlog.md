@@ -151,7 +151,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Define stable Assistant data contract
 - Epic: Epic 1 - Runtime Data Contracts
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Introduce the Junior QA Assistant definition as one persistent passive producer.
 - Scope: Define stable ID, level range, max level 25, level 0 production eligibility, ownership/unlock flags and relationship to Middle QA.
 - Out of Scope: Multiple Assistants; full Team management; UI presentation; production tick implementation.
