@@ -193,7 +193,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Define Support Upgrade and milestone records
 - Epic: Epic 1 - Runtime Data Contracts
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Define stable records for the three Support Upgrades and two Assistant milestones.
 - Scope: Add `support_immediate_production`, `support_training_economics`, `support_offline_handover`, `milestone_assistant_first` at level 8 and `milestone_assistant_capstone` at level 25.
 - Out of Scope: Purchasing Support Upgrades; milestone event emission; UI cards.
