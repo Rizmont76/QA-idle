@@ -3,6 +3,7 @@ import {
   ACTIVE_RUNTIME_PARAMETER_PROFILE_ID,
   ACTIVE_RUNTIME_PARAMETER_VERSION,
   RUNTIME_CANDIDATE_PARAMETER_GROUPS,
+  SIMULATOR_ONLY_CADENCE_PARAMETER_IDS,
   SIMULATOR_ONLY_PARAMETER_IDS,
   activeRuntimeCandidateParameters,
   loadActiveRuntimeCandidateParameters,
@@ -114,6 +115,19 @@ describe("runtime candidate parameter contract", () => {
     for (const parameterId of SIMULATOR_ONLY_PARAMETER_IDS) {
       expect(serializedContract).not.toContain(parameterId);
     }
+  });
+
+  it("marks balance scenario cadence as simulator-only", () => {
+    expect(SIMULATOR_ONLY_CADENCE_PARAMETER_IDS).toEqual([
+      "PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS",
+      "PARAM_JUNIOR_BASELINE_REPORT_INTERVAL_SECONDS",
+      "PARAM_BASELINE_MIDDLE_MANUAL_ACTION_INTERVAL_SECONDS",
+      "PARAM_BASELINE_MIDDLE_REPORT_INTERVAL_SECONDS",
+      "PARAM_ACTIVE_CLICK_MANUAL_ACTION_INTERVAL_SECONDS",
+      "PARAM_ACTIVE_CLICK_REPORT_INTERVAL_SECONDS",
+      "PARAM_LOW_CLICK_MANUAL_ACTION_INTERVAL_SECONDS",
+      "PARAM_LOW_CLICK_REPORT_INTERVAL_SECONDS",
+    ]);
   });
 
   it("validates required runtime groups and cross-group invariants", () => {
