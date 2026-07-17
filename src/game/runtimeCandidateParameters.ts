@@ -143,7 +143,7 @@ export const SIMULATOR_ONLY_PARAMETER_IDS = Object.freeze([
   "PARAM_SAFE_MAX_COST_VALUE",
 ] as const);
 
-export const activeRuntimeCandidateParameters = {
+const activeRuntimeCandidateParameterSource = {
   profileId: ACTIVE_RUNTIME_PARAMETER_PROFILE_ID,
   parameterVersion: ACTIVE_RUNTIME_PARAMETER_VERSION,
   assistant: {
@@ -224,16 +224,40 @@ export const activeRuntimeCandidateParameters = {
   },
 } as const satisfies RuntimeCandidateParameterContract;
 
-export function validateRuntimeCandidateParameterContract(
-  contract: Partial<RuntimeCandidateParameterContract>,
-): string[] {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function validatePositiveInteger(value: unknown, path: string, failures: string[]) {
+  if (!Number.isInteger(value) || (value as number) <= 0) {
+    failures.push(`${path} must be a positive integer.`);
+  }
+}
+
+function validateNonNegativeNumber(value: unknown, path: string, failures: string[]) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    failures.push(`${path} must be a finite non-negative number.`);
+  }
+}
+
+function validatePositiveNumber(value: unknown, path: string, failures: string[]) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    failures.push(`${path} must be a finite positive number.`);
+  }
+}
+
+export function validateRuntimeCandidateParameterContract(contract: unknown): string[] {
   const failures: string[] = [];
 
-  if (contract.profileId !== ACTIVE_RUNTIME_PARAMETER_PROFILE_ID) {
+  if (!isRecord(contract)) {
+    return ["Runtime candidate parameter contract must be an object."];
+  }
+
+  if (contract["profileId"] !== ACTIVE_RUNTIME_PARAMETER_PROFILE_ID) {
     failures.push("profileId must match the active implementation candidate.");
   }
 
-  if (contract.parameterVersion !== ACTIVE_RUNTIME_PARAMETER_VERSION) {
+  if (contract["parameterVersion"] !== ACTIVE_RUNTIME_PARAMETER_VERSION) {
     failures.push("parameterVersion must match the active candidate version.");
   }
 
@@ -243,45 +267,139 @@ export function validateRuntimeCandidateParameterContract(
     }
   }
 
+  const assistant = isRecord(contract["assistant"]) ? contract["assistant"] : null;
+  if (assistant === null && contract["assistant"] !== undefined) {
+    failures.push("assistant must be an object.");
+  }
+  if (assistant !== null) {
+    validatePositiveInteger(assistant["maxLevel"], "assistant.maxLevel", failures);
+
+    const cost = isRecord(assistant["cost"]) ? assistant["cost"] : null;
+    if (cost === null) {
+      failures.push("assistant.cost must be an object.");
+    } else {
+      validatePositiveNumber(cost["baseCost"], "assistant.cost.baseCost", failures);
+      validatePositiveNumber(cost["growth"], "assistant.cost.growth", failures);
+      validateNonNegativeNumber(
+        cost["linearCost"],
+        "assistant.cost.linearCost",
+        failures,
+      );
+    }
+
+    const production = isRecord(assistant["production"]) ? assistant["production"] : null;
+    if (production === null) {
+      failures.push("assistant.production must be an object.");
+    } else {
+      validateNonNegativeNumber(
+        production["baseBugsPerSecond"],
+        "assistant.production.baseBugsPerSecond",
+        failures,
+      );
+      validateNonNegativeNumber(
+        production["bugsPerSecondPerLevel"],
+        "assistant.production.bugsPerSecondPerLevel",
+        failures,
+      );
+    }
+  }
+
+  const endpoint = isRecord(contract["endpoint"]) ? contract["endpoint"] : null;
+  if (endpoint === null && contract["endpoint"] !== undefined) {
+    failures.push("endpoint must be an object.");
+  }
+  if (endpoint !== null) {
+    validatePositiveInteger(
+      endpoint["assistantLevelTarget"],
+      "endpoint.assistantLevelTarget",
+      failures,
+    );
+  }
+
+  const formatting = isRecord(contract["formatting"]) ? contract["formatting"] : null;
+  if (formatting === null && contract["formatting"] !== undefined) {
+    failures.push("formatting must be an object.");
+  }
+  if (formatting !== null) {
+    validatePositiveInteger(
+      formatting["numericScaleDecimalPlaces"],
+      "formatting.numericScaleDecimalPlaces",
+      failures,
+    );
+  }
+
   if (
-    contract.endpoint !== undefined &&
-    contract.assistant !== undefined &&
-    contract.endpoint.assistantLevelTarget > contract.assistant.maxLevel
+    endpoint !== null &&
+    assistant !== null &&
+    typeof endpoint["assistantLevelTarget"] === "number" &&
+    typeof assistant["maxLevel"] === "number" &&
+    endpoint["assistantLevelTarget"] > assistant["maxLevel"]
   ) {
     failures.push("endpoint.assistantLevelTarget cannot exceed assistant.maxLevel.");
   }
 
+  const milestones = Array.isArray(contract["milestones"])
+    ? contract["milestones"]
+    : null;
+  if (milestones === null && contract["milestones"] !== undefined) {
+    failures.push("milestones must be an array.");
+  }
   if (
-    contract.milestones !== undefined &&
-    contract.endpoint !== undefined &&
-    contract.milestones[0].level !== contract.endpoint.assistantLevelTarget
+    milestones !== null &&
+    endpoint !== null &&
+    isRecord(milestones[0]) &&
+    milestones[0]["level"] !== endpoint["assistantLevelTarget"]
   ) {
     failures.push("First Assistant milestone must align with endpoint level target.");
   }
 
   if (
-    contract.milestones !== undefined &&
-    contract.assistant !== undefined &&
-    contract.milestones[1].level !== contract.assistant.maxLevel
+    milestones !== null &&
+    assistant !== null &&
+    isRecord(milestones[1]) &&
+    milestones[1]["level"] !== assistant["maxLevel"]
   ) {
     failures.push("Capstone Assistant milestone must align with assistant.maxLevel.");
   }
 
+  const offlineProgress = isRecord(contract["offlineProgress"])
+    ? contract["offlineProgress"]
+    : null;
+  if (offlineProgress === null && contract["offlineProgress"] !== undefined) {
+    failures.push("offlineProgress must be an object.");
+  }
   if (
-    contract.offlineProgress !== undefined &&
-    contract.offlineProgress.efficiencyWithHandoverSupport <
-      contract.offlineProgress.baseEfficiency
+    offlineProgress !== null &&
+    typeof offlineProgress["efficiencyWithHandoverSupport"] === "number" &&
+    typeof offlineProgress["baseEfficiency"] === "number" &&
+    offlineProgress["efficiencyWithHandoverSupport"] < offlineProgress["baseEfficiency"]
   ) {
     failures.push("Offline Handover Support efficiency cannot be below base efficiency.");
   }
 
-  if (contract.offlineProgress?.moneyProductionAllowed) {
+  if (offlineProgress?.["moneyProductionAllowed"]) {
     failures.push("Offline progress must not produce Money directly.");
   }
 
-  if (contract.offlineProgress?.automaticReportAllowed) {
+  if (offlineProgress?.["automaticReportAllowed"]) {
     failures.push("Offline progress must not automatically Report Bugs.");
   }
 
   return failures;
 }
+
+export function loadActiveRuntimeCandidateParameters(
+  source: unknown,
+): RuntimeCandidateParameterContract {
+  const failures = validateRuntimeCandidateParameterContract(source);
+
+  if (failures.length > 0) {
+    throw new Error(`Invalid active runtime candidate parameters: ${failures.join(" ")}`);
+  }
+
+  return source as RuntimeCandidateParameterContract;
+}
+
+export const activeRuntimeCandidateParameters = Object.freeze(
+  loadActiveRuntimeCandidateParameters(activeRuntimeCandidateParameterSource),
+);
