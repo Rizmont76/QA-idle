@@ -140,3 +140,17 @@ npm run check
 ```
 
 For build or runtime behavior changes, also run the smallest relevant build or smoke check.
+
+## Playable Idle MVP Verification Matrix
+
+Use the active [Playable Idle MVP backlog](QA-Idle-Playable-MVP-Implementation-Backlog.md) as the task-specific authority: its required tests and verification commands take precedence over this routing matrix.
+
+| Change category | Required verification |
+|---|---|
+| Documentation-only | `npm run check` |
+| Runtime, save, gameplay, tooling, or data-contract change | The smallest relevant targeted test (for example, `pnpm test -- --run <test-file>`) and `npm run check` |
+| Active candidate parameters, formulas, simulation parity, or balance-affecting runtime behavior | The relevant targeted tests, `npm run balance:candidate`, and `npm run check` |
+| Player-facing UI or accessibility behavior | Relevant component/interaction/accessibility tests, `npm run check`, and `npm run build` when the task requires build verification |
+| Playtest-candidate or acceptance task | `pnpm test -- --run`, `npm run balance:candidate`, `npm run check`, `npm run build`, plus the backlog-required scripted runtime or manual acceptance runs |
+
+`npm run balance:candidate` validates the active provisional profile, `phase-6b.2-stage-a-003`; it does not replace runtime, UI, save, or playtest verification. Do not run checks that are not applicable to the selected task merely because they appear in a later acceptance task.
