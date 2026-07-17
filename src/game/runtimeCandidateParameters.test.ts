@@ -5,9 +5,9 @@ import {
   RUNTIME_CANDIDATE_PARAMETER_GROUPS,
   SIMULATOR_ONLY_PARAMETER_IDS,
   activeRuntimeCandidateParameters,
+  loadActiveRuntimeCandidateParameters,
   validateRuntimeCandidateParameterContract,
 } from "./runtimeCandidateParameters";
-import type { RuntimeCandidateParameterContract } from "./runtimeCandidateParameters";
 
 describe("runtime candidate parameter contract", () => {
   it("exposes the active candidate identity and version through one stable contract", () => {
@@ -131,12 +131,49 @@ describe("runtime candidate parameter contract", () => {
         ...activeRuntimeCandidateParameters.offlineProgress,
         moneyProductionAllowed: true,
       },
-    } as unknown as RuntimeCandidateParameterContract;
+    };
 
     expect(validateRuntimeCandidateParameterContract(invalidContract)).toEqual([
       "endpoint.assistantLevelTarget cannot exceed assistant.maxLevel.",
       "First Assistant milestone must align with endpoint level target.",
       "Offline progress must not produce Money directly.",
     ]);
+  });
+
+  it("loads the active candidate through one validated runtime boundary", () => {
+    expect(loadActiveRuntimeCandidateParameters(activeRuntimeCandidateParameters)).toBe(
+      activeRuntimeCandidateParameters,
+    );
+  });
+
+  it("rejects missing or malformed active candidate values loudly", () => {
+    const malformedCandidate = {
+      ...activeRuntimeCandidateParameters,
+      assistant: {
+        ...activeRuntimeCandidateParameters.assistant,
+        maxLevel: "25",
+        cost: {
+          ...activeRuntimeCandidateParameters.assistant.cost,
+          baseCost: Number.NaN,
+        },
+      },
+      formatting: {
+        ...activeRuntimeCandidateParameters.formatting,
+        numericScaleDecimalPlaces: 0,
+      },
+    };
+
+    expect(() => loadActiveRuntimeCandidateParameters(undefined)).toThrow(
+      "Runtime candidate parameter contract must be an object.",
+    );
+    expect(() => loadActiveRuntimeCandidateParameters(malformedCandidate)).toThrow(
+      "assistant.maxLevel must be a positive integer.",
+    );
+    expect(() => loadActiveRuntimeCandidateParameters(malformedCandidate)).toThrow(
+      "assistant.cost.baseCost must be a finite positive number.",
+    );
+    expect(() => loadActiveRuntimeCandidateParameters(malformedCandidate)).toThrow(
+      "formatting.numericScaleDecimalPlaces must be a positive integer.",
+    );
   });
 });

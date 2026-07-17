@@ -172,7 +172,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Load active candidate parameters for runtime use
 - Epic: Epic 1 - Runtime Data Contracts
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Make active candidate values available to gameplay modules through the runtime parameter contract.
 - Scope: Include max level 25, endpoint level 8, base cost 200, growth 1.14, linear cost 10, base production 0.8, per-level production 0.2, milestone multiplier 1.3 and decimal precision 6.
 - Out of Scope: Balance tuning; simulator scenario cadence; UI formatting implementation.
