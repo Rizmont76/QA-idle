@@ -1,6 +1,7 @@
-export const ACTIVE_RUNTIME_PARAMETER_PROFILE_ID = "phase-6b.2-stage-a-003";
-export const ACTIVE_RUNTIME_PARAMETER_VERSION =
-  "doc15-provisional-implementation-candidate-v1-phase-6b.2-stage-a-003";
+import activeCandidateSource from "../../data/balance/active-candidate.json";
+
+export const ACTIVE_RUNTIME_PARAMETER_PROFILE_ID = activeCandidateSource.profileId;
+export const ACTIVE_RUNTIME_PARAMETER_VERSION = activeCandidateSource.parameterVersion;
 const ASSISTANT_MILESTONE_COUNT = 2;
 
 export type { AssistantMilestoneId, AssistantSupportUpgradeId } from "../types";
@@ -84,6 +85,11 @@ export interface RuntimeCandidateParameterContract {
     integerMin: number;
     compactMin: number;
   };
+  safeBounds: {
+    resourceValue: number;
+    rateValue: number;
+    costValue: number;
+  };
 }
 
 type RuntimeParameterGroupName = keyof Pick<
@@ -94,6 +100,7 @@ type RuntimeParameterGroupName = keyof Pick<
   | "endpoint"
   | "offlineProgress"
   | "formatting"
+  | "safeBounds"
 >;
 
 export const RUNTIME_CANDIDATE_PARAMETER_GROUPS = Object.freeze([
@@ -103,6 +110,7 @@ export const RUNTIME_CANDIDATE_PARAMETER_GROUPS = Object.freeze([
   "endpoint",
   "offlineProgress",
   "formatting",
+  "safeBounds",
 ] satisfies readonly RuntimeParameterGroupName[]);
 
 /**
@@ -141,91 +149,13 @@ export const SIMULATOR_ONLY_PARAMETER_IDS = Object.freeze([
   "PARAM_MAX_STALL_SECONDS",
   "PARAM_DOMINANT_STRATEGY_MAX_ADVANTAGE_RATIO",
   "PARAM_BUY_MAX_SAFE_LEVELS_PER_ACTION",
-  "PARAM_SAFE_MAX_RESOURCE_VALUE",
-  "PARAM_SAFE_MAX_RATE_VALUE",
-  "PARAM_SAFE_MAX_COST_VALUE",
 ] as const);
 
 const activeRuntimeCandidateParameterSource = {
-  profileId: ACTIVE_RUNTIME_PARAMETER_PROFILE_ID,
-  parameterVersion: ACTIVE_RUNTIME_PARAMETER_VERSION,
-  assistant: {
-    maxLevel: 25,
-    cost: {
-      baseCost: 200,
-      growth: 1.14,
-      linearCost: 10,
-      trainingSupportCostMultiplier: 0.76,
-    },
-    production: {
-      baseBugsPerSecond: 0.8,
-      bugsPerSecondPerLevel: 0.2,
-      immediateSupportAddBugsPerSecond: 0.22,
-    },
-  },
-  milestones: [
-    {
-      id: "milestone_assistant_first",
-      level: 8,
-      productionMultiplier: 1.3,
-      endpointRelevant: true,
-    },
-    {
-      id: "milestone_assistant_capstone",
-      level: 25,
-      productionMultiplier: null,
-      endpointRelevant: false,
-    },
-  ],
-  supportUpgrades: [
-    {
-      id: "support_immediate_production",
-      unlockLevel: 0,
-      price: 120,
-      effect: {
-        type: "assistant_production_additive",
-        bugsPerSecond: 0.22,
-      },
-    },
-    {
-      id: "support_training_economics",
-      unlockLevel: 2,
-      price: 160,
-      effect: {
-        type: "future_assistant_level_cost_multiplier",
-        multiplier: 0.76,
-      },
-    },
-    {
-      id: "support_offline_handover",
-      unlockLevel: 5,
-      price: 150,
-      effect: {
-        type: "offline_efficiency_multiplier_source",
-        efficiencyWithSupport: 0.62,
-      },
-    },
-  ],
-  endpoint: {
-    assistantLevelTarget: 8,
-    supportUpgradesRequired: false,
-    capstoneRequired: false,
-  },
-  offlineProgress: {
-    timeCapSeconds: 7200,
-    baseEfficiency: 0.35,
-    efficiencyWithHandoverSupport: 0.62,
-    producedResourceId: "bugs_found",
-    moneyProductionAllowed: false,
-    automaticReportAllowed: false,
-  },
-  formatting: {
-    numericScaleDecimalPlaces: 6,
-    decimalMaxBelow: 100,
-    integerMin: 100,
-    compactMin: 1_000_000,
-  },
-} as const satisfies RuntimeCandidateParameterContract;
+  profileId: activeCandidateSource.profileId,
+  parameterVersion: activeCandidateSource.parameterVersion,
+  ...activeCandidateSource.runtime,
+};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -350,6 +280,20 @@ export function validateRuntimeCandidateParameterContract(contract: unknown): st
     ) {
       failures.push("formatting.compactMin must be greater than formatting.integerMin.");
     }
+  }
+
+  const safeBounds = isRecord(contract["safeBounds"]) ? contract["safeBounds"] : null;
+  if (safeBounds === null && contract["safeBounds"] !== undefined) {
+    failures.push("safeBounds must be an object.");
+  }
+  if (safeBounds !== null) {
+    validatePositiveNumber(
+      safeBounds["resourceValue"],
+      "safeBounds.resourceValue",
+      failures,
+    );
+    validatePositiveNumber(safeBounds["rateValue"], "safeBounds.rateValue", failures);
+    validatePositiveNumber(safeBounds["costValue"], "safeBounds.costValue", failures);
   }
 
   if (

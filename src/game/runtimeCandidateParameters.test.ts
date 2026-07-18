@@ -25,6 +25,7 @@ describe("runtime candidate parameter contract", () => {
       "endpoint",
       "offlineProgress",
       "formatting",
+      "safeBounds",
     ]);
   });
 
@@ -62,6 +63,11 @@ describe("runtime candidate parameter contract", () => {
         decimalMaxBelow: 100,
         integerMin: 100,
         compactMin: 1_000_000,
+      },
+      safeBounds: {
+        resourceValue: 1_000_000_000,
+        rateValue: 1_000_000,
+        costValue: 1_000_000_000,
       },
     });
     expect(activeRuntimeCandidateParameters.milestones).toEqual([

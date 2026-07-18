@@ -55,6 +55,10 @@ function getFixture<T>(items: readonly T[], index: number): T {
 }
 
 describe("MVP resource registry", () => {
+  it("uses the active candidate technical safety bound", () => {
+    expect(MVP_RESOURCE_MAX).toBe(1_000_000_000);
+  });
+
   it("defines exactly the MVP resources", () => {
     expect(resourceDefinitions.map((resource) => resource.id)).toEqual([
       MVP_IDS.resources.bugsFound,

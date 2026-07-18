@@ -1,4 +1,5 @@
 import { MVP_IDS } from "./types";
+import { activeRuntimeCandidateParameters } from "./game/runtimeCandidateParameters";
 import type {
   CareerStageDefinition,
   GameplayStatId,
@@ -19,7 +20,7 @@ export const PROMOTION_TOAST_MS = 5200;
 export const PROMOTION_REQUIRED_BUGS = 100;
 export const PROMOTION_REQUIRED_MONEY = 150;
 export const PROMOTION_REQUIRED_UPGRADES = 3;
-export const MVP_RESOURCE_MAX = 1_000_000;
+export const MVP_RESOURCE_MAX = activeRuntimeCandidateParameters.safeBounds.resourceValue;
 
 export const resourceDefinitions: ResourceDefinition[] = [
   {

@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SAVE_KEY, createNewGameState, initialState, upgrades } from "./gameData";
+import {
+  MVP_RESOURCE_MAX,
+  SAVE_KEY,
+  createNewGameState,
+  initialState,
+  upgrades,
+} from "./gameData";
 import {
   CURRENT_SAVE_SCHEMA_VERSION,
   clearSave,
@@ -174,6 +180,23 @@ describe("save storage", () => {
         pendingSummary: null,
         consumedSummary: null,
       },
+    });
+  });
+
+  it("preserves balances at the candidate safe bound and clamps values above it", () => {
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        resources: {
+          [MVP_IDS.resources.bugsFound]: MVP_RESOURCE_MAX,
+          [MVP_IDS.resources.money]: MVP_RESOURCE_MAX + 1,
+        },
+      }),
+    );
+
+    expect(loadSave().game.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: MVP_RESOURCE_MAX,
+      [MVP_IDS.resources.money]: MVP_RESOURCE_MAX,
     });
   });
 

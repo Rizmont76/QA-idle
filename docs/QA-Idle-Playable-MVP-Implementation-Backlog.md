@@ -365,7 +365,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Consolidate active candidate parameter authority and safe resource bounds
 - Epic: Epic 3 - Deterministic Production Core
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Remove runtime/simulator candidate drift and align runtime resource safety limits with the active candidate.
 - Scope: Introduce one neutral versioned candidate data source consumed by runtime and simulator adapters; keep simulator-only cadence and gates separate; use the candidate safe resource bound in the Resource registry and save normalization.
 - Out of Scope: Changing candidate values; sharing gameplay implementation with the simulator; changing balance gates.
@@ -378,7 +378,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Existing valid balances above the historical slice cap are preserved up to the approved safe bound
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Runtime and simulator have one versioned candidate value source and runtime resources enforce the documented technical bound.
+- Definition of Done: Runtime and simulator consume one neutral versioned candidate source through separate adapters, simulator-only inputs remain excluded from runtime gameplay, and runtime resources and save normalization enforce the documented technical bound.
 
 #### QA-PLAYABLE-MVP-048
 
@@ -1183,9 +1183,9 @@ Critical path is branching rather than one linear chain:
 
 ## First Recommended Codex Implementation Task
 
-Start with `QA-PLAYABLE-MVP-047 - Consolidate active candidate parameter authority and safe resource bounds`.
+Start with `QA-PLAYABLE-MVP-048 - Unify Assistant derived stat calculation contract`.
 
-Reason: tasks through `QA-PLAYABLE-MVP-013` are complete, and candidate authority plus the incorrect historical resource bound must be corrected before online production, costs or offline gains extend the runtime economy.
+Reason: tasks through `QA-PLAYABLE-MVP-013`, candidate authority and the resource safety bound are complete; the shared Assistant stat contract now unblocks online production, costs and offline gains.
 
 ## Explicit Prerequisites For UI Work
 
