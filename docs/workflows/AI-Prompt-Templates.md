@@ -8,7 +8,10 @@ Use this document as active workflow guidance, not as a historical implementatio
 
 ## Usage Guide
 
-Use these templates when starting QA Idle AI-assisted work. Replace bracketed text with the current task details, keep the selected context narrow, and follow the source-of-truth hierarchy before changing files.
+Use these templates when starting QA Idle AI-assisted work. Keep the selected context narrow and
+follow the source-of-truth hierarchy before changing files. Ordinary implementation prompts should
+contain only task selection, special constraints, and delivery mode; standing rules belong in
+`AGENTS.md`, the active backlog, and context routing.
 
 | Use This Template | When |
 |---|---|
@@ -23,82 +26,18 @@ Use these templates when starting QA Idle AI-assisted work. Replace bracketed te
 
 Do not use a broad template when a narrower one applies. If a task spans multiple categories, start with the template for the highest-risk changed surface and add only the extra required context from `docs/README.md`.
 
-## Shared Source-Of-Truth Hierarchy
-
-Every template uses this hierarchy unless the task explicitly says otherwise:
-
-1. `AGENTS.md`, plus scoped `AGENTS.md` files for changed directories.
-2. `docs/README.md` task-context mapping.
-3. `docs/00-Master_Project_Roadmap.md` through `docs/14-Promotion_System.md` as canonical production docs.
-4. `docs/07-Technical_Rules.md` for architecture, save, event, data-driven, and implementation-readiness rules.
-5. Epic, backlog, and implementation report files for task order and historical decisions only.
-6. Source code and tests as the current implementation, subordinate to canonical docs.
-
-If code conflicts with selected canonical docs, record the conflict before changing behavior.
-
 ## Template 1: Feature Implementation
 
 ```text
-Role:
-You are implementing one documented QA Idle feature with behavior owned by the gameplay layer, not the UI.
+Implement `QA-PLAYABLE-MVP-<ID>` from the active Playable MVP backlog.
 
-Task Objective:
-Implement [task id and title] exactly as documented.
-
-Required Context:
-- AGENTS.md
-- Scoped AGENTS.md files for changed directories, usually src/AGENTS.md and/or docs/AGENTS.md
-- docs/README.md task-context mapping
-- The relevant canonical system document from docs/00-Master_Project_Roadmap.md through docs/14-Promotion_System.md
-- docs/07-Technical_Rules.md when the feature touches architecture, save data, events, resources, unlocks, promotions, or runtime behavior
-- Nearest existing source and test files, such as src/game/, src/gameData.ts, src/types.ts, src/save.ts, src/main.tsx, src/styles.css, src/gameLogic.test.ts, src/gameData.test.ts, or src/save.test.ts
-
-Optional Context:
-- docs/08-MVP_Vertical_Slice_Specification.md for MVP boundaries
-- docs/06-Game_Systems.md for cross-system ownership
-- Other docs listed as optional for the task type in docs/README.md
-- Prior implementation reports only when the task references them
-
-Excluded Context:
-- Full numbered documentation set by default
-- Future-system docs unrelated to this feature
-- Duplicate imported project folders, generated output, caches, logs, and dependency folders
-
-Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
-
-Files Allowed To Change:
-- Feature-owned source files and nearest tests
-- Minimal documentation or backlog files required by the task
-
-Non-Goals:
-- Do not invent undocumented mechanics, IDs, currencies, formulas, panels, upgrades, unlocks, promotions, or save fields.
-- Do not activate excluded MVP systems.
-- Do not perform unrelated cleanup or formatting-only edits.
-
-Required Validation Commands:
-- npm run check
-- npm run build or the smallest runtime/build smoke check when runtime behavior changes
-
-Acceptance Criteria:
-- The feature follows the selected canonical docs and MVP scope.
-- Gameplay behavior is owned outside React components.
-- Stable IDs and save compatibility are preserved.
-- Focused tests cover changed logic.
-- Hidden or future systems remain inert unless documented.
-- Unrelated files are not changed.
-
-Expected Final Response Format:
-- State the completed task id and title.
-- Summarize the changed files and behavior.
-- List validation commands and results.
-- Mention any documented conflicts, limitations, or handoff notes.
-
-Escalate Instead Of Assuming When:
-- Canonical docs conflict or omit required implementation details.
-- A save migration, stable ID rename, or MVP scope change seems necessary.
-- Required validation cannot run.
+[Special constraints, if any.]
+Delivery mode: [local only | one fresh branch and one PR].
 ```
+
+The active backlog owns task scope, acceptance criteria, dependencies, impacts, risk, and
+task-specific verification. Repository instructions and context routing are discovered from
+`AGENTS.md`; do not copy those fields or canonical documentation prose into an ordinary prompt.
 
 ## Template 2: Bug Fixing
 
@@ -124,8 +63,8 @@ Excluded Context:
 - Unrelated production docs
 - Speculative or future-system material unless the bug concerns visibility or inertness
 
-Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
+Source Of Truth:
+Follow `AGENTS.md`, applicable scoped instructions, and the selected canonical owner documents.
 
 Files Allowed To Change:
 - Minimal source and test files needed for the defect
@@ -181,8 +120,8 @@ Excluded Context:
 - Gameplay balancing docs unless behavior changes are proposed
 - Unrelated UI, docs, and future-system files
 
-Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
+Source Of Truth:
+Follow `AGENTS.md`, applicable scoped instructions, and the selected canonical owner documents.
 
 Files Allowed To Change:
 - Refactored source modules and tests
@@ -239,8 +178,8 @@ Excluded Context:
 - Unrelated numbered docs
 - Backlog files unless updating task state
 
-Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
+Source Of Truth:
+Follow `AGENTS.md`, applicable scoped instructions, and the selected canonical owner documents.
 
 Files Allowed To Change:
 - The target documentation file
@@ -293,8 +232,8 @@ Excluded Context:
 - Full documentation set by default
 - Unchanged unrelated source files
 
-Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
+Source Of Truth:
+Follow `AGENTS.md`, applicable scoped instructions, and the selected canonical owner documents.
 
 Files Allowed To Change:
 - None, unless the user explicitly asks for fixes after the review.
@@ -347,8 +286,8 @@ Excluded Context:
 - Unrelated numbered docs
 - Gameplay balance docs unless formulas or economy ownership are under review
 
-Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
+Source Of Truth:
+Follow `AGENTS.md`, applicable scoped instructions, and the selected canonical owner documents.
 
 Files Allowed To Change:
 - None for review-only tasks
@@ -402,8 +341,8 @@ Excluded Context:
 - Unrelated backlog tasks
 - Full documentation set by default
 
-Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
+Source Of Truth:
+Follow `AGENTS.md`, applicable scoped instructions, and the selected canonical owner documents.
 
 Files Allowed To Change:
 - None unless the user explicitly asks for fixes.
@@ -463,8 +402,8 @@ Excluded Context:
 - Source files unless the review includes implementation-path accuracy
 - Unrelated numbered docs
 
-Source-Of-Truth Hierarchy:
-Use the shared hierarchy in docs/workflows/AI-Prompt-Templates.md.
+Source Of Truth:
+Follow `AGENTS.md`, applicable scoped instructions, and the selected canonical owner documents.
 
 Files Allowed To Change:
 - None for review-only tasks

@@ -8,12 +8,17 @@ Use this workflow for QA Idle implementation, review, documentation, and verific
 
 1. Start with `AGENTS.md` and any scoped `AGENTS.md` files for directories you will change.
 2. Use `.codex/skills/qa-idle-context-router/SKILL.md` and `docs/README.md` to select the smallest required context.
-3. Select the narrowest matching template from `docs/workflows/AI-Prompt-Templates.md`.
+3. Select the narrowest matching template from `docs/workflows/AI-Prompt-Templates.md`; use the
+   compact ordinary implementation prompt unless the task needs a specialized review or
+   documentation template.
 4. Identify required, optional, and excluded files before reading additional context.
 5. Complete the task without changing unrelated gameplay behavior or broadening MVP scope.
 6. Run the validation command required by the template or task, usually `pnpm run check`.
-7. Use the Task Completion Verification template before marking backlog or epic state complete.
+7. Use task completion verification before marking backlog or epic state complete.
 8. Record only important unresolved limitations in `docs/progress.txt`.
+9. Deliver one selected task on one fresh branch through one PR. Include the implementation,
+   focused tests, and selected task's backlog status update in that PR; do not push directly to
+   `main`.
 
 ## Coverage Matrix
 
