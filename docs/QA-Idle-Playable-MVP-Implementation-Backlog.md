@@ -128,7 +128,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Document verification command matrix
 - Epic: Epic 0 - Tooling and Contract Protection
 - Priority: P1
-- Status: Ready
+- Status: Completed
 - Objective: Make required checks explicit for implementation, balance validation, UI and playtest candidate work.
 - Scope: Add or update project documentation describing when to run `npm run balance:candidate`, targeted tests, `npm run check`, build verification and scripted playtest checks.
 - Out of Scope: Adding new gameplay behavior; changing package scripts unless required by missing checks.
@@ -141,7 +141,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No save data change
 - UI Impact: No UI change
 - Risk Level: Low
-- Definition of Done: Verification expectations are findable from the documentation index or workflow docs.
+- Definition of Done: Verification expectations are findable from the documentation index or workflow docs. Delivered in `80d25a4`.
 
 ### Epic 1 - Runtime Data Contracts
 
