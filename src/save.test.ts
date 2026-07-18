@@ -36,7 +36,10 @@ describe("save storage", () => {
       level: 0,
       ownedSupportUpgradeIds: [],
       reachedMilestoneIds: [],
+      productionObservedAfterUnlock: false,
+      productionObservedAfterMilestone: false,
     });
+    expect(createNewGameState(Date.now()).endpointCompleted).toBe(false);
   });
 
   it("normalizes invalid saved values", () => {
@@ -157,6 +160,7 @@ describe("save storage", () => {
       [
         "careerStage",
         "assistant",
+        "endpointCompleted",
         "lastPlayedAt",
         "promotion",
         "resources",
@@ -214,7 +218,10 @@ describe("save storage", () => {
         level: 8,
         ownedSupportUpgradeIds: ["support_immediate_production"],
         reachedMilestoneIds: ["milestone_assistant_first"],
+        productionObservedAfterUnlock: true,
+        productionObservedAfterMilestone: true,
       },
+      endpointCompleted: true,
     };
 
     const saved = serializeGameForSave(game);
@@ -230,6 +237,7 @@ describe("save storage", () => {
       unlocks: game.unlocks,
       upgrades: game.upgrades,
       assistant: game.assistant,
+      endpointCompleted: true,
     });
     expect(saved.game).not.toHaveProperty("modifiers");
     expect(saved.game).not.toHaveProperty("team");
@@ -376,6 +384,58 @@ describe("save storage", () => {
         "support_training_economics",
       ],
       reachedMilestoneIds: ["milestone_assistant_first", "milestone_assistant_capstone"],
+      productionObservedAfterUnlock: false,
+      productionObservedAfterMilestone: false,
+    });
+  });
+
+  it("persists endpoint observation state without deriving completion on load", () => {
+    const game: GameState = {
+      ...initialState,
+      careerStage: MVP_IDS.careerStages.middleQa,
+      assistant: {
+        ...initialState.assistant,
+        unlocked: true,
+        level: 8,
+        reachedMilestoneIds: ["milestone_assistant_first"],
+        productionObservedAfterUnlock: true,
+        productionObservedAfterMilestone: true,
+      },
+      endpointCompleted: true,
+    };
+
+    saveGame(game);
+
+    expect(loadSave().game).toMatchObject({
+      assistant: {
+        productionObservedAfterUnlock: true,
+        productionObservedAfterMilestone: true,
+      },
+      endpointCompleted: true,
+    });
+
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        meta: { schemaVersion: CURRENT_SAVE_SCHEMA_VERSION },
+        game: {
+          careerStage: MVP_IDS.careerStages.middleQa,
+          assistant: {
+            unlocked: true,
+            level: 8,
+            reachedMilestoneIds: ["milestone_assistant_first"],
+            productionObservedAfterUnlock: true,
+          },
+        },
+      }),
+    );
+
+    expect(loadSave().game).toMatchObject({
+      assistant: {
+        productionObservedAfterUnlock: true,
+        productionObservedAfterMilestone: false,
+      },
+      endpointCompleted: false,
     });
   });
 
