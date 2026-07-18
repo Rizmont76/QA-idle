@@ -1,4 +1,5 @@
 import type { AssistantModifierOwnership } from "./assistantModifiers";
+import { calculateAssistantModifierStats } from "./assistantModifiers";
 import { juniorQaAssistantDefinition } from "./assistant";
 import { activeRuntimeCandidateParameters } from "./runtimeCandidateParameters";
 import { FixedPoint } from "./fixedPoint";
@@ -32,22 +33,9 @@ export function calculateAssistantBugsPerSecond(input: AssistantProductionInput)
       ).multiply(FixedPoint.fromNumber(input.level, decimalPlaces)),
     )
     .toNumber();
-  let production = FixedPoint.fromNumber(baseProduction, decimalPlaces);
-
-  if (input.ownedSupportUpgradeIds.includes("support_immediate_production")) {
-    production = production.add(
-      FixedPoint.fromNumber(
-        parameters.assistant.production.immediateSupportAddBugsPerSecond,
-        decimalPlaces,
-      ),
-    );
-  }
-
-  if (input.reachedMilestoneIds.includes("milestone_assistant_first")) {
-    production = production.multiply(
-      FixedPoint.fromNumber(parameters.milestones[0].productionMultiplier, decimalPlaces),
-    );
-  }
-
-  return production.toNumber();
+  return calculateAssistantModifierStats(input, {
+    bugsPerSecond: baseProduction,
+    futureLevelCost: 0,
+    offlineEfficiency: 0,
+  }).bugsPerSecond.value;
 }
