@@ -238,6 +238,8 @@ export function normalizeAssistantState(value: unknown): GameState["assistant"] 
       saved["reachedMilestoneIds"],
       assistantMilestoneDefinitions,
     ),
+    productionObservedAfterUnlock: saved["productionObservedAfterUnlock"] === true,
+    productionObservedAfterMilestone: saved["productionObservedAfterMilestone"] === true,
   };
 }
 
@@ -256,6 +258,7 @@ function normalizeGameState(value: unknown, now = Date.now()): GameState {
     unlocks: normalizeUnlocks(parsed.unlocks),
     upgrades: normalizeUpgradeOwnership(parsed.upgrades),
     assistant: normalizeAssistantState(parsed.assistant),
+    endpointCompleted: parsed.endpointCompleted === true,
   };
 }
 
@@ -299,6 +302,7 @@ function toMvpSaveGameData(game: GameState, lastPlayedAt: number): MvpSaveGameDa
     unlocks: game.unlocks,
     upgrades: game.upgrades,
     assistant: game.assistant,
+    endpointCompleted: game.endpointCompleted,
   };
 }
 

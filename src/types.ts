@@ -534,7 +534,10 @@ export interface GameState {
     level: number;
     ownedSupportUpgradeIds: AssistantSupportUpgradeId[];
     reachedMilestoneIds: AssistantMilestoneId[];
+    productionObservedAfterUnlock: boolean;
+    productionObservedAfterMilestone: boolean;
   };
+  endpointCompleted: boolean;
 }
 
 export type SaveSchemaVersion =
@@ -559,6 +562,7 @@ export interface MvpSaveGameData {
   unlocks: GameState["unlocks"];
   upgrades: UpgradeOwnershipState;
   assistant: GameState["assistant"];
+  endpointCompleted: boolean;
 }
 
 export interface SaveData {

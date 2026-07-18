@@ -490,6 +490,8 @@ export function createInitialAssistantState(): GameState["assistant"] {
     level: 0,
     ownedSupportUpgradeIds: [],
     reachedMilestoneIds: [],
+    productionObservedAfterUnlock: false,
+    productionObservedAfterMilestone: false,
   };
 }
 
@@ -505,6 +507,7 @@ export function createNewGameState(now = Date.now()): GameState {
     unlocks: createInitialUnlockState(),
     upgrades: createInitialUpgradeState(),
     assistant: createInitialAssistantState(),
+    endpointCompleted: false,
   };
 }
 

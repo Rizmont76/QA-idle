@@ -279,7 +279,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Persist production-observed and endpoint state
 - Epic: Epic 2 - State and Save Schema v2
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Track whether the passive loop has been observed after unlock and whether endpoint conditions have been met.
 - Scope: Add state for post-unlock production observed, post-milestone production observed and endpoint completion status.
 - Out of Scope: Endpoint UI; production calculation; playtest checklist.

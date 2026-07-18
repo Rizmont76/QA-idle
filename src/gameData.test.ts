@@ -161,6 +161,7 @@ describe("MVP new game state factory", () => {
       unlocks: createInitialUnlockState(),
       upgrades: createInitialUpgradeState(),
       assistant: createInitialAssistantState(),
+      endpointCompleted: false,
     });
   });
 
