@@ -62,8 +62,13 @@ export function calculateGameplayStat(
   modifierDefinitions: readonly ModifierDefinition[] = getUpgradeModifierDefinitions(),
   statDefinitions: readonly GameplayStatDefinition[] = gameplayStatDefinitions,
   arithmetic: GameplayStatArithmetic = nativeGameplayStatArithmetic,
+  baseValue?: number,
 ): GameplayStatCalculationResult {
   const stat = getGameplayStatDefinition(statId, statDefinitions);
+  const resolvedBaseValue = baseValue ?? stat.baseValue;
+  if (!Number.isFinite(resolvedBaseValue)) {
+    throw new Error(`Gameplay stat base value must be finite: ${statId}.`);
+  }
   const definitionById = new Map(
     modifierDefinitions.map((definition) => [definition.definitionId, definition]),
   );
@@ -143,7 +148,7 @@ export function calculateGameplayStat(
       };
     },
     {
-      value: arithmetic.clampMinimum(stat.baseValue, stat.minimumValue),
+      value: arithmetic.clampMinimum(resolvedBaseValue, stat.minimumValue),
       appliedModifiers: [],
     },
   );
@@ -153,7 +158,7 @@ export function calculateGameplayStat(
     value: calculation.value,
     breakdown: {
       statId,
-      baseValue: stat.baseValue,
+      baseValue: resolvedBaseValue,
       appliedModifiers: calculation.appliedModifiers,
       finalValue: calculation.value,
     },
