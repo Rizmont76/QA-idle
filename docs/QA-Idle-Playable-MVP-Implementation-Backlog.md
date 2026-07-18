@@ -321,7 +321,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Maintain Technical Slice save compatibility
 - Epic: Epic 2 - State and Save Schema v2
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Keep accepted Technical Vertical Slice saves valid after Playable Idle MVP state is added.
 - Scope: Add compatibility fixtures for saves at new game, pre-promotion, promotion-available and Middle QA endpoint states from the old slice.
 - Out of Scope: Importing duplicate project folders; changing old backlog tasks; changing historical slice behavior.
@@ -334,7 +334,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Validates save migration behavior
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Old Technical Slice saves remain compatible and do not receive unintended rewards.
+- Definition of Done: Old Technical Slice saves remain compatible and do not receive unintended rewards. Delivered with schema-v1 compatibility fixtures covering new game, pre-promotion, promotion-available and Middle QA endpoint states.
 
 ### Epic 3 - Deterministic Production Core
 
