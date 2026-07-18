@@ -190,4 +190,35 @@ describe("runtime candidate parameter contract", () => {
       "formatting.numericScaleDecimalPlaces must be a positive integer.",
     );
   });
+
+  it("rejects malformed Support effects and formatting thresholds", () => {
+    const malformedCandidate = {
+      ...activeRuntimeCandidateParameters,
+      supportUpgrades: activeRuntimeCandidateParameters.supportUpgrades.map(
+        (support, index) =>
+          index === 0
+            ? { ...support, effect: { type: "wrong", bugsPerSecond: Number.NaN } }
+            : support,
+      ),
+      formatting: {
+        ...activeRuntimeCandidateParameters.formatting,
+        decimalMaxBelow: 99,
+        compactMin: 50,
+      },
+    };
+    const failures = validateRuntimeCandidateParameterContract(malformedCandidate);
+
+    expect(failures).toContain(
+      "supportUpgrades[0].effect.type must be assistant_production_additive.",
+    );
+    expect(failures).toContain(
+      "supportUpgrades[0].effect.bugsPerSecond must be a finite non-negative number.",
+    );
+    expect(failures).toContain(
+      "formatting decimal and integer thresholds must meet exactly.",
+    );
+    expect(failures).toContain(
+      "formatting.compactMin must be greater than formatting.integerMin.",
+    );
+  });
 });

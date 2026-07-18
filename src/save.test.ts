@@ -388,7 +388,14 @@ describe("save storage", () => {
         careerStage: game.careerStage,
         promotion: game.promotion,
         upgrades: game.upgrades,
-        assistant: initialState.assistant,
+        assistant: {
+          ...initialState.assistant,
+          unlocked:
+            game.careerStage === MVP_IDS.careerStages.middleQa &&
+            game.promotion.completedPromotionIds.includes(
+              MVP_IDS.promotions.juniorToMiddle,
+            ),
+        },
         endpointCompleted: false,
         offlineProgress: {
           lastActiveAt: null,
@@ -554,21 +561,50 @@ describe("save storage", () => {
 
     expect(loadSave().game.assistant).toEqual({
       unlocked: false,
-      level: 25,
-      ownedSupportUpgradeIds: [
-        "support_immediate_production",
-        "support_training_economics",
-      ],
-      reachedMilestoneIds: ["milestone_assistant_first", "milestone_assistant_capstone"],
+      level: 0,
+      ownedSupportUpgradeIds: [],
+      reachedMilestoneIds: [],
       productionObservedAfterUnlock: false,
       productionObservedAfterMilestone: false,
     });
+  });
+
+  it("removes Assistant Supports saved before their level unlocks", () => {
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        meta: { schemaVersion: CURRENT_SAVE_SCHEMA_VERSION },
+        game: {
+          careerStage: MVP_IDS.careerStages.middleQa,
+          promotion: {
+            completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+          },
+          assistant: {
+            unlocked: true,
+            level: 0,
+            ownedSupportUpgradeIds: [
+              "support_immediate_production",
+              "support_training_economics",
+              "support_offline_handover",
+            ],
+          },
+        },
+      }),
+    );
+
+    expect(loadSave().game.assistant.ownedSupportUpgradeIds).toEqual([
+      "support_immediate_production",
+    ]);
   });
 
   it("persists endpoint observation state without deriving completion on load", () => {
     const game: GameState = {
       ...initialState,
       careerStage: MVP_IDS.careerStages.middleQa,
+      promotion: {
+        availablePromotionIds: [],
+        completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      },
       assistant: {
         ...initialState.assistant,
         unlocked: true,
@@ -596,6 +632,9 @@ describe("save storage", () => {
         meta: { schemaVersion: CURRENT_SAVE_SCHEMA_VERSION },
         game: {
           careerStage: MVP_IDS.careerStages.middleQa,
+          promotion: {
+            completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+          },
           assistant: {
             unlocked: true,
             level: 8,
@@ -762,6 +801,10 @@ describe("save storage", () => {
         [MVP_IDS.upgrades.betterChecklist]: 1,
         [MVP_IDS.upgrades.coffee]: 1,
         [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+      },
+      assistant: {
+        ...initialState.assistant,
+        unlocked: true,
       },
       offlineProgress: {
         lastActiveAt: null,

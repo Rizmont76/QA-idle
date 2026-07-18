@@ -1,11 +1,14 @@
 import "@testing-library/jest-dom/vitest";
 import { screen } from "@testing-library/react";
+import type { Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { initialState } from "./gameData";
 import { acceptPromotion, evaluatePromotionAvailability } from "./gameLogic";
 import { saveGame } from "./save";
 import { MVP_IDS } from "./types";
 import type { GameState } from "./types";
+
+let mountedApp: Root | null = null;
 
 const hiddenFutureSystemLabels = [
   "Team",
@@ -50,7 +53,8 @@ async function bootAppWithSave(game?: GameState) {
     saveGame(game);
   }
 
-  await import("./main");
+  const module = await import("./main");
+  mountedApp = module.appRoot;
 }
 
 function expectFutureSystemsToStayHidden() {
@@ -66,6 +70,8 @@ describe("MVP UI smoke tests", () => {
   });
 
   afterEach(() => {
+    mountedApp?.unmount();
+    mountedApp = null;
     document.body.innerHTML = "";
   });
 

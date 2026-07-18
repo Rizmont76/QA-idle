@@ -16,6 +16,7 @@ import {
   assistantSupportUpgradeDefinitions,
 } from "./game/assistantProgression";
 import { juniorQaAssistantDefinition } from "./game/assistant";
+import { activeRuntimeCandidateParameters } from "./game/runtimeCandidateParameters";
 import { MVP_IDS, SAVE_SCHEMA_VERSION } from "./types";
 import type {
   GameLoadedEventDescriptor,
@@ -316,6 +317,39 @@ export function normalizeAssistantState(value: unknown): GameState["assistant"] 
 
 function normalizeGameState(value: unknown, now = Date.now()): GameState {
   const parsed = (isRecord(value) ? value : {}) as Partial<GameState> & LegacySaveFields;
+  const careerStage = normalizeCareerStage(parsed.careerStage);
+  const promotion = normalizePromotionState(parsed.promotion);
+  const hasAssistantUnlock =
+    careerStage === MVP_IDS.careerStages.middleQa &&
+    promotion.completedPromotionIds.includes(MVP_IDS.promotions.juniorToMiddle);
+  const savedAssistant = normalizeAssistantState(parsed.assistant);
+  const assistantLevel = hasAssistantUnlock ? savedAssistant.level : 0;
+  const reachedMilestoneIds = hasAssistantUnlock
+    ? savedAssistant.reachedMilestoneIds.filter((milestoneId) => {
+        const milestone = assistantMilestoneDefinitions.find(
+          (definition) => definition.id === milestoneId,
+        );
+        return milestone !== undefined && milestone.level <= assistantLevel;
+      })
+    : [];
+  const assistant: GameState["assistant"] = {
+    unlocked: hasAssistantUnlock,
+    level: assistantLevel,
+    ownedSupportUpgradeIds: hasAssistantUnlock
+      ? savedAssistant.ownedSupportUpgradeIds.filter((supportId) => {
+          const support = activeRuntimeCandidateParameters.supportUpgrades.find(
+            (definition) => definition.id === supportId,
+          );
+          return support !== undefined && support.unlockLevel <= assistantLevel;
+        })
+      : [],
+    reachedMilestoneIds,
+    productionObservedAfterUnlock:
+      hasAssistantUnlock && savedAssistant.productionObservedAfterUnlock,
+    productionObservedAfterMilestone:
+      reachedMilestoneIds.includes("milestone_assistant_first") &&
+      savedAssistant.productionObservedAfterMilestone,
+  };
 
   return {
     ...createNewGameState(),
@@ -323,13 +357,16 @@ function normalizeGameState(value: unknown, now = Date.now()): GameState {
     totalBugsFound: safeNumber(parsed.totalBugsFound),
     totalMoneyEarned: safeNumber(parsed.totalMoneyEarned),
     lastPlayedAt: safeTimestamp(parsed.lastPlayedAt, now),
-    careerStage: normalizeCareerStage(parsed.careerStage),
-    promotion: normalizePromotionState(parsed.promotion),
+    careerStage,
+    promotion,
     uiSurfaces: normalizeUiSurfaces(parsed.uiSurfaces),
     unlocks: normalizeUnlocks(parsed.unlocks),
     upgrades: normalizeUpgradeOwnership(parsed.upgrades),
-    assistant: normalizeAssistantState(parsed.assistant),
-    endpointCompleted: parsed.endpointCompleted === true,
+    assistant,
+    endpointCompleted:
+      parsed.endpointCompleted === true &&
+      hasAssistantUnlock &&
+      assistantLevel >= activeRuntimeCandidateParameters.endpoint.assistantLevelTarget,
     offlineProgress: normalizeOfflineProgress(parsed.offlineProgress, now),
   };
 }

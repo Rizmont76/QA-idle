@@ -2,6 +2,7 @@ export * from "./assistant";
 export * from "./assistantModifiers";
 export * from "./assistantProgression";
 export * from "./assistantProduction";
+export * from "./fixedPoint";
 export * from "./commands";
 export * from "./events";
 export * from "./formatting";

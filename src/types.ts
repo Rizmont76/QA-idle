@@ -75,8 +75,8 @@ export type GameplayStatId =
   (typeof MVP_IDS.gameplayStats)[keyof typeof MVP_IDS.gameplayStats];
 export type ActionId = (typeof MVP_IDS.actions)[keyof typeof MVP_IDS.actions];
 export type MvpEventId = (typeof MVP_IDS.events)[keyof typeof MVP_IDS.events];
-export type UpgradeId =
-  (typeof MVP_IDS.upgrades)[keyof typeof MVP_IDS.upgrades] | (string & {});
+export type UpgradeId = (typeof MVP_IDS.upgrades)[keyof typeof MVP_IDS.upgrades];
+export type RegisteredUpgradeId = UpgradeId | (string & {});
 export type AssistantSupportUpgradeId =
   | "support_immediate_production"
   | "support_training_economics"
@@ -128,7 +128,7 @@ export type UpgradePurchaseValidationFailureCode =
   | "transaction_failed";
 export type UpgradeEffectChannel = "modifier_grant";
 export type UpgradeOwnershipLevel = number;
-export type UpgradeOwnershipState = Record<UpgradeId, UpgradeOwnershipLevel>;
+export type UpgradeOwnershipState = Record<RegisteredUpgradeId, UpgradeOwnershipLevel>;
 export type ModifierType = "flat" | "multiplicative" | "override" | (string & {});
 export type ModifierDurationType = "permanent" | (string & {});
 export type ModifierStackingPolicy = "ignore" | (string & {});
@@ -202,7 +202,7 @@ export interface GameplayStatDefinition {
 }
 
 export interface Upgrade {
-  id: UpgradeId;
+  id: RegisteredUpgradeId;
   group: TabId;
   sourceSystemId: "manual_testing" | "bug_reporting";
   categoryId: UpgradeCategory;
@@ -420,7 +420,7 @@ export interface MoneyEarnedEventDescriptor {
 export interface UpgradePurchasedEventDescriptor {
   id: typeof MVP_IDS.events.upgradePurchased;
   payload: {
-    upgradeId: UpgradeId;
+    upgradeId: RegisteredUpgradeId;
     previousLevel: UpgradeOwnershipLevel;
     newLevel: UpgradeOwnershipLevel;
     cost: UpgradeResolvedCost;

@@ -18,7 +18,7 @@ import {
 } from "./gameLogic";
 import { loadSave, resetSave, saveGame } from "./save";
 import { MVP_IDS } from "./types";
-import type { CareerStageDefinition, UpgradeId } from "./types";
+import type { CareerStageDefinition, RegisteredUpgradeId } from "./types";
 import "./styles.css";
 
 const FULL_PROGRESS_PERCENT = 100;
@@ -35,7 +35,9 @@ function App() {
     null,
   );
   const [clickBurst, setClickBurst] = useState(false);
-  const [boughtUpgradeId, setBoughtUpgradeId] = useState<UpgradeId | null>(null);
+  const [boughtUpgradeId, setBoughtUpgradeId] = useState<RegisteredUpgradeId | null>(
+    null,
+  );
 
   const stats = useMemo(() => getDerivedStats(game), [game]);
   const bugsFound = game.resources[MVP_IDS.resources.bugsFound];
@@ -112,7 +114,7 @@ function App() {
     setGame((current) => reportAllBugs(current).game);
   }
 
-  function buyUpgrade(upgradeId: UpgradeId) {
+  function buyUpgrade(upgradeId: RegisteredUpgradeId) {
     setGame((current) => {
       const result = purchaseUpgrade(current, upgradeId);
 
@@ -200,10 +202,7 @@ function App() {
             <span>Promotion completed</span>
             <strong>Middle QA reached</strong>
           </div>
-          <p>
-            This save has reached the end of the MVP vertical slice. No additional
-            gameplay systems are active.
-          </p>
+          <p>Promotion complete. Your career progress is saved and ready to continue.</p>
         </section>
       )}
 
@@ -401,7 +400,9 @@ if (!rootElement) {
   throw new Error("Root element was not found.");
 }
 
-ReactDOM.createRoot(rootElement).render(
+export const appRoot = ReactDOM.createRoot(rootElement);
+
+appRoot.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
