@@ -344,7 +344,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Create shared Assistant production calculator
 - Epic: Epic 3 - Deterministic Production Core
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Implement a pure calculator for Assistant Bugs Found production shared by online and offline systems.
 - Scope: Calculate additive base/per-level production, immediate Support additive production and milestone multiplier using active candidate parameters.
 - Out of Scope: Applying resource transactions; UI display; offline efficiency.
@@ -357,7 +357,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No save data change
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: One deterministic calculator owns Assistant production math for runtime systems.
+- Definition of Done: One deterministic calculator owns Assistant production math for runtime systems. Delivered in `c011af2`.
 
 #### QA-PLAYABLE-MVP-014
 
