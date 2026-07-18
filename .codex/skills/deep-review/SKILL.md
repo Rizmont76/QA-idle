@@ -51,12 +51,15 @@ Expected shape:
   "lastReviewedAt": null,
   "branch": null,
   "reviewedHeadSha": null,
-  "reportPath": null
+  "reportPath": null,
+  "reportReference": null
 }
 ```
 
 Only update this file after a review is complete and the user explicitly approves marking the
-current point as reviewed. Do not silently move the checkpoint.
+current point as reviewed. Do not silently move the checkpoint. A checkpoint requires a durable
+report path or PR reference containing the reviewed SHA, findings and disposition, and accepted
+or deferred risks.
 
 Reports should be saved under `.codex/reviews/deep-review-reports/` when the user wants review
 history preserved in the repo.
@@ -179,7 +182,8 @@ Docs loaded: <short list with reasons>
 
 ### Review State
 
-- Whether `.codex/reviews/deep-review-state.json` should be updated, and to which `HEAD`.
+- Whether `.codex/reviews/deep-review-state.json` should be updated, to which `HEAD`, and the
+  durable report path or PR reference.
 ```
 
 Findings must be concrete and include file/line references when possible.
@@ -188,7 +192,7 @@ Findings must be concrete and include file/line references when possible.
 
 After the user approves marking the review complete:
 
-1. Save the report if requested.
+1. Save the report or identify a durable PR reference containing the required review record.
 2. Update `.codex/reviews/deep-review-state.json` with:
    - `status: "reviewed"`
    - `lastReviewedSha`: current `HEAD`
@@ -196,6 +200,7 @@ After the user approves marking the review complete:
    - `branch`: current branch
    - `reviewedHeadSha`: current `HEAD`
    - `reportPath`: saved report path or `null`
+   - `reportReference`: durable PR URL/reference when no saved report is used, otherwise `null`
 3. Tell the user exactly which SHA is now the baseline for the next deep review.
 
 ## Boundaries

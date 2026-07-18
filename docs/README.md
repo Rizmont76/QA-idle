@@ -82,6 +82,22 @@ Do not treat this index as a replacement for canonical design documents. It summ
 
 Every rule should have one canonical owner. If two documents appear to conflict, follow the more specific canonical owner for that subject and record the conflict before changing behavior.
 
+## Workflow Responsibility Map
+
+| Artifact | Owns | Does not duplicate |
+|---|---|---|
+| Root `AGENTS.md` | Global standing constraints, source-of-truth hierarchy, scope control, architecture baseline, verification floor, repository hygiene. | Task-specific scope, dependencies, or PR evidence. |
+| Scoped `AGENTS.md` | Durable rules local to source, documentation, or review-skill work. | Global rules or task-specific context lists. |
+| This index and the context router | Navigation to the smallest required canonical context. | Canonical behavior, task acceptance criteria, or full workflow scripts. |
+| Active Playable MVP backlog | Task scope, dependencies, acceptance criteria, impacts, risk, and task-specific verification. | Standing repository rules or PR summaries. |
+| Task prompt | Task selection or ID, special constraints, and delivery mode. | Full backlog records, canonical prose, or standing rules. |
+| PR description | Actual behavior and scope, verification results, and risks or follow-ups. | Repeated task specification or generic repository rules. |
+| Review report | Reviewed SHA, concrete findings and disposition, plus accepted or deferred risks. | Generic review checklists. |
+
+The active workflow is `docs/workflows/AI-Task-Workflow.md`; the master workflow is its concise
+one-task delivery companion. The historical Technical Vertical Slice backlog is not an active
+workflow target.
+
 ## Task Context Mapping
 
 Use the required context first. Load optional context only when the task touches that subject or the required docs point to it. Do not load documents listed as excluded unless the task explicitly asks for them.

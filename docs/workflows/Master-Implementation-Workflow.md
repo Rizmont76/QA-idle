@@ -1,278 +1,45 @@
-# QA Idle — Master Implementation Workflow
-
-You are working on the **QA Idle** repository.
-
-Your goal is to complete **exactly one** backlog task while following the repository architecture, documentation hierarchy, AI workflow, and validation process.
-
----
-
-# Stage 1 — Repository Bootstrap
-
-Before doing anything:
-
-1. Read the root `AGENTS.md`.
-2. Read every applicable scoped `AGENTS.md` for directories you will work in.
-3. Use the repository skill:
-
-`qa-idle-context-router`
-
-If the skill is unavailable, manually follow its instructions.
-
----
-
-# Stage 2 — Task Selection
-
-Read:
-
-* `docs/QA-Idle-MVP-Implementation-Backlog.md`
-
-Find the **highest-priority unfinished MVP task** while respecting:
-
-* roadmap order;
-* dependency order;
-* blocked tasks;
-* MVP scope.
-
-Select **exactly one** task.
-
-Start your response with:
-
-```
-Working on: QA-MVP-XXX — Task Title
-```
-
-If every MVP backlog task is complete and final acceptance passes, output only:
-
-```
-<promise>COMPLETE</promise>
-```
-
----
-
-# Stage 3 — Context Selection
-
-Do NOT load the entire documentation set.
-
-Use:
-
-`docs/README.md`
-
-Determine:
-
-* Required Context
-* Optional Context
-* Excluded Context
-
-Load only the Required Context first.
-
-Load Optional Context only if:
-
-* required documentation references it;
-* implementation genuinely requires it.
-
-If additional documentation becomes necessary, explain why before loading it.
-
-Do not load implementation reports unless the selected task explicitly depends on them.
-
----
-
-# Stage 4 — Source Of Truth
-
-Always follow this hierarchy:
-
-1. AGENTS.md
-2. Scoped AGENTS.md
-3. docs/README.md
-4. Canonical Production Documentation
-5. docs/07-Technical_Rules.md
-6. Backlog / Epic documents
-7. Source code
-8. Historical implementation reports
-
-If code conflicts with canonical documentation:
-
-* stop;
-* report the conflict;
-* do not silently change gameplay behavior.
-
-Never invent:
-
-* mechanics;
-* formulas;
-* IDs;
-* resources;
-* unlocks;
-* promotions;
-* save fields;
-* UI behavior.
-
-Escalate instead.
-
----
-
-# Stage 5 — Implementation
-
-Implement only the selected backlog task.
-
-Keep changes tightly scoped.
-
-Do NOT:
-
-* complete adjacent backlog items;
-* perform unrelated cleanup;
-* activate future systems;
-* rebalance gameplay unless the task explicitly requires it;
-* perform speculative refactoring.
-
-Respect:
-
-* architecture ownership;
-* module boundaries;
-* save compatibility;
-* stable IDs;
-* deterministic gameplay simulation.
-
-Gameplay behavior must remain outside React components.
-
----
-
-# Stage 6 — Validation
-
-Run:
-
-```
-pnpm run check
-```
-
-If runtime or build behavior changed, also run the smallest appropriate verification, for example:
-
-```
-pnpm run build
-```
-
-or another minimal smoke test appropriate for the task.
-
----
-
-# Stage 7 — Task Completion Verification
-
-Before considering the task complete, perform a complete Task Completion Verification using the repository workflow.
-
-Verify:
-
-* every Acceptance Criterion;
-* functional correctness;
-* architecture ownership;
-* documentation consistency;
-* save compatibility;
-* test coverage;
-* context locality;
-* absence of unrelated changes;
-* no newly introduced technical debt;
-* AGENTS instructions remain valid;
-* context mapping remains valid.
-
-If verification fails:
-
-Do NOT update backlog state.
-
-Fix the problems first.
-
----
-
-# Stage 8 — Repository Updates
-
-If verification succeeds:
-
-Update:
-
-* `docs/QA-Idle-MVP-Implementation-Backlog.md`
-
-Mark only the completed task.
-
-If necessary:
-
-Update:
-
-`docs/progress.txt`
-
-Keep the note short.
-
-Only include:
-
-* blocking limitation;
-* important follow-up;
-* implementation warning.
-
-Do not write implementation summaries there.
-
----
-
-# Stage 9 — Commit
-
-Create exactly one Git commit.
-
-Commit message:
-
-```
-Complete QA-MVP-XXX: Short task title
-```
-
-Push directly to:
-
-```
-main
-```
-
-Do not include:
-
-* generated output;
-* dependency folders;
-* caches;
-* logs;
-* duplicate imported repositories;
-* unrelated changes.
-
----
-
-# Stage 10 — Final Response
-
-Return:
-
-## Completed Task
-
-Task ID and title.
-
-## Summary
-
-Short implementation summary.
-
-## Changed Files
-
-List of modified files.
-
-## Validation
-
-Commands executed.
-
-Results.
-
-## Completion Verification
-
-State whether every Acceptance Criterion passed.
-
-## Handoff
-
-Only if required.
-
-Otherwise write:
-
-```
-No handoff required.
-```
-
-## Next Backlog Item
-
-State which backlog item is now expected to become the next implementation task.
-
-Do not start implementing it.
+# QA Idle Master Implementation Workflow
+
+Status: Active Workflow
+
+Use this concise workflow for one active Playable Idle MVP backlog task. It supplements
+`AGENTS.md`, the active backlog, the context router, and the selected prompt template; it does
+not replace them.
+
+## Standard Delivery
+
+1. Select one ready task from `docs/QA-Idle-Playable-MVP-Implementation-Backlog.md`, respecting
+   its dependencies, priority, and MVP scope.
+2. Start from `AGENTS.md`, read applicable scoped instructions, then use the context router and
+   `docs/README.md` to load the smallest required context.
+3. Implement only the selected task. If canonical documents conflict or omit required behavior,
+   stop and report the gap rather than assuming.
+4. Run the task's required verification and the smallest additional runtime or build check when
+   the task requires one. Do not reduce save, architecture, scope, or verification safeguards.
+5. Complete task verification before changing its backlog status. Record only material unresolved
+   limitations in `docs/progress.txt`.
+6. Deliver one task on one fresh branch through one PR. The implementation, focused tests, and
+   selected task's backlog status update belong in that PR. Do not push directly to `main`.
+
+## Task Completion
+
+Before the PR is ready for review, confirm the task's acceptance criteria, documentation
+alignment, scope control, applicable save compatibility, focused tests, and absence of unrelated
+changes. Use the PR template to record actual behavior, verification, and any residual risk.
+
+If existing work already appears to satisfy a task, verify it against the task before changing
+status. Use a clearly labelled verification/closure PR; do not represent pre-existing work as a
+new implementation change.
+
+## Technical Debt
+
+Classify a discovered debt item before scheduling it:
+
+- **Blocker prerequisite:** a correctness, safety, or ownership issue that must be resolved before
+  named downstream tasks proceed. Only this class may enter the active critical path.
+- **Milestone debt:** meaningful maintainability or architecture work that belongs before a named
+  milestone exit, but does not block the current task.
+- **Deferred cleanup:** useful cleanup with no current correctness, scope, or delivery dependency.
+
+Record the classification, evidence, and affected tasks in the backlog or review disposition. Do
+not add deferred cleanup to the critical path.

@@ -10,6 +10,8 @@
 
 - Deep review state lives in `.codex/reviews/deep-review-state.json`; update it only when the review workflow and user approval require it.
 - Architecture and deep review outputs should cite concrete files and line numbers where possible.
+- When a review advances a checkpoint, changes backlog priority, or approves a dependent task, preserve
+  its reviewed SHA, findings, disposition, and accepted or deferred risks in a report or durable PR reference.
 - Use deterministic validation commands from `package.json` or task instructions instead of embedding ad hoc checklists in prompts.
 
 ## Automation Candidates

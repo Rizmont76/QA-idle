@@ -925,7 +925,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Create and approve VD-02 UI Component Library
 - Epic: Epic 10 - Visual Workspace Implementation
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Create and approve `VD-02 - UI Component Library` for Playable Idle MVP player-facing UI.
 - Scope: Define components and states for the Assistant panel, Buy 1, Buy Max, Support cards, locked/unlocked/affordable/owned/max-level states, resource displays, milestone feedback, offline summary, endpoint presentation, accessibility and responsive behavior.
 - Out of Scope: Implementing components in runtime code; changing gameplay formulas; inventing mechanics beyond current backlog scope.
@@ -938,7 +938,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No save data change
 - UI Impact: Creates design authority for player-facing UI components
 - Risk Level: Medium
-- Definition of Done: VD-02 is approved and ready to guide functional and visual UI implementation.
+- Definition of Done: VD-02 is approved and ready to guide functional and visual UI implementation. Delivered in PR #8.
 
 #### QA-PLAYABLE-MVP-038
 
@@ -946,7 +946,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Create and approve VD-03 MVP Workspace Layout
 - Epic: Epic 10 - Visual Workspace Implementation
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Create and approve `VD-03 - MVP Workspace Layout` for the Junior to Middle workspace expansion.
 - Scope: Define Junior workspace, Middle expansion, Assistant workspace area, hierarchy of manual/passive controls, upgrade surfaces, responsive layout, Cozy Corporate Workspace composition and endpoint state.
 - Out of Scope: Runtime implementation; changing gameplay formulas; adding systems outside Playable Idle MVP scope.
@@ -959,7 +959,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No save data change
 - UI Impact: Creates design authority for workspace layout and expansion
 - Risk Level: Medium
-- Definition of Done: VD-03 is approved and ready to guide workspace implementation.
+- Definition of Done: VD-03 is approved and ready to guide workspace implementation. Delivered in PR #9.
 
 #### QA-PLAYABLE-MVP-044
 

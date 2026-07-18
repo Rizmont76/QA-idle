@@ -92,6 +92,14 @@ for one when the correct baseline is ambiguous.
 ### Positive Notes
 
 - What is done well.
+
+### Review Record
+
+- Reviewed SHA.
+- Findings and disposition: fixed, accepted, deferred, or converted into a classified debt item.
+- Accepted or deferred risks.
+- Durable report path or PR reference when the review changes backlog priority, approves a
+  dependent task, or is used as a release/milestone decision.
 ```
 
 ## Boundaries
@@ -101,3 +109,5 @@ for one when the correct baseline is ambiguous.
 - Be specific: cite file and line whenever possible.
 - Do not nitpick formatting.
 - If the review needs more docs, name why before reading them.
+- When the review informs a backlog or delivery decision, preserve the review record in a report
+  or durable PR reference; no checkpoint state is required for ordinary read-only reviews.
