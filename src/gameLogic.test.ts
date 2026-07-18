@@ -1077,7 +1077,7 @@ describe("resource transaction validation", () => {
     const result = validateResourceTransaction(
       {
         ...initialState.resources,
-        [MVP_IDS.resources.money]: 1_000_000,
+        [MVP_IDS.resources.money]: MVP_RESOURCE_MAX,
       },
       {
         operationType: "add",
@@ -1379,7 +1379,7 @@ describe("resource operations", () => {
     const resources = {
       ...initialState.resources,
       [MVP_IDS.resources.bugsFound]: 5,
-      [MVP_IDS.resources.money]: 1_000_000,
+      [MVP_IDS.resources.money]: MVP_RESOURCE_MAX,
     };
     const result = convertResources(resources, {
       fromResourceId: MVP_IDS.resources.bugsFound,
@@ -1398,7 +1398,7 @@ describe("resource operations", () => {
     expect(result.resources).toBe(resources);
     expect(result.resources).toEqual({
       [MVP_IDS.resources.bugsFound]: 5,
-      [MVP_IDS.resources.money]: 1_000_000,
+      [MVP_IDS.resources.money]: MVP_RESOURCE_MAX,
     });
     expect(result.failures.map((failure) => failure.code)).toContain(
       "balance_above_maximum",
@@ -1504,7 +1504,7 @@ describe("gameplay action operations", () => {
       ...initialState,
       resources: {
         ...initialState.resources,
-        [MVP_IDS.resources.bugsFound]: 1_000_000,
+        [MVP_IDS.resources.bugsFound]: MVP_RESOURCE_MAX,
       },
     };
     const result = performManualTest(game);

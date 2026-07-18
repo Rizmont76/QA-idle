@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import activeCandidateSource from "../../data/balance/active-candidate.json" with { type: "json" };
 import { Fixed } from "./fixed-point.mjs";
 import {
   assistantNextLevelCost,
@@ -129,6 +130,26 @@ describe("Phase 6A balance simulator", () => {
       HISTORICAL_BASELINE_PROFILE_ID,
       ACTIVE_CANDIDATE_PROFILE_ID,
     ]);
+  });
+
+  it("projects the shared active candidate identity, runtime values, and safe bounds", () => {
+    expect(ACTIVE_CANDIDATE_PROFILE_ID).toBe(activeCandidateSource.profileId);
+    expect(ACTIVE_CANDIDATE_PARAMETER_VERSION).toBe(
+      activeCandidateSource.parameterVersion,
+    );
+    expect(ACTIVE_CANDIDATE_PARAMS).toMatchObject({
+      PARAM_ASSISTANT_MAX_LEVEL: activeCandidateSource.runtime.assistant.maxLevel,
+      PARAM_ASSISTANT_LEVEL_BASE_COST:
+        activeCandidateSource.runtime.assistant.cost.baseCost,
+      PARAM_ASSISTANT_BASE_BUGS_PER_SECOND:
+        activeCandidateSource.runtime.assistant.production.baseBugsPerSecond,
+      PARAM_SAFE_MAX_RESOURCE_VALUE:
+        activeCandidateSource.runtime.safeBounds.resourceValue,
+    });
+    expect(activeCandidateSource.runtime).not.toHaveProperty("PARAM_MAX_STALL_SECONDS");
+    expect(activeCandidateSource.runtime).not.toHaveProperty(
+      "PARAM_JUNIOR_BASELINE_MANUAL_ACTION_INTERVAL_SECONDS",
+    );
   });
 
   it("runs deterministically", () => {
