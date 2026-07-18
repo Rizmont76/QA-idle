@@ -162,6 +162,12 @@ describe("MVP new game state factory", () => {
       upgrades: createInitialUpgradeState(),
       assistant: createInitialAssistantState(),
       endpointCompleted: false,
+      offlineProgress: {
+        lastActiveAt: now,
+        timestampStatus: "valid",
+        pendingSummary: null,
+        consumedSummary: null,
+      },
     });
   });
 

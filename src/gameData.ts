@@ -508,6 +508,12 @@ export function createNewGameState(now = Date.now()): GameState {
     upgrades: createInitialUpgradeState(),
     assistant: createInitialAssistantState(),
     endpointCompleted: false,
+    offlineProgress: {
+      lastActiveAt: now,
+      timestampStatus: "valid",
+      pendingSummary: null,
+      consumedSummary: null,
+    },
   };
 }
 

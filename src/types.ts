@@ -538,6 +538,22 @@ export interface GameState {
     productionObservedAfterMilestone: boolean;
   };
   endpointCompleted: boolean;
+  offlineProgress: OfflineProgressState;
+}
+
+export interface OfflineProgressSummary {
+  startedAt: number;
+  endedAt: number;
+  elapsedSeconds: number;
+  eligibleSeconds: number;
+  bugsFoundGained: number;
+}
+
+export interface OfflineProgressState {
+  lastActiveAt: number | null;
+  timestampStatus: "valid" | "migration_required" | "invalid";
+  pendingSummary: OfflineProgressSummary | null;
+  consumedSummary: OfflineProgressSummary | null;
 }
 
 export type SaveSchemaVersion =
@@ -563,6 +579,7 @@ export interface MvpSaveGameData {
   upgrades: UpgradeOwnershipState;
   assistant: GameState["assistant"];
   endpointCompleted: boolean;
+  offlineProgress: OfflineProgressState;
 }
 
 export interface SaveData {

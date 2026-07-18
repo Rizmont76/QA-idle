@@ -22,6 +22,7 @@ import type {
   GameSavedEventDescriptor,
   GameState,
   MvpSaveGameData,
+  OfflineProgressSummary,
   PromotionId,
   ResourceId,
   ResourceState,
@@ -69,6 +70,76 @@ function safeTimestamp(value: unknown, fallback: number) {
   const numberValue = Number(value);
 
   return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : fallback;
+}
+
+function normalizeOfflineTimestamp(value: unknown, now: number) {
+  const timestamp = Number(value);
+
+  return Number.isFinite(timestamp) && timestamp > 0 && timestamp <= now
+    ? timestamp
+    : null;
+}
+
+function normalizeOfflineSummary(value: unknown): OfflineProgressSummary | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const startedAt = Number(value["startedAt"]);
+  const endedAt = Number(value["endedAt"]);
+  const elapsedSeconds = Number(value["elapsedSeconds"]);
+  const eligibleSeconds = Number(value["eligibleSeconds"]);
+  const bugsFoundGained = Number(value["bugsFoundGained"]);
+
+  if (
+    !Number.isFinite(startedAt) ||
+    !Number.isFinite(endedAt) ||
+    !Number.isFinite(elapsedSeconds) ||
+    !Number.isFinite(eligibleSeconds) ||
+    !Number.isFinite(bugsFoundGained) ||
+    startedAt <= 0 ||
+    endedAt < startedAt ||
+    elapsedSeconds < 0 ||
+    eligibleSeconds < 0 ||
+    eligibleSeconds > elapsedSeconds ||
+    bugsFoundGained < 0
+  ) {
+    return null;
+  }
+
+  return { startedAt, endedAt, elapsedSeconds, eligibleSeconds, bugsFoundGained };
+}
+
+function normalizeOfflineProgress(
+  value: unknown,
+  now: number,
+): GameState["offlineProgress"] {
+  if (!isRecord(value)) {
+    return {
+      lastActiveAt: null,
+      timestampStatus: "migration_required",
+      pendingSummary: null,
+      consumedSummary: null,
+    };
+  }
+
+  const lastActiveAt = normalizeOfflineTimestamp(value["lastActiveAt"], now);
+
+  if (lastActiveAt === null) {
+    return {
+      lastActiveAt: null,
+      timestampStatus: "invalid",
+      pendingSummary: null,
+      consumedSummary: null,
+    };
+  }
+
+  return {
+    lastActiveAt,
+    timestampStatus: "valid",
+    pendingSummary: normalizeOfflineSummary(value["pendingSummary"]),
+    consumedSummary: normalizeOfflineSummary(value["consumedSummary"]),
+  };
 }
 
 function normalizeUpgradeLevel(
@@ -259,6 +330,7 @@ function normalizeGameState(value: unknown, now = Date.now()): GameState {
     upgrades: normalizeUpgradeOwnership(parsed.upgrades),
     assistant: normalizeAssistantState(parsed.assistant),
     endpointCompleted: parsed.endpointCompleted === true,
+    offlineProgress: normalizeOfflineProgress(parsed.offlineProgress, now),
   };
 }
 
@@ -303,6 +375,11 @@ function toMvpSaveGameData(game: GameState, lastPlayedAt: number): MvpSaveGameDa
     upgrades: game.upgrades,
     assistant: game.assistant,
     endpointCompleted: game.endpointCompleted,
+    offlineProgress: {
+      ...game.offlineProgress,
+      lastActiveAt: lastPlayedAt,
+      timestampStatus: "valid",
+    },
   };
 }
 

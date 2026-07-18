@@ -77,6 +77,12 @@ describe("save storage", () => {
       promotion: initialState.promotion,
       uiSurfaces: initialState.uiSurfaces,
       unlocks: initialState.unlocks,
+      offlineProgress: {
+        lastActiveAt: null,
+        timestampStatus: "migration_required",
+        pendingSummary: null,
+        consumedSummary: null,
+      },
     });
   });
 
@@ -162,6 +168,7 @@ describe("save storage", () => {
         "assistant",
         "endpointCompleted",
         "lastPlayedAt",
+        "offlineProgress",
         "promotion",
         "resources",
         "totalBugsFound",
@@ -238,6 +245,10 @@ describe("save storage", () => {
       upgrades: game.upgrades,
       assistant: game.assistant,
       endpointCompleted: true,
+      offlineProgress: {
+        ...game.offlineProgress,
+        lastActiveAt: Date.now(),
+      },
     });
     expect(saved.game).not.toHaveProperty("modifiers");
     expect(saved.game).not.toHaveProperty("team");
@@ -333,6 +344,13 @@ describe("save storage", () => {
       },
     ]);
 
+    expect(loadedLegacySave.game.offlineProgress).toEqual({
+      lastActiveAt: null,
+      timestampStatus: "migration_required",
+      pendingSummary: null,
+      consumedSummary: null,
+    });
+
     saveGame(loadedLegacySave.game);
 
     expect(JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}")).toMatchObject({
@@ -344,6 +362,12 @@ describe("save storage", () => {
         resources: {
           [MVP_IDS.resources.bugsFound]: 3,
           [MVP_IDS.resources.money]: 4,
+        },
+        offlineProgress: {
+          lastActiveAt: Date.now(),
+          timestampStatus: "valid",
+          pendingSummary: null,
+          consumedSummary: null,
         },
       },
     });
@@ -439,6 +463,81 @@ describe("save storage", () => {
     });
   });
 
+  it("rejects invalid and future offline timestamps without retaining summaries", () => {
+    const futureTimestamp = Date.now() + 60_000;
+
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        meta: { schemaVersion: CURRENT_SAVE_SCHEMA_VERSION },
+        game: {
+          offlineProgress: {
+            lastActiveAt: futureTimestamp,
+            timestampStatus: "valid",
+            pendingSummary: {
+              startedAt: Date.now() - 10_000,
+              endedAt: Date.now(),
+              elapsedSeconds: 10,
+              eligibleSeconds: 10,
+              bugsFoundGained: 8,
+            },
+          },
+        },
+      }),
+    );
+
+    expect(loadSave().game.offlineProgress).toEqual({
+      lastActiveAt: null,
+      timestampStatus: "invalid",
+      pendingSummary: null,
+      consumedSummary: null,
+    });
+  });
+
+  it("persists pending and consumed offline summaries without applying rewards", () => {
+    const pendingSummary = {
+      startedAt: Date.now() - 30_000,
+      endedAt: Date.now(),
+      elapsedSeconds: 30,
+      eligibleSeconds: 30,
+      bugsFoundGained: 24,
+    };
+    const consumedSummary = {
+      startedAt: Date.now() - 120_000,
+      endedAt: Date.now() - 60_000,
+      elapsedSeconds: 60,
+      eligibleSeconds: 60,
+      bugsFoundGained: 48,
+    };
+
+    saveGame({
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.bugsFound]: 5,
+      },
+      offlineProgress: {
+        lastActiveAt: Date.now() - 30_000,
+        timestampStatus: "valid",
+        pendingSummary,
+        consumedSummary,
+      },
+    });
+
+    expect(loadSave().game).toMatchObject({
+      resources: {
+        [MVP_IDS.resources.bugsFound]: 5,
+      },
+      totalBugsFound: 0,
+      offlineProgress: {
+        lastActiveAt: Date.now(),
+        timestampStatus: "valid",
+        pendingSummary,
+        consumedSummary,
+      },
+    });
+  });
+
   it("restores a valid MVP save without awarding offline progress", () => {
     const savedLastPlayedAt = new Date("2026-07-01T12:00:00.000Z").getTime();
 
@@ -511,6 +610,12 @@ describe("save storage", () => {
         [MVP_IDS.upgrades.betterChecklist]: 1,
         [MVP_IDS.upgrades.coffee]: 1,
         [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+      },
+      offlineProgress: {
+        lastActiveAt: null,
+        timestampStatus: "migration_required",
+        pendingSummary: null,
+        consumedSummary: null,
       },
     });
     expect(loadedSave.events).toEqual([

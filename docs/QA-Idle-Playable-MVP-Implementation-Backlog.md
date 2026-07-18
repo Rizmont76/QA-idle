@@ -300,7 +300,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Persist offline summary and timestamp state
 - Epic: Epic 2 - State and Save Schema v2
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Prepare save data for explicit offline-return summaries without granting offline rewards during migration.
 - Scope: Add last active timestamp, pending offline summary, consumed offline summary state and invalid timestamp handling fields if needed.
 - Out of Scope: Offline reward calculation; offline modal UI; background timers.
