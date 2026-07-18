@@ -3,7 +3,7 @@
 Status: Active backlog  
 Scope: Playable Idle MVP implementation planning only  
 Created for: Phase 7C  
-Current task count: 46  
+Current task count: 48
 Active balance candidate: `phase-6b.2-stage-a-003`  
 Active parameter version: `doc15-provisional-implementation-candidate-v1-phase-6b.2-stage-a-003`  
 Required balance validation command: `npm run balance:candidate`
@@ -359,6 +359,48 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Risk Level: High
 - Definition of Done: One deterministic calculator owns Assistant production math for runtime systems. Delivered in `c011af2`.
 
+#### QA-PLAYABLE-MVP-047
+
+- Task ID: `QA-PLAYABLE-MVP-047`
+- Title: Consolidate active candidate parameter authority and safe resource bounds
+- Epic: Epic 3 - Deterministic Production Core
+- Priority: P0
+- Status: Ready
+- Objective: Remove runtime/simulator candidate drift and align runtime resource safety limits with the active candidate.
+- Scope: Introduce one neutral versioned candidate data source consumed by runtime and simulator adapters; keep simulator-only cadence and gates separate; use the candidate safe resource bound in the Resource registry and save normalization.
+- Out of Scope: Changing candidate values; sharing gameplay implementation with the simulator; changing balance gates.
+- Authoritative Documents: `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`, `docs/07-Technical_Rules.md`, `docs/11-Resource_System.md`
+- Dependencies: `QA-PLAYABLE-MVP-006`
+- Implementation Notes: Preserve runtime and simulator validation boundaries while eliminating duplicated candidate values. The resource bound is technical safety, not a player-facing storage cap.
+- Acceptance Criteria: Runtime and simulator load the same profile ID, parameter version and candidate values; simulator-only fields cannot enter runtime gameplay; Bugs Found and Money use the approved safe resource bound; save normalization and Resource transactions agree.
+- Required Tests: Shared candidate projection parity; simulator-only field exclusion; Resource transaction and save normalization coverage at and above the approved bound.
+- Verification Commands: `pnpm test -- --run`; `npm run balance:candidate`; `npm run check`
+- Save Impact: Existing valid balances above the historical slice cap are preserved up to the approved safe bound
+- UI Impact: No UI change
+- Risk Level: High
+- Definition of Done: Runtime and simulator have one versioned candidate value source and runtime resources enforce the documented technical bound.
+
+#### QA-PLAYABLE-MVP-048
+
+- Task ID: `QA-PLAYABLE-MVP-048`
+- Title: Unify Assistant derived stat calculation contract
+- Epic: Epic 3 - Deterministic Production Core
+- Priority: P0
+- Status: Ready
+- Objective: Ensure Assistant production, level cost, offline efficiency and diagnostics resolve through one canonical stat and modifier composition path.
+- Scope: Reuse canonical Gameplay Stat metadata with dynamic Assistant base values; compose active Assistant modifier instances deterministically; expose shared calculation results and breakdowns to online, cost, offline and diagnostic consumers.
+- Out of Scope: New modifier types; a generic dependency-injection framework; gameplay or balance changes.
+- Authoritative Documents: `docs/09-Modifier_System.md`, `docs/07-Technical_Rules.md`, `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`
+- Dependencies: `QA-PLAYABLE-MVP-013`, `QA-PLAYABLE-MVP-042`, `QA-PLAYABLE-MVP-047`
+- Implementation Notes: Remove duplicate Assistant stat metadata and prevent general diagnostics from resolving different values than Assistant calculators.
+- Acceptance Criteria: Each Assistant stat ID has one canonical definition; production, future-level cost and offline efficiency use the same modifier ordering and breakdown contract; existing manual and reporting stats remain unchanged.
+- Required Tests: Canonical definition uniqueness; Assistant calculation and breakdown parity; historical stat regression coverage.
+- Verification Commands: `pnpm test -- --run`; `npm run balance:candidate`; `npm run check`
+- Save Impact: No save data change
+- UI Impact: No UI change
+- Risk Level: High
+- Definition of Done: All Assistant derived-stat consumers share one deterministic calculation contract.
+
 #### QA-PLAYABLE-MVP-014
 
 - Task ID: `QA-PLAYABLE-MVP-014`
@@ -370,7 +412,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Scope: Convert elapsed online time into Bugs Found through the shared calculator and Resource System transactions.
 - Out of Scope: Money generation; automatic reporting; offline progress; UI animation.
 - Authoritative Documents: `docs/06-Game_Systems.md`, `docs/07-Technical_Rules.md`, `docs/11-Resource_System.md`, `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`
-- Dependencies: `QA-PLAYABLE-MVP-009`, `QA-PLAYABLE-MVP-013`
+- Dependencies: `QA-PLAYABLE-MVP-009`, `QA-PLAYABLE-MVP-013`, `QA-PLAYABLE-MVP-047`, `QA-PLAYABLE-MVP-048`
 - Implementation Notes: Manual Testing remains an active burst; passive production adds Bugs Found only and should emit committed resource events.
 - Acceptance Criteria: No passive Bugs before Assistant unlock; level 0 produces after unlock; Bugs Found increases through Resource transactions; Money never increases from passive production.
 - Required Tests: Tick tests for locked/unlocked states; elapsed-time accumulation tests; no-Money regression test.
@@ -456,7 +498,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Scope: Implement base cost 200, growth 1.14, linear stabilizer 10, future Training discount multiplier 0.76 and currency rounding.
 - Out of Scope: Spending Money; Buy Max; UI previews.
 - Authoritative Documents: `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`, `docs/10-Economy_Framework.md`
-- Dependencies: `QA-PLAYABLE-MVP-006`, `QA-PLAYABLE-MVP-042`, `QA-PLAYABLE-MVP-043`
+- Dependencies: `QA-PLAYABLE-MVP-006`, `QA-PLAYABLE-MVP-042`, `QA-PLAYABLE-MVP-043`, `QA-PLAYABLE-MVP-047`, `QA-PLAYABLE-MVP-048`
 - Implementation Notes: Training discount applies only after ownership and must not refund previous purchases.
 - Acceptance Criteria: Cost calculator matches candidate fixtures; max-level state has no next purchasable level; discount only affects future costs.
 - Required Tests: Cost formula tests; Training ownership timing tests; max-level tests.
@@ -539,12 +581,12 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Priority: P0
 - Status: Ready
 - Objective: Enable one-time Assistant Support Upgrades through existing Upgrade and Modifier architecture.
-- Scope: Implement common ownership, affordability, one-time purchase, stable ID validation and optionality rules for exactly three Support Upgrades.
+- Scope: Implement common ownership, affordability, one-time purchase, one canonical stable-ID registry and optionality rules for exactly three Support Upgrades.
 - Out of Scope: Adding new currencies, systems, producers, Money generation or auto-reporting.
 - Authoritative Documents: `docs/12-Upgrade_System.md`, `docs/09-Modifier_System.md`, `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`
 - Dependencies: `QA-PLAYABLE-MVP-007`, `QA-PLAYABLE-MVP-009`, `QA-PLAYABLE-MVP-042`, `QA-PLAYABLE-MVP-043`
 - Implementation Notes: Support Upgrades use shared Money and are Middle QA only.
-- Acceptance Criteria: Support ownership is one-time; duplicate purchase is blocked; all three Supports are optional; no extra Support IDs exist.
+- Acceptance Criteria: Support ownership is one-time; duplicate purchase is blocked; all three Supports are optional; runtime definitions, modifiers, persistence and simulator adapters consume the canonical Support IDs; no extra Support IDs exist.
 - Required Tests: Support purchase framework tests; duplicate-purchase test; exact ID set test.
 - Verification Commands: `pnpm test -- --run`; `npm run check`
 - Save Impact: Updates owned Support Upgrade IDs
@@ -693,7 +735,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Scope: Use eligible seconds, 7200-second cap, base efficiency 0.35 and Support efficiency 0.62.
 - Out of Scope: Money generation; automatic Report; UI summary display.
 - Authoritative Documents: `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`, `docs/07-Technical_Rules.md`, `docs/09-Modifier_System.md`
-- Dependencies: `QA-PLAYABLE-MVP-013`, `QA-PLAYABLE-MVP-011`, `QA-PLAYABLE-MVP-042`
+- Dependencies: `QA-PLAYABLE-MVP-013`, `QA-PLAYABLE-MVP-011`, `QA-PLAYABLE-MVP-042`, `QA-PLAYABLE-MVP-047`, `QA-PLAYABLE-MVP-048`
 - Implementation Notes: Offline cap is a time cap, not a storage cap.
 - Acceptance Criteria: No offline gain before Assistant unlock; capped elapsed time is used; efficiency remains below online; Handover Support changes only offline efficiency.
 - Required Tests: Offline calculator tests; cap test; with/without Support efficiency tests; no-pre-unlock gain test.
@@ -732,12 +774,12 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Priority: P0
 - Status: Ready
 - Objective: Prevent invalid clocks, future timestamps and migrated saves from producing unintended offline rewards.
-- Scope: Handle negative elapsed time, far-future timestamps, missing timestamps, first load after migration and repeated load cycles.
+- Scope: Establish one authoritative persisted offline-boundary timestamp; derive compatibility and metadata timestamps during serialization; handle negative elapsed time, far-future timestamps, missing timestamps, first load after migration and repeated load cycles.
 - Out of Scope: Anti-cheat systems; cloud time validation; monetization.
 - Authoritative Documents: `docs/07-Technical_Rules.md`, `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`
 - Dependencies: `QA-PLAYABLE-MVP-011`, `QA-PLAYABLE-MVP-029`
 - Implementation Notes: Clamp or discard invalid elapsed time according to existing save safety patterns; record diagnostics for suspicious cases.
-- Acceptance Criteria: Invalid timestamps do not grant resources; migrated saves do not get offline grants until after a valid saved timestamp; repeated returns do not double grant.
+- Acceptance Criteria: Offline elapsed time uses one documented authoritative timestamp independent of UI autosave cadence; in-memory and persisted timestamp roles cannot disagree; invalid timestamps do not grant resources; migrated saves do not get offline grants until after a valid saved timestamp; repeated returns do not double grant.
 - Required Tests: Future timestamp test; missing timestamp test; migration no-grant test; double-grant prevention test.
 - Verification Commands: `pnpm test -- --run src/save.test.ts`; `pnpm test -- --run`; `npm run check`
 - Save Impact: Hardens offline timestamp state
@@ -755,12 +797,12 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Priority: P0
 - Status: Ready
 - Objective: Provide internal endpoint status for the Playable Idle MVP acceptance flow.
-- Scope: Expose Assistant level target 8 reached, first milestone reached, post-milestone production tick observed and endpoint complete.
+- Scope: Expose Assistant level target 8 reached, first milestone reached, post-milestone production tick observed and endpoint complete; provide the authoritative completion selector used by UI consumers.
 - Out of Scope: Player-facing completion ceremony; Support ownership requirements; playtest checklist.
 - Authoritative Documents: `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`, `docs/08-MVP_Vertical_Slice_Specification.md`
 - Dependencies: `QA-PLAYABLE-MVP-020`
 - Implementation Notes: Endpoint complete must not require Support Upgrades.
-- Acceptance Criteria: Diagnostic endpoint status is queryable; no-support endpoint path can complete; endpoint remains incomplete before post-milestone tick.
+- Acceptance Criteria: Diagnostic endpoint status and the authoritative completion selector are queryable; Middle QA promotion alone is not MVP completion; no-support endpoint path can complete; endpoint remains incomplete before post-milestone tick.
 - Required Tests: Endpoint diagnostic tests; no-support path test; pre/post tick tests.
 - Verification Commands: `pnpm test -- --run`; `npm run check`
 - Save Impact: Reads and updates endpoint state
@@ -824,8 +866,8 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Out of Scope: Full visual redesign; final Cozy Corporate Workspace layout; Support cards; temporary player-facing layout that conflicts with approved VD-02/VD-03.
 - Authoritative Documents: `docs/VD-01 UI Design System.txt`, `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`, `docs/08-MVP_Vertical_Slice_Specification.md`
 - Dependencies: `QA-PLAYABLE-MVP-019`, `QA-PLAYABLE-MVP-031`, `QA-PLAYABLE-MVP-037`, `QA-PLAYABLE-MVP-038`
-- Implementation Notes: UI must not own formulas; use derived runtime data. Small debug/developer surfaces may exist earlier, but player-facing UI must follow approved VD-02 components and VD-03 workspace layout.
-- Acceptance Criteria: Buttons reflect affordability and max-level state; previews match runtime calculations; responsive layout does not overlap existing Junior UI.
+- Implementation Notes: UI must not own formulas; use derived runtime data and the endpoint selector from `QA-PLAYABLE-MVP-031`. Remove historical Technical Slice copy that treats Middle QA promotion as the Playable Idle MVP endpoint. Small debug/developer surfaces may exist earlier, but player-facing UI must follow approved VD-02 components and VD-03 workspace layout.
+- Acceptance Criteria: Middle QA promotion presents the Assistant phase rather than completion; completion presentation follows runtime endpoint state; buttons reflect affordability and max-level state; previews match runtime calculations; responsive layout does not overlap existing Junior UI.
 - Required Tests: Component or integration tests for button states; purchase interaction tests; accessibility state checks.
 - Verification Commands: `pnpm test -- --run`; `npm run check`
 - Save Impact: No new save fields; invokes purchase transactions
@@ -995,7 +1037,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Scope: Run full test suite, active balance candidate validation, runtime/simulator parity, visual regression/accessibility checks and production build.
 - Out of Scope: Freezing doc 15; tuning values; creating GitHub Issues.
 - Authoritative Documents: `docs/15-Playable_Idle_MVP_Balance_and_Simulation_Spec.md`, `docs/08-MVP_Vertical_Slice_Specification.md`, `AGENTS.md`
-- Dependencies: All runtime, functional UI and visual implementation tasks: `QA-PLAYABLE-MVP-001` through `QA-PLAYABLE-MVP-036`, plus `QA-PLAYABLE-MVP-042`, `QA-PLAYABLE-MVP-043`, `QA-PLAYABLE-MVP-044`, `QA-PLAYABLE-MVP-045` and `QA-PLAYABLE-MVP-046`
+- Dependencies: All runtime, functional UI and visual implementation tasks: `QA-PLAYABLE-MVP-001` through `QA-PLAYABLE-MVP-036`, plus `QA-PLAYABLE-MVP-042` through `QA-PLAYABLE-MVP-048`
 - Implementation Notes: This is an acceptance task after gameplay and functional UI work, not a balance tuning task.
 - Acceptance Criteria: Full regression passes; `npm run balance:candidate` reports all required gates passing; visual/accessibility checks pass; production build succeeds.
 - Required Tests: Full automated suite; balance candidate validation; visual/component checks; accessibility checks; production build smoke.
@@ -1064,10 +1106,12 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 | QA-PLAYABLE-MVP-011 | 009 |
 | QA-PLAYABLE-MVP-012 | 009, 010, 011 |
 | QA-PLAYABLE-MVP-013 | 006, 007, 042 |
-| QA-PLAYABLE-MVP-014 | 009, 013 |
+| QA-PLAYABLE-MVP-047 | 006 |
+| QA-PLAYABLE-MVP-048 | 013, 042, 047 |
+| QA-PLAYABLE-MVP-014 | 009, 013, 047, 048 |
 | QA-PLAYABLE-MVP-015 | 010, 014 |
 | QA-PLAYABLE-MVP-016 | 013, 014 |
-| QA-PLAYABLE-MVP-017 | 006, 042, 043 |
+| QA-PLAYABLE-MVP-017 | 006, 042, 043, 047, 048 |
 | QA-PLAYABLE-MVP-018 | 009, 017, 043 |
 | QA-PLAYABLE-MVP-019 | 018, 043 |
 | QA-PLAYABLE-MVP-020 | 015, 018, 019 |
@@ -1078,7 +1122,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 | QA-PLAYABLE-MVP-025 | 009, 014 |
 | QA-PLAYABLE-MVP-026 | 021, 025 |
 | QA-PLAYABLE-MVP-027 | 025, 026 |
-| QA-PLAYABLE-MVP-028 | 011, 013, 042 |
+| QA-PLAYABLE-MVP-028 | 011, 013, 042, 047, 048 |
 | QA-PLAYABLE-MVP-029 | 028 |
 | QA-PLAYABLE-MVP-030 | 011, 029 |
 | QA-PLAYABLE-MVP-031 | 020 |
@@ -1089,7 +1133,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 | QA-PLAYABLE-MVP-036 | 029, 031, 034, 035, 037, 038 |
 | QA-PLAYABLE-MVP-037 | Approved VD-01, doc 15 implementation candidate, current backlog approval |
 | QA-PLAYABLE-MVP-038 | 037; Docs 03, 04, 08 and 15 loaded for design context |
-| QA-PLAYABLE-MVP-039 | 001, 003-036, 042-046; 002 already completed |
+| QA-PLAYABLE-MVP-039 | 001, 003-036, 042-048; 002 already completed |
 | QA-PLAYABLE-MVP-040 | 039 |
 | QA-PLAYABLE-MVP-041 | 040, 044, 045, 046 |
 | QA-PLAYABLE-MVP-042 | 006, 007 |
@@ -1103,9 +1147,9 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 Critical path is branching rather than one linear chain:
 
 1. Runtime foundation branch: `QA-PLAYABLE-MVP-002 (Completed) -> 003 -> 005 -> 006`.
-2. Modifier/production branch: `006 -> 007 -> 042 -> 013 -> 014 -> 015 -> 020 -> 031`.
-3. Upgrade/purchase branch: `006 + 007 + 009 + 042 -> 043 -> 017 -> 018 -> 019 -> 020 -> 031`.
-4. Save/offline branch: `009 -> 011 -> 028 -> 029 -> 030 -> 024 -> 035 -> 036`.
+2. Modifier/production branch: `006 -> 047 -> 013 + 042 -> 048 -> 014 -> 015 -> 020 -> 031`.
+3. Upgrade/purchase branch: `006 -> 047`; `007 + 009 + 042 -> 043`; `013 + 042 + 047 -> 048`; then `043 + 047 + 048 -> 017 -> 018 -> 019 -> 020 -> 031`.
+4. Save/offline branch: `006 -> 047`; `013 + 042 + 047 -> 048`; `009 -> 011`; then `011 + 013 + 042 + 047 + 048 -> 028 -> 029 -> 030 -> 024 -> 035 -> 036`.
 5. Support/unlock branch: `007 + 009 + 042 + 043 -> 021 -> 022/023/024 -> 026 -> 035 -> 036`.
 6. Design branch: `QA-PLAYABLE-MVP-037 -> 038`; this can run in parallel with runtime work after backlog approval.
 7. Functional UI merge: `019 + 031 + 037 + 038 -> 034`; `022 + 023 + 024 + 026 + 037 + 038 -> 035`; `029 + 031 + 034 + 035 + 037 + 038 -> 036`.
@@ -1120,7 +1164,7 @@ Critical path is branching rather than one linear chain:
 | Contract split | 005, 008 | Both depend on 003 but touch different concerns. |
 | Design documentation | 037, then 038 | VD-02 can begin after backlog approval; VD-03 follows VD-02 and can proceed while runtime implementation continues. |
 | Save schema branches | 010, 011 | Both depend on 009; coordinate shared save type edits. |
-| Production and upgrade foundations | 013, 043, 017 | Production and cost/upgrade work can progress in parallel after 042/043 dependencies are met; coordinate modifier-facing fixtures. |
+| Production and upgrade foundations | 047, then 048 and 043 | Candidate authority must land before stat composition; 048 and 043 can then progress in parallel before production and cost integration. |
 | Support implementations | 022, 023 | Can run in parallel after 021; 024 waits for offline timestamp/application behavior. |
 | Promotion/unlock hardening | 026, 027 | Can run in parallel after 025 if unlock fixtures are coordinated. |
 | Diagnostics | 032, 033 | 033 waits for 032 output shape but fixture planning can begin after 016 and 031. |
@@ -1129,8 +1173,8 @@ Critical path is branching rather than one linear chain:
 
 ## Milestone Boundaries
 
-1. Runtime Foundation: Complete `QA-PLAYABLE-MVP-001`, completed `QA-PLAYABLE-MVP-002`, `QA-PLAYABLE-MVP-003` through `QA-PLAYABLE-MVP-008`, and `QA-PLAYABLE-MVP-042`.
-2. First Passive Loop: Complete `QA-PLAYABLE-MVP-009` through `QA-PLAYABLE-MVP-016` and `QA-PLAYABLE-MVP-025`.
+1. Runtime Foundation: Complete `QA-PLAYABLE-MVP-001`, completed `QA-PLAYABLE-MVP-002`, `QA-PLAYABLE-MVP-003` through `QA-PLAYABLE-MVP-008`, `QA-PLAYABLE-MVP-042` and `QA-PLAYABLE-MVP-047`.
+2. First Passive Loop: Complete `QA-PLAYABLE-MVP-009` through `QA-PLAYABLE-MVP-016`, `QA-PLAYABLE-MVP-025` and `QA-PLAYABLE-MVP-048`.
 3. Complete Idle Economy: Complete `QA-PLAYABLE-MVP-017` through `QA-PLAYABLE-MVP-027` and `QA-PLAYABLE-MVP-043`.
 4. Offline and Persistence: Complete `QA-PLAYABLE-MVP-011`, `QA-PLAYABLE-MVP-012`, `QA-PLAYABLE-MVP-028`, `QA-PLAYABLE-MVP-029` and `QA-PLAYABLE-MVP-030`.
 5. Functional UI: Complete design prerequisites `QA-PLAYABLE-MVP-037` and `QA-PLAYABLE-MVP-038`, then complete `QA-PLAYABLE-MVP-031` through `QA-PLAYABLE-MVP-036`.
@@ -1139,9 +1183,9 @@ Critical path is branching rather than one linear chain:
 
 ## First Recommended Codex Implementation Task
 
-Start with `QA-PLAYABLE-MVP-001 - Protect historical balance artifacts from accidental overwrite`.
+Start with `QA-PLAYABLE-MVP-047 - Consolidate active candidate parameter authority and safe resource bounds`.
 
-Reason: it reduces the highest planning risk before implementation begins: accidentally overwriting historical artifacts or confusing active candidate outputs with historical evidence.
+Reason: tasks through `QA-PLAYABLE-MVP-013` are complete, and candidate authority plus the incorrect historical resource bound must be corrected before online production, costs or offline gains extend the runtime economy.
 
 ## Explicit Prerequisites For UI Work
 
@@ -1183,6 +1227,7 @@ Playtesting should not begin until:
 - `QA-PLAYABLE-MVP-043` because Assistant levels must extend Upgrade System without breaking one-time Technical Slice upgrades.
 - `QA-PLAYABLE-MVP-009` through `QA-PLAYABLE-MVP-012` because save migration mistakes can break existing players or grant resources accidentally.
 - `QA-PLAYABLE-MVP-013` through `QA-PLAYABLE-MVP-016` because production math must match simulator evidence.
+- `QA-PLAYABLE-MVP-047` and `QA-PLAYABLE-MVP-048` because candidate values, resource bounds and Assistant derived stats must have one runtime calculation contract before the passive economy expands.
 - `QA-PLAYABLE-MVP-018` through `QA-PLAYABLE-MVP-020` because purchase atomicity, milestone ordering and endpoint detection define the core MVP.
 - `QA-PLAYABLE-MVP-028` through `QA-PLAYABLE-MVP-030` because offline progress is vulnerable to timestamp and migration errors.
 - `QA-PLAYABLE-MVP-037` and `QA-PLAYABLE-MVP-038` because player-facing UI must not invent incompatible temporary design.
