@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "status": "reviewed",
-  "lastReviewedSha": "bf2f3932c08b3a310fb8b9eaa48164fe81c84a86",
-  "lastReviewedAt": "2026-07-14T10:51:00.6071958+03:00",
-  "branch": "main",
-  "reviewedHeadSha": "bf2f3932c08b3a310fb8b9eaa48164fe81c84a86",
+  "lastReviewedSha": "0eadde97e9c808edbd9423fcffaaf8f98c001bd2",
+  "lastReviewedAt": "2026-07-18T20:09:38.6438814+03:00",
+  "branch": "feature/playable-mvp-013-assistant-production",
+  "reviewedHeadSha": "0eadde97e9c808edbd9423fcffaaf8f98c001bd2",
   "reportPath": null
 }
