@@ -19,6 +19,97 @@ import {
 import { MVP_IDS } from "./types";
 import type { GameState, Upgrade } from "./types";
 
+const technicalSliceSaveFixtures = [
+  {
+    name: "new game",
+    game: {
+      resources: {
+        [MVP_IDS.resources.bugsFound]: 0,
+        [MVP_IDS.resources.money]: 0,
+      },
+      totalBugsFound: 0,
+      totalMoneyEarned: 0,
+      careerStage: MVP_IDS.careerStages.juniorQa,
+      promotion: { availablePromotionIds: [], completedPromotionIds: [] },
+      uiSurfaces: initialState.uiSurfaces,
+      unlocks: initialState.unlocks,
+      upgrades: initialState.upgrades,
+    },
+  },
+  {
+    name: "pre-promotion progress",
+    game: {
+      resources: {
+        [MVP_IDS.resources.bugsFound]: 12,
+        [MVP_IDS.resources.money]: 35,
+      },
+      totalBugsFound: 42,
+      totalMoneyEarned: 73,
+      careerStage: MVP_IDS.careerStages.juniorQa,
+      promotion: { availablePromotionIds: [], completedPromotionIds: [] },
+      uiSurfaces: initialState.uiSurfaces,
+      unlocks: initialState.unlocks,
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+      },
+    },
+  },
+  {
+    name: "promotion available",
+    game: {
+      resources: {
+        [MVP_IDS.resources.bugsFound]: 4,
+        [MVP_IDS.resources.money]: 85,
+      },
+      totalBugsFound: 100,
+      totalMoneyEarned: 150,
+      careerStage: MVP_IDS.careerStages.juniorQa,
+      promotion: {
+        availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        completedPromotionIds: [],
+      },
+      uiSurfaces: {
+        ...initialState.uiSurfaces,
+        [MVP_IDS.uiSurfaces.promoteAction]: "active" as const,
+      },
+      unlocks: {
+        [MVP_IDS.unlocks.promotionJuniorToMiddle]: "available" as const,
+      },
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+        [MVP_IDS.upgrades.coffee]: 1,
+        [MVP_IDS.upgrades.bugReportTemplate]: 1,
+      },
+    },
+  },
+  {
+    name: "Middle QA endpoint",
+    game: {
+      resources: {
+        [MVP_IDS.resources.bugsFound]: 17,
+        [MVP_IDS.resources.money]: 29,
+      },
+      totalBugsFound: 101,
+      totalMoneyEarned: 151,
+      careerStage: MVP_IDS.careerStages.middleQa,
+      promotion: {
+        availablePromotionIds: [],
+        completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+      },
+      uiSurfaces: initialState.uiSurfaces,
+      unlocks: initialState.unlocks,
+      upgrades: {
+        ...initialState.upgrades,
+        [MVP_IDS.upgrades.betterChecklist]: 1,
+        [MVP_IDS.upgrades.coffee]: 1,
+        [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+      },
+    },
+  },
+] as const;
+
 describe("save storage", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -265,6 +356,67 @@ describe("save storage", () => {
 
     expect(JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}")).toEqual(result.saveData);
   });
+
+  it.each(technicalSliceSaveFixtures)(
+    "migrates the Technical Slice $name fixture without unintended rewards",
+    ({ game }) => {
+      const savedAt = new Date("2026-07-09T12:00:00.000Z").getTime();
+
+      localStorage.setItem(
+        SAVE_KEY,
+        JSON.stringify({
+          meta: {
+            schemaVersion: 1,
+            createdAt: savedAt,
+            lastSavedAt: savedAt,
+            lastActiveAt: savedAt,
+            migratedFromVersions: [],
+          },
+          game: {
+            ...game,
+            lastPlayedAt: savedAt,
+          },
+        }),
+      );
+
+      const loaded = loadSave().game;
+
+      expect(loaded).toMatchObject({
+        resources: game.resources,
+        totalBugsFound: game.totalBugsFound,
+        totalMoneyEarned: game.totalMoneyEarned,
+        careerStage: game.careerStage,
+        promotion: game.promotion,
+        upgrades: game.upgrades,
+        assistant: initialState.assistant,
+        endpointCompleted: false,
+        offlineProgress: {
+          lastActiveAt: null,
+          timestampStatus: "migration_required",
+          pendingSummary: null,
+          consumedSummary: null,
+        },
+      });
+      expect(loaded.resources[MVP_IDS.resources.money]).toBe(
+        game.resources[MVP_IDS.resources.money],
+      );
+      expect(loaded.assistant.ownedSupportUpgradeIds).toEqual([]);
+
+      const manualResult = performManualTest(loaded, Date.now());
+
+      expect(manualResult.ok).toBe(true);
+      if (!manualResult.ok) {
+        throw new Error(`Expected Manual Testing to work for ${game.careerStage}.`);
+      }
+      expect(manualResult.game.resources[MVP_IDS.resources.bugsFound]).toBe(
+        game.resources[MVP_IDS.resources.bugsFound] +
+          getDerivedStats(loaded).bugsPerClick,
+      );
+      expect(manualResult.game.resources[MVP_IDS.resources.money]).toBe(
+        game.resources[MVP_IDS.resources.money],
+      );
+    },
+  );
 
   it("loads versioned saves and migrates legacy raw saves on write", () => {
     const savedLastPlayedAt = new Date("2026-07-09T12:30:00.000Z").getTime();
