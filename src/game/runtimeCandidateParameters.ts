@@ -1,6 +1,7 @@
 export const ACTIVE_RUNTIME_PARAMETER_PROFILE_ID = "phase-6b.2-stage-a-003";
 export const ACTIVE_RUNTIME_PARAMETER_VERSION =
   "doc15-provisional-implementation-candidate-v1-phase-6b.2-stage-a-003";
+const ASSISTANT_MILESTONE_COUNT = 2;
 
 export type { AssistantMilestoneId, AssistantSupportUpgradeId } from "../types";
 
@@ -328,6 +329,27 @@ export function validateRuntimeCandidateParameterContract(contract: unknown): st
       "formatting.numericScaleDecimalPlaces",
       failures,
     );
+    validatePositiveNumber(
+      formatting["decimalMaxBelow"],
+      "formatting.decimalMaxBelow",
+      failures,
+    );
+    validatePositiveNumber(formatting["integerMin"], "formatting.integerMin", failures);
+    validatePositiveNumber(formatting["compactMin"], "formatting.compactMin", failures);
+    if (
+      typeof formatting["decimalMaxBelow"] === "number" &&
+      typeof formatting["integerMin"] === "number" &&
+      formatting["decimalMaxBelow"] !== formatting["integerMin"]
+    ) {
+      failures.push("formatting decimal and integer thresholds must meet exactly.");
+    }
+    if (
+      typeof formatting["integerMin"] === "number" &&
+      typeof formatting["compactMin"] === "number" &&
+      formatting["compactMin"] <= formatting["integerMin"]
+    ) {
+      failures.push("formatting.compactMin must be greater than formatting.integerMin.");
+    }
   }
 
   if (
@@ -345,6 +367,106 @@ export function validateRuntimeCandidateParameterContract(contract: unknown): st
     : null;
   if (milestones === null && contract["milestones"] !== undefined) {
     failures.push("milestones must be an array.");
+  }
+  if (milestones !== null) {
+    if (milestones.length !== ASSISTANT_MILESTONE_COUNT) {
+      failures.push("milestones must contain exactly the first and capstone milestones.");
+    }
+    const expectedMilestoneIds = [
+      "milestone_assistant_first",
+      "milestone_assistant_capstone",
+    ];
+    expectedMilestoneIds.forEach((id, index) => {
+      const milestone = isRecord(milestones[index]) ? milestones[index] : null;
+      if (milestone?.["id"] !== id) {
+        failures.push(`milestones[${String(index)}].id must be ${id}.`);
+      }
+      validatePositiveInteger(
+        milestone?.["level"],
+        `milestones[${String(index)}].level`,
+        failures,
+      );
+    });
+    if (isRecord(milestones[0])) {
+      validatePositiveNumber(
+        milestones[0]["productionMultiplier"],
+        "milestones[0].productionMultiplier",
+        failures,
+      );
+    }
+  }
+
+  const supportUpgrades = Array.isArray(contract["supportUpgrades"])
+    ? contract["supportUpgrades"]
+    : null;
+  if (supportUpgrades === null && contract["supportUpgrades"] !== undefined) {
+    failures.push("supportUpgrades must be an array.");
+  }
+  const expectedSupportIds = [
+    "support_immediate_production",
+    "support_training_economics",
+    "support_offline_handover",
+  ];
+  if (supportUpgrades !== null) {
+    if (supportUpgrades.length !== expectedSupportIds.length) {
+      failures.push("supportUpgrades must contain exactly the three approved supports.");
+    }
+    expectedSupportIds.forEach((id, index) => {
+      const support = isRecord(supportUpgrades[index]) ? supportUpgrades[index] : null;
+      if (support?.["id"] !== id) {
+        failures.push(`supportUpgrades[${String(index)}].id must be ${id}.`);
+      }
+      validateNonNegativeNumber(
+        support?.["unlockLevel"],
+        `supportUpgrades[${String(index)}].unlockLevel`,
+        failures,
+      );
+      validatePositiveNumber(
+        support?.["price"],
+        `supportUpgrades[${String(index)}].price`,
+        failures,
+      );
+      if (!isRecord(support?.["effect"])) {
+        failures.push(`supportUpgrades[${String(index)}].effect must be an object.`);
+        return;
+      }
+
+      const effect = support["effect"];
+      if (index === 0) {
+        if (effect["type"] !== "assistant_production_additive") {
+          failures.push(
+            "supportUpgrades[0].effect.type must be assistant_production_additive.",
+          );
+        }
+        validateNonNegativeNumber(
+          effect["bugsPerSecond"],
+          "supportUpgrades[0].effect.bugsPerSecond",
+          failures,
+        );
+      } else if (index === 1) {
+        if (effect["type"] !== "future_assistant_level_cost_multiplier") {
+          failures.push(
+            "supportUpgrades[1].effect.type must be future_assistant_level_cost_multiplier.",
+          );
+        }
+        validatePositiveNumber(
+          effect["multiplier"],
+          "supportUpgrades[1].effect.multiplier",
+          failures,
+        );
+      } else {
+        if (effect["type"] !== "offline_efficiency_multiplier_source") {
+          failures.push(
+            "supportUpgrades[2].effect.type must be offline_efficiency_multiplier_source.",
+          );
+        }
+        validateNonNegativeNumber(
+          effect["efficiencyWithSupport"],
+          "supportUpgrades[2].effect.efficiencyWithSupport",
+          failures,
+        );
+      }
+    });
   }
   if (
     milestones !== null &&
@@ -369,6 +491,26 @@ export function validateRuntimeCandidateParameterContract(contract: unknown): st
     : null;
   if (offlineProgress === null && contract["offlineProgress"] !== undefined) {
     failures.push("offlineProgress must be an object.");
+  }
+  if (offlineProgress !== null) {
+    validatePositiveNumber(
+      offlineProgress["timeCapSeconds"],
+      "offlineProgress.timeCapSeconds",
+      failures,
+    );
+    validateNonNegativeNumber(
+      offlineProgress["baseEfficiency"],
+      "offlineProgress.baseEfficiency",
+      failures,
+    );
+    validateNonNegativeNumber(
+      offlineProgress["efficiencyWithHandoverSupport"],
+      "offlineProgress.efficiencyWithHandoverSupport",
+      failures,
+    );
+    if (offlineProgress["producedResourceId"] !== "bugs_found") {
+      failures.push("offlineProgress.producedResourceId must be bugs_found.");
+    }
   }
   if (
     offlineProgress !== null &&

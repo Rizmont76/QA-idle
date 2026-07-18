@@ -12,6 +12,8 @@ import type {
 } from "./runtimeCandidateParameters";
 import { activeRuntimeCandidateParameters } from "./runtimeCandidateParameters";
 import { calculateGameplayStat } from "./stats";
+import type { GameplayStatArithmetic } from "./stats";
+import { FixedPoint } from "./fixedPoint";
 
 export interface AssistantModifierOwnership {
   readonly ownedSupportUpgradeIds: readonly AssistantSupportUpgradeId[];
@@ -31,6 +33,19 @@ export interface AssistantModifierStats {
 }
 
 const statIds = MVP_IDS.gameplayStats;
+const decimalPlaces =
+  activeRuntimeCandidateParameters.formatting.numericScaleDecimalPlaces;
+const fixedPointArithmetic: GameplayStatArithmetic = {
+  add: (left, right) =>
+    FixedPoint.fromNumber(left, decimalPlaces)
+      .add(FixedPoint.fromNumber(right, decimalPlaces))
+      .toNumber(),
+  multiply: (left, right) =>
+    FixedPoint.fromNumber(left, decimalPlaces)
+      .multiply(FixedPoint.fromNumber(right, decimalPlaces))
+      .toNumber(),
+  clampMinimum: (value, minimum) => Math.max(value, minimum),
+};
 
 export const assistantModifierDefinitions: readonly ModifierDefinition[] = Object.freeze([
   {
@@ -210,18 +225,21 @@ export function calculateAssistantModifierStats(
       registry,
       assistantModifierDefinitions,
       statDefinitions,
+      fixedPointArithmetic,
     ),
     futureLevelCost: calculateGameplayStat(
       statIds.assistantFutureLevelCost,
       registry,
       assistantModifierDefinitions,
       statDefinitions,
+      fixedPointArithmetic,
     ),
     offlineEfficiency: calculateGameplayStat(
       statIds.assistantOfflineEfficiency,
       registry,
       assistantModifierDefinitions,
       statDefinitions,
+      fixedPointArithmetic,
     ),
   };
 }

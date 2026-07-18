@@ -18,6 +18,18 @@ const MULTIPLICATIVE_MODIFIER_TYPE_ORDER = 1;
 const OVERRIDE_MODIFIER_TYPE_ORDER = 2;
 const UNSUPPORTED_MODIFIER_TYPE_ORDER = 3;
 
+export interface GameplayStatArithmetic {
+  add(left: number, right: number): number;
+  multiply(left: number, right: number): number;
+  clampMinimum(value: number, minimum: number): number;
+}
+
+const nativeGameplayStatArithmetic: GameplayStatArithmetic = {
+  add: (left, right) => left + right,
+  multiply: (left, right) => left * right,
+  clampMinimum: (value, minimum) => Math.max(minimum, value),
+};
+
 function getModifierTypeOrder(modifierType: ModifierDefinition["modifierType"]): number {
   switch (modifierType) {
     case "flat":
@@ -49,6 +61,7 @@ export function calculateGameplayStat(
   registry: ModifierRegistryState,
   modifierDefinitions: readonly ModifierDefinition[] = getUpgradeModifierDefinitions(),
   statDefinitions: readonly GameplayStatDefinition[] = gameplayStatDefinitions,
+  arithmetic: GameplayStatArithmetic = nativeGameplayStatArithmetic,
 ): GameplayStatCalculationResult {
   const stat = getGameplayStatDefinition(statId, statDefinitions);
   const definitionById = new Map(
@@ -106,11 +119,11 @@ export function calculateGameplayStat(
 
       const unboundedValue =
         definition.modifierType === "flat"
-          ? current.value + definition.value
+          ? arithmetic.add(current.value, definition.value)
           : definition.modifierType === "multiplicative"
-            ? current.value * definition.value
+            ? arithmetic.multiply(current.value, definition.value)
             : definition.value;
-      const nextValue = Math.max(stat.minimumValue, unboundedValue);
+      const nextValue = arithmetic.clampMinimum(unboundedValue, stat.minimumValue);
 
       return {
         value: nextValue,
@@ -130,7 +143,7 @@ export function calculateGameplayStat(
       };
     },
     {
-      value: Math.max(stat.minimumValue, stat.baseValue),
+      value: arithmetic.clampMinimum(stat.baseValue, stat.minimumValue),
       appliedModifiers: [],
     },
   );
