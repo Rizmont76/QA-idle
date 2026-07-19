@@ -100,6 +100,26 @@ export function advanceOnlineAssistantProduction(
     return { ok: false, game, failures: result.failures, events: [] };
   }
 
+  const productionObservedAfterMilestone =
+    game.assistant.productionObservedAfterMilestone ||
+    game.assistant.reachedMilestoneIds.includes("milestone_assistant_first");
+  const events = dispatchGameplayEvents(
+    [
+      ...result.events,
+      {
+        id: MVP_IDS.events.assistantProductionCommitted,
+        payload: {
+          assistantId: MVP_IDS.assistants.juniorQa,
+          bugsFound,
+          elapsedSeconds,
+          productionObservedAfterMilestone,
+          simulationTime,
+        },
+      },
+    ],
+    eventListeners,
+  ).events;
+
   return {
     ok: true,
     game: {
@@ -109,8 +129,13 @@ export function advanceOnlineAssistantProduction(
         .add(FixedPoint.fromNumber(bugsFound, decimalPlaces))
         .toNumber(),
       lastPlayedAt: simulationTime,
+      assistant: {
+        ...game.assistant,
+        productionObservedAfterUnlock: true,
+        productionObservedAfterMilestone,
+      },
     },
-    events: dispatchGameplayEvents(result.events, eventListeners).events,
+    events,
   };
 }
 
