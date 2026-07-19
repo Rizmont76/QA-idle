@@ -79,7 +79,9 @@ describe("game logic", () => {
       });
       expect(result.game.totalBugsFound).toBe(2);
       expect(result.game.lastPlayedAt).toBe(100);
-      expect(result.events).toHaveLength(1);
+      expect(result.game.assistant.productionObservedAfterUnlock).toBe(true);
+      expect(result.game.assistant.productionObservedAfterMilestone).toBe(false);
+      expect(result.events).toHaveLength(2);
       expect(result.events[0]).toMatchObject({
         id: MVP_IDS.events.resourceChanged,
         payload: {
@@ -95,6 +97,88 @@ describe("game logic", () => {
             },
           ],
         },
+      });
+      expect(result.events[1]).toEqual({
+        id: MVP_IDS.events.assistantProductionCommitted,
+        payload: {
+          assistantId: MVP_IDS.assistants.juniorQa,
+          bugsFound: 2,
+          elapsedSeconds: 2.5,
+          productionObservedAfterMilestone: false,
+          simulationTime: 100,
+        },
+      });
+    });
+
+    it("records production only after the Resource transaction commits", () => {
+      const observedDeliveries: string[] = [];
+      const result = advanceOnlineAssistantProduction(
+        unlockedAssistantGame,
+        1,
+        101,
+        [
+          {
+            id: "production-order-observer",
+            priority: 0,
+            handle: (event) => observedDeliveries.push(event.id),
+          },
+        ],
+      );
+
+      expect(result.ok).toBe(true);
+      expect(result.events.map((event) => event.id)).toEqual([
+        MVP_IDS.events.resourceChanged,
+        MVP_IDS.events.assistantProductionCommitted,
+      ]);
+      expect(observedDeliveries).toEqual([
+        MVP_IDS.events.resourceChanged,
+        MVP_IDS.events.assistantProductionCommitted,
+      ]);
+    });
+
+    it("does not record production when the Resource transaction is rejected", () => {
+      const cappedGame: GameState = {
+        ...unlockedAssistantGame,
+        resources: {
+          ...unlockedAssistantGame.resources,
+          [MVP_IDS.resources.bugsFound]: MVP_RESOURCE_MAX,
+        },
+      };
+      const result = advanceOnlineAssistantProduction(cappedGame, 1, 102);
+
+      expect(result.ok).toBe(false);
+      expect(result.game).toBe(cappedGame);
+      expect(result.game.assistant.productionObservedAfterUnlock).toBe(false);
+      expect(result.game.assistant.productionObservedAfterMilestone).toBe(false);
+      expect(result.events).toEqual([]);
+    });
+
+    it("keeps endpoint prerequisites false before a post-milestone tick", () => {
+      const result = advanceOnlineAssistantProduction(unlockedAssistantGame, 1, 102);
+
+      expect(result.ok).toBe(true);
+      expect(result.game.assistant.productionObservedAfterMilestone).toBe(false);
+      expect(result.game.endpointCompleted).toBe(false);
+    });
+
+    it("records an eligible post-milestone production tick", () => {
+      const milestoneGame: GameState = {
+        ...unlockedAssistantGame,
+        assistant: {
+          ...unlockedAssistantGame.assistant,
+          level: 8,
+          reachedMilestoneIds: ["milestone_assistant_first"],
+          productionObservedAfterUnlock: true,
+        },
+      };
+      const result = advanceOnlineAssistantProduction(milestoneGame, 1, 103);
+
+      expect(result.ok).toBe(true);
+      expect(result.game.assistant.productionObservedAfterMilestone).toBe(true);
+      expect(result.game.endpointCompleted).toBe(false);
+      expect(result.events[1]).toMatchObject({
+        id: MVP_IDS.events.assistantProductionCommitted,
+        payload: { productionObservedAfterMilestone: true },
       });
     });
 

@@ -428,7 +428,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Add production event ordering and observed-state updates
 - Epic: Epic 3 - Deterministic Production Core
 - Priority: P1
-- Status: Ready
+- Status: Completed
 - Objective: Update production-observed and endpoint-related state only after committed production transactions.
 - Scope: Emit/record passive production events; update Assistant production-observed flags; mark post-milestone production observed after an eligible tick.
 - Out of Scope: UI notifications; endpoint acceptance screen; Support purchases.
@@ -441,7 +441,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Updates v2 observed state
 - UI Impact: No UI change
 - Risk Level: Medium
-- Definition of Done: Passive production state changes are transaction-backed and endpoint-safe.
+- Definition of Done: Passive production state changes are transaction-backed and endpoint-safe. Delivered by the QA-PLAYABLE-MVP-015 implementation PR.
 
 #### QA-PLAYABLE-MVP-016
 

@@ -490,6 +490,7 @@ describe("MVP event contract IDs", () => {
       "bugReport.submitted",
       "money.earned",
       "resource.changed",
+      "assistant.productionCommitted",
       "upgrade.purchased",
       "promotion.available",
       "promotion.completed",
