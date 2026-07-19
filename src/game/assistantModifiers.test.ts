@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MVP_IDS } from "../types";
-import type { ModifierDefinition } from "../types";
+import type { GameplayStatId, ModifierDefinition } from "../types";
+import { gameplayStatDefinitions } from "../gameData";
 import {
   assistantModifierDefinitions,
   calculateAssistantModifierStats,
@@ -19,6 +20,20 @@ const allAssistantEffectsOwned = {
 };
 
 describe("Assistant modifier path", () => {
+  it("uses one canonical definition for every Assistant stat", () => {
+    const assistantStatIds = new Set<GameplayStatId>([
+      MVP_IDS.gameplayStats.assistantBugsPerSecond,
+      MVP_IDS.gameplayStats.assistantFutureLevelCost,
+      MVP_IDS.gameplayStats.assistantOfflineEfficiency,
+    ]);
+
+    expect(
+      gameplayStatDefinitions
+        .filter(({ id }) => assistantStatIds.has(id))
+        .map(({ id }) => id),
+    ).toEqual([...assistantStatIds]);
+  });
+
   it("matches the active simulator candidate effects through runtime modifier fixtures", () => {
     expect(assistantModifierDefinitions).toMatchObject([
       {
@@ -65,6 +80,17 @@ describe("Assistant modifier path", () => {
     ).toEqual(["flat", "multiplicative"]);
     expect(stats.futureLevelCost.value).toBeCloseTo(152, 10);
     expect(stats.offlineEfficiency.value).toBeCloseTo(0.62, 10);
+    expect(stats.bugsPerSecond.breakdown.baseValue).toBe(2.4);
+    expect(stats.futureLevelCost.breakdown).toMatchObject({
+      statId: MVP_IDS.gameplayStats.assistantFutureLevelCost,
+      baseValue: 200,
+      finalValue: 152,
+    });
+    expect(stats.offlineEfficiency.breakdown).toMatchObject({
+      statId: MVP_IDS.gameplayStats.assistantOfflineEfficiency,
+      baseValue: 0.35,
+      finalValue: 0.62,
+    });
   });
 
   it("activates only owned Support and reached milestone modifiers with stable instances", () => {

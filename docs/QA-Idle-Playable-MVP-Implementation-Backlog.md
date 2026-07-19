@@ -386,7 +386,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Unify Assistant derived stat calculation contract
 - Epic: Epic 3 - Deterministic Production Core
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Ensure Assistant production, level cost, offline efficiency and diagnostics resolve through one canonical stat and modifier composition path.
 - Scope: Reuse canonical Gameplay Stat metadata with dynamic Assistant base values; compose active Assistant modifier instances deterministically; expose shared calculation results and breakdowns to online, cost, offline and diagnostic consumers.
 - Out of Scope: New modifier types; a generic dependency-injection framework; gameplay or balance changes.
@@ -399,7 +399,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No save data change
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: All Assistant derived-stat consumers share one deterministic calculation contract.
+- Definition of Done: All Assistant derived-stat consumers share one deterministic calculation contract. Delivered by the QA-PLAYABLE-MVP-048 implementation PR.
 
 #### QA-PLAYABLE-MVP-014
 

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { calculateAssistantBugsPerSecond } from "./assistantProduction";
+import {
+  calculateAssistantBugsPerSecond,
+  calculateAssistantProductionStat,
+} from "./assistantProduction";
 
 const noModifiers = {
   ownedSupportUpgradeIds: [],
@@ -29,6 +32,26 @@ describe("Assistant production calculator", () => {
         reachedMilestoneIds: ["milestone_assistant_first"],
       }),
     ).toBe(3.406);
+  });
+
+  it("exposes the same canonical calculation breakdown used by production", () => {
+    const input = {
+      level: 8,
+      ownedSupportUpgradeIds: ["support_immediate_production"],
+      reachedMilestoneIds: ["milestone_assistant_first"],
+    } as const;
+    const result = calculateAssistantProductionStat(input);
+
+    expect(result.value).toBe(calculateAssistantBugsPerSecond(input));
+    expect(result.breakdown).toMatchObject({
+      statId: "assistant_bugs_per_second",
+      baseValue: 2.4,
+      finalValue: 3.406,
+    });
+    expect(result.breakdown.appliedModifiers.map(({ sourceId }) => sourceId)).toEqual([
+      "support_immediate_production",
+      "milestone_assistant_first",
+    ]);
   });
 
   it.each([

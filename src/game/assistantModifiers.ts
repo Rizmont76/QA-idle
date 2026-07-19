@@ -1,7 +1,6 @@
 import { MVP_IDS } from "../types";
 import type {
   GameplayStatCalculationResult,
-  GameplayStatDefinition,
   ModifierDefinition,
   ModifierRegistrationFailure,
   ModifierRegistryState,
@@ -103,46 +102,6 @@ const approvedScopes = new Map(
   ]),
 );
 
-function createAssistantStatDefinitions(
-  baseStats: AssistantModifierBaseStats,
-): readonly GameplayStatDefinition[] {
-  return [
-    {
-      id: statIds.assistantBugsPerSecond,
-      displayName: "Assistant Bugs Per Second",
-      description: "Derived Assistant passive production.",
-      baseValue: baseStats.bugsPerSecond,
-      category: "assistant_production",
-      numericType: "native_number",
-      allowNegative: false,
-      minimumValue: 0,
-      visible: false,
-    },
-    {
-      id: statIds.assistantFutureLevelCost,
-      displayName: "Assistant Future Level Cost",
-      description: "Derived next Assistant level cost.",
-      baseValue: baseStats.futureLevelCost,
-      category: "assistant_economy",
-      numericType: "native_number",
-      allowNegative: false,
-      minimumValue: 0,
-      visible: false,
-    },
-    {
-      id: statIds.assistantOfflineEfficiency,
-      displayName: "Assistant Offline Efficiency",
-      description: "Derived Assistant offline production efficiency.",
-      baseValue: baseStats.offlineEfficiency,
-      category: "offline_progress",
-      numericType: "native_number",
-      allowNegative: false,
-      minimumValue: 0,
-      visible: false,
-    },
-  ];
-}
-
 export function validateAssistantModifierDefinitions(
   definitions: readonly ModifierDefinition[] = assistantModifierDefinitions,
 ): readonly ModifierRegistrationFailure[] {
@@ -218,28 +177,30 @@ export function calculateAssistantModifierStats(
     );
   }
 
-  const statDefinitions = createAssistantStatDefinitions(baseStats);
   return {
     bugsPerSecond: calculateGameplayStat(
       statIds.assistantBugsPerSecond,
       registry,
       assistantModifierDefinitions,
-      statDefinitions,
+      undefined,
       fixedPointArithmetic,
+      baseStats.bugsPerSecond,
     ),
     futureLevelCost: calculateGameplayStat(
       statIds.assistantFutureLevelCost,
       registry,
       assistantModifierDefinitions,
-      statDefinitions,
+      undefined,
       fixedPointArithmetic,
+      baseStats.futureLevelCost,
     ),
     offlineEfficiency: calculateGameplayStat(
       statIds.assistantOfflineEfficiency,
       registry,
       assistantModifierDefinitions,
-      statDefinitions,
+      undefined,
       fixedPointArithmetic,
+      baseStats.offlineEfficiency,
     ),
   };
 }
