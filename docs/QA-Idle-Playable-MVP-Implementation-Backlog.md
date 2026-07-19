@@ -407,7 +407,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Integrate online elapsed-time passive production
 - Epic: Epic 3 - Deterministic Production Core
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Add online passive Bugs Found production after Assistant unlock.
 - Scope: Convert elapsed online time into Bugs Found through the shared calculator and Resource System transactions.
 - Out of Scope: Money generation; automatic reporting; offline progress; UI animation.
@@ -420,7 +420,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Uses existing and v2 state but does not add new fields beyond Epic 2
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Online Assistant production works deterministically and respects resource boundaries.
+- Definition of Done: Online Assistant production works deterministically and respects resource boundaries. Delivered by the QA-PLAYABLE-MVP-014 implementation PR.
 
 #### QA-PLAYABLE-MVP-015
 

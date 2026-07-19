@@ -8,6 +8,7 @@ import {
 } from "./gameData";
 import {
   acceptPromotion,
+  advanceOnlineAssistantProduction,
   addResource,
   calculateGameplayStat,
   calculateGameplayStats,
@@ -48,6 +49,114 @@ import type {
 import type { GameplayEventListener } from "./gameLogic";
 
 describe("game logic", () => {
+  describe("online Assistant passive production", () => {
+    const unlockedAssistantGame: GameState = {
+      ...initialState,
+      careerStage: MVP_IDS.careerStages.middleQa,
+      assistant: {
+        ...initialState.assistant,
+        unlocked: true,
+      },
+    };
+
+    it("produces no passive Bugs before the Assistant unlock", () => {
+      const result = advanceOnlineAssistantProduction(initialState, 10, 100);
+
+      expect(result).toEqual({ ok: true, game: initialState, events: [] });
+    });
+
+    it("produces level 0 Bugs through a committed Resource transaction", () => {
+      const result = advanceOnlineAssistantProduction(unlockedAssistantGame, 2.5, 100);
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) {
+        throw new Error("Unlocked Assistant production should succeed.");
+      }
+
+      expect(result.game.resources).toEqual({
+        [MVP_IDS.resources.bugsFound]: 2,
+        [MVP_IDS.resources.money]: 0,
+      });
+      expect(result.game.totalBugsFound).toBe(2);
+      expect(result.game.lastPlayedAt).toBe(100);
+      expect(result.events).toHaveLength(1);
+      expect(result.events[0]).toMatchObject({
+        id: MVP_IDS.events.resourceChanged,
+        payload: {
+          operationType: "add",
+          sourceSystem: "assistant_production",
+          simulationTime: 100,
+          changes: [
+            {
+              resourceId: MVP_IDS.resources.bugsFound,
+              previousValue: 0,
+              newValue: 2,
+              delta: 2,
+            },
+          ],
+        },
+      });
+    });
+
+    it("accumulates elapsed-time production deterministically", () => {
+      const first = advanceOnlineAssistantProduction(unlockedAssistantGame, 0.125, 101);
+      expect(first.ok).toBe(true);
+      if (!first.ok) {
+        throw new Error("First production tick should succeed.");
+      }
+
+      const second = advanceOnlineAssistantProduction(first.game, 1.375, 102);
+      expect(second.ok).toBe(true);
+      if (!second.ok) {
+        throw new Error("Second production tick should succeed.");
+      }
+
+      expect(first.game.resources[MVP_IDS.resources.bugsFound]).toBe(0.1);
+      expect(second.game.resources[MVP_IDS.resources.bugsFound]).toBe(1.2);
+      expect(second.game.totalBugsFound).toBe(1.2);
+    });
+
+    it("never creates Money from passive production", () => {
+      const game = {
+        ...unlockedAssistantGame,
+        resources: {
+          ...unlockedAssistantGame.resources,
+          [MVP_IDS.resources.money]: 37.5,
+        },
+      };
+      const result = advanceOnlineAssistantProduction(game, 60, 103);
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) {
+        throw new Error("Assistant production should succeed.");
+      }
+      expect(result.game.resources[MVP_IDS.resources.money]).toBe(37.5);
+      const resourceEvent = result.events[0];
+      expect(resourceEvent?.id).toBe(MVP_IDS.events.resourceChanged);
+      if (resourceEvent?.id === MVP_IDS.events.resourceChanged) {
+        expect(resourceEvent.payload.changes).toHaveLength(1);
+        expect(resourceEvent.payload.changes[0]?.resourceId).toBe(
+          MVP_IDS.resources.bugsFound,
+        );
+      }
+    });
+
+    it.each([-1, Number.NaN, Number.POSITIVE_INFINITY])(
+      "rejects invalid elapsed time %s without mutating state",
+      (elapsedSeconds) => {
+        const result = advanceOnlineAssistantProduction(
+          unlockedAssistantGame,
+          elapsedSeconds,
+          104,
+        );
+
+        expect(result.ok).toBe(false);
+        expect(result.game).toBe(unlockedAssistantGame);
+        expect(result.events).toEqual([]);
+      },
+    );
+  });
+
   it("dispatches action events to listeners in deterministic priority order", () => {
     const observedDeliveries: string[] = [];
     const listeners: GameplayEventListener[] = [
