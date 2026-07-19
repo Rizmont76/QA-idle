@@ -12,6 +12,9 @@ import {
   convertResources,
   spendResource,
 } from "./resources";
+import { calculateAssistantBugsPerSecond } from "./assistantProduction";
+import { FixedPoint } from "./fixedPoint";
+import { activeRuntimeCandidateParameters } from "./runtimeCandidateParameters";
 import { getDerivedStats } from "./stats";
 import {
   applyPromotionCompletion,
@@ -43,6 +46,72 @@ function buildGameplayFailure(
       message,
     },
   ];
+}
+
+export function advanceOnlineAssistantProduction(
+  game: GameState,
+  elapsedSeconds: number,
+  simulationTime = Date.now(),
+  eventListeners: readonly GameplayEventListener[] = [],
+): GameplayActionResult {
+  if (!Number.isFinite(elapsedSeconds) || elapsedSeconds < 0) {
+    return {
+      ok: false,
+      game,
+      failures: buildGameplayFailure(
+        "Online Assistant production requires finite non-negative elapsed seconds.",
+      ),
+      events: [],
+    };
+  }
+
+  if (!game.assistant.unlocked || elapsedSeconds === 0) {
+    return { ok: true, game, events: [] };
+  }
+
+  const decimalPlaces =
+    activeRuntimeCandidateParameters.formatting.numericScaleDecimalPlaces;
+  const bugsPerSecond = calculateAssistantBugsPerSecond({
+    level: game.assistant.level,
+    ownedSupportUpgradeIds: game.assistant.ownedSupportUpgradeIds,
+    reachedMilestoneIds: game.assistant.reachedMilestoneIds,
+  });
+  const bugsFound = FixedPoint.fromNumber(bugsPerSecond, decimalPlaces)
+    .multiply(FixedPoint.fromNumber(elapsedSeconds, decimalPlaces))
+    .toNumber();
+
+  if (bugsFound === 0) {
+    return { ok: true, game, events: [] };
+  }
+
+  const currentBugsFound = game.resources[MVP_IDS.resources.bugsFound];
+  const nextBugsFound = FixedPoint.fromNumber(currentBugsFound, decimalPlaces)
+    .add(FixedPoint.fromNumber(bugsFound, decimalPlaces))
+    .toNumber();
+  const result = addResource(game.resources, {
+    resourceId: MVP_IDS.resources.bugsFound,
+    amount: nextBugsFound - currentBugsFound,
+    sourceSystem: "assistant_production",
+    reason: "Online Assistant passive production",
+    simulationTime,
+  });
+
+  if (!result.ok) {
+    return { ok: false, game, failures: result.failures, events: [] };
+  }
+
+  return {
+    ok: true,
+    game: {
+      ...game,
+      resources: result.resources,
+      totalBugsFound: FixedPoint.fromNumber(game.totalBugsFound, decimalPlaces)
+        .add(FixedPoint.fromNumber(bugsFound, decimalPlaces))
+        .toNumber(),
+      lastPlayedAt: simulationTime,
+    },
+    events: dispatchGameplayEvents(result.events, eventListeners).events,
+  };
 }
 
 export function acceptPromotion(
