@@ -112,18 +112,13 @@ describe("game logic", () => {
 
     it("records production only after the Resource transaction commits", () => {
       const observedDeliveries: string[] = [];
-      const result = advanceOnlineAssistantProduction(
-        unlockedAssistantGame,
-        1,
-        101,
-        [
-          {
-            id: "production-order-observer",
-            priority: 0,
-            handle: (event) => observedDeliveries.push(event.id),
-          },
-        ],
-      );
+      const result = advanceOnlineAssistantProduction(unlockedAssistantGame, 1, 101, [
+        {
+          id: "production-order-observer",
+          priority: 0,
+          handle: (event) => observedDeliveries.push(event.id),
+        },
+      ]);
 
       expect(result.ok).toBe(true);
       expect(result.events.map((event) => event.id)).toEqual([
