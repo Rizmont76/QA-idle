@@ -33,6 +33,7 @@ import {
   getVisibleUpgradeDefinitions,
   performManualTest,
   purchaseAssistantLevel,
+  purchaseMaxAssistantLevels,
   purchaseUpgrade,
   reportAllBugs,
   spendResource,
@@ -172,6 +173,133 @@ describe("game logic", () => {
         },
       });
       expect(observedLevels).toEqual([8]);
+    });
+  });
+
+  describe("Assistant Buy Max transaction", () => {
+    function buildPurchasableAssistantGame(level: number, money: number): GameState {
+      return {
+        ...initialState,
+        careerStage: MVP_IDS.careerStages.middleQa,
+        resources: {
+          ...initialState.resources,
+          [MVP_IDS.resources.money]: money,
+        },
+        assistant: {
+          ...initialState.assistant,
+          unlocked: true,
+          level,
+        },
+      };
+    }
+
+    it("buys the highest affordable contiguous level range atomically", () => {
+      const game = buildPurchasableAssistantGame(0, 636);
+      const result = purchaseMaxAssistantLevels(game, 4_000);
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) {
+        throw new Error("Affordable Assistant Buy Max should succeed.");
+      }
+
+      expect(result.game.assistant.level).toBe(2);
+      expect(result.game.resources[MVP_IDS.resources.money]).toBe(198);
+      expect(game.assistant.level).toBe(0);
+      expect(game.resources[MVP_IDS.resources.money]).toBe(636);
+      expect(result.events[1]).toEqual({
+        id: MVP_IDS.events.assistantLevelPurchased,
+        payload: {
+          assistantId: MVP_IDS.assistants.juniorQa,
+          upgradeId: MVP_IDS.upgrades.assistantLevels,
+          purchaseMode: "buy_max",
+          levelsPurchased: 2,
+          previousLevel: 0,
+          newLevel: 2,
+          cost: {
+            resourceId: MVP_IDS.resources.money,
+            amount: 438,
+          },
+          simulationTime: 4_000,
+        },
+      });
+    });
+
+    it("emits every crossed milestone in ascending order including endpoint level 8", () => {
+      const game = buildPurchasableAssistantGame(7, 1_000_000);
+      const observedMilestones: number[] = [];
+      const result = purchaseMaxAssistantLevels(game, 5_000, [
+        {
+          id: "buy-max-milestone-observer",
+          handle: (event) => {
+            if (event.id === MVP_IDS.events.assistantMilestoneReached) {
+              observedMilestones.push(event.payload.milestoneLevel);
+            }
+          },
+        },
+      ]);
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) {
+        throw new Error("Assistant Buy Max milestone crossing should succeed.");
+      }
+
+      expect(result.game.assistant.level).toBe(25);
+      expect(result.game.assistant.reachedMilestoneIds).toEqual([
+        "milestone_assistant_first",
+        "milestone_assistant_capstone",
+      ]);
+      expect(result.events.map(({ id }) => id)).toEqual([
+        MVP_IDS.events.resourceChanged,
+        MVP_IDS.events.assistantLevelPurchased,
+        MVP_IDS.events.assistantMilestoneReached,
+        MVP_IDS.events.assistantMilestoneReached,
+      ]);
+      expect(observedMilestones).toEqual([8, 25]);
+      expect(result.events.slice(2).map((event) => event.payload)).toEqual([
+        expect.objectContaining({
+          milestoneId: "milestone_assistant_first",
+          milestoneLevel: 8,
+          previousLevel: 7,
+          newLevel: 25,
+        }),
+        expect.objectContaining({
+          milestoneId: "milestone_assistant_capstone",
+          milestoneLevel: 25,
+          previousLevel: 7,
+          newLevel: 25,
+        }),
+      ]);
+    });
+
+    it.each([
+      {
+        name: "locked",
+        game: {
+          ...buildPurchasableAssistantGame(0, 1_000),
+          assistant: {
+            ...buildPurchasableAssistantGame(0, 1_000).assistant,
+            unlocked: false,
+          },
+        },
+      },
+      {
+        name: "with no affordable level",
+        game: buildPurchasableAssistantGame(0, 199),
+      },
+      {
+        name: "at max level",
+        game: buildPurchasableAssistantGame(25, 1_000_000),
+      },
+    ])("does nothing when the Assistant is $name", ({ game }) => {
+      const result = purchaseMaxAssistantLevels(game, 6_000);
+
+      expect(result.ok).toBe(false);
+      expect(result.game).toBe(game);
+      expect(result.events).toEqual([]);
+      expect(result.game.resources[MVP_IDS.resources.money]).toBe(
+        game.resources[MVP_IDS.resources.money],
+      );
+      expect(result.game.assistant).toEqual(game.assistant);
     });
   });
 

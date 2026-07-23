@@ -535,7 +535,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Implement Assistant Buy Max transaction
 - Epic: Epic 4 - Assistant Level Purchases
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Buy the highest affordable contiguous Assistant level range in one transaction.
 - Scope: Simulate costs, spend Money atomically, increase levels, emit one purchase action with levels purchased and emit all crossed milestones in ascending order.
 - Out of Scope: Bulk Support purchases; UI feedback; changing cost formula.
@@ -548,7 +548,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Updates Assistant level and Money in save state
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Buy Max is deterministic, atomic and milestone-safe.
+- Definition of Done: Buy Max is deterministic, atomic and milestone-safe. Delivered by the QA-PLAYABLE-MVP-019 implementation PR.
 
 #### QA-PLAYABLE-MVP-020
 

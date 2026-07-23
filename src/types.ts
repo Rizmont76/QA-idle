@@ -485,8 +485,8 @@ export interface AssistantLevelPurchasedEventDescriptor {
   payload: {
     assistantId: typeof MVP_IDS.assistants.juniorQa;
     upgradeId: typeof MVP_IDS.upgrades.assistantLevels;
-    purchaseMode: "buy_1";
-    levelsPurchased: 1;
+    purchaseMode: LevelUpgradePurchaseMode;
+    levelsPurchased: number;
     previousLevel: number;
     newLevel: number;
     cost: UpgradeResolvedCost;
