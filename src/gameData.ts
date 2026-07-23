@@ -12,6 +12,7 @@ import type {
   UnlockDefinition,
   Upgrade,
   UpgradeOwnershipState,
+  FiniteLevelUpgradeDefinition,
 } from "./types";
 
 export const SAVE_KEY = "qa-idle-save-v1";
@@ -295,6 +296,28 @@ export const upgrades: Upgrade[] = [
     ],
   },
 ];
+
+export const assistantLevelUpgrade: FiniteLevelUpgradeDefinition = {
+  id: MVP_IDS.upgrades.assistantLevels,
+  type: "level_based",
+  sourceSystemId: "assistant",
+  categoryId: "assistant_production",
+  name: "Junior QA Assistant",
+  maxLevel: activeRuntimeCandidateParameters.assistant.maxLevel,
+  milestoneLevels: activeRuntimeCandidateParameters.milestones.map(
+    (milestone) => milestone.level,
+  ),
+  ownership: {
+    owner: "assistant_state",
+    path: "assistant.level",
+  },
+  costRule: {
+    type: "resolver",
+    resolverId: "assistant_next_level_cost",
+    resourceId: MVP_IDS.resources.money,
+  },
+  purchaseModes: ["buy_1", "buy_max"],
+};
 
 export const careerStages: CareerStageDefinition[] = [
   {
