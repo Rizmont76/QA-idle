@@ -3,6 +3,7 @@ import { MVP_IDS } from "../types";
 import type {
   GameState,
   GameplayEventDescriptor,
+  LevelUpgradePurchaseMode,
   ResourceTransactionValidationFailure,
   Upgrade,
 } from "../types";
@@ -361,8 +362,9 @@ export function reportAllBugs(
   };
 }
 
-export function purchaseAssistantLevel(
+function purchaseAssistantLevels(
   game: GameState,
+  purchaseMode: LevelUpgradePurchaseMode,
   simulationTime = Date.now(),
   eventListeners: readonly GameplayEventListener[] = [],
 ): GameplayActionResult {
@@ -384,7 +386,7 @@ export function purchaseAssistantLevel(
   const plan = planFiniteLevelUpgradePurchase(
     game,
     assistantLevelUpgrade,
-    "buy_1",
+    purchaseMode,
     resolveAssistantNextLevelCost,
   );
 
@@ -401,7 +403,10 @@ export function purchaseAssistantLevel(
     resourceId: plan.totalCost.resourceId,
     amount: plan.totalCost.amount,
     sourceSystem: "assistant",
-    reason: "Buy 1 Junior QA Assistant level",
+    reason:
+      purchaseMode === "buy_1"
+        ? "Buy 1 Junior QA Assistant level"
+        : "Buy Max Junior QA Assistant levels",
     simulationTime,
   });
 
@@ -446,8 +451,8 @@ export function purchaseAssistantLevel(
         payload: {
           assistantId: MVP_IDS.assistants.juniorQa,
           upgradeId: MVP_IDS.upgrades.assistantLevels,
-          purchaseMode: "buy_1",
-          levelsPurchased: 1,
+          purchaseMode,
+          levelsPurchased: plan.levelsPurchased,
           previousLevel: plan.currentLevel,
           newLevel: plan.targetLevel,
           cost: plan.totalCost,
@@ -477,6 +482,22 @@ export function purchaseAssistantLevel(
     game: nextGame,
     events,
   };
+}
+
+export function purchaseAssistantLevel(
+  game: GameState,
+  simulationTime = Date.now(),
+  eventListeners: readonly GameplayEventListener[] = [],
+): GameplayActionResult {
+  return purchaseAssistantLevels(game, "buy_1", simulationTime, eventListeners);
+}
+
+export function purchaseMaxAssistantLevels(
+  game: GameState,
+  simulationTime = Date.now(),
+  eventListeners: readonly GameplayEventListener[] = [],
+): GameplayActionResult {
+  return purchaseAssistantLevels(game, "buy_max", simulationTime, eventListeners);
 }
 
 export function purchaseUpgrade(
