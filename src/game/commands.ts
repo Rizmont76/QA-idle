@@ -16,6 +16,7 @@ import {
 import { calculateAssistantBugsPerSecond } from "./assistantProduction";
 import { resolveAssistantNextLevelCost } from "./assistantLevelCost";
 import { assistantMilestoneDefinitions } from "./assistantProgression";
+import { getAssistantProgressionStatus } from "./assistantEndpoint";
 import { FixedPoint } from "./fixedPoint";
 import {
   getNextLevelUpgradeEligibility,
@@ -110,6 +111,23 @@ export function advanceOnlineAssistantProduction(
   const productionObservedAfterMilestone =
     game.assistant.productionObservedAfterMilestone ||
     game.assistant.reachedMilestoneIds.includes("milestone_assistant_first");
+  const gameAfterProduction: GameState = {
+    ...game,
+    resources: result.resources,
+    totalBugsFound: FixedPoint.fromNumber(game.totalBugsFound, decimalPlaces)
+      .add(FixedPoint.fromNumber(bugsFound, decimalPlaces))
+      .toNumber(),
+    lastPlayedAt: simulationTime,
+    assistant: {
+      ...game.assistant,
+      productionObservedAfterUnlock: true,
+      productionObservedAfterMilestone,
+    },
+  };
+  const endpointCompleted =
+    game.endpointCompleted ||
+    getAssistantProgressionStatus(gameAfterProduction).endpointConditionsSatisfied;
+  const endpointCompletedNow = endpointCompleted && !game.endpointCompleted;
   const events = dispatchGameplayEvents(
     [
       ...result.events,
@@ -123,6 +141,18 @@ export function advanceOnlineAssistantProduction(
           simulationTime,
         },
       },
+      ...(endpointCompletedNow
+        ? [
+            {
+              id: MVP_IDS.events.endpointCompleted,
+              payload: {
+                assistantId: MVP_IDS.assistants.juniorQa,
+                assistantLevel: gameAfterProduction.assistant.level,
+                simulationTime,
+              },
+            } as const,
+          ]
+        : []),
     ],
     eventListeners,
   ).events;
@@ -130,17 +160,8 @@ export function advanceOnlineAssistantProduction(
   return {
     ok: true,
     game: {
-      ...game,
-      resources: result.resources,
-      totalBugsFound: FixedPoint.fromNumber(game.totalBugsFound, decimalPlaces)
-        .add(FixedPoint.fromNumber(bugsFound, decimalPlaces))
-        .toNumber(),
-      lastPlayedAt: simulationTime,
-      assistant: {
-        ...game.assistant,
-        productionObservedAfterUnlock: true,
-        productionObservedAfterMilestone,
-      },
+      ...gameAfterProduction,
+      endpointCompleted,
     },
     events,
   };
