@@ -431,6 +431,13 @@ export function assistantRate(state) {
   return f(levelAdditive + supportAdditive).mul(f(milestoneMultiplier));
 }
 
+export function assistantRateForProfile(state, profileId) {
+  const profile = getParameterProfile(profileId);
+  return withActiveParams(profile.params, profile.version, profile.id, () =>
+    assistantRate(state),
+  );
+}
+
 function crossedMilestones(previousLevel, newLevel) {
   const milestones = [];
   if (
