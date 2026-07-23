@@ -13,6 +13,7 @@ import { activeRuntimeCandidateParameters } from "./runtimeCandidateParameters";
 import { calculateGameplayStat } from "./stats";
 import type { GameplayStatArithmetic } from "./stats";
 import { FixedPoint } from "./fixedPoint";
+import { assistantSupportUpgradeDefinitions } from "./assistantProgression";
 
 export interface AssistantModifierOwnership {
   readonly ownedSupportUpgradeIds: readonly AssistantSupportUpgradeId[];
@@ -46,12 +47,27 @@ const fixedPointArithmetic: GameplayStatArithmetic = {
   clampMinimum: (value, minimum) => Math.max(value, minimum),
 };
 
+function supportDefinition(
+  role: (typeof assistantSupportUpgradeDefinitions)[number]["role"],
+) {
+  const definition = assistantSupportUpgradeDefinitions.find(
+    (candidate) => candidate.role === role,
+  );
+  if (!definition) {
+    throw new Error(`Missing Assistant Support Upgrade role: ${role}.`);
+  }
+  return definition;
+}
+
+const immediateSupport = supportDefinition("immediate_production");
+const trainingSupport = supportDefinition("training_economics");
+const offlineSupport = supportDefinition("offline_handover");
+
 export const assistantModifierDefinitions: readonly ModifierDefinition[] = Object.freeze([
   {
-    definitionId:
-      "assistant_support.support_immediate_production.assistant_bugs_per_second.flat",
+    definitionId: immediateSupport.modifierDefinitionId,
     sourceType: "assistant_support",
-    sourceId: "support_immediate_production",
+    sourceId: immediateSupport.id,
     targetStatId: statIds.assistantBugsPerSecond,
     modifierType: "flat",
     value:
@@ -61,10 +77,9 @@ export const assistantModifierDefinitions: readonly ModifierDefinition[] = Objec
     stackingPolicy: "ignore",
   },
   {
-    definitionId:
-      "assistant_support.support_training_economics.assistant_future_level_cost.multiplicative",
+    definitionId: trainingSupport.modifierDefinitionId,
     sourceType: "assistant_support",
-    sourceId: "support_training_economics",
+    sourceId: trainingSupport.id,
     targetStatId: statIds.assistantFutureLevelCost,
     modifierType: "multiplicative",
     value: activeRuntimeCandidateParameters.assistant.cost.trainingSupportCostMultiplier,
@@ -72,10 +87,9 @@ export const assistantModifierDefinitions: readonly ModifierDefinition[] = Objec
     stackingPolicy: "ignore",
   },
   {
-    definitionId:
-      "assistant_support.support_offline_handover.assistant_offline_efficiency.override",
+    definitionId: offlineSupport.modifierDefinitionId,
     sourceType: "assistant_support",
-    sourceId: "support_offline_handover",
+    sourceId: offlineSupport.id,
     targetStatId: statIds.assistantOfflineEfficiency,
     modifierType: "override",
     value: activeRuntimeCandidateParameters.offlineProgress.efficiencyWithHandoverSupport,
