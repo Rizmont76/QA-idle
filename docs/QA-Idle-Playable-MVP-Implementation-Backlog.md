@@ -449,7 +449,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Add simulator/runtime formula parity tests
 - Epic: Epic 3 - Deterministic Production Core
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Prove runtime production math matches simulator formulas for active candidate fixtures.
 - Scope: Add comparison fixtures for levels 0, 3, 5 and 8, Support/no-Support combinations and milestone multiplier behavior.
 - Out of Scope: Full scenario simulation in runtime; playtest telemetry.
@@ -462,7 +462,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No save data change
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Runtime and simulator formulas stay aligned under automated tests.
+- Definition of Done: Runtime and simulator formulas stay aligned under automated tests. Delivered by the QA-PLAYABLE-MVP-016 implementation PR.
 
 ### Epic 4 - Assistant Level Purchases
 
