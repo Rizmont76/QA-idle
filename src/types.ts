@@ -57,6 +57,7 @@ export const MVP_IDS = {
     keyboardShortcuts: "upgrade_keyboard_shortcuts",
     bugReportTemplate: "upgrade_bug_report_template",
     testCaseLibrary: "upgrade_test_case_library",
+    assistantLevels: "upgrade_assistant_levels",
   },
 } as const;
 
@@ -250,6 +251,74 @@ export type UpgradePurchaseValidationResult =
       ok: false;
       failures: readonly UpgradePurchaseValidationFailure[];
     };
+
+export type LevelUpgradePurchaseMode = "buy_1" | "buy_max";
+export type LevelUpgradeCostResolverId = "assistant_next_level_cost";
+
+export interface FiniteLevelUpgradeDefinition {
+  id: RegisteredUpgradeId;
+  type: "level_based";
+  sourceSystemId: "assistant";
+  categoryId: "assistant_production";
+  name: string;
+  maxLevel: number;
+  milestoneLevels: readonly number[];
+  ownership: {
+    owner: "assistant_state";
+    path: "assistant.level";
+  };
+  costRule: {
+    type: "resolver";
+    resolverId: LevelUpgradeCostResolverId;
+    resourceId: typeof MVP_IDS.resources.money;
+  };
+  purchaseModes: readonly LevelUpgradePurchaseMode[];
+}
+
+export interface LevelUpgradeCostResolverContext {
+  definition: FiniteLevelUpgradeDefinition;
+  currentLevel: number;
+  nextLevel: number;
+  game: GameState;
+}
+
+export type LevelUpgradeCostResolver = (
+  context: LevelUpgradeCostResolverContext,
+) => UpgradeResolvedCost | null;
+
+export type LevelUpgradeEligibilityFailureCode =
+  | "not_unlocked"
+  | "invalid_level"
+  | "max_level_reached"
+  | "cost_unavailable"
+  | "cost_invalid"
+  | "not_affordable";
+
+export type LevelUpgradeNextLevelEligibility =
+  | {
+      eligible: true;
+      currentLevel: number;
+      nextLevel: number;
+      resolvedCost: UpgradeResolvedCost;
+    }
+  | {
+      eligible: false;
+      currentLevel: number;
+      nextLevel: number | null;
+      code: LevelUpgradeEligibilityFailureCode;
+      message: string;
+      resolvedCost?: UpgradeResolvedCost;
+    };
+
+export interface LevelUpgradePurchasePlan {
+  mode: LevelUpgradePurchaseMode;
+  currentLevel: number;
+  targetLevel: number;
+  levelsPurchased: number;
+  costs: readonly UpgradeResolvedCost[];
+  totalCost: UpgradeResolvedCost;
+  crossedMilestoneLevels: readonly number[];
+}
 
 export interface ModifierDefinition {
   definitionId: ModifierDefinitionId;

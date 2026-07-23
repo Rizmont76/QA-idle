@@ -472,7 +472,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Extend Upgrade System for finite Assistant levels
 - Epic: Epic 4 - Assistant Level Purchases
 - Priority: P0
-- Status: Ready
+- Status: Completed
 - Objective: Extend Upgrade System support beyond `one_time` so Assistant levels have a documented lifecycle.
 - Scope: Add finite capped level-based Assistant investment support, current level, max level, next-level eligibility, Buy 1 lifecycle, Buy Max lifecycle, cost resolver integration, and save/state ownership boundaries.
 - Out of Scope: Changing one-time Technical Slice upgrades; merging one-time Support Upgrades into the level model; implementing UI buttons; changing balance values.
@@ -485,7 +485,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Uses v2 Assistant state ownership boundaries
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Assistant levels use Upgrade System level semantics instead of ad hoc purchase state.
+- Definition of Done: Assistant levels use Upgrade System level semantics instead of ad hoc purchase state. Delivered by the QA-PLAYABLE-MVP-043 implementation PR.
 
 #### QA-PLAYABLE-MVP-017
 
