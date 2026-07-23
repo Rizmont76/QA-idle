@@ -493,7 +493,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Implement Assistant next-level cost calculation
 - Epic: Epic 4 - Assistant Level Purchases
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Calculate capped Assistant level costs from the active candidate formula.
 - Scope: Implement base cost 200, growth 1.14, linear stabilizer 10, future Training discount multiplier 0.76 and currency rounding.
 - Out of Scope: Spending Money; Buy Max; UI previews.
@@ -506,7 +506,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No save data change
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Assistant cost math is deterministic and separately testable.
+- Definition of Done: Assistant cost math is deterministic and separately testable. Delivered by the QA-PLAYABLE-MVP-017 implementation PR.
 
 #### QA-PLAYABLE-MVP-018
 
@@ -514,7 +514,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Implement Assistant Buy 1 transaction
 - Epic: Epic 4 - Assistant Level Purchases
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Allow the player to buy one Assistant level with Money.
 - Scope: Validate Assistant unlocked, level below cap, affordability, atomic Money spending, level increment and milestone detection.
 - Out of Scope: Buy Max; Support purchases; UI buttons.
@@ -527,7 +527,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Updates Assistant level and Money in save state
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Buy 1 is a safe Resource-backed Assistant level transaction.
+- Definition of Done: Buy 1 is a safe Resource-backed Assistant level transaction. Delivered by the QA-PLAYABLE-MVP-018 implementation PR.
 
 #### QA-PLAYABLE-MVP-019
 

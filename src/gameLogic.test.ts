@@ -32,6 +32,7 @@ import {
   getUpgradeModifierDefinitions,
   getVisibleUpgradeDefinitions,
   performManualTest,
+  purchaseAssistantLevel,
   purchaseUpgrade,
   reportAllBugs,
   spendResource,
@@ -49,6 +50,131 @@ import type {
 import type { GameplayEventListener } from "./gameLogic";
 
 describe("game logic", () => {
+  describe("Assistant Buy 1 transaction", () => {
+    function buildPurchasableAssistantGame(level: number, money: number): GameState {
+      return {
+        ...initialState,
+        careerStage: MVP_IDS.careerStages.middleQa,
+        resources: {
+          ...initialState.resources,
+          [MVP_IDS.resources.money]: money,
+        },
+        assistant: {
+          ...initialState.assistant,
+          unlocked: true,
+          level,
+        },
+      };
+    }
+
+    it("spends the exact resolved cost and increments one level", () => {
+      const game = buildPurchasableAssistantGame(0, 250);
+      const result = purchaseAssistantLevel(game, 1_234);
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) {
+        throw new Error("Affordable Assistant level purchase should succeed.");
+      }
+
+      expect(result.game.resources[MVP_IDS.resources.money]).toBe(50);
+      expect(result.game.assistant.level).toBe(1);
+      expect(result.game.lastPlayedAt).toBe(1_234);
+      expect(game.resources[MVP_IDS.resources.money]).toBe(250);
+      expect(game.assistant.level).toBe(0);
+      expect(result.events.map(({ id }) => id)).toEqual([
+        MVP_IDS.events.resourceChanged,
+        MVP_IDS.events.assistantLevelPurchased,
+      ]);
+      expect(result.events[1]).toEqual({
+        id: MVP_IDS.events.assistantLevelPurchased,
+        payload: {
+          assistantId: MVP_IDS.assistants.juniorQa,
+          upgradeId: MVP_IDS.upgrades.assistantLevels,
+          purchaseMode: "buy_1",
+          levelsPurchased: 1,
+          previousLevel: 0,
+          newLevel: 1,
+          cost: {
+            resourceId: MVP_IDS.resources.money,
+            amount: 200,
+          },
+          simulationTime: 1_234,
+        },
+      });
+    });
+
+    it.each([
+      {
+        name: "locked",
+        game: {
+          ...buildPurchasableAssistantGame(0, 200),
+          assistant: {
+            ...buildPurchasableAssistantGame(0, 200).assistant,
+            unlocked: false,
+          },
+        },
+      },
+      {
+        name: "unaffordable",
+        game: buildPurchasableAssistantGame(0, 199),
+      },
+      {
+        name: "at max level",
+        game: buildPurchasableAssistantGame(25, 10_000),
+      },
+    ])("fails atomically when the Assistant is $name", ({ game }) => {
+      const result = purchaseAssistantLevel(game, 2_000);
+
+      expect(result.ok).toBe(false);
+      expect(result.game).toBe(game);
+      expect(result.events).toEqual([]);
+      expect(result.game.resources[MVP_IDS.resources.money]).toBe(
+        game.resources[MVP_IDS.resources.money],
+      );
+      expect(result.game.assistant).toEqual(game.assistant);
+    });
+
+    it("commits the purchase before its ordered milestone event", () => {
+      const game = buildPurchasableAssistantGame(7, 570);
+      const observedLevels: number[] = [];
+      const result = purchaseAssistantLevel(game, 3_000, [
+        {
+          id: "milestone-observer",
+          handle: (event) => {
+            if (event.id === MVP_IDS.events.assistantMilestoneReached) {
+              observedLevels.push(event.payload.milestoneLevel);
+            }
+          },
+        },
+      ]);
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) {
+        throw new Error("Milestone-crossing Assistant purchase should succeed.");
+      }
+
+      expect(result.game.resources[MVP_IDS.resources.money]).toBe(0);
+      expect(result.game.assistant.level).toBe(8);
+      expect(result.game.assistant.reachedMilestoneIds).toEqual([
+        "milestone_assistant_first",
+      ]);
+      expect(result.events.map(({ id }) => id)).toEqual([
+        MVP_IDS.events.resourceChanged,
+        MVP_IDS.events.assistantLevelPurchased,
+        MVP_IDS.events.assistantMilestoneReached,
+      ]);
+      expect(result.events[2]).toMatchObject({
+        payload: {
+          milestoneId: "milestone_assistant_first",
+          milestoneLevel: 8,
+          previousLevel: 7,
+          newLevel: 8,
+        },
+      });
+      expect(observedLevels).toEqual([8]);
+    });
+  });
+
   describe("online Assistant passive production", () => {
     const unlockedAssistantGame: GameState = {
       ...initialState,
