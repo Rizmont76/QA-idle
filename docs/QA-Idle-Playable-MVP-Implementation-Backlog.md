@@ -556,7 +556,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Wire Assistant milestone and endpoint detection
 - Epic: Epic 4 - Assistant Level Purchases
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Detect Assistant milestones and endpoint state without requiring Support ownership.
 - Scope: Mark milestone level 8 reached, capstone level 25 reached for feedback/status only, endpoint level target 8 reached and endpoint pending post-milestone production tick.
 - Out of Scope: Playtest acceptance; UI endpoint screen; Support requirements.
@@ -569,7 +569,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Updates milestone and endpoint state
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Runtime endpoint logic matches doc 15 exactly.
+- Definition of Done: Runtime endpoint logic matches doc 15 exactly. Delivered by the QA-PLAYABLE-MVP-020 implementation PR.
 
 ### Epic 5 - Support Upgrades
 

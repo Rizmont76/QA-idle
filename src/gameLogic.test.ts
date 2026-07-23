@@ -413,6 +413,10 @@ describe("game logic", () => {
     it("records an eligible post-milestone production tick", () => {
       const milestoneGame: GameState = {
         ...unlockedAssistantGame,
+        promotion: {
+          ...unlockedAssistantGame.promotion,
+          completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        },
         assistant: {
           ...unlockedAssistantGame.assistant,
           level: 8,
@@ -424,11 +428,57 @@ describe("game logic", () => {
 
       expect(result.ok).toBe(true);
       expect(result.game.assistant.productionObservedAfterMilestone).toBe(true);
-      expect(result.game.endpointCompleted).toBe(false);
+      expect(result.game.endpointCompleted).toBe(true);
       expect(result.events[1]).toMatchObject({
         id: MVP_IDS.events.assistantProductionCommitted,
         payload: { productionObservedAfterMilestone: true },
       });
+      expect(result.events[2]).toEqual({
+        id: MVP_IDS.events.endpointCompleted,
+        payload: {
+          assistantId: MVP_IDS.assistants.juniorQa,
+          assistantLevel: 8,
+          simulationTime: 103,
+        },
+      });
+    });
+
+    it("completes the endpoint without Support ownership and emits it only once", () => {
+      const milestoneGame: GameState = {
+        ...unlockedAssistantGame,
+        promotion: {
+          ...unlockedAssistantGame.promotion,
+          completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        },
+        assistant: {
+          ...unlockedAssistantGame.assistant,
+          level: 8,
+          reachedMilestoneIds: ["milestone_assistant_first"],
+          productionObservedAfterUnlock: true,
+        },
+      };
+
+      const first = advanceOnlineAssistantProduction(milestoneGame, 1, 103);
+      expect(first.ok).toBe(true);
+      if (!first.ok) {
+        throw new Error("Endpoint production tick should succeed.");
+      }
+
+      const second = advanceOnlineAssistantProduction(first.game, 1, 104);
+      expect(second.ok).toBe(true);
+      if (!second.ok) {
+        throw new Error("Post-endpoint production tick should succeed.");
+      }
+
+      expect(first.game.assistant.ownedSupportUpgradeIds).toEqual([]);
+      expect(first.game.endpointCompleted).toBe(true);
+      expect(
+        first.events.filter((event) => event.id === MVP_IDS.events.endpointCompleted),
+      ).toHaveLength(1);
+      expect(second.game.endpointCompleted).toBe(true);
+      expect(second.events).not.toContainEqual(
+        expect.objectContaining({ id: MVP_IDS.events.endpointCompleted }),
+      );
     });
 
     it("accumulates elapsed-time production deterministically", () => {

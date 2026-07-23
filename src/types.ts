@@ -45,6 +45,7 @@ export const MVP_IDS = {
     assistantProductionCommitted: "assistant.productionCommitted",
     assistantLevelPurchased: "assistant.levelPurchased",
     assistantMilestoneReached: "assistant.milestoneReached",
+    endpointCompleted: "endpoint.completed",
     upgradePurchased: "upgrade.purchased",
     promotionAvailable: "promotion.available",
     promotionCompleted: "promotion.completed",
@@ -506,6 +507,15 @@ export interface AssistantMilestoneReachedEventDescriptor {
   };
 }
 
+export interface EndpointCompletedEventDescriptor {
+  id: typeof MVP_IDS.events.endpointCompleted;
+  payload: {
+    assistantId: typeof MVP_IDS.assistants.juniorQa;
+    assistantLevel: number;
+    simulationTime: number;
+  };
+}
+
 export interface BugReportSubmittedEventDescriptor {
   id: typeof MVP_IDS.events.bugReportSubmitted;
   payload: {
@@ -602,6 +612,7 @@ export type GameplayEventDescriptor =
   | AssistantProductionCommittedEventDescriptor
   | AssistantLevelPurchasedEventDescriptor
   | AssistantMilestoneReachedEventDescriptor
+  | EndpointCompletedEventDescriptor
   | ManualTestPerformedEventDescriptor
   | BugsFoundEventDescriptor
   | BugReportSubmittedEventDescriptor
