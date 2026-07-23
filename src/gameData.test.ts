@@ -491,6 +491,8 @@ describe("MVP event contract IDs", () => {
       "money.earned",
       "resource.changed",
       "assistant.productionCommitted",
+      "assistant.levelPurchased",
+      "assistant.milestoneReached",
       "upgrade.purchased",
       "promotion.available",
       "promotion.completed",

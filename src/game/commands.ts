@@ -1,4 +1,4 @@
-import { BUG_VALUE, promotionDefinitions } from "../gameData";
+import { assistantLevelUpgrade, BUG_VALUE, promotionDefinitions } from "../gameData";
 import { MVP_IDS } from "../types";
 import type {
   GameState,
@@ -13,7 +13,13 @@ import {
   spendResource,
 } from "./resources";
 import { calculateAssistantBugsPerSecond } from "./assistantProduction";
+import { resolveAssistantNextLevelCost } from "./assistantLevelCost";
+import { assistantMilestoneDefinitions } from "./assistantProgression";
 import { FixedPoint } from "./fixedPoint";
+import {
+  getNextLevelUpgradeEligibility,
+  planFiniteLevelUpgradePurchase,
+} from "./levelUpgrades";
 import { activeRuntimeCandidateParameters } from "./runtimeCandidateParameters";
 import { getDerivedStats } from "./stats";
 import {
@@ -344,6 +350,124 @@ export function reportAllBugs(
         },
       },
       ...availabilityTransition.events,
+    ],
+    eventListeners,
+  ).events;
+
+  return {
+    ok: true,
+    game: nextGame,
+    events,
+  };
+}
+
+export function purchaseAssistantLevel(
+  game: GameState,
+  simulationTime = Date.now(),
+  eventListeners: readonly GameplayEventListener[] = [],
+): GameplayActionResult {
+  const eligibility = getNextLevelUpgradeEligibility(
+    game,
+    assistantLevelUpgrade,
+    resolveAssistantNextLevelCost,
+  );
+
+  if (!eligibility.eligible) {
+    return {
+      ok: false,
+      game,
+      failures: buildGameplayFailure(eligibility.message),
+      events: [],
+    };
+  }
+
+  const plan = planFiniteLevelUpgradePurchase(
+    game,
+    assistantLevelUpgrade,
+    "buy_1",
+    resolveAssistantNextLevelCost,
+  );
+
+  if (!plan) {
+    return {
+      ok: false,
+      game,
+      failures: buildGameplayFailure("Assistant level purchase could not be planned."),
+      events: [],
+    };
+  }
+
+  const result = spendResource(game.resources, {
+    resourceId: plan.totalCost.resourceId,
+    amount: plan.totalCost.amount,
+    sourceSystem: "assistant",
+    reason: "Buy 1 Junior QA Assistant level",
+    simulationTime,
+  });
+
+  if (!result.ok) {
+    return { ok: false, game, failures: result.failures, events: [] };
+  }
+
+  const crossedMilestones = plan.crossedMilestoneLevels.map((milestoneLevel) => {
+    const milestone = assistantMilestoneDefinitions.find(
+      (definition) => definition.level === milestoneLevel,
+    );
+
+    if (!milestone) {
+      throw new Error(
+        `Missing Assistant milestone definition at level ${String(milestoneLevel)}.`,
+      );
+    }
+
+    return milestone;
+  });
+  const reachedMilestoneIds = [
+    ...game.assistant.reachedMilestoneIds,
+    ...crossedMilestones
+      .map((milestone) => milestone.id)
+      .filter((milestoneId) => !game.assistant.reachedMilestoneIds.includes(milestoneId)),
+  ];
+  const nextGame: GameState = {
+    ...game,
+    resources: result.resources,
+    lastPlayedAt: simulationTime,
+    assistant: {
+      ...game.assistant,
+      level: plan.targetLevel,
+      reachedMilestoneIds,
+    },
+  };
+  const events = dispatchGameplayEvents(
+    [
+      ...result.events,
+      {
+        id: MVP_IDS.events.assistantLevelPurchased,
+        payload: {
+          assistantId: MVP_IDS.assistants.juniorQa,
+          upgradeId: MVP_IDS.upgrades.assistantLevels,
+          purchaseMode: "buy_1",
+          levelsPurchased: 1,
+          previousLevel: plan.currentLevel,
+          newLevel: plan.targetLevel,
+          cost: plan.totalCost,
+          simulationTime,
+        },
+      },
+      ...crossedMilestones.map(
+        (milestone) =>
+          ({
+            id: MVP_IDS.events.assistantMilestoneReached,
+            payload: {
+              assistantId: MVP_IDS.assistants.juniorQa,
+              milestoneId: milestone.id,
+              milestoneLevel: milestone.level,
+              previousLevel: plan.currentLevel,
+              newLevel: plan.targetLevel,
+              simulationTime,
+            },
+          }) as const,
+      ),
     ],
     eventListeners,
   ).events;

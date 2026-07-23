@@ -43,6 +43,8 @@ export const MVP_IDS = {
     moneyEarned: "money.earned",
     resourceChanged: "resource.changed",
     assistantProductionCommitted: "assistant.productionCommitted",
+    assistantLevelPurchased: "assistant.levelPurchased",
+    assistantMilestoneReached: "assistant.milestoneReached",
     upgradePurchased: "upgrade.purchased",
     promotionAvailable: "promotion.available",
     promotionCompleted: "promotion.completed",
@@ -478,6 +480,32 @@ export interface AssistantProductionCommittedEventDescriptor {
   };
 }
 
+export interface AssistantLevelPurchasedEventDescriptor {
+  id: typeof MVP_IDS.events.assistantLevelPurchased;
+  payload: {
+    assistantId: typeof MVP_IDS.assistants.juniorQa;
+    upgradeId: typeof MVP_IDS.upgrades.assistantLevels;
+    purchaseMode: "buy_1";
+    levelsPurchased: 1;
+    previousLevel: number;
+    newLevel: number;
+    cost: UpgradeResolvedCost;
+    simulationTime: number;
+  };
+}
+
+export interface AssistantMilestoneReachedEventDescriptor {
+  id: typeof MVP_IDS.events.assistantMilestoneReached;
+  payload: {
+    assistantId: typeof MVP_IDS.assistants.juniorQa;
+    milestoneId: AssistantMilestoneId;
+    milestoneLevel: number;
+    previousLevel: number;
+    newLevel: number;
+    simulationTime: number;
+  };
+}
+
 export interface BugReportSubmittedEventDescriptor {
   id: typeof MVP_IDS.events.bugReportSubmitted;
   payload: {
@@ -572,6 +600,8 @@ export interface GameLoadedEventDescriptor {
 export type GameplayEventDescriptor =
   | ResourceChangedEventDescriptor
   | AssistantProductionCommittedEventDescriptor
+  | AssistantLevelPurchasedEventDescriptor
+  | AssistantMilestoneReachedEventDescriptor
   | ManualTestPerformedEventDescriptor
   | BugsFoundEventDescriptor
   | BugReportSubmittedEventDescriptor
