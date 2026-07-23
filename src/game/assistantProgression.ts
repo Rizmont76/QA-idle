@@ -12,8 +12,12 @@ export interface AssistantSupportUpgradeDefinition {
   readonly id: AssistantSupportUpgradeId;
   readonly provisionalName: string;
   readonly ownership: "one_time";
+  readonly optional: true;
   readonly requiredCareerStage: "middle_qa";
   readonly role: AssistantSupportUpgradeRole;
+  readonly unlockLevel: number;
+  readonly price: number;
+  readonly modifierDefinitionId: string;
 }
 
 export interface AssistantMilestoneDefinition {
@@ -28,24 +32,43 @@ export const assistantSupportUpgradeDefinitions: readonly AssistantSupportUpgrad
       id: "support_immediate_production",
       provisionalName: "Desk Setup Kit",
       ownership: "one_time",
+      optional: true,
       requiredCareerStage: "middle_qa",
       role: "immediate_production",
+      unlockLevel: activeRuntimeCandidateParameters.supportUpgrades[0].unlockLevel,
+      price: activeRuntimeCandidateParameters.supportUpgrades[0].price,
+      modifierDefinitionId:
+        "assistant_support.support_immediate_production.assistant_bugs_per_second.flat",
     },
     {
       id: "support_training_economics",
       provisionalName: "Mentoring Checklist",
       ownership: "one_time",
+      optional: true,
       requiredCareerStage: "middle_qa",
       role: "training_economics",
+      unlockLevel: activeRuntimeCandidateParameters.supportUpgrades[1].unlockLevel,
+      price: activeRuntimeCandidateParameters.supportUpgrades[1].price,
+      modifierDefinitionId:
+        "assistant_support.support_training_economics.assistant_future_level_cost.multiplicative",
     },
     {
       id: "support_offline_handover",
       provisionalName: "Handover Notes",
       ownership: "one_time",
+      optional: true,
       requiredCareerStage: "middle_qa",
       role: "offline_handover",
+      unlockLevel: activeRuntimeCandidateParameters.supportUpgrades[2].unlockLevel,
+      price: activeRuntimeCandidateParameters.supportUpgrades[2].price,
+      modifierDefinitionId:
+        "assistant_support.support_offline_handover.assistant_offline_efficiency.override",
     },
   ]);
+
+export const assistantSupportUpgradeIds = Object.freeze(
+  assistantSupportUpgradeDefinitions.map((definition) => definition.id),
+);
 
 export const assistantMilestoneDefinitions: readonly AssistantMilestoneDefinition[] =
   Object.freeze([

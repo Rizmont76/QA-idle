@@ -137,10 +137,14 @@ export function getParameterProfile(profileId) {
   return profile;
 }
 
+const activeSupportIds = activeCandidateSource.runtime.supportUpgrades.map(
+  ({ id }) => id,
+);
+
 export const SUPPORTS = Object.freeze({
-  immediate: "support_immediate_production",
-  training: "support_training_economics",
-  offline: "support_offline_handover",
+  immediate: activeSupportIds[0],
+  training: activeSupportIds[1],
+  offline: activeSupportIds[2],
 });
 
 export const SUPPORT_DEFINITIONS = Object.freeze([

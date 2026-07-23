@@ -1,8 +1,15 @@
 import { MVP_IDS } from "../types";
 import type { AssistantSupportUpgradeId, LevelUpgradeCostResolver } from "../types";
+import { assistantSupportUpgradeDefinitions } from "./assistantProgression";
 import { activeRuntimeCandidateParameters } from "./runtimeCandidateParameters";
 
-const TRAINING_SUPPORT_ID: AssistantSupportUpgradeId = "support_training_economics";
+const trainingSupportDefinition = assistantSupportUpgradeDefinitions.find(
+  ({ role }) => role === "training_economics",
+);
+if (!trainingSupportDefinition) {
+  throw new Error("Missing Training Assistant Support Upgrade definition.");
+}
+const TRAINING_SUPPORT_ID: AssistantSupportUpgradeId = trainingSupportDefinition.id;
 
 export interface AssistantNextLevelCostInput {
   readonly currentLevel: number;

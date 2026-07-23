@@ -579,7 +579,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Integrate Support Upgrade framework
 - Epic: Epic 5 - Support Upgrades
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Enable one-time Assistant Support Upgrades through existing Upgrade and Modifier architecture.
 - Scope: Implement common ownership, affordability, one-time purchase, one canonical stable-ID registry and optionality rules for exactly three Support Upgrades.
 - Out of Scope: Adding new currencies, systems, producers, Money generation or auto-reporting.
@@ -592,7 +592,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Updates owned Support Upgrade IDs
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Support Upgrades share a safe purchase path and remain exactly scoped.
+- Definition of Done: Support Upgrades share a safe purchase path and remain exactly scoped. Delivered by the QA-PLAYABLE-MVP-021 implementation PR.
 
 #### QA-PLAYABLE-MVP-022
 

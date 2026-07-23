@@ -16,6 +16,7 @@ import {
 import { calculateAssistantBugsPerSecond } from "./assistantProduction";
 import { resolveAssistantNextLevelCost } from "./assistantLevelCost";
 import { assistantMilestoneDefinitions } from "./assistantProgression";
+import { validateAssistantSupportPurchase } from "./assistantSupportUpgrades";
 import { getAssistantProgressionStatus } from "./assistantEndpoint";
 import { FixedPoint } from "./fixedPoint";
 import {
@@ -519,6 +520,69 @@ export function purchaseMaxAssistantLevels(
   eventListeners: readonly GameplayEventListener[] = [],
 ): GameplayActionResult {
   return purchaseAssistantLevels(game, "buy_max", simulationTime, eventListeners);
+}
+
+export function purchaseAssistantSupportUpgrade(
+  game: GameState,
+  supportId: string,
+  simulationTime = Date.now(),
+  eventListeners: readonly GameplayEventListener[] = [],
+): GameplayActionResult {
+  const validation = validateAssistantSupportPurchase(game, supportId);
+  if (!validation.ok) {
+    return {
+      ok: false,
+      game,
+      failures: validation.failures.map((item) =>
+        buildResourceFailure({
+          code: "operation_not_allowed",
+          message: item.message,
+        }),
+      ),
+      events: [],
+    };
+  }
+
+  const { definition, resolvedCost } = validation;
+  const result = spendResource(game.resources, {
+    resourceId: resolvedCost.resourceId,
+    amount: resolvedCost.amount,
+    sourceSystem: "upgrade_system",
+    reason: `Buy ${definition.provisionalName}`,
+    simulationTime,
+  });
+  if (!result.ok) {
+    return { ok: false, game, failures: result.failures, events: [] };
+  }
+
+  const nextGame: GameState = {
+    ...game,
+    resources: result.resources,
+    lastPlayedAt: simulationTime,
+    assistant: {
+      ...game.assistant,
+      ownedSupportUpgradeIds: [...game.assistant.ownedSupportUpgradeIds, definition.id],
+    },
+  };
+  const events = dispatchGameplayEvents(
+    [
+      ...result.events,
+      {
+        id: MVP_IDS.events.upgradePurchased,
+        payload: {
+          upgradeId: definition.id,
+          previousLevel: 0,
+          newLevel: 1,
+          cost: resolvedCost,
+          modifierDefinitionIds: [definition.modifierDefinitionId],
+          simulationTime,
+        },
+      },
+    ],
+    eventListeners,
+  ).events;
+
+  return { ok: true, game: nextGame, events };
 }
 
 export function purchaseUpgrade(

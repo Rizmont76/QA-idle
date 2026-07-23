@@ -3,6 +3,7 @@ export * from "./assistantEndpoint";
 export * from "./assistantLevelCost";
 export * from "./assistantModifiers";
 export * from "./assistantProgression";
+export * from "./assistantSupportUpgrades";
 export * from "./assistantProduction";
 export * from "./fixedPoint";
 export * from "./levelUpgrades";
