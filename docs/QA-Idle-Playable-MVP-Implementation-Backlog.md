@@ -600,7 +600,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Implement Immediate Production Support
 - Epic: Epic 5 - Support Upgrades
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Implement `support_immediate_production` as the early additive production option.
 - Scope: Unlock when Assistant is active; price 120 Money; add 0.22 Bugs/sec before milestone multiplier after ownership.
 - Out of Scope: Money production; Report automation; additional production sources.
@@ -613,7 +613,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Updates Support ownership
 - UI Impact: No UI change
 - Risk Level: Medium
-- Definition of Done: Immediate Support provides only its documented additive Bugs/sec effect.
+- Definition of Done: Immediate Support provides only its documented additive Bugs/sec effect. Delivered by the QA-PLAYABLE-MVP-022 implementation PR.
 
 #### QA-PLAYABLE-MVP-023
 

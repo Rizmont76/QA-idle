@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { initialState } from "../gameData";
 import { MVP_IDS, type GameState } from "../types";
-import { purchaseAssistantSupportUpgrade } from "./commands";
+import {
+  advanceOnlineAssistantProduction,
+  purchaseAssistantSupportUpgrade,
+} from "./commands";
 import { createAssistantModifierRegistry } from "./assistantModifiers";
 import {
   assistantSupportUpgradeDefinitions,
@@ -115,6 +118,60 @@ describe("Assistant Support Upgrade framework", () => {
     expect(duplicate.game.assistant.ownedSupportUpgradeIds).toEqual([
       "support_immediate_production",
     ]);
+  });
+
+  it("spends 120 Money once and adds only 0.22 Bugs per second at level 0", () => {
+    const game = buildMiddleQaGame(200, 0);
+    const purchase = purchaseAssistantSupportUpgrade(
+      game,
+      "support_immediate_production",
+      100,
+    );
+
+    expect(purchase.ok).toBe(true);
+    if (!purchase.ok) {
+      throw new Error("Immediate Production Support purchase should succeed.");
+    }
+
+    expect(purchase.game.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 0,
+      [MVP_IDS.resources.money]: 80,
+    });
+    expect(purchase.events[0]).toMatchObject({
+      id: MVP_IDS.events.resourceChanged,
+      payload: {
+        changes: [
+          {
+            resourceId: MVP_IDS.resources.money,
+            delta: -120,
+          },
+        ],
+      },
+    });
+
+    const production = advanceOnlineAssistantProduction(purchase.game, 1, 101);
+
+    expect(production.ok).toBe(true);
+    if (!production.ok) {
+      throw new Error("Immediate Production Support production should succeed.");
+    }
+
+    expect(production.game.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 1.02,
+      [MVP_IDS.resources.money]: 80,
+    });
+    expect(production.game.totalMoneyEarned).toBe(purchase.game.totalMoneyEarned);
+    expect(production.events[0]).toMatchObject({
+      id: MVP_IDS.events.resourceChanged,
+      payload: {
+        changes: [
+          {
+            resourceId: MVP_IDS.resources.bugsFound,
+            delta: 1.02,
+          },
+        ],
+      },
+    });
   });
 
   it("validates stage, unlock level, definition, and affordability before mutation", () => {
