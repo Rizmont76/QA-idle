@@ -10,3 +10,10 @@ The approved active candidate namespace remains writable:
 - `docs/reports/phase-6b.2-stage-a-003-active-candidate-balance-validation-report.md`
 
 All earlier Phase 6A/6B baseline, rejected-candidate, search-space, sensitivity and report outputs are protected so implementation commands fail before they can overwrite historical evidence.
+
+## Runtime Snapshot Fixtures
+
+`data/balance/runtime-snapshot-fixtures.json` records versioned simulator expectations for
+runtime Assistant snapshots. `runtime-snapshot-fixtures.mjs` projects the matching runtime
+fields and reports field-level mismatches with the candidate ID and parameter version so future
+acceptance runs can reuse the comparison without coupling simulator code to gameplay mutation.
