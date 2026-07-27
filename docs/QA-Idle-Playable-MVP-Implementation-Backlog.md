@@ -642,7 +642,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Implement Offline Handover Support
 - Epic: Epic 5 - Support Upgrades
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Implement `support_offline_handover` as the only offline-efficiency Support Upgrade.
 - Scope: Unlock at Assistant level >= 5; price 150 Money; switch offline efficiency from 0.35 to 0.62 after ownership.
 - Out of Scope: Online production changes; Money production; automatic Report; extra offline systems.
@@ -655,7 +655,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Updates Support ownership
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Offline Handover improves only offline Bugs Found efficiency.
+- Definition of Done: Offline Handover improves only offline Bugs Found efficiency. Delivered by the QA-PLAYABLE-MVP-024 verification/closure PR.
 
 ### Epic 6 - Promotion and Unlock Integration
 
