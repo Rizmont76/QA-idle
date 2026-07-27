@@ -312,6 +312,68 @@ describe("save storage", () => {
     });
   });
 
+  it("strips injected future-system state at the save boundary", () => {
+    const futureInjectedGame = {
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        team_output: 99,
+        automation_coverage: 88,
+        reputation: 77,
+      },
+      promotion: {
+        ...initialState.promotion,
+        completedPromotionIds: ["promotion_unlock_automation"],
+      },
+      uiSurfaces: {
+        ...initialState.uiSurfaces,
+        ui_team: "active",
+        ui_automation: "active",
+      },
+      unlocks: {
+        ...initialState.unlocks,
+        unlock_team: "available",
+        unlock_automation: "available",
+      },
+      upgrades: {
+        ...initialState.upgrades,
+        upgrade_automation: 1,
+      },
+      assistant: {
+        ...initialState.assistant,
+        availableSupportUpgradeIds: ["support_future_auto_reporting"],
+        ownedSupportUpgradeIds: ["support_future_auto_reporting"],
+        reachedMilestoneIds: ["milestone_future_team"],
+      },
+      automation: { unlocked: true, coverage: 1 },
+      team: { unlocked: true, members: 4 },
+      autoReporting: { unlocked: true },
+    } as unknown as GameState;
+
+    const saved = serializeGameForSave(futureInjectedGame);
+
+    expect(saved.game.resources).toEqual(initialState.resources);
+    expect(saved.game.promotion).toEqual(initialState.promotion);
+    expect(saved.game.uiSurfaces).toEqual(initialState.uiSurfaces);
+    expect(saved.game.unlocks).toEqual(initialState.unlocks);
+    expect(saved.game.upgrades).toEqual(initialState.upgrades);
+    expect(saved.game.assistant).toEqual(initialState.assistant);
+    expect(saved.game).not.toHaveProperty("automation");
+    expect(saved.game).not.toHaveProperty("team");
+    expect(saved.game).not.toHaveProperty("autoReporting");
+
+    saveGame(futureInjectedGame);
+    const loaded = loadSave().game;
+
+    expect(loaded.resources).toEqual(initialState.resources);
+    expect(loaded.uiSurfaces).toEqual(initialState.uiSurfaces);
+    expect(loaded.unlocks).toEqual(initialState.unlocks);
+    expect(loaded.assistant).toEqual(initialState.assistant);
+    expect(loaded).not.toHaveProperty("automation");
+    expect(loaded).not.toHaveProperty("team");
+    expect(loaded).not.toHaveProperty("autoReporting");
+  });
+
   it("serializes only authoritative MVP gameplay state for persistence", () => {
     const game: GameState = {
       ...initialState,
