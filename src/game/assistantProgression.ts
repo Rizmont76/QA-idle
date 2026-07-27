@@ -70,6 +70,45 @@ export const assistantSupportUpgradeIds = Object.freeze(
   assistantSupportUpgradeDefinitions.map((definition) => definition.id),
 );
 
+export function getAvailableAssistantSupportUpgradeDefinitions(
+  assistantUnlocked: boolean,
+  assistantLevel: number,
+) {
+  if (!assistantUnlocked) {
+    return [];
+  }
+
+  return assistantSupportUpgradeDefinitions.filter(
+    (definition) => definition.unlockLevel <= assistantLevel,
+  );
+}
+
+export function getNewlyAvailableAssistantSupportUpgradeDefinitions(
+  assistantUnlocked: boolean,
+  previousLevel: number,
+  newLevel: number,
+  availableSupportUpgradeIds: readonly AssistantSupportUpgradeId[],
+) {
+  if (!assistantUnlocked) {
+    return [];
+  }
+
+  const availableIds = new Set(availableSupportUpgradeIds);
+  return assistantSupportUpgradeDefinitions
+    .filter(
+      (definition) =>
+        definition.unlockLevel > previousLevel &&
+        definition.unlockLevel <= newLevel &&
+        !availableIds.has(definition.id),
+    )
+    .sort(
+      (left, right) =>
+        left.unlockLevel - right.unlockLevel ||
+        assistantSupportUpgradeDefinitions.indexOf(left) -
+          assistantSupportUpgradeDefinitions.indexOf(right),
+    );
+}
+
 export const assistantMilestoneDefinitions: readonly AssistantMilestoneDefinition[] =
   Object.freeze([
     {

@@ -686,7 +686,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Implement staged Support unlock thresholds
 - Epic: Epic 6 - Promotion and Unlock Integration
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Reveal Support Upgrades at the documented Assistant progression thresholds.
 - Scope: Immediate Support unlocks with Assistant; Training unlocks at level 2; Offline Handover unlocks at level 5; future systems remain hidden or teased only as documented.
 - Out of Scope: Changing thresholds; endpoint requirements; visual polish.
@@ -699,7 +699,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Updates unlock state
 - UI Impact: Enables later UI states but no direct UI change
 - Risk Level: High
-- Definition of Done: Support visibility and availability follow documented progression.
+- Definition of Done: Support visibility and availability follow documented progression. Delivered by the QA-PLAYABLE-MVP-026 implementation PR.
 
 #### QA-PLAYABLE-MVP-027
 

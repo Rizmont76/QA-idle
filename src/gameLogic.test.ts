@@ -14,6 +14,7 @@ import {
   calculateGameplayStats,
   convertResources,
   createActiveModifierRegistry,
+  assistantSupportUpgradeDefinitions,
   dispatchGameplayEvents,
   evaluatePromotionAvailability,
   evaluatePromotionAvailabilityTransition,
@@ -64,6 +65,9 @@ describe("game logic", () => {
           ...initialState.assistant,
           unlocked: true,
           level,
+          availableSupportUpgradeIds: assistantSupportUpgradeDefinitions
+            .filter((definition) => definition.unlockLevel <= level)
+            .map((definition) => definition.id),
         },
       };
     }
@@ -189,6 +193,9 @@ describe("game logic", () => {
           ...initialState.assistant,
           unlocked: true,
           level,
+          availableSupportUpgradeIds: assistantSupportUpgradeDefinitions
+            .filter((definition) => definition.unlockLevel <= level)
+            .map((definition) => definition.id),
         },
       };
     }
@@ -203,6 +210,10 @@ describe("game logic", () => {
       }
 
       expect(result.game.assistant.level).toBe(2);
+      expect(result.game.assistant.availableSupportUpgradeIds).toEqual([
+        "support_immediate_production",
+        "support_training_economics",
+      ]);
       expect(result.game.resources[MVP_IDS.resources.money]).toBe(198);
       expect(game.assistant.level).toBe(0);
       expect(game.resources[MVP_IDS.resources.money]).toBe(636);
@@ -222,6 +233,46 @@ describe("game logic", () => {
           simulationTime: 4_000,
         },
       });
+      expect(result.events[2]).toEqual({
+        id: MVP_IDS.events.assistantSupportUnlocked,
+        payload: {
+          assistantId: MVP_IDS.assistants.juniorQa,
+          supportId: "support_training_economics",
+          unlockLevel: 2,
+          previousLevel: 0,
+          newLevel: 2,
+          simulationTime: 4_000,
+        },
+      });
+    });
+
+    it("emits every crossed Support unlock in ascending threshold order", () => {
+      const result = purchaseMaxAssistantLevels(
+        buildPurchasableAssistantGame(0, 1_000_000),
+        4_500,
+      );
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) {
+        throw new Error("Assistant Buy Max threshold crossing should succeed.");
+      }
+
+      expect(result.game.assistant.availableSupportUpgradeIds).toEqual([
+        "support_immediate_production",
+        "support_training_economics",
+        "support_offline_handover",
+      ]);
+      expect(
+        result.events
+          .filter((event) => event.id === MVP_IDS.events.assistantSupportUnlocked)
+          .map((event) => ({
+            supportId: event.payload.supportId,
+            unlockLevel: event.payload.unlockLevel,
+          })),
+      ).toEqual([
+        { supportId: "support_training_economics", unlockLevel: 2 },
+        { supportId: "support_offline_handover", unlockLevel: 5 },
+      ]);
     });
 
     it("emits every crossed milestone in ascending order including endpoint level 8", () => {
@@ -1094,6 +1145,7 @@ describe("game logic", () => {
     expect(result.game.assistant).toEqual({
       unlocked: true,
       level: 0,
+      availableSupportUpgradeIds: ["support_immediate_production"],
       ownedSupportUpgradeIds: [],
       reachedMilestoneIds: [],
       productionObservedAfterUnlock: false,
@@ -1117,6 +1169,17 @@ describe("game logic", () => {
           promotionId: MVP_IDS.promotions.juniorToMiddle,
           previousCareerStageId: MVP_IDS.careerStages.juniorQa,
           currentCareerStageId: MVP_IDS.careerStages.middleQa,
+          simulationTime: 25,
+        },
+      },
+      {
+        id: MVP_IDS.events.assistantSupportUnlocked,
+        payload: {
+          assistantId: MVP_IDS.assistants.juniorQa,
+          supportId: "support_immediate_production",
+          unlockLevel: 0,
+          previousLevel: 0,
+          newLevel: 0,
           simulationTime: 25,
         },
       },

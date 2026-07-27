@@ -302,6 +302,10 @@ export function normalizeAssistantState(value: unknown): GameState["assistant"] 
       Math.max(normalizedLevel, juniorQaAssistantDefinition.level.minimum),
       juniorQaAssistantDefinition.level.maximum,
     ),
+    availableSupportUpgradeIds: normalizeAssistantIds(
+      saved["availableSupportUpgradeIds"],
+      assistantSupportUpgradeDefinitions,
+    ),
     ownedSupportUpgradeIds: normalizeAssistantIds(
       saved["ownedSupportUpgradeIds"],
       assistantSupportUpgradeDefinitions,
@@ -335,6 +339,11 @@ function normalizeGameState(value: unknown, now = Date.now()): GameState {
   const assistant: GameState["assistant"] = {
     unlocked: hasAssistantUnlock,
     level: assistantLevel,
+    availableSupportUpgradeIds: hasAssistantUnlock
+      ? assistantSupportUpgradeDefinitions
+          .filter((support) => support.unlockLevel <= assistantLevel)
+          .map((support) => support.id)
+      : [],
     ownedSupportUpgradeIds: hasAssistantUnlock
       ? savedAssistant.ownedSupportUpgradeIds.filter((supportId) => {
           const support = activeRuntimeCandidateParameters.supportUpgrades.find(

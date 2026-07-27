@@ -1,6 +1,7 @@
 import { MVP_IDS } from "../types";
 import type { AssistantId, GameState, PromotionId, ResourceId } from "../types";
 import { activeRuntimeCandidateParameters } from "./runtimeCandidateParameters";
+import { getAvailableAssistantSupportUpgradeDefinitions } from "./assistantProgression";
 
 export type AssistantIdentityType = "junior_qa_assistant";
 export type AssistantOwnershipType = "single_persistent";
@@ -185,6 +186,10 @@ export function activateAssistantAfterPromotion(
   return {
     unlocked: true,
     level: definition.level.minimum,
+    availableSupportUpgradeIds: getAvailableAssistantSupportUpgradeDefinitions(
+      true,
+      definition.level.minimum,
+    ).map((support) => support.id),
     ownedSupportUpgradeIds: [],
     reachedMilestoneIds: [],
     productionObservedAfterUnlock: false,
