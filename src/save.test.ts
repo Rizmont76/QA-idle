@@ -695,7 +695,7 @@ describe("save storage", () => {
   });
 
   it("rejects invalid and future offline timestamps without retaining summaries", () => {
-    const futureTimestamp = Date.now() + 60_000;
+    const futureTimestamp = Date.now() + 10 * 365 * 24 * 60 * 60 * 1_000;
 
     localStorage.setItem(
       SAVE_KEY,
@@ -717,11 +717,28 @@ describe("save storage", () => {
       }),
     );
 
-    expect(loadSave().game.offlineProgress).toEqual({
+    const loaded = loadSave();
+
+    expect(loaded.game.offlineProgress).toEqual({
       lastActiveAt: null,
       timestampStatus: "invalid",
       pendingSummary: null,
       consumedSummary: null,
+    });
+    expect(JSON.parse(localStorage.getItem(SAVE_KEY) ?? "{}")).toMatchObject({
+      meta: {
+        lastSavedAt: Date.now(),
+        lastActiveAt: Date.now(),
+      },
+      game: {
+        lastPlayedAt: Date.now(),
+        offlineProgress: {
+          lastActiveAt: Date.now(),
+          timestampStatus: "valid",
+          pendingSummary: null,
+          consumedSummary: null,
+        },
+      },
     });
   });
 
@@ -828,13 +845,73 @@ describe("save storage", () => {
       MVP_IDS.events.gameLoaded,
     ]);
 
-    saveGame(loaded.game);
     const reloaded = loadSave();
 
     expect(reloaded.game.resources[MVP_IDS.resources.bugsFound]).toBe(28);
     expect(reloaded.game.offlineProgress.pendingSummary).toEqual(
       loaded.game.offlineProgress.pendingSummary,
     );
+    expect(reloaded.events.map((event) => event.id)).toEqual([MVP_IDS.events.gameLoaded]);
+  });
+
+  it("establishes a migration boundary before any offline reward is eligible", () => {
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        careerStage: MVP_IDS.careerStages.middleQa,
+        promotion: {
+          availablePromotionIds: [],
+          completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        },
+        assistant: {
+          ...initialState.assistant,
+          unlocked: true,
+        },
+      }),
+    );
+
+    const migrated = loadSave();
+
+    expect(migrated.game.resources[MVP_IDS.resources.bugsFound]).toBe(0);
+    expect(migrated.game.offlineProgress).toEqual({
+      lastActiveAt: null,
+      timestampStatus: "migration_required",
+      pendingSummary: null,
+      consumedSummary: null,
+    });
+
+    vi.advanceTimersByTime(10_000);
+    const eligibleReturn = loadSave();
+
+    expect(eligibleReturn.game.resources[MVP_IDS.resources.bugsFound]).toBe(2.8);
+    expect(eligibleReturn.game.offlineProgress.pendingSummary).toMatchObject({
+      startedAt: Date.now() - 10_000,
+      endedAt: Date.now(),
+      elapsedSeconds: 10,
+      eligibleSeconds: 10,
+      bugsFoundGained: 2.8,
+    });
+  });
+
+  it("derives compatibility and metadata timestamps from the save boundary", () => {
+    const staleTimestamp = Date.now() - 60_000;
+    const saveData = serializeGameForSave(
+      {
+        ...initialState,
+        lastPlayedAt: staleTimestamp,
+        offlineProgress: {
+          ...initialState.offlineProgress,
+          lastActiveAt: staleTimestamp - 60_000,
+        },
+      },
+      Date.now(),
+    );
+
+    expect(saveData.meta.lastSavedAt).toBe(Date.now());
+    expect(saveData.meta.lastActiveAt).toBe(Date.now());
+    expect(saveData.game.lastPlayedAt).toBe(Date.now());
+    expect(saveData.game.offlineProgress.lastActiveAt).toBe(Date.now());
+    expect(saveData.game.offlineProgress.timestampStatus).toBe("valid");
   });
 
   it("restores a valid MVP save without awarding offline progress", () => {
