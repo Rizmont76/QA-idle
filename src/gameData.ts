@@ -341,7 +341,8 @@ export const careerStages: CareerStageDefinition[] = [
     label: "Middle QA",
     sortOrder: 20,
     isStartingStage: false,
-    description: "Vertical slice complete. Future gameplay remains hidden.",
+    description:
+      "Manual testing continues while the Junior QA Assistant adds passive Bugs Found.",
     unlocksGameplay: [],
   },
 ];

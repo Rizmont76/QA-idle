@@ -3,16 +3,21 @@ import ReactDOM from "react-dom/client";
 import { PROMOTION_TOAST_MS, careerStages, promotionDefinitions } from "./gameData";
 import {
   acceptPromotion,
+  advanceOnlineAssistantProduction,
   evaluatePromotionAvailability,
   formatCurrency,
   formatNumber,
+  getAssistantPanelView,
   getDerivedStats,
+  getMvpEndpointStatus,
   getPromotionProgress,
   getPromotionStage,
   getUiVisibilitySelectors,
   getUpgradeCost,
   getVisibleUpgradeDefinitions,
   performManualTest,
+  purchaseAssistantLevel,
+  purchaseMaxAssistantLevels,
   purchaseUpgrade,
   reportAllBugs,
 } from "./gameLogic";
@@ -23,6 +28,8 @@ import "./styles.css";
 
 const FULL_PROGRESS_PERCENT = 100;
 const MVP_PROMOTION_REQUIREMENT_COUNT = 3;
+const ASSISTANT_TICK_INTERVAL_MS = 250;
+const MILLISECONDS_PER_SECOND = 1_000;
 
 function App() {
   const [loadedSave] = useState(() => {
@@ -59,33 +66,42 @@ function App() {
   );
   const promotionStage = isPromotionActionActive ? getPromotionStage(game) : null;
   const promotionProgress = getPromotionProgress(game);
-  const isMvpComplete = game.careerStage === MVP_IDS.careerStages.middleQa;
+  const isMiddleQa = game.careerStage === MVP_IDS.careerStages.middleQa;
+  const endpointStatus = useMemo(() => getMvpEndpointStatus(game), [game]);
+  const assistantPanel = useMemo(() => getAssistantPanelView(game), [game]);
+  const isMvpComplete = endpointStatus.endpointComplete;
   const completedPromotionRequirements = promotionProgress.filter(
     (item) => item.complete,
   ).length;
-  const promotionGoalSummary = isMvpComplete
+  const promotionGoalSummary = isMiddleQa
     ? "Complete"
     : `${String(completedPromotionRequirements)} / ${String(promotionProgress.length)}`;
-  const promotionProgressPercent = isMvpComplete
+  const promotionProgressPercent = isMiddleQa
     ? FULL_PROGRESS_PERCENT
     : promotionProgress.length > 0
       ? (completedPromotionRequirements / promotionProgress.length) *
         FULL_PROGRESS_PERCENT
       : 0;
   const activeRequirementText = isMvpComplete
-    ? "The MVP endpoint has been reached."
-    : promotionProgress.length === MVP_PROMOTION_REQUIREMENT_COUNT
-      ? `Find ${formatNumber(
-          promotionProgress[0]?.required ?? 0,
-        )} lifetime bugs, earn ${formatCurrency(
-          promotionProgress[1]?.required ?? 0,
-        )} lifetime money, and buy ${formatNumber(
-          promotionProgress[2]?.required ?? 0,
-        )} upgrades.`
-      : currentStage?.requirementText;
+    ? "The Playable Idle MVP endpoint has been reached."
+    : isMiddleQa
+      ? `Grow the Junior QA Assistant to level ${formatNumber(
+          endpointStatus.endpointLevelTarget,
+        )} and observe passive production after the milestone.`
+      : promotionProgress.length === MVP_PROMOTION_REQUIREMENT_COUNT
+        ? `Find ${formatNumber(
+            promotionProgress[0]?.required ?? 0,
+          )} lifetime bugs, earn ${formatCurrency(
+            promotionProgress[1]?.required ?? 0,
+          )} lifetime money, and buy ${formatNumber(
+            promotionProgress[2]?.required ?? 0,
+          )} upgrades.`
+        : currentStage?.requirementText;
   const footerTargetLabel = isMvpComplete
     ? "MVP endpoint"
-    : (currentStage?.nextLabel ?? "Middle QA");
+    : isMiddleQa
+      ? `Assistant level ${formatNumber(endpointStatus.endpointLevelTarget)}`
+      : (currentStage?.nextLabel ?? "Middle QA");
 
   useEffect(() => {
     saveGame(game);
@@ -102,6 +118,27 @@ function App() {
 
     return () => window.clearTimeout(timeoutId);
   }, [promotionToast]);
+
+  useEffect(() => {
+    if (!game.assistant.unlocked) {
+      return;
+    }
+
+    let previousTickAt = Date.now();
+    const intervalId = window.setInterval(() => {
+      const tickAt = Date.now();
+      const elapsedSeconds = (tickAt - previousTickAt) / MILLISECONDS_PER_SECOND;
+      previousTickAt = tickAt;
+
+      setGame((current) => {
+        const result = advanceOnlineAssistantProduction(current, elapsedSeconds, tickAt);
+
+        return result.ok ? result.game : current;
+      });
+    }, ASSISTANT_TICK_INTERVAL_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, [game.assistant.unlocked]);
 
   function runQaTest() {
     setClickBurst(false);
@@ -143,6 +180,22 @@ function App() {
     });
   }
 
+  function buyAssistantLevel() {
+    if (!assistantPanel?.buyOne.canCommit) {
+      return;
+    }
+
+    setGame((current) => purchaseAssistantLevel(current).game);
+  }
+
+  function buyMaxAssistantLevels() {
+    if (!assistantPanel?.buyMax.canCommit) {
+      return;
+    }
+
+    setGame((current) => purchaseMaxAssistantLevels(current).game);
+  }
+
   function startNewGame() {
     const save = resetSave();
 
@@ -166,11 +219,13 @@ function App() {
       <section className="hero">
         <div>
           <p className="eyebrow">QA Idle</p>
-          <h1>{isMvpComplete ? "Middle QA Reached" : "Junior QA Workspace"}</h1>
+          <h1>{isMiddleQa ? "Middle QA Workspace" : "Junior QA Workspace"}</h1>
           <p className="stage-focus">
             {isMvpComplete
-              ? "Vertical slice complete. Future gameplay remains hidden."
-              : "Manual testing, bug reports, upgrades, and one clear promotion goal."}
+              ? "Playable Idle MVP complete. Future gameplay remains hidden."
+              : isMiddleQa
+                ? "Manual testing stays active while your Junior QA Assistant finds bugs passively."
+                : "Manual testing, bug reports, upgrades, and one clear promotion goal."}
           </p>
         </div>
         <div className="top-icons" aria-label="Game controls">
@@ -191,18 +246,18 @@ function App() {
           <strong>{currentStage?.label ?? "Junior QA"}</strong>
           <p>{currentStage?.description}</p>
         </div>
-        <p className="stage-requirement">
-          {isMvpComplete ? "The MVP endpoint has been reached." : activeRequirementText}
-        </p>
+        <p className="stage-requirement">{activeRequirementText}</p>
       </section>
 
       {isMvpComplete && (
         <section className="completion-panel" aria-label="MVP completion">
           <div>
-            <span>Promotion completed</span>
-            <strong>Middle QA reached</strong>
+            <span>Endpoint completed</span>
+            <strong>Playable Idle MVP reached</strong>
           </div>
-          <p>Promotion complete. Your career progress is saved and ready to continue.</p>
+          <p>
+            Assistant progression and post-milestone passive production are confirmed.
+          </p>
         </section>
       )}
 
@@ -255,6 +310,139 @@ function App() {
         </section>
       )}
 
+      {assistantPanel && (
+        <section className="panel assistant-panel" aria-label="Junior QA Assistant">
+          <header className="assistant-header">
+            <div>
+              <span className="assistant-kicker">Passive Baseline</span>
+              <h2>Junior QA Assistant</h2>
+            </div>
+            <strong>
+              Level {formatNumber(assistantPanel.level)} /{" "}
+              {formatNumber(assistantPanel.maxLevel)}
+            </strong>
+          </header>
+
+          <div className="assistant-summary">
+            <div className="assistant-rate">
+              <span>Passive Bugs Found</span>
+              <strong>+{formatNumber(assistantPanel.currentProduction)} / sec</strong>
+              <em>Reporting remains a manual action.</em>
+            </div>
+            <div className="assistant-endpoint">
+              <span>MVP endpoint</span>
+              <strong>
+                {assistantPanel.endpoint.endpointComplete
+                  ? "Complete"
+                  : `Level ${formatNumber(
+                      assistantPanel.endpoint.endpointLevelTarget,
+                    )} + passive tick`}
+              </strong>
+            </div>
+          </div>
+
+          <div className="assistant-purchase-grid">
+            <article className="assistant-purchase">
+              <div>
+                <h3>Buy 1 level</h3>
+                <p>
+                  Level {formatNumber(assistantPanel.buyOne.currentLevel)} to{" "}
+                  {formatNumber(assistantPanel.buyOne.resultingLevel)}
+                </p>
+                <p className="production-preview">
+                  {formatNumber(assistantPanel.buyOne.beforeProduction)} to{" "}
+                  {formatNumber(assistantPanel.buyOne.afterProduction)} Bugs/sec
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-disabled={!assistantPanel.buyOne.canCommit}
+                aria-describedby="assistant-buy-one-reason"
+                aria-label={
+                  assistantPanel.buyOne.totalPrice === null
+                    ? "Buy 1 Assistant level unavailable"
+                    : `Buy 1 Assistant level for ${formatCurrency(
+                        assistantPanel.buyOne.totalPrice,
+                      )}, resulting level ${formatNumber(
+                        assistantPanel.buyOne.resultingLevel,
+                      )}`
+                }
+                onClick={buyAssistantLevel}
+              >
+                {assistantPanel.isMaxLevel
+                  ? "Max level"
+                  : assistantPanel.buyOne.totalPrice === null
+                    ? "Unavailable"
+                    : `Buy 1 · ${formatCurrency(assistantPanel.buyOne.totalPrice)}`}
+              </button>
+              <p className="purchase-reason" id="assistant-buy-one-reason">
+                {assistantPanel.buyOne.reasonUnavailable ??
+                  "Purchases exactly one level."}
+              </p>
+            </article>
+
+            <article className="assistant-purchase">
+              <div>
+                <h3>Buy Max</h3>
+                <p>
+                  {assistantPanel.buyMax.levelsToBuy > 0
+                    ? `${formatNumber(
+                        assistantPanel.buyMax.levelsToBuy,
+                      )} levels · ${formatNumber(
+                        assistantPanel.buyMax.currentLevel,
+                      )} to ${formatNumber(assistantPanel.buyMax.resultingLevel)}`
+                    : "No affordable levels"}
+                </p>
+                <p className="production-preview">
+                  {formatNumber(assistantPanel.buyMax.beforeProduction)} to{" "}
+                  {formatNumber(assistantPanel.buyMax.afterProduction)} Bugs/sec
+                </p>
+                {assistantPanel.buyMax.crossedMilestoneLevels.length > 0 && (
+                  <p className="milestone-preview">
+                    Crosses milestone{" "}
+                    {assistantPanel.buyMax.crossedMilestoneLevels
+                      .map((level) => `Level ${formatNumber(level)}`)
+                      .join(", ")}
+                  </p>
+                )}
+                {assistantPanel.buyMax.endpointProgressImpact && (
+                  <p className="endpoint-preview">
+                    {assistantPanel.buyMax.endpointProgressImpact}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                aria-disabled={!assistantPanel.buyMax.canCommit}
+                aria-describedby="assistant-buy-max-reason"
+                aria-label={
+                  assistantPanel.buyMax.canCommit
+                    ? `Buy Max: ${formatNumber(
+                        assistantPanel.buyMax.levelsToBuy,
+                      )} Assistant levels for ${formatCurrency(
+                        assistantPanel.buyMax.totalPrice ?? 0,
+                      )}`
+                    : "Buy Max Assistant levels unavailable"
+                }
+                onClick={buyMaxAssistantLevels}
+              >
+                {assistantPanel.isMaxLevel
+                  ? "Max level"
+                  : assistantPanel.buyMax.totalPrice === null
+                    ? "Buy Max · Unavailable"
+                    : `Buy Max · ${formatCurrency(assistantPanel.buyMax.totalPrice)}`}
+              </button>
+              <p className="purchase-reason" id="assistant-buy-max-reason">
+                {assistantPanel.buyMax.reasonUnavailable ??
+                  `Purchases ${formatNumber(
+                    assistantPanel.buyMax.levelsToBuy,
+                  )} contiguous levels.`}
+              </p>
+            </article>
+          </div>
+        </section>
+      )}
+
       <section className="content-grid">
         {visibility.upgradePanels.includes(MVP_IDS.uiSurfaces.upgradesBasic) && (
           <div className="panel">
@@ -301,20 +489,20 @@ function App() {
             <h2>Promotion Progress</h2>
             <div className="rank-route" aria-label="Promotion route">
               <div>
-                <span>{isMvpComplete ? "Completed rank" : "Current rank"}</span>
+                <span>{isMiddleQa ? "Completed rank" : "Current rank"}</span>
                 <strong>
-                  {isMvpComplete ? "Junior QA" : (currentStage?.label ?? "Junior QA")}
+                  {isMiddleQa ? "Junior QA" : (currentStage?.label ?? "Junior QA")}
                 </strong>
               </div>
               <div>
-                <span>{isMvpComplete ? "Reached rank" : "Next rank"}</span>
+                <span>{isMiddleQa ? "Reached rank" : "Next rank"}</span>
                 <strong>{nextStage?.label ?? "Middle QA"}</strong>
               </div>
             </div>
             <div className="goal-summary">
               <strong>{promotionGoalSummary}</strong>
               <span>
-                {isMvpComplete
+                {isMiddleQa
                   ? "Promotion completed"
                   : promotionStage
                     ? "Promotion available"
@@ -366,23 +554,25 @@ function App() {
       <section className="career-footer" aria-label="Promotion progress">
         <div>
           <strong>{currentStage?.label ?? "Junior QA"}</strong>
-          <span>{isMvpComplete ? "Current stage" : "Current rank"}</span>
+          <span>{isMiddleQa ? "Current stage" : "Current rank"}</span>
         </div>
         <div className="career-arrow">to</div>
         <div>
           <strong>{footerTargetLabel}</strong>
           <span>
             {isMvpComplete
-              ? "Completed milestone"
-              : promotionStage
-                ? "Promotion ready"
-                : "Next goal"}
+              ? "Completed endpoint"
+              : isMiddleQa
+                ? "Current goal"
+                : promotionStage
+                  ? "Promotion ready"
+                  : "Next goal"}
           </span>
         </div>
         <div className="career-progress">
           <span>
             {isMvpComplete
-              ? "Promotion completed. No additional systems are active in this MVP."
+              ? "Playable Idle MVP complete. No additional systems are active."
               : activeRequirementText}
           </span>
           <div className="progress-track">

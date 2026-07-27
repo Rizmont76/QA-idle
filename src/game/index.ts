@@ -1,5 +1,6 @@
 export * from "./assistant";
 export * from "./assistantEndpoint";
+export * from "./assistantPanelView";
 export * from "./assistantLevelCost";
 export * from "./assistantOfflineProduction";
 export * from "./assistantModifiers";
