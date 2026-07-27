@@ -1031,8 +1031,11 @@ describe("game logic", () => {
   });
 
   it("formats compact resource numbers", () => {
-    expect(formatNumber(999)).toBe("999");
-    expect(formatNumber(1_500)).toBe("1.5K");
+    expect(formatNumber(99.5)).toBe("99.5");
+    expect(formatNumber(100)).toBe("100");
+    expect(formatNumber(1_500)).toBe("1,500");
+    expect(formatNumber(999_999)).toBe("999,999");
+    expect(formatNumber(1_000_000)).toBe("1.0M");
     expect(formatNumber(-2_000_000)).toBe("-2.0M");
     expect(formatNumber(Number.NaN)).toBe("0");
   });
@@ -1040,7 +1043,7 @@ describe("game logic", () => {
   it("formats MVP currency display without changing numeric values", () => {
     const money = 1_500;
 
-    expect(formatCurrency(money)).toBe("$1.5K");
+    expect(formatCurrency(money)).toBe("$1,500");
     expect(money).toBe(1_500);
   });
 

@@ -1,4 +1,5 @@
-const COMPACT_NUMBER_INTEGER_THRESHOLD = 100;
+const INTEGER_DISPLAY_THRESHOLD = 100;
+const COMPACT_DISPLAY_THRESHOLD = 1_000_000;
 
 function getDisplayNumber(value: number) {
   return Number.isFinite(value) ? value : 0;
@@ -11,13 +12,15 @@ export function formatNumber(value: number) {
   const suffixes = [
     { value: 1_000_000_000, suffix: "B" },
     { value: 1_000_000, suffix: "M" },
-    { value: 1_000, suffix: "K" },
   ];
-  const suffix = suffixes.find((item) => absoluteValue >= item.value);
+  const suffix =
+    absoluteValue >= COMPACT_DISPLAY_THRESHOLD
+      ? suffixes.find((item) => absoluteValue >= item.value)
+      : undefined;
 
   if (!suffix) {
     return `${sign}${new Intl.NumberFormat("en-US", {
-      maximumFractionDigits: absoluteValue >= COMPACT_NUMBER_INTEGER_THRESHOLD ? 0 : 1,
+      maximumFractionDigits: absoluteValue >= INTEGER_DISPLAY_THRESHOLD ? 0 : 1,
     }).format(absoluteValue)}`;
   }
 

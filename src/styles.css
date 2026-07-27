@@ -42,6 +42,11 @@ button:hover:not(:disabled):not([aria-disabled="true"]) {
   filter: brightness(1.08);
 }
 
+button:focus-visible {
+  outline: 3px solid #8bc5ff;
+  outline-offset: 3px;
+}
+
 button:disabled,
 button[aria-disabled="true"] {
   cursor: not-allowed;
@@ -104,6 +109,18 @@ button[aria-disabled="true"] {
 
 .promotion-toast span {
   color: #b991ff;
+}
+
+.unlock-toast,
+.milestone-toast {
+  border-color: rgba(242, 215, 121, 0.62);
+  color: #fff6cf;
+  background: #322b16;
+}
+
+.unlock-toast span,
+.milestone-toast span {
+  color: #f2d779;
 }
 
 .hero {
@@ -243,6 +260,48 @@ h1 {
   margin-bottom: 0;
   color: #c0ccdc;
   line-height: 1.45;
+}
+
+.offline-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  border: 1px solid rgba(105, 220, 161, 0.38);
+  border-radius: 7px;
+  margin-bottom: 10px;
+  padding: 14px;
+  color: #eef4ff;
+  background: linear-gradient(180deg, rgba(20, 58, 44, 0.94), rgba(13, 37, 30, 0.98));
+}
+
+.offline-summary-kicker,
+.panel-kicker {
+  display: block;
+  margin-bottom: 4px;
+  color: #8ee6a8;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.offline-summary strong {
+  display: block;
+  color: #ffffff;
+  font-size: 1.05rem;
+}
+
+.offline-summary p {
+  max-width: 760px;
+  margin: 5px 0 0;
+  color: #b9d6c6;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.offline-summary button {
+  min-width: 100px;
 }
 
 .resource-grid {
@@ -948,6 +1007,7 @@ dd span {
   .assistant-purchase-grid,
   .support-card-grid,
   .completion-panel,
+  .offline-summary,
   .career-footer {
     grid-template-columns: 1fr;
   }
@@ -1009,9 +1069,24 @@ dd span {
     width: 100%;
   }
 
+  .offline-summary button {
+    width: 100%;
+  }
+
   .upgrade-title {
     align-items: start;
     flex-direction: column;
     gap: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
