@@ -1,4 +1,15 @@
 :root {
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --component-radius: 7px;
+  --component-focus: #8bc5ff;
+  --component-text: #eef4ff;
+  --component-text-secondary: #aeb8c9;
+  --component-border: rgba(122, 143, 171, 0.2);
+  --component-success: #8ee6a8;
+  --component-warning: #f2d779;
+  --component-error: #ff9d9d;
   font-family:
     Inter,
     ui-sans-serif,
@@ -43,7 +54,7 @@ button:hover:not(:disabled):not([aria-disabled="true"]) {
 }
 
 button:focus-visible {
-  outline: 3px solid #8bc5ff;
+  outline: 3px solid var(--component-focus);
   outline-offset: 3px;
 }
 
@@ -52,6 +63,16 @@ button[aria-disabled="true"] {
   cursor: not-allowed;
   opacity: 0.48;
   filter: grayscale(0.35);
+}
+
+.action-reason {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .app-shell {
@@ -498,6 +519,37 @@ h1 {
   border-radius: 7px;
   padding: 11px;
   background: rgba(20, 27, 43, 0.78);
+}
+
+.purchase-card-heading {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: start;
+  justify-content: space-between;
+}
+
+.state-badge {
+  flex: none;
+  border: 1px solid var(--component-border);
+  border-radius: 999px;
+  padding: 3px 7px;
+  color: var(--component-text-secondary);
+  background: rgba(135, 157, 190, 0.08);
+  font-size: 0.65rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.purchase-card.is-max-level {
+  border-color: rgba(75, 211, 127, 0.34);
+}
+
+.purchase-card.is-max-level .state-badge {
+  color: var(--component-success);
+}
+
+.purchase-card.is-unavailable .state-badge {
+  color: var(--component-warning);
 }
 
 .assistant-rate span,

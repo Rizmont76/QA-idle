@@ -32,6 +32,13 @@ import type {
   GameplayEventDescriptor,
   RegisteredUpgradeId,
 } from "./types";
+import {
+  ActionButton,
+  FeedbackToast,
+  ProgressBar,
+  RequirementRow,
+  ResourceCounter,
+} from "./ui/components";
 import "./styles.css";
 
 const FULL_PROGRESS_PERCENT = 100;
@@ -324,26 +331,23 @@ function App() {
     <main className={`app-shell stage-${game.careerStage}`}>
       <div className="toast-stack">
         {promotionToast && (
-          <aside className="toast promotion-toast" role="status">
-            <strong>Promotion confirmed</strong>
-            <span>{promotionToast.label} reached.</span>
-          </aside>
+          <FeedbackToast kind="promotion" title="Promotion confirmed">
+            {promotionToast.label} reached.
+          </FeedbackToast>
         )}
         {newlyUnlockedSupportIds.map((supportId) => {
           const support = assistantSupportCards.find(({ id }) => id === supportId);
 
           return (
-            <aside className="toast unlock-toast" role="status" key={supportId}>
-              <strong>Support unlocked</strong>
-              <span>{support?.name ?? "Assistant Support"} is now available.</span>
-            </aside>
+            <FeedbackToast kind="unlock" title="Support unlocked" key={supportId}>
+              {support?.name ?? "Assistant Support"} is now available.
+            </FeedbackToast>
           );
         })}
         {reachedMilestoneLevels.map((level) => (
-          <aside className="toast milestone-toast" role="status" key={level}>
-            <strong>Assistant milestone reached</strong>
-            <span>Level {formatNumber(level)} milestone effects are now active.</span>
-          </aside>
+          <FeedbackToast kind="milestone" title="Assistant milestone reached" key={level}>
+            Level {formatNumber(level)} milestone effects are now active.
+          </FeedbackToast>
         ))}
       </div>
 
@@ -417,41 +421,53 @@ function App() {
 
       {visibility.resourceCounters.includes(MVP_IDS.uiSurfaces.resourcesBasic) && (
         <section className="resource-grid two-columns" aria-label="Current resources">
-          <div className="metric primary">
-            <span className="metric-label">
-              <span className="metric-icon bug-icon">B</span>Bugs Found
-            </span>
-            <strong>{formatNumber(bugsFound)}</strong>
-            <em>+{formatNumber(stats.bugsPerClick)} per action</em>
-          </div>
-          <div className="metric primary">
-            <span className="metric-label">
-              <span className="metric-icon money-icon">$</span>Money
-            </span>
-            <strong>{formatCurrency(money)}</strong>
-            <em>Report bugs to earn</em>
-          </div>
+          <ResourceCounter
+            helper={`+${formatNumber(stats.bugsPerClick)} per action`}
+            icon="B"
+            label="Bugs Found"
+            resourceId={MVP_IDS.resources.bugsFound}
+            tone="bugs"
+            value={formatNumber(bugsFound)}
+          />
+          <ResourceCounter
+            helper="Report bugs to earn"
+            icon="$"
+            label="Money"
+            resourceId={MVP_IDS.resources.money}
+            tone="money"
+            value={formatCurrency(money)}
+          />
         </section>
       )}
 
       {visibleActions.size > 0 && (
         <section className="action-bar" aria-label="Main actions">
           {visibleActions.has(MVP_IDS.uiSurfaces.manualTesting) && (
-            <button
+            <ActionButton
+              actionId={MVP_IDS.actions.manualTest}
+              ariaLabel={`Find Bug, gain ${formatNumber(stats.bugsPerClick)} Bugs Found`}
+              canCommit
               className={`main-button ${clickBurst ? "is-clicked" : ""}`}
-              type="button"
               onAnimationEnd={() => setClickBurst(false)}
               onClick={runQaTest}
             >
               Find Bug <span>+{formatNumber(stats.bugsPerClick)}</span>
-            </button>
+            </ActionButton>
           )}
           {visibleActions.has(MVP_IDS.uiSurfaces.bugReporting) && (
-            <button
+            <ActionButton
+              actionId={MVP_IDS.actions.reportBugs}
+              ariaLabel={
+                bugsFound >= 1
+                  ? `Report ${formatNumber(bugsFound)} Bugs Found to earn ${formatCurrency(
+                      bugsFound * stats.moneyPerBug,
+                    )}`
+                  : "Report Bugs unavailable"
+              }
+              canCommit={bugsFound >= 1}
               className="secondary-button"
-              type="button"
+              descriptionId="report-bugs-reason"
               onClick={reportBugs}
-              disabled={bugsFound < 1}
             >
               Report Bugs{" "}
               <span>
@@ -459,8 +475,13 @@ function App() {
                   ? `+${formatCurrency(bugsFound * stats.moneyPerBug)}`
                   : "No bugs ready"}
               </span>
-            </button>
+            </ActionButton>
           )}
+          <span className="action-reason" id="report-bugs-reason">
+            {bugsFound >= 1
+              ? "Reports all current Bugs Found for Money."
+              : "Find at least one bug before reporting."}
+          </span>
         </section>
       )}
 
@@ -771,35 +792,36 @@ function App() {
                     : "Promotion goal"}
               </span>
             </div>
-            <div className="panel-progress" aria-hidden="true">
-              <span style={{ width: `${String(promotionProgressPercent)}%` }} />
-            </div>
+            <ProgressBar
+              label="Promotion requirements completed"
+              percent={promotionProgressPercent}
+              valueMax={Math.max(1, promotionProgress.length)}
+              valueNow={
+                isMiddleQa
+                  ? Math.max(1, promotionProgress.length)
+                  : completedPromotionRequirements
+              }
+              valueText={promotionGoalSummary}
+            />
             {promotionProgress.length > 0 && (
               <dl className="progress-list">
                 {promotionProgress.map((item) => {
                   return (
-                    <div
-                      className={item.complete ? "requirement complete" : "requirement"}
+                    <RequirementRow
+                      complete={item.complete}
+                      current={
+                        item.prefix === "$"
+                          ? formatCurrency(item.current)
+                          : formatNumber(item.current)
+                      }
                       key={item.id}
-                    >
-                      <dt>
-                        <span>{item.complete ? "Complete" : "Pending"}</span>
-                        {item.label}
-                      </dt>
-                      <dd>
-                        <strong>
-                          {item.prefix === "$"
-                            ? formatCurrency(item.current)
-                            : formatNumber(item.current)}
-                        </strong>
-                        <span>
-                          of{" "}
-                          {item.prefix === "$"
-                            ? formatCurrency(item.required)
-                            : formatNumber(item.required)}
-                        </span>
-                      </dd>
-                    </div>
+                      label={item.label}
+                      target={
+                        item.prefix === "$"
+                          ? formatCurrency(item.required)
+                          : formatNumber(item.required)
+                      }
+                    />
                   );
                 })}
               </dl>

@@ -967,7 +967,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Implement VD-02 component primitives and states
 - Epic: Epic 10 - Visual Workspace Implementation
 - Priority: P1
-- Status: Ready
+- Status: Done
 - Objective: Implement approved VD-02 component primitives and interaction states for the Playable Idle MVP.
 - Scope: Build component primitives and states for Assistant panel controls, Buy 1, Buy Max, Support cards, resource displays, milestone feedback, offline summary, endpoint presentation, accessibility and responsive behavior.
 - Out of Scope: Changing gameplay formulas; adding new mechanics; implementing workspace layout beyond component composition hooks.
@@ -980,7 +980,8 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No save data change
 - UI Impact: Implements approved component layer
 - Risk Level: Medium
-- Definition of Done: VD-02 components are implemented and tested without gameplay changes.
+- Definition of Done: VD-02 components are implemented and tested without gameplay changes. Delivered by the QA-PLAYABLE-MVP-044 implementation PR.
+- Implementation Result: Added reusable presentation-only primitives for actions, resource counters, state badges, Assistant purchase cards, Support Upgrade cards, semantic progress, requirement rows and feedback toasts. The live workspace now consumes the shared action, resource, progress, requirement and feedback primitives; focused coverage verifies unavailable/focusable explanations, resource identity, max-level, locked/owned and semantic progress states without changing gameplay or save behavior.
 
 #### QA-PLAYABLE-MVP-045
 
