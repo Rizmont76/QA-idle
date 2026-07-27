@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   calculateAssistantBugsPerSecond,
   calculateAssistantProductionStat,
+  getAssistantProductionDebugBreakdown,
 } from "./assistantProduction";
+import { ACTIVE_RUNTIME_PARAMETER_VERSION } from "./runtimeCandidateParameters";
 
 const noModifiers = {
   ownedSupportUpgradeIds: [],
@@ -52,6 +54,46 @@ describe("Assistant production calculator", () => {
       "support_immediate_production",
       "milestone_assistant_first",
     ]);
+  });
+
+  it("exposes the complete debug-only production composition", () => {
+    const input = {
+      level: 8,
+      ownedSupportUpgradeIds: ["support_immediate_production"],
+      reachedMilestoneIds: ["milestone_assistant_first"],
+    } as const;
+
+    expect(getAssistantProductionDebugBreakdown(input)).toEqual({
+      scope: "debug_only",
+      parameterVersion: ACTIVE_RUNTIME_PARAMETER_VERSION,
+      baseRate: 0.8,
+      perLevelContribution: 1.6,
+      immediateSupportContribution: 0.22,
+      preMilestoneRate: 2.62,
+      milestoneMultiplier: 1.3,
+      finalOnlineRate: calculateAssistantBugsPerSecond(input),
+    });
+  });
+
+  it("reports inactive optional contributions without mutating diagnostic input", () => {
+    const input = Object.freeze({
+      level: 0,
+      ownedSupportUpgradeIds: Object.freeze([]),
+      reachedMilestoneIds: Object.freeze([]),
+    });
+    const before = JSON.stringify(input);
+    const breakdown = getAssistantProductionDebugBreakdown(input);
+
+    expect(breakdown).toMatchObject({
+      baseRate: 0.8,
+      perLevelContribution: 0,
+      immediateSupportContribution: 0,
+      preMilestoneRate: 0.8,
+      milestoneMultiplier: 1,
+      finalOnlineRate: 0.8,
+    });
+    expect(Object.isFrozen(breakdown)).toBe(true);
+    expect(JSON.stringify(input)).toBe(before);
   });
 
   it.each([
