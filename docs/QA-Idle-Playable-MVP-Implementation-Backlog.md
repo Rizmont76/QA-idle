@@ -816,7 +816,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Add production breakdown diagnostics
 - Epic: Epic 8 - Runtime Endpoint and Diagnostics
 - Priority: P1
-- Status: Ready
+- Status: Done
 - Objective: Provide debug-only insight into Assistant production composition.
 - Scope: Expose base rate, per-level contribution, immediate Support contribution, pre-milestone rate, milestone multiplier, final online rate and active parameter version.
 - Out of Scope: Player-facing formula text; visual polish; telemetry export.
@@ -829,7 +829,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No save data change
 - UI Impact: Debug-only UI/data surface possible
 - Risk Level: Medium
-- Definition of Done: Internal diagnostics can explain production without influencing it.
+- Definition of Done: Internal diagnostics can explain production without influencing it. Delivered by the QA-PLAYABLE-MVP-032 implementation PR.
 
 #### QA-PLAYABLE-MVP-033
 
