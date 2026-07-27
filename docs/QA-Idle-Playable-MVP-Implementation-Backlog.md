@@ -665,7 +665,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Activate Assistant on Middle QA promotion
 - Epic: Epic 6 - Promotion and Unlock Integration
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Connect completed Middle QA promotion to Assistant unlock and level 0 passive production.
 - Scope: On promotion completion, unlock Assistant, initialize level 0 state and allow immediate passive Bugs Found production.
 - Out of Scope: Full Team activation; Automation activation; Support purchase UI.
@@ -678,7 +678,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Updates Assistant unlocked state
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Promotion starts the first passive loop without activating future systems.
+- Definition of Done: Promotion starts the first passive loop without activating future systems. Delivered by the QA-PLAYABLE-MVP-025 implementation PR.
 
 #### QA-PLAYABLE-MVP-026
 

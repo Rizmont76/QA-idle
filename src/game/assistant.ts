@@ -1,5 +1,5 @@
 import { MVP_IDS } from "../types";
-import type { AssistantId, PromotionId, ResourceId } from "../types";
+import type { AssistantId, GameState, PromotionId, ResourceId } from "../types";
 import { activeRuntimeCandidateParameters } from "./runtimeCandidateParameters";
 
 export type AssistantIdentityType = "junior_qa_assistant";
@@ -171,6 +171,25 @@ export function isAssistantProductionEligible(
   }
 
   return level !== definition.level.minimum || definition.production.eligibleAtLevelZero;
+}
+
+export function activateAssistantAfterPromotion(
+  assistant: GameState["assistant"],
+  completedPromotionId: string,
+  definition: Readonly<AssistantDefinition> = juniorQaAssistantDefinition,
+): GameState["assistant"] {
+  if (completedPromotionId !== definition.unlock.completedPromotionId) {
+    return assistant;
+  }
+
+  return {
+    unlocked: true,
+    level: definition.level.minimum,
+    ownedSupportUpgradeIds: [],
+    reachedMilestoneIds: [],
+    productionObservedAfterUnlock: false,
+    productionObservedAfterMilestone: false,
+  };
 }
 
 assertValidAssistantDefinition(juniorQaAssistantDefinition);

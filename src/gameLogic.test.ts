@@ -1091,6 +1091,14 @@ describe("game logic", () => {
       availablePromotionIds: [],
       completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
     });
+    expect(result.game.assistant).toEqual({
+      unlocked: true,
+      level: 0,
+      ownedSupportUpgradeIds: [],
+      reachedMilestoneIds: [],
+      productionObservedAfterUnlock: false,
+      productionObservedAfterMilestone: false,
+    });
     expect(result.game.unlocks[MVP_IDS.unlocks.promotionJuniorToMiddle]).toBe("hidden");
     expect(result.game.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction]).toBe("hidden");
     expect(result.events).toEqual([
@@ -1112,6 +1120,51 @@ describe("game logic", () => {
           simulationTime: 25,
         },
       },
+    ]);
+  });
+
+  it("produces passive Bugs Found on the next eligible tick after promotion", () => {
+    const promotionResult = acceptPromotion(
+      {
+        ...initialState,
+        totalBugsFound: 100,
+        totalMoneyEarned: 150,
+        promotion: {
+          ...initialState.promotion,
+          availablePromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+        },
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+          [MVP_IDS.upgrades.coffee]: 1,
+          [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+        },
+      },
+      25,
+    );
+
+    expect(promotionResult.ok).toBe(true);
+    if (!promotionResult.ok) {
+      throw new Error("Promotion should succeed.");
+    }
+
+    const productionResult = advanceOnlineAssistantProduction(
+      promotionResult.game,
+      1,
+      26,
+    );
+
+    expect(productionResult.ok).toBe(true);
+    if (!productionResult.ok) {
+      throw new Error("Post-promotion Assistant production should succeed.");
+    }
+
+    expect(productionResult.game.resources[MVP_IDS.resources.bugsFound]).toBe(0.8);
+    expect(productionResult.game.resources[MVP_IDS.resources.money]).toBe(0);
+    expect(productionResult.game.assistant.productionObservedAfterUnlock).toBe(true);
+    expect(productionResult.events.map((event) => event.id)).toEqual([
+      MVP_IDS.events.resourceChanged,
+      MVP_IDS.events.assistantProductionCommitted,
     ]);
   });
 
@@ -1141,11 +1194,15 @@ describe("game logic", () => {
     }
 
     expect(result.game.careerStage).toBe(MVP_IDS.careerStages.middleQa);
+    expect(result.game.assistant.unlocked).toBe(true);
+    expect(result.game.assistant.level).toBe(0);
     expect(result.game.uiSurfaces[MVP_IDS.uiSurfaces.promoteAction]).toBe("hidden");
     expect(result.game.unlocks[MVP_IDS.unlocks.promotionJuniorToMiddle]).toBe("hidden");
     expect(result.game.uiSurfaces).not.toHaveProperty("ui_team");
     expect(result.game.uiSurfaces).not.toHaveProperty("ui_automation");
     expect(result.game.uiSurfaces).not.toHaveProperty("ui_reputation");
+    expect(result.game.resources).not.toHaveProperty("team_output");
+    expect(result.game.resources).not.toHaveProperty("automation_coverage");
   });
 
   it("leaves state unchanged when accepting promotion before requirements are met", () => {
