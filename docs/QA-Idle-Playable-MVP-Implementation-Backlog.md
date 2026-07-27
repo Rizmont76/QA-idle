@@ -730,7 +730,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Implement shared offline production calculation
 - Epic: Epic 7 - Offline Progress
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Calculate offline Bugs Found with the same Assistant production calculator used online.
 - Scope: Use eligible seconds, 7200-second cap, base efficiency 0.35 and Support efficiency 0.62.
 - Out of Scope: Money generation; automatic Report; UI summary display.
@@ -743,7 +743,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Uses offline timestamp state
 - UI Impact: No UI change
 - Risk Level: High
-- Definition of Done: Offline math is deterministic and reuses authoritative production logic.
+- Definition of Done: Offline math is deterministic and reuses authoritative production logic. Delivered by the QA-PLAYABLE-MVP-028 implementation PR.
 
 #### QA-PLAYABLE-MVP-029
 
