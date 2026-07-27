@@ -4,6 +4,7 @@ import { PROMOTION_TOAST_MS, careerStages, promotionDefinitions } from "./gameDa
 import {
   acceptPromotion,
   advanceOnlineAssistantProduction,
+  consumeOfflineProgressSummary,
   evaluatePromotionAvailability,
   formatCurrency,
   formatNumber,
@@ -58,6 +59,9 @@ function App() {
   const [newlyUnlockedSupportIds, setNewlyUnlockedSupportIds] = useState<
     readonly AssistantSupportUpgradeId[]
   >([]);
+  const [reachedMilestoneLevels, setReachedMilestoneLevels] = useState<readonly number[]>(
+    [],
+  );
   const [supportFailure, setSupportFailure] = useState<{
     readonly supportId: AssistantSupportUpgradeId;
     readonly message: string;
@@ -88,6 +92,7 @@ function App() {
   const assistantPanel = useMemo(() => getAssistantPanelView(game), [game]);
   const assistantSupportCards = useMemo(() => getAssistantSupportCardViews(game), [game]);
   const isMvpComplete = endpointStatus.endpointComplete;
+  const offlineSummary = game.offlineProgress.pendingSummary;
   const completedPromotionRequirements = promotionProgress.filter(
     (item) => item.complete,
   ).length;
@@ -140,6 +145,7 @@ function App() {
   useEffect(() => {
     if (
       newlyUnlockedSupportIds.length === 0 &&
+      reachedMilestoneLevels.length === 0 &&
       boughtSupportId === null &&
       supportFailure === null
     ) {
@@ -148,12 +154,13 @@ function App() {
 
     const timeoutId = window.setTimeout(() => {
       setNewlyUnlockedSupportIds([]);
+      setReachedMilestoneLevels([]);
       setBoughtSupportId(null);
       setSupportFailure(null);
     }, SUPPORT_FEEDBACK_MS);
 
     return () => window.clearTimeout(timeoutId);
-  }, [boughtSupportId, newlyUnlockedSupportIds, supportFailure]);
+  }, [boughtSupportId, newlyUnlockedSupportIds, reachedMilestoneLevels, supportFailure]);
 
   useEffect(() => {
     if (!game.assistant.unlocked) {
@@ -210,6 +217,21 @@ function App() {
     }
   }
 
+  function showReachedMilestones(events: readonly GameplayEventDescriptor[]) {
+    const levels = events
+      .filter((event) => event.id === MVP_IDS.events.assistantMilestoneReached)
+      .map((event) => event.payload.milestoneLevel);
+
+    if (levels.length > 0) {
+      setReachedMilestoneLevels(levels);
+    }
+  }
+
+  function showAssistantPurchaseFeedback(events: readonly GameplayEventDescriptor[]) {
+    showNewSupportUnlocks(events);
+    showReachedMilestones(events);
+  }
+
   function promote() {
     setGame((current) => {
       const result = acceptPromotion(current);
@@ -236,7 +258,7 @@ function App() {
       const result = purchaseAssistantLevel(current);
 
       if (result.ok) {
-        showNewSupportUnlocks(result.events);
+        showAssistantPurchaseFeedback(result.events);
       }
 
       return result.game;
@@ -252,7 +274,7 @@ function App() {
       const result = purchaseMaxAssistantLevels(current);
 
       if (result.ok) {
-        showNewSupportUnlocks(result.events);
+        showAssistantPurchaseFeedback(result.events);
       }
 
       return result.game;
@@ -293,6 +315,7 @@ function App() {
     setBoughtUpgradeId(null);
     setBoughtSupportId(null);
     setNewlyUnlockedSupportIds([]);
+    setReachedMilestoneLevels([]);
     setSupportFailure(null);
     setGame(save.game);
   }
@@ -306,6 +329,22 @@ function App() {
             <span>{promotionToast.label} reached.</span>
           </aside>
         )}
+        {newlyUnlockedSupportIds.map((supportId) => {
+          const support = assistantSupportCards.find(({ id }) => id === supportId);
+
+          return (
+            <aside className="toast unlock-toast" role="status" key={supportId}>
+              <strong>Support unlocked</strong>
+              <span>{support?.name ?? "Assistant Support"} is now available.</span>
+            </aside>
+          );
+        })}
+        {reachedMilestoneLevels.map((level) => (
+          <aside className="toast milestone-toast" role="status" key={level}>
+            <strong>Assistant milestone reached</strong>
+            <span>Level {formatNumber(level)} milestone effects are now active.</span>
+          </aside>
+        ))}
       </div>
 
       <section className="hero">
@@ -350,6 +389,29 @@ function App() {
           <p>
             Assistant progression and post-milestone passive production are confirmed.
           </p>
+        </section>
+      )}
+
+      {offlineSummary && (
+        <section className="offline-summary" aria-label="Offline return summary">
+          <div>
+            <span className="offline-summary-kicker">Welcome back</span>
+            <strong>
+              +{formatNumber(offlineSummary.bugsFoundGained)} Bugs Found while away
+            </strong>
+            <p>
+              Your Junior QA Assistant worked for{" "}
+              {formatNumber(offlineSummary.eligibleSeconds)} eligible seconds at{" "}
+              {formatNumber(offlineSummary.offlineEfficiency * FULL_PROGRESS_PERCENT)}%
+              offline efficiency. Money was not produced and reporting remains manual.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setGame((current) => consumeOfflineProgressSummary(current))}
+          >
+            Dismiss
+          </button>
         </section>
       )}
 
@@ -645,6 +707,7 @@ function App() {
       <section className="content-grid">
         {visibility.upgradePanels.includes(MVP_IDS.uiSurfaces.upgradesBasic) && (
           <div className="panel">
+            <span className="panel-kicker">Manual Burst</span>
             <h2>Basic Upgrades</h2>
             <div className="shop-list">
               {visibleUpgrades.map((upgrade) => {

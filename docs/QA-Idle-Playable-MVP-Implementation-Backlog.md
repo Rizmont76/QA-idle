@@ -902,7 +902,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Add functional feedback, formatting and accessibility states
 - Epic: Epic 9 - Gameplay UI Functional Expansion
 - Priority: P1
-- Status: Ready
+- Status: Done
 - Objective: Communicate unlocks, milestones, Manual Burst vs Passive Baseline, offline return and endpoint state without final visual redesign.
 - Scope: Add unlock feedback, milestone feedback, Buy Max crossed-milestone feedback, passive-rate labels, offline summary, endpoint status, number formatting and responsive/accessibility states.
 - Out of Scope: Creating VD-02/VD-03; final visual polish beyond the approved functional states; changing gameplay formulas.
@@ -915,7 +915,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Consumes existing offline summary state
 - UI Impact: Expands functional gameplay UI
 - Risk Level: Medium
-- Definition of Done: Functional UX supports the complete playable loop without claiming final visual polish.
+- Definition of Done: Functional UX supports the complete playable loop without claiming final visual polish. Delivered by the QA-PLAYABLE-MVP-036 implementation PR.
 
 ### Epic 10 - Visual Workspace Implementation
 

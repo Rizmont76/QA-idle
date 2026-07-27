@@ -82,6 +82,7 @@ describe("MVP UI smoke tests", () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     mountedApp?.unmount();
     mountedApp = null;
     document.body.innerHTML = "";
@@ -239,6 +240,59 @@ describe("MVP UI smoke tests", () => {
         name: /Mentoring Checklist.*Newly unlocked/i,
       }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "" })).toHaveTextContent(
+      "Mentoring Checklist is now available",
+    );
+  });
+
+  it("surfaces every milestone crossed by Buy Max as committed feedback", async () => {
+    await bootAppWithSave(buildFundedAssistantGame(100_000));
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: /Buy Max: 25 Assistant levels/i,
+      }),
+    );
+
+    const milestoneFeedback = await screen.findAllByText("Assistant milestone reached");
+    expect(milestoneFeedback).toHaveLength(2);
+    expect(screen.getByText(/Level 8 milestone effects are now active/i)).toBeVisible();
+    expect(screen.getByText(/Level 25 milestone effects are now active/i)).toBeVisible();
+  });
+
+  it("shows and dismisses an explicit offline return summary", async () => {
+    vi.spyOn(Date, "now").mockReturnValue(1_000_000);
+    const game = buildPromotionCompletedGame();
+
+    await bootAppWithSave({
+      ...game,
+      offlineProgress: {
+        ...game.offlineProgress,
+        lastActiveAt: 1_000_000,
+        timestampStatus: "valid",
+        pendingSummary: {
+          startedAt: 100_000,
+          endedAt: 1_000_000,
+          elapsedSeconds: 900,
+          eligibleSeconds: 900,
+          onlineBugsPerSecond: 1,
+          offlineEfficiency: 0.4,
+          bugsFoundGained: 360,
+        },
+      },
+    });
+
+    const summary = await screen.findByRole("region", {
+      name: "Offline return summary",
+    });
+    expect(summary).toHaveTextContent("+360 Bugs Found while away");
+    expect(summary).toHaveTextContent("900 eligible seconds");
+    expect(summary).toHaveTextContent("Money was not produced");
+
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+    expect(
+      screen.queryByRole("region", { name: "Offline return summary" }),
+    ).not.toBeInTheDocument();
   });
 
   it("suppresses both Assistant purchase actions at max level", async () => {
