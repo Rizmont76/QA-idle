@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "phase-6b.2-stage-a-003",
+  "parameterVersion": "doc15-provisional-implementation-candidate-v1-phase-6b.2-stage-a-003",
+  "juniorBaselineVersion": "junior-baseline-a1e0570-2026-07-14",
+  "fixtures": [
+    {
+      "id": "assistant-level-5-offline-return",
+      "expected": {
+        "assistant_level": 5,
+        "supports_owned": ["support_offline_handover"],
+        "milestones_reached": [],
+        "endpoint_conditions_satisfied": false,
+        "endpoint_completed": false,
+        "offline_summary": {
+          "started_at": 1000,
+          "ended_at": 8200,
+          "elapsed_seconds": 7200,
+          "eligible_seconds": 7200,
+          "online_bugs_per_second": 1.8,
+          "offline_efficiency": 0.62,
+          "bugs_found_gained": 8035.2
+        }
+      }
+    },
+    {
+      "id": "assistant-level-8-endpoint-complete",
+      "expected": {
+        "assistant_level": 8,
+        "supports_owned": [],
+        "milestones_reached": ["milestone_assistant_first"],
+        "endpoint_conditions_satisfied": true,
+        "endpoint_completed": true,
+        "offline_summary": null
+      }
+    }
+  ]
+}

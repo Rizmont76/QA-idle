@@ -837,7 +837,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Add simulator/runtime comparison fixtures
 - Epic: Epic 8 - Runtime Endpoint and Diagnostics
 - Priority: P1
-- Status: Ready
+- Status: Done
 - Objective: Create fixtures that compare runtime state snapshots with simulator expectations.
 - Scope: Include active parameter version, Junior baseline version, Assistant level, Support ownership, milestones, endpoint and offline summary fields.
 - Out of Scope: Full automated playtest runner; new balance tuning.
@@ -850,7 +850,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No save data change
 - UI Impact: No UI change
 - Risk Level: Medium
-- Definition of Done: Runtime/simulator comparison is repeatable and versioned.
+- Definition of Done: Runtime/simulator comparison is repeatable and versioned. Delivered by the QA-PLAYABLE-MVP-033 implementation PR.
 
 ### Epic 9 - Gameplay UI Functional Expansion
 
