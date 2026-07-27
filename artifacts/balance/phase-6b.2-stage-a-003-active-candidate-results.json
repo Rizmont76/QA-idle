@@ -2,7 +2,7 @@
   "parameter_version": "doc15-provisional-implementation-candidate-v1-phase-6b.2-stage-a-003",
   "parameter_profile_id": "phase-6b.2-stage-a-003",
   "simulator_version": "phase-6a.2-simulator-v3",
-  "run_date": "2026-07-16T13:29:59.830Z",
+  "run_date": "2026-07-27T20:42:36.018Z",
   "document_status_at_run": "DRAFT - Simulation Validation Required",
   "junior_baseline_snapshot": {
     "snapshotVersion": "junior-baseline-a1e0570-2026-07-14",
@@ -146,7 +146,10 @@
       "eligible_seconds": 7200,
       "bugs_found_gained": 5090.4,
       "assistant_level": 5,
-      "supports_owned": ["support_immediate_production", "support_training_economics"]
+      "supports_owned": [
+        "support_immediate_production",
+        "support_training_economics"
+      ]
     },
     "with_handover": {
       "offline_efficiency": 0.62,
@@ -856,8 +859,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -906,7 +913,9 @@
             "support_immediate_production",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.9,
           "signature": "c7b148b3c9b9da9de3079f39db4e24843e1648c6640bcf3f06ebe569ac918e35"
         },
@@ -979,7 +988,9 @@
             "support_offline_handover",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.7,
           "signature": "9b913c375e5cf156ef730f06caf6f0a9dc75319359067f2221f13c8ec333e068"
         },
@@ -1088,7 +1099,9 @@
       "report_action_count": 44,
       "assistant_final_level": 8,
       "supports_owned": [],
-      "milestones_reached": ["milestone_assistant_first"],
+      "milestones_reached": [
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
@@ -1223,8 +1236,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -1647,7 +1664,9 @@
             "support_immediate_production",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.9,
           "signature": "c7b148b3c9b9da9de3079f39db4e24843e1648c6640bcf3f06ebe569ac918e35"
         },
@@ -2319,7 +2338,9 @@
             "support_offline_handover",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.7,
           "signature": "9b913c375e5cf156ef730f06caf6f0a9dc75319359067f2221f13c8ec333e068"
         },
@@ -2483,8 +2504,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -2496,8 +2521,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.92,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -2509,8 +2538,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.52,
           "signature": "f25552171a85280e0e96b37efbe1b95e460804ed180b3f75a3b5434574232e1f"
         }
@@ -2629,7 +2662,9 @@
         "support_offline_handover",
         "support_training_economics"
       ],
-      "milestones_reached": ["milestone_assistant_first"],
+      "milestones_reached": [
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
@@ -2792,8 +2827,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -3091,8 +3130,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.92,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -3443,8 +3486,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.52,
           "signature": "f25552171a85280e0e96b37efbe1b95e460804ed180b3f75a3b5434574232e1f"
         },
@@ -3833,8 +3880,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -3846,8 +3897,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.92,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -3859,8 +3914,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.52,
           "signature": "f25552171a85280e0e96b37efbe1b95e460804ed180b3f75a3b5434574232e1f"
         },
@@ -3872,7 +3931,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 2.72,
           "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
@@ -3979,8 +4041,13 @@
       "manual_action_count": 182,
       "report_action_count": 41,
       "assistant_final_level": 8,
-      "supports_owned": ["support_immediate_production", "support_training_economics"],
-      "milestones_reached": ["milestone_assistant_first"],
+      "supports_owned": [
+        "support_immediate_production",
+        "support_training_economics"
+      ],
+      "milestones_reached": [
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
@@ -4174,8 +4241,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -4473,8 +4544,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.92,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -4868,8 +4943,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.52,
           "signature": "f25552171a85280e0e96b37efbe1b95e460804ed180b3f75a3b5434574232e1f"
         },
@@ -5020,7 +5099,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 2.72,
           "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
@@ -5220,8 +5302,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -5270,7 +5356,9 @@
             "support_immediate_production",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.9,
           "signature": "c7b148b3c9b9da9de3079f39db4e24843e1648c6640bcf3f06ebe569ac918e35"
         },
@@ -5343,7 +5431,9 @@
             "support_offline_handover",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.7,
           "signature": "9b913c375e5cf156ef730f06caf6f0a9dc75319359067f2221f13c8ec333e068"
         },
@@ -5452,7 +5542,9 @@
       "report_action_count": 44,
       "assistant_final_level": 8,
       "supports_owned": [],
-      "milestones_reached": ["milestone_assistant_first"],
+      "milestones_reached": [
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
@@ -5567,8 +5659,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -5991,7 +6087,9 @@
             "support_immediate_production",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.9,
           "signature": "c7b148b3c9b9da9de3079f39db4e24843e1648c6640bcf3f06ebe569ac918e35"
         },
@@ -6663,7 +6761,9 @@
             "support_offline_handover",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.7,
           "signature": "9b913c375e5cf156ef730f06caf6f0a9dc75319359067f2221f13c8ec333e068"
         },
@@ -6827,8 +6927,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.05,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -6840,8 +6944,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.67,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -6853,8 +6961,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.27,
           "signature": "f25552171a85280e0e96b37efbe1b95e460804ed180b3f75a3b5434574232e1f"
         },
@@ -6866,7 +6978,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 2.47,
           "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
@@ -6973,8 +7088,13 @@
       "manual_action_count": 128,
       "report_action_count": 36,
       "assistant_final_level": 8,
-      "supports_owned": ["support_immediate_production", "support_training_economics"],
-      "milestones_reached": ["milestone_assistant_first"],
+      "supports_owned": [
+        "support_immediate_production",
+        "support_training_economics"
+      ],
+      "milestones_reached": [
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
@@ -7106,8 +7226,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.05,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -7320,8 +7444,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.67,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -7575,8 +7703,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.27,
           "signature": "f25552171a85280e0e96b37efbe1b95e460804ed180b3f75a3b5434574232e1f"
         },
@@ -7666,7 +7798,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 2.47,
           "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
@@ -7837,8 +7972,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.87,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -7866,8 +8005,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 3.47,
           "signature": "f25552171a85280e0e96b37efbe1b95e460804ed180b3f75a3b5434574232e1f"
         },
@@ -7879,7 +8022,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 3.67,
           "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
@@ -7986,8 +8132,13 @@
       "manual_action_count": 281,
       "report_action_count": 40,
       "assistant_final_level": 8,
-      "supports_owned": ["support_immediate_production", "support_training_economics"],
-      "milestones_reached": ["milestone_assistant_first"],
+      "supports_owned": [
+        "support_immediate_production",
+        "support_training_economics"
+      ],
+      "milestones_reached": [
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
@@ -8827,8 +8978,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.87,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -9417,8 +9572,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 3.47,
           "signature": "f25552171a85280e0e96b37efbe1b95e460804ed180b3f75a3b5434574232e1f"
         },
@@ -9738,7 +9897,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 3.67,
           "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
@@ -9831,7 +9993,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 2.52,
           "signature": "9133dbeb98a3c07a12dd88477b6506d3af6fdb01690e36e789a65b99e082d66e"
@@ -9844,8 +10009,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.72,
           "signature": "d45b39adeffe040ac3892d5ac2f5d9facda7768a993b2107e3b100ba0d9dd8aa"
         }
@@ -9951,8 +10120,13 @@
       "manual_action_count": 140,
       "report_action_count": 105,
       "assistant_final_level": 8,
-      "supports_owned": ["support_immediate_production", "support_training_economics"],
-      "milestones_reached": ["milestone_assistant_first"],
+      "supports_owned": [
+        "support_immediate_production",
+        "support_training_economics"
+      ],
+      "milestones_reached": [
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 1,
       "offline_elapsed_seconds_total": 9000,
       "offline_eligible_seconds_total": 7200,
@@ -10264,7 +10438,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 2.52,
           "signature": "9133dbeb98a3c07a12dd88477b6506d3af6fdb01690e36e789a65b99e082d66e"
@@ -10300,8 +10477,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.72,
           "signature": "d45b39adeffe040ac3892d5ac2f5d9facda7768a993b2107e3b100ba0d9dd8aa"
         },
@@ -11346,8 +11527,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -11359,8 +11544,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.92,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -11372,8 +11561,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.52,
           "signature": "d45b39adeffe040ac3892d5ac2f5d9facda7768a993b2107e3b100ba0d9dd8aa"
         }
@@ -11502,7 +11695,9 @@
         "support_offline_handover",
         "support_training_economics"
       ],
-      "milestones_reached": ["milestone_assistant_first"],
+      "milestones_reached": [
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 1,
       "offline_elapsed_seconds_total": 9000,
       "offline_eligible_seconds_total": 7200,
@@ -11645,8 +11840,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -11944,8 +12143,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.92,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -12296,8 +12499,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.52,
           "signature": "d45b39adeffe040ac3892d5ac2f5d9facda7768a993b2107e3b100ba0d9dd8aa"
         },
@@ -12414,8 +12621,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -12464,7 +12675,9 @@
             "support_immediate_production",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.9,
           "signature": "c7b148b3c9b9da9de3079f39db4e24843e1648c6640bcf3f06ebe569ac918e35"
         },
@@ -12537,7 +12750,9 @@
             "support_offline_handover",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.7,
           "signature": "9b913c375e5cf156ef730f06caf6f0a9dc75319359067f2221f13c8ec333e068"
         },
@@ -12646,7 +12861,9 @@
       "report_action_count": 44,
       "assistant_final_level": 8,
       "supports_owned": [],
-      "milestones_reached": ["milestone_assistant_first"],
+      "milestones_reached": [
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
@@ -12781,8 +12998,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -13205,7 +13426,9 @@
             "support_immediate_production",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.9,
           "signature": "c7b148b3c9b9da9de3079f39db4e24843e1648c6640bcf3f06ebe569ac918e35"
         },
@@ -13877,7 +14100,9 @@
             "support_offline_handover",
             "support_training_economics"
           ],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.7,
           "signature": "9b913c375e5cf156ef730f06caf6f0a9dc75319359067f2221f13c8ec333e068"
         },
@@ -14049,7 +14274,9 @@
       "report_action_count": 20,
       "assistant_final_level": 8,
       "supports_owned": [],
-      "milestones_reached": ["milestone_assistant_first"],
+      "milestones_reached": [
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
@@ -14179,8 +14406,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -14192,8 +14423,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.92,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -14205,8 +14440,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.52,
           "signature": "f25552171a85280e0e96b37efbe1b95e460804ed180b3f75a3b5434574232e1f"
         },
@@ -14218,7 +14457,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 2.72,
           "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
@@ -14325,8 +14567,13 @@
       "manual_action_count": 182,
       "report_action_count": 41,
       "assistant_final_level": 8,
-      "supports_owned": ["support_immediate_production", "support_training_economics"],
-      "milestones_reached": ["milestone_assistant_first"],
+      "supports_owned": [
+        "support_immediate_production",
+        "support_training_economics"
+      ],
+      "milestones_reached": [
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
@@ -14460,8 +14707,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -14759,8 +15010,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.92,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -15154,8 +15409,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.52,
           "signature": "f25552171a85280e0e96b37efbe1b95e460804ed180b3f75a3b5434574232e1f"
         },
@@ -15306,7 +15565,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 2.72,
           "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
@@ -15506,8 +15768,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -15519,8 +15785,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.92,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -15532,8 +15802,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.52,
           "signature": "f25552171a85280e0e96b37efbe1b95e460804ed180b3f75a3b5434574232e1f"
         },
@@ -15545,7 +15819,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 2.72,
           "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
@@ -15558,8 +15835,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 3.906,
           "signature": "daf36c02abae798c436d87519207d2eca76d073daa13e406f6ea1d04ecd6c1ce"
         },
@@ -15571,7 +15852,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 4.166,
           "signature": "cf59105e39b04550a06290f69e59b3c8f68e7008a4537c29f018c052e1abedc9"
@@ -15848,8 +16132,14 @@
       "manual_action_count": 608,
       "report_action_count": 112,
       "assistant_final_level": 25,
-      "supports_owned": ["support_immediate_production", "support_training_economics"],
-      "milestones_reached": ["milestone_assistant_capstone", "milestone_assistant_first"],
+      "supports_owned": [
+        "support_immediate_production",
+        "support_training_economics"
+      ],
+      "milestones_reached": [
+        "milestone_assistant_capstone",
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
@@ -16003,8 +16293,12 @@
             "assistant_level",
             "support_immediate_production"
           ],
-          "affordablePurchaseCategories": ["support_immediate_production"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_immediate_production"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.3,
           "signature": "e2dd7e17f25e542959b806e10cc63e0957cfc40b2ef4a23dfa100a0d7e50aff0"
         },
@@ -16302,8 +16596,12 @@
             "assistant_level",
             "support_training_economics"
           ],
-          "affordablePurchaseCategories": ["support_training_economics"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_training_economics"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 1.92,
           "signature": "bb5c7e11e6ca90f9e23dbaafc90b916c4a6c23e188b5d5ca3543200a5f49535a"
         },
@@ -16697,8 +16995,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 2.52,
           "signature": "f25552171a85280e0e96b37efbe1b95e460804ed180b3f75a3b5434574232e1f"
         },
@@ -16849,7 +17151,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 2.72,
           "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
@@ -17068,8 +17373,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 3.906,
           "signature": "daf36c02abae798c436d87519207d2eca76d073daa13e406f6ea1d04ecd6c1ce"
         },
@@ -17220,7 +17529,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 4.166,
           "signature": "cf59105e39b04550a06290f69e59b3c8f68e7008a4537c29f018c052e1abedc9"
@@ -20337,7 +20649,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 2.131111,
           "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
@@ -20350,8 +20665,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 3.517111,
           "signature": "daf36c02abae798c436d87519207d2eca76d073daa13e406f6ea1d04ecd6c1ce"
         }
@@ -20457,8 +20776,13 @@
       "manual_action_count": 92,
       "report_action_count": 29,
       "assistant_final_level": 8,
-      "supports_owned": ["support_immediate_production", "support_training_economics"],
-      "milestones_reached": ["milestone_assistant_first"],
+      "supports_owned": [
+        "support_immediate_production",
+        "support_training_economics"
+      ],
+      "milestones_reached": [
+        "milestone_assistant_first"
+      ],
       "offline_sessions_count": 0,
       "offline_elapsed_seconds_total": 0,
       "offline_eligible_seconds_total": 0,
@@ -20864,7 +21188,10 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["assistant_level", "support_offline_handover"],
+          "affordablePurchaseCategories": [
+            "assistant_level",
+            "support_offline_handover"
+          ],
           "nearAffordablePurchaseCategories": [],
           "moneyRatePerSecond": 2.131111,
           "signature": "92b99ee491d6ba010b57517d66a8272dc0611a940e36853da7af9565c903da74"
@@ -20976,8 +21303,12 @@
             "assistant_level",
             "support_offline_handover"
           ],
-          "affordablePurchaseCategories": ["support_offline_handover"],
-          "nearAffordablePurchaseCategories": ["assistant_level"],
+          "affordablePurchaseCategories": [
+            "support_offline_handover"
+          ],
+          "nearAffordablePurchaseCategories": [
+            "assistant_level"
+          ],
           "moneyRatePerSecond": 3.517111,
           "signature": "daf36c02abae798c436d87519207d2eca76d073daa13e406f6ea1d04ecd6c1ce"
         },

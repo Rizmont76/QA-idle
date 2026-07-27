@@ -1035,7 +1035,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Run full regression and active candidate validation
 - Epic: Epic 11 - Acceptance and Playtest Candidate
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Verify the implemented Playable Idle MVP against automated regression and balance candidate gates.
 - Scope: Run full test suite, active balance candidate validation, runtime/simulator parity, visual regression/accessibility checks and production build.
 - Out of Scope: Freezing doc 15; tuning values; creating GitHub Issues.
@@ -1048,7 +1048,8 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No save schema changes expected
 - UI Impact: No new UI expected
 - Risk Level: High
-- Definition of Done: Automated acceptance evidence is recorded without freezing doc 15.
+- Definition of Done: Automated acceptance evidence is recorded without freezing doc 15. Delivered by the QA-PLAYABLE-MVP-039 implementation PR.
+- Implementation Result: Recorded the automated Playable MVP acceptance run for active candidate `phase-6b.2-stage-a-003`. All 23 test files and 334 tests passed, all 30 candidate balance gates passed with no Blocker, Major or Minor failures, runtime/simulator parity and UI accessibility/component coverage passed, repository checks passed and the production build succeeded. Doc 15 remains an implementation candidate pending structured runtime and playtest validation.
 
 #### QA-PLAYABLE-MVP-040
 
