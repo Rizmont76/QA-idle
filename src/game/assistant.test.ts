@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
   JUNIOR_QA_ASSISTANT_ID,
+  activateAssistantAfterPromotion,
   assertValidAssistantDefinition,
   isAssistantLevelValid,
   isAssistantProductionEligible,
   juniorQaAssistantDefinition,
   validateAssistantDefinition,
 } from "./assistant";
+import { createInitialAssistantState } from "../gameData";
+import { MVP_IDS } from "../types";
 
 describe("Junior QA Assistant data contract", () => {
   it("validates the single stable Assistant definition and canonical ID", () => {
@@ -29,6 +32,22 @@ describe("Junior QA Assistant data contract", () => {
   it("permits level 0 production only after its Middle QA promotion unlock", () => {
     expect(isAssistantProductionEligible(0, false)).toBe(false);
     expect(isAssistantProductionEligible(0, true)).toBe(true);
+  });
+
+  it("initializes the persistent level 0 Assistant from its completed promotion", () => {
+    expect(
+      activateAssistantAfterPromotion(
+        createInitialAssistantState(),
+        MVP_IDS.promotions.juniorToMiddle,
+      ),
+    ).toEqual({
+      unlocked: true,
+      level: 0,
+      ownedSupportUpgradeIds: [],
+      reachedMilestoneIds: [],
+      productionObservedAfterUnlock: false,
+      productionObservedAfterMilestone: false,
+    });
   });
 
   it("models exactly one persistent producer without a Team or multiple-unit contract", () => {

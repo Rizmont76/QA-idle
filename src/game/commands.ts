@@ -18,6 +18,7 @@ import { resolveAssistantNextLevelCost } from "./assistantLevelCost";
 import { assistantMilestoneDefinitions } from "./assistantProgression";
 import { validateAssistantSupportPurchase } from "./assistantSupportUpgrades";
 import { getAssistantProgressionStatus } from "./assistantEndpoint";
+import { activateAssistantAfterPromotion } from "./assistant";
 import { FixedPoint } from "./fixedPoint";
 import {
   getNextLevelUpgradeEligibility,
@@ -241,6 +242,10 @@ export function acceptPromotion(
         availablePromotionIds: [],
         completedPromotionIds,
       },
+      assistant: activateAssistantAfterPromotion(
+        evaluatedGame.assistant,
+        completedPromotionId,
+      ),
       unlocks: completionVisibility.unlocks,
       uiSurfaces: completionVisibility.uiSurfaces,
     },
