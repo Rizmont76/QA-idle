@@ -446,12 +446,12 @@ function toMvpSaveGameData(game: GameState, lastPlayedAt: number): MvpSaveGameDa
   };
 }
 
-function readExistingSaveMetadata(now: number): SaveData["meta"] {
+function readExistingSaveMetadata(offlineBoundaryAt: number): SaveData["meta"] {
   const fallback: SaveMetadata = {
     schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
-    createdAt: now,
-    lastSavedAt: now,
-    lastActiveAt: now,
+    createdAt: offlineBoundaryAt,
+    lastSavedAt: offlineBoundaryAt,
+    lastActiveAt: offlineBoundaryAt,
     migratedFromVersions: ["legacy_raw_game_state"],
   };
 
@@ -475,9 +475,9 @@ function readExistingSaveMetadata(now: number): SaveData["meta"] {
     const createdAt = safeNumber(meta["createdAt"]);
     return {
       schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
-      createdAt: createdAt || now,
-      lastSavedAt: now,
-      lastActiveAt: now,
+      createdAt: createdAt || offlineBoundaryAt,
+      lastSavedAt: offlineBoundaryAt,
+      lastActiveAt: offlineBoundaryAt,
       migratedFromVersions: getMigratedFromVersions(parsed),
     };
   } catch {
@@ -546,13 +546,18 @@ export function loadSave(): LoadSaveResult {
 
     const normalizedGame = normalizeGameState(savedGamePayload, now);
     const offlineReturn = applyAssistantOfflineReturn(normalizedGame, now);
+    const migratedFromVersions = getMigratedFromVersions(parsed);
+
+    // Loading consumes the persisted offline interval. Checkpoint the applied
+    // result and its new boundary immediately so another load cannot replay it.
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify(serializeGameForSave(offlineReturn.game, now)),
+    );
 
     return {
       game: offlineReturn.game,
-      events: [
-        ...offlineReturn.events,
-        buildGameLoadedEvent(now, getMigratedFromVersions(parsed)),
-      ],
+      events: [...offlineReturn.events, buildGameLoadedEvent(now, migratedFromVersions)],
     };
   } catch {
     return { game: createNewGameState(), events: [] };
@@ -560,9 +565,11 @@ export function loadSave(): LoadSaveResult {
 }
 
 export function serializeGameForSave(game: GameState, now = Date.now()): SaveData {
+  const offlineBoundaryAt = now;
+
   return {
-    meta: readExistingSaveMetadata(now),
-    game: toMvpSaveGameData(game, now),
+    meta: readExistingSaveMetadata(offlineBoundaryAt),
+    game: toMvpSaveGameData(game, offlineBoundaryAt),
   };
 }
 

@@ -772,7 +772,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Protect offline timestamps and migration behavior
 - Epic: Epic 7 - Offline Progress
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Prevent invalid clocks, future timestamps and migrated saves from producing unintended offline rewards.
 - Scope: Establish one authoritative persisted offline-boundary timestamp; derive compatibility and metadata timestamps during serialization; handle negative elapsed time, far-future timestamps, missing timestamps, first load after migration and repeated load cycles.
 - Out of Scope: Anti-cheat systems; cloud time validation; monetization.
@@ -785,7 +785,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Hardens offline timestamp state
 - UI Impact: May provide no-summary state for invalid elapsed time
 - Risk Level: High
-- Definition of Done: Offline progress is robust against migration and clock manipulation edge cases.
+- Definition of Done: Offline progress is robust against migration and clock manipulation edge cases. Delivered by the QA-PLAYABLE-MVP-030 implementation PR.
 
 ### Epic 8 - Runtime Endpoint and Diagnostics
 
