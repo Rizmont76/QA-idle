@@ -170,6 +170,77 @@ describe("MVP UI smoke tests", () => {
     expect(screen.getByText("Level 0 / 25")).toBeInTheDocument();
   });
 
+  it("shows exactly three staged optional Support Upgrade cards", async () => {
+    await bootAppWithSave(buildPromotionCompletedGame());
+
+    expect(
+      await screen.findByRole("heading", { name: "Support Upgrades" }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole("article", { name: /optional/i })).toHaveLength(3);
+
+    const immediate = screen.getByRole("button", {
+      name: "Buy Desk Setup Kit for $120",
+    });
+    const training = screen.getByRole("button", {
+      name: "Mentoring Checklist locked until Assistant level 2",
+    });
+    const offline = screen.getByRole("button", {
+      name: "Handover Notes locked until Assistant level 5",
+    });
+
+    expect(immediate).toHaveAttribute("aria-disabled", "true");
+    expect(immediate).toHaveAccessibleDescription(/not affordable/i);
+    expect(training).toHaveAttribute("aria-disabled", "true");
+    expect(training).toHaveAccessibleDescription(/unlocks at assistant level 2/i);
+    expect(offline).toHaveAttribute("aria-disabled", "true");
+    expect(offline).toHaveAccessibleDescription(/unlocks at assistant level 5/i);
+
+    training.focus();
+    expect(training).toHaveFocus();
+  });
+
+  it("purchases an affordable Support Upgrade once and persists ownership", async () => {
+    await bootAppWithSave(buildFundedAssistantGame());
+
+    const buySupport = await screen.findByRole("button", {
+      name: "Buy Desk Setup Kit for $120",
+    });
+    expect(buySupport).toHaveAttribute("aria-disabled", "false");
+
+    fireEvent.click(buySupport);
+
+    expect(
+      await screen.findByRole("button", { name: "Desk Setup Kit owned" }),
+    ).toHaveAttribute("aria-disabled", "true");
+    expect(
+      screen.getByRole("article", {
+        name: /Desk Setup Kit.*Immediate Production Support.*Owned/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("$880")).toBeInTheDocument();
+  });
+
+  it("announces a Support Upgrade unlocked by an Assistant level purchase", async () => {
+    await bootAppWithSave(buildFundedAssistantGame());
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: /buy 1 assistant level for \$200, resulting level 1/i,
+      }),
+    );
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: /buy 1 assistant level for \$238, resulting level 2/i,
+      }),
+    );
+
+    expect(
+      await screen.findByRole("article", {
+        name: /Mentoring Checklist.*Newly unlocked/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
   it("suppresses both Assistant purchase actions at max level", async () => {
     const game = buildFundedAssistantGame(100_000);
     await bootAppWithSave({
