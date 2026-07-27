@@ -177,6 +177,18 @@ describe("MVP UI smoke tests", () => {
 
     expect(await screen.findByText("Level 1 / 25")).toBeInTheDocument();
     expect(screen.getByText("$800")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Assistant level purchased1 level added for $200. Assistant is now level 1.",
+    );
+
+    const dismiss = screen.getByRole("button", {
+      name: "Dismiss Assistant level purchased feedback",
+    });
+    dismiss.focus();
+    expect(dismiss).toHaveFocus();
+    fireEvent.click(dismiss);
+    expect(screen.queryByText("Assistant level purchased")).not.toBeInTheDocument();
+    expect(screen.getByText("Level 1 / 25")).toBeInTheDocument();
   });
 
   it("keeps unaffordable Assistant controls focusable and explained", async () => {
@@ -248,6 +260,9 @@ describe("MVP UI smoke tests", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByText("$880")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Support purchasedDesk Setup Kit purchased for $120. Immediate Production Support is active.",
+    );
   });
 
   it("announces a Support Upgrade unlocked by an Assistant level purchase", async () => {
@@ -269,9 +284,11 @@ describe("MVP UI smoke tests", () => {
         name: /Mentoring Checklist.*Newly unlocked/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("status", { name: "" })).toHaveTextContent(
-      "Mentoring Checklist is now available",
-    );
+    expect(
+      screen
+        .getByText("Mentoring Checklist is now available.")
+        .closest('[role="status"]'),
+    ).toBeInTheDocument();
   });
 
   it("surfaces every milestone crossed by Buy Max as committed feedback", async () => {

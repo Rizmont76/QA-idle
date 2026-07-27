@@ -259,15 +259,28 @@ export function RequirementRow({
 
 interface FeedbackToastProps {
   readonly children: ReactNode;
-  readonly kind: "promotion" | "unlock" | "milestone";
+  readonly kind: "promotion" | "unlock" | "milestone" | "purchase";
+  readonly onDismiss?: () => void;
   readonly title: string;
 }
 
-export function FeedbackToast({ children, kind, title }: FeedbackToastProps) {
+export function FeedbackToast({ children, kind, onDismiss, title }: FeedbackToastProps) {
   return (
     <aside className={`toast ${kind}-toast`} role="status">
-      <strong>{title}</strong>
-      <span>{children}</span>
+      <div>
+        <strong>{title}</strong>
+        <span>{children}</span>
+      </div>
+      {onDismiss && (
+        <button
+          type="button"
+          className="toast-dismiss"
+          aria-label={`Dismiss ${title} feedback`}
+          onClick={onDismiss}
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      )}
     </aside>
   );
 }

@@ -1011,7 +1011,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Integrate visual feedback, motion and final responsive accessibility polish
 - Epic: Epic 10 - Visual Workspace Implementation
 - Priority: P1
-- Status: Ready
+- Status: Done
 - Objective: Complete final visual feedback, motion, responsive behavior and accessibility polish for the Playable Idle MVP.
 - Scope: Integrate approved milestone feedback, unlock feedback, purchase feedback, offline summary feedback, endpoint feedback, motion rules, focus states, keyboard behavior and responsive polish.
 - Out of Scope: Formula changes; balance changes; new systems; undocumented animations.
@@ -1025,6 +1025,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - UI Impact: Completes final visual presentation layer
 - Risk Level: Medium
 - Definition of Done: Visual feedback and polish are implemented, accessible and responsive without gameplay changes.
+- Implementation Result: Added committed-result purchase feedback with keyboard-dismissible controls, calm reveal motion for offline summaries, Assistant workspace expansion and endpoint completion, pressed interaction feedback, safer constrained-width toast placement and focused regression coverage. Persistent runtime-owned purchase, unlock, milestone and endpoint states remain after temporary feedback ends, and the existing reduced-motion path disables the added non-essential motion without changing gameplay or save behavior.
 
 ### Epic 11 - Acceptance and Playtest Candidate
 

@@ -7,6 +7,7 @@ import {
   PurchaseActionCard,
   RequirementRow,
   ResourceCounter,
+  FeedbackToast,
   SupportUpgradeCard,
 } from "./components";
 
@@ -190,5 +191,23 @@ describe("VD-02 component primitives", () => {
     ).toHaveAttribute("aria-valuetext", "2 of 4");
     expect(screen.getByText("Complete")).toBeVisible();
     expect(screen.getByText("Lifetime money earned")).toBeVisible();
+  });
+
+  it("keeps temporary feedback keyboard dismissible", () => {
+    const onDismiss = vi.fn();
+
+    render(
+      <FeedbackToast kind="purchase" title="Upgrade purchased" onDismiss={onDismiss}>
+        Coffee is now active.
+      </FeedbackToast>,
+    );
+
+    const dismiss = screen.getByRole("button", {
+      name: "Dismiss Upgrade purchased feedback",
+    });
+    dismiss.focus();
+    expect(dismiss).toHaveFocus();
+    fireEvent.click(dismiss);
+    expect(onDismiss).toHaveBeenCalledOnce();
   });
 });

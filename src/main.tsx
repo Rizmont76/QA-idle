@@ -47,6 +47,11 @@ const ASSISTANT_TICK_INTERVAL_MS = 250;
 const MILLISECONDS_PER_SECOND = 1_000;
 const SUPPORT_FEEDBACK_MS = 5_200;
 
+interface PurchaseFeedback {
+  readonly message: string;
+  readonly title: string;
+}
+
 function App() {
   const [loadedSave] = useState(() => {
     const save = loadSave();
@@ -73,6 +78,7 @@ function App() {
     readonly supportId: AssistantSupportUpgradeId;
     readonly message: string;
   } | null>(null);
+  const [purchaseFeedback, setPurchaseFeedback] = useState<PurchaseFeedback | null>(null);
 
   const stats = useMemo(() => getDerivedStats(game), [game]);
   const bugsFound = game.resources[MVP_IDS.resources.bugsFound];
@@ -154,7 +160,8 @@ function App() {
       newlyUnlockedSupportIds.length === 0 &&
       reachedMilestoneLevels.length === 0 &&
       boughtSupportId === null &&
-      supportFailure === null
+      supportFailure === null &&
+      purchaseFeedback === null
     ) {
       return;
     }
@@ -164,10 +171,17 @@ function App() {
       setReachedMilestoneLevels([]);
       setBoughtSupportId(null);
       setSupportFailure(null);
+      setPurchaseFeedback(null);
     }, SUPPORT_FEEDBACK_MS);
 
     return () => window.clearTimeout(timeoutId);
-  }, [boughtSupportId, newlyUnlockedSupportIds, reachedMilestoneLevels, supportFailure]);
+  }, [
+    boughtSupportId,
+    newlyUnlockedSupportIds,
+    purchaseFeedback,
+    reachedMilestoneLevels,
+    supportFailure,
+  ]);
 
   useEffect(() => {
     if (!game.assistant.unlocked) {
@@ -206,7 +220,15 @@ function App() {
       const result = purchaseUpgrade(current, upgradeId);
 
       if (result.ok) {
+        const upgrade = visibleUpgrades.find(({ id }) => id === upgradeId);
+
         setBoughtUpgradeId(null);
+        setPurchaseFeedback({
+          title: "Upgrade purchased",
+          message: `${upgrade?.name ?? "Upgrade"} purchased for ${formatCurrency(
+            upgrade ? getUpgradeCost(upgrade) : 0,
+          )}. ${upgrade?.description ?? "Its effect is now active."}`,
+        });
         window.requestAnimationFrame(() => setBoughtUpgradeId(upgradeId));
       }
 
@@ -235,6 +257,24 @@ function App() {
   }
 
   function showAssistantPurchaseFeedback(events: readonly GameplayEventDescriptor[]) {
+    const purchase = events.find(
+      (event) => event.id === MVP_IDS.events.assistantLevelPurchased,
+    );
+
+    if (purchase?.id === MVP_IDS.events.assistantLevelPurchased) {
+      setPurchaseFeedback({
+        title:
+          purchase.payload.purchaseMode === "buy_max"
+            ? "Assistant levels purchased"
+            : "Assistant level purchased",
+        message: `${formatNumber(purchase.payload.levelsPurchased)} ${
+          purchase.payload.levelsPurchased === 1 ? "level" : "levels"
+        } added for ${formatCurrency(
+          purchase.payload.cost.amount,
+        )}. Assistant is now level ${formatNumber(purchase.payload.newLevel)}.`,
+      });
+    }
+
     showNewSupportUnlocks(events);
     showReachedMilestones(events);
   }
@@ -301,6 +341,12 @@ function App() {
       if (result.ok) {
         setSupportFailure(null);
         setBoughtSupportId(supportId);
+        setPurchaseFeedback({
+          title: "Support purchased",
+          message: `${card.name} purchased for ${formatCurrency(
+            card.price,
+          )}. ${card.roleLabel} is active.`,
+        });
       } else {
         setSupportFailure({
           supportId,
@@ -324,6 +370,7 @@ function App() {
     setNewlyUnlockedSupportIds([]);
     setReachedMilestoneLevels([]);
     setSupportFailure(null);
+    setPurchaseFeedback(null);
     setGame(save.game);
   }
 
@@ -331,21 +378,52 @@ function App() {
     <main className={`app-shell stage-${game.careerStage}`}>
       <div className="toast-stack">
         {promotionToast && (
-          <FeedbackToast kind="promotion" title="Promotion confirmed">
+          <FeedbackToast
+            kind="promotion"
+            title="Promotion confirmed"
+            onDismiss={() => setPromotionToast(null)}
+          >
             {promotionToast.label} reached.
+          </FeedbackToast>
+        )}
+        {purchaseFeedback && (
+          <FeedbackToast
+            kind="purchase"
+            title={purchaseFeedback.title}
+            onDismiss={() => setPurchaseFeedback(null)}
+          >
+            {purchaseFeedback.message}
           </FeedbackToast>
         )}
         {newlyUnlockedSupportIds.map((supportId) => {
           const support = assistantSupportCards.find(({ id }) => id === supportId);
 
           return (
-            <FeedbackToast kind="unlock" title="Support unlocked" key={supportId}>
+            <FeedbackToast
+              kind="unlock"
+              title="Support unlocked"
+              key={supportId}
+              onDismiss={() =>
+                setNewlyUnlockedSupportIds((current) =>
+                  current.filter((id) => id !== supportId),
+                )
+              }
+            >
               {support?.name ?? "Assistant Support"} is now available.
             </FeedbackToast>
           );
         })}
         {reachedMilestoneLevels.map((level) => (
-          <FeedbackToast kind="milestone" title="Assistant milestone reached" key={level}>
+          <FeedbackToast
+            kind="milestone"
+            title="Assistant milestone reached"
+            key={level}
+            onDismiss={() =>
+              setReachedMilestoneLevels((current) =>
+                current.filter((currentLevel) => currentLevel !== level),
+              )
+            }
+          >
             Level {formatNumber(level)} milestone effects are now active.
           </FeedbackToast>
         ))}
