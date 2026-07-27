@@ -881,7 +881,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Add functional Support Upgrade cards
 - Epic: Epic 9 - Gameplay UI Functional Expansion
 - Priority: P1
-- Status: Ready
+- Status: Done
 - Objective: Let players understand and buy the three Support Upgrades.
 - Scope: Display cards/states for Immediate Production Support, Training Support and Offline Handover Support with locked, newly unlocked, affordable, unaffordable and owned states.
 - Out of Scope: New Support types; final visual polish; hidden formula exposition; temporary player-facing layout that conflicts with approved VD-02/VD-03.
@@ -894,7 +894,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No new save fields; invokes Support purchase transactions
 - UI Impact: Adds Support Upgrade UI
 - Risk Level: Medium
-- Definition of Done: All three Support Upgrades are functional and clearly distinct from level purchases.
+- Definition of Done: All three Support Upgrades are functional and clearly distinct from level purchases. Delivered by the QA-PLAYABLE-MVP-035 implementation PR.
 
 #### QA-PLAYABLE-MVP-036
 

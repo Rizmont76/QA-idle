@@ -8,6 +8,7 @@ import {
   formatCurrency,
   formatNumber,
   getAssistantPanelView,
+  getAssistantSupportCardViews,
   getDerivedStats,
   getMvpEndpointStatus,
   getPromotionProgress,
@@ -17,19 +18,26 @@ import {
   getVisibleUpgradeDefinitions,
   performManualTest,
   purchaseAssistantLevel,
+  purchaseAssistantSupportUpgrade,
   purchaseMaxAssistantLevels,
   purchaseUpgrade,
   reportAllBugs,
 } from "./gameLogic";
 import { loadSave, resetSave, saveGame } from "./save";
 import { MVP_IDS } from "./types";
-import type { CareerStageDefinition, RegisteredUpgradeId } from "./types";
+import type {
+  AssistantSupportUpgradeId,
+  CareerStageDefinition,
+  GameplayEventDescriptor,
+  RegisteredUpgradeId,
+} from "./types";
 import "./styles.css";
 
 const FULL_PROGRESS_PERCENT = 100;
 const MVP_PROMOTION_REQUIREMENT_COUNT = 3;
 const ASSISTANT_TICK_INTERVAL_MS = 250;
 const MILLISECONDS_PER_SECOND = 1_000;
+const SUPPORT_FEEDBACK_MS = 5_200;
 
 function App() {
   const [loadedSave] = useState(() => {
@@ -45,6 +53,15 @@ function App() {
   const [boughtUpgradeId, setBoughtUpgradeId] = useState<RegisteredUpgradeId | null>(
     null,
   );
+  const [boughtSupportId, setBoughtSupportId] =
+    useState<AssistantSupportUpgradeId | null>(null);
+  const [newlyUnlockedSupportIds, setNewlyUnlockedSupportIds] = useState<
+    readonly AssistantSupportUpgradeId[]
+  >([]);
+  const [supportFailure, setSupportFailure] = useState<{
+    readonly supportId: AssistantSupportUpgradeId;
+    readonly message: string;
+  } | null>(null);
 
   const stats = useMemo(() => getDerivedStats(game), [game]);
   const bugsFound = game.resources[MVP_IDS.resources.bugsFound];
@@ -69,6 +86,7 @@ function App() {
   const isMiddleQa = game.careerStage === MVP_IDS.careerStages.middleQa;
   const endpointStatus = useMemo(() => getMvpEndpointStatus(game), [game]);
   const assistantPanel = useMemo(() => getAssistantPanelView(game), [game]);
+  const assistantSupportCards = useMemo(() => getAssistantSupportCardViews(game), [game]);
   const isMvpComplete = endpointStatus.endpointComplete;
   const completedPromotionRequirements = promotionProgress.filter(
     (item) => item.complete,
@@ -120,6 +138,24 @@ function App() {
   }, [promotionToast]);
 
   useEffect(() => {
+    if (
+      newlyUnlockedSupportIds.length === 0 &&
+      boughtSupportId === null &&
+      supportFailure === null
+    ) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setNewlyUnlockedSupportIds([]);
+      setBoughtSupportId(null);
+      setSupportFailure(null);
+    }, SUPPORT_FEEDBACK_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [boughtSupportId, newlyUnlockedSupportIds, supportFailure]);
+
+  useEffect(() => {
     if (!game.assistant.unlocked) {
       return;
     }
@@ -164,6 +200,16 @@ function App() {
     });
   }
 
+  function showNewSupportUnlocks(events: readonly GameplayEventDescriptor[]) {
+    const supportIds = events
+      .filter((event) => event.id === MVP_IDS.events.assistantSupportUnlocked)
+      .map((event) => event.payload.supportId);
+
+    if (supportIds.length > 0) {
+      setNewlyUnlockedSupportIds(supportIds);
+    }
+  }
+
   function promote() {
     setGame((current) => {
       const result = acceptPromotion(current);
@@ -174,6 +220,7 @@ function App() {
         );
 
         setPromotionToast(nextStage ?? null);
+        showNewSupportUnlocks(result.events);
       }
 
       return result.game;
@@ -185,7 +232,15 @@ function App() {
       return;
     }
 
-    setGame((current) => purchaseAssistantLevel(current).game);
+    setGame((current) => {
+      const result = purchaseAssistantLevel(current);
+
+      if (result.ok) {
+        showNewSupportUnlocks(result.events);
+      }
+
+      return result.game;
+    });
   }
 
   function buyMaxAssistantLevels() {
@@ -193,7 +248,41 @@ function App() {
       return;
     }
 
-    setGame((current) => purchaseMaxAssistantLevels(current).game);
+    setGame((current) => {
+      const result = purchaseMaxAssistantLevels(current);
+
+      if (result.ok) {
+        showNewSupportUnlocks(result.events);
+      }
+
+      return result.game;
+    });
+  }
+
+  function buyAssistantSupport(supportId: AssistantSupportUpgradeId) {
+    const card = assistantSupportCards.find(({ id }) => id === supportId);
+
+    if (!card?.canCommit) {
+      return;
+    }
+
+    setGame((current) => {
+      const result = purchaseAssistantSupportUpgrade(current, supportId);
+
+      if (result.ok) {
+        setSupportFailure(null);
+        setBoughtSupportId(supportId);
+      } else {
+        setSupportFailure({
+          supportId,
+          message:
+            result.failures[0]?.message ??
+            "The Support Upgrade purchase could not be completed.",
+        });
+      }
+
+      return result.game;
+    });
   }
 
   function startNewGame() {
@@ -202,6 +291,9 @@ function App() {
     setPromotionToast(null);
     setClickBurst(false);
     setBoughtUpgradeId(null);
+    setBoughtSupportId(null);
+    setNewlyUnlockedSupportIds([]);
+    setSupportFailure(null);
     setGame(save.game);
   }
 
@@ -440,6 +532,113 @@ function App() {
               </p>
             </article>
           </div>
+
+          <section
+            className="assistant-supports"
+            aria-labelledby="support-upgrades-title"
+          >
+            <header>
+              <div>
+                <span className="assistant-kicker">Optional one-time choices</span>
+                <h3 id="support-upgrades-title">Support Upgrades</h3>
+              </div>
+              <p>Support is optional and is not required for the MVP endpoint.</p>
+            </header>
+            <div className="support-card-grid">
+              {assistantSupportCards.map((support) => {
+                const isNewlyUnlocked = newlyUnlockedSupportIds.includes(support.id);
+                const purchaseFailed = supportFailure?.supportId === support.id;
+                const status = support.owned
+                  ? "Owned"
+                  : isNewlyUnlocked
+                    ? "Newly unlocked"
+                    : support.unlocked
+                      ? support.affordable
+                        ? "Affordable"
+                        : "Unaffordable"
+                      : "Locked";
+                const reasonId = `${support.id}-reason`;
+
+                return (
+                  <article
+                    className={`support-card ${
+                      support.owned ? "is-owned" : ""
+                    } ${support.unlocked ? "is-unlocked" : "is-locked"} ${
+                      isNewlyUnlocked ? "is-newly-unlocked" : ""
+                    } ${boughtSupportId === support.id ? "is-bought" : ""}`}
+                    key={support.id}
+                    aria-label={`${support.name}, ${support.roleLabel}, optional, ${status}`}
+                    onAnimationEnd={() => {
+                      if (boughtSupportId === support.id) {
+                        setBoughtSupportId(null);
+                      }
+                    }}
+                  >
+                    <div className="support-card-heading">
+                      <div>
+                        <h4>{support.name}</h4>
+                        <p className="support-role">{support.roleLabel}</p>
+                      </div>
+                      <span className="support-status">{status}</span>
+                    </div>
+
+                    <p className="support-preview">
+                      {support.preview.kind === "production" &&
+                        `${formatNumber(support.preview.before)} to ${formatNumber(
+                          support.preview.after,
+                        )} Bugs/sec`}
+                      {support.preview.kind === "future_level_cost" &&
+                        (support.preview.before === null || support.preview.after === null
+                          ? `${formatNumber(
+                              support.preview.multiplier,
+                            )}x future Assistant level costs`
+                          : `Next level: ${formatCurrency(
+                              support.preview.before,
+                            )} to ${formatCurrency(support.preview.after)}`)}
+                      {support.preview.kind === "offline_efficiency" &&
+                        `Offline efficiency: ${formatNumber(
+                          support.preview.before * FULL_PROGRESS_PERCENT,
+                        )}% to ${formatNumber(
+                          support.preview.after * FULL_PROGRESS_PERCENT,
+                        )}%`}
+                    </p>
+
+                    <button
+                      type="button"
+                      aria-disabled={!support.canCommit}
+                      aria-describedby={reasonId}
+                      aria-label={
+                        support.owned
+                          ? `${support.name} owned`
+                          : support.unlocked
+                            ? `Buy ${support.name} for ${formatCurrency(support.price)}`
+                            : `${support.name} locked until Assistant level ${formatNumber(
+                                support.unlockLevel,
+                              )}`
+                      }
+                      onClick={() => buyAssistantSupport(support.id)}
+                    >
+                      {support.owned
+                        ? "Owned"
+                        : support.unlocked
+                          ? `Buy · ${formatCurrency(support.price)}`
+                          : `Level ${formatNumber(support.unlockLevel)} required`}
+                    </button>
+                    <p
+                      className={`support-reason ${purchaseFailed ? "is-error" : ""}`}
+                      id={reasonId}
+                      role={purchaseFailed ? "alert" : undefined}
+                    >
+                      {purchaseFailed
+                        ? supportFailure.message
+                        : (support.reasonUnavailable ??
+                          "Available to purchase with Money.")}
+                    </p>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
         </section>
       )}
 
