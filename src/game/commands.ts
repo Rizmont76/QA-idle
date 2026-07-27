@@ -14,6 +14,7 @@ import {
   spendResource,
 } from "./resources";
 import { calculateAssistantBugsPerSecond } from "./assistantProduction";
+import { calculateAssistantOfflineProduction } from "./assistantOfflineProduction";
 import { resolveAssistantNextLevelCost } from "./assistantLevelCost";
 import {
   assistantMilestoneDefinitions,
@@ -50,6 +51,8 @@ export type GameplayActionResult =
       events: readonly [];
     };
 
+const MILLISECONDS_PER_SECOND = 1_000;
+
 function buildGameplayFailure(
   message: string,
 ): readonly ResourceTransactionValidationFailure[] {
@@ -59,6 +62,111 @@ function buildGameplayFailure(
       message,
     },
   ];
+}
+
+export function applyAssistantOfflineReturn(
+  game: GameState,
+  returnTime = Date.now(),
+  eventListeners: readonly GameplayEventListener[] = [],
+): GameplayActionResult {
+  const startedAt = game.offlineProgress.lastActiveAt;
+
+  if (
+    !Number.isFinite(returnTime) ||
+    returnTime <= 0 ||
+    game.offlineProgress.timestampStatus !== "valid" ||
+    startedAt === null ||
+    returnTime < startedAt
+  ) {
+    return {
+      ok: false,
+      game,
+      failures: buildGameplayFailure(
+        "Offline return requires a valid saved timestamp no later than the return time.",
+      ),
+      events: [],
+    };
+  }
+
+  const elapsedSeconds = (returnTime - startedAt) / MILLISECONDS_PER_SECOND;
+  if (!game.assistant.unlocked || elapsedSeconds === 0) {
+    return {
+      ok: true,
+      game: {
+        ...game,
+        lastPlayedAt: returnTime,
+        offlineProgress: {
+          ...game.offlineProgress,
+          lastActiveAt: returnTime,
+        },
+      },
+      events: [],
+    };
+  }
+
+  const calculation = calculateAssistantOfflineProduction({
+    assistantUnlocked: game.assistant.unlocked,
+    level: game.assistant.level,
+    elapsedOfflineSeconds: elapsedSeconds,
+    ownedSupportUpgradeIds: game.assistant.ownedSupportUpgradeIds,
+    reachedMilestoneIds: game.assistant.reachedMilestoneIds,
+  });
+  const result = addResource(game.resources, {
+    resourceId: MVP_IDS.resources.bugsFound,
+    amount: calculation.bugsFoundGained,
+    sourceSystem: "offline_progress",
+    reason: "Assistant offline return",
+    simulationTime: returnTime,
+  });
+
+  if (!result.ok) {
+    return { ok: false, game, failures: result.failures, events: [] };
+  }
+
+  const decimalPlaces =
+    activeRuntimeCandidateParameters.formatting.numericScaleDecimalPlaces;
+  const events = dispatchGameplayEvents(result.events, eventListeners).events;
+
+  return {
+    ok: true,
+    game: {
+      ...game,
+      resources: result.resources,
+      totalBugsFound: FixedPoint.fromNumber(game.totalBugsFound, decimalPlaces)
+        .add(FixedPoint.fromNumber(calculation.bugsFoundGained, decimalPlaces))
+        .toNumber(),
+      lastPlayedAt: returnTime,
+      offlineProgress: {
+        ...game.offlineProgress,
+        lastActiveAt: returnTime,
+        pendingSummary: {
+          startedAt,
+          endedAt: returnTime,
+          elapsedSeconds: calculation.elapsedOfflineSeconds,
+          eligibleSeconds: calculation.eligibleOfflineSeconds,
+          onlineBugsPerSecond: calculation.onlineBugsPerSecond,
+          offlineEfficiency: calculation.offlineEfficiency,
+          bugsFoundGained: calculation.bugsFoundGained,
+        },
+      },
+    },
+    events,
+  };
+}
+
+export function consumeOfflineProgressSummary(game: GameState): GameState {
+  if (game.offlineProgress.pendingSummary === null) {
+    return game;
+  }
+
+  return {
+    ...game,
+    offlineProgress: {
+      ...game.offlineProgress,
+      pendingSummary: null,
+      consumedSummary: game.offlineProgress.pendingSummary,
+    },
+  };
 }
 
 export function advanceOnlineAssistantProduction(

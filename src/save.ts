@@ -16,10 +16,12 @@ import {
   assistantSupportUpgradeDefinitions,
 } from "./game/assistantProgression";
 import { juniorQaAssistantDefinition } from "./game/assistant";
+import { applyAssistantOfflineReturn } from "./game/commands";
 import { activeRuntimeCandidateParameters } from "./game/runtimeCandidateParameters";
 import { MVP_IDS, SAVE_SCHEMA_VERSION } from "./types";
 import type {
   GameLoadedEventDescriptor,
+  GameplayEventDescriptor,
   GameSavedEventDescriptor,
   GameState,
   MvpSaveGameData,
@@ -39,7 +41,7 @@ export const CURRENT_SAVE_SCHEMA_VERSION = SAVE_SCHEMA_VERSION.v2;
 
 export interface LoadSaveResult {
   game: GameState;
-  events: readonly GameLoadedEventDescriptor[];
+  events: readonly GameplayEventDescriptor[];
 }
 
 export interface SaveGameResult {
@@ -90,6 +92,8 @@ function normalizeOfflineSummary(value: unknown): OfflineProgressSummary | null 
   const endedAt = Number(value["endedAt"]);
   const elapsedSeconds = Number(value["elapsedSeconds"]);
   const eligibleSeconds = Number(value["eligibleSeconds"]);
+  const onlineBugsPerSecond = Number(value["onlineBugsPerSecond"] ?? 0);
+  const offlineEfficiency = Number(value["offlineEfficiency"] ?? 0);
   const bugsFoundGained = Number(value["bugsFoundGained"]);
 
   if (
@@ -97,18 +101,31 @@ function normalizeOfflineSummary(value: unknown): OfflineProgressSummary | null 
     !Number.isFinite(endedAt) ||
     !Number.isFinite(elapsedSeconds) ||
     !Number.isFinite(eligibleSeconds) ||
+    !Number.isFinite(onlineBugsPerSecond) ||
+    !Number.isFinite(offlineEfficiency) ||
     !Number.isFinite(bugsFoundGained) ||
     startedAt <= 0 ||
     endedAt < startedAt ||
     elapsedSeconds < 0 ||
     eligibleSeconds < 0 ||
     eligibleSeconds > elapsedSeconds ||
+    onlineBugsPerSecond < 0 ||
+    offlineEfficiency < 0 ||
+    offlineEfficiency > 1 ||
     bugsFoundGained < 0
   ) {
     return null;
   }
 
-  return { startedAt, endedAt, elapsedSeconds, eligibleSeconds, bugsFoundGained };
+  return {
+    startedAt,
+    endedAt,
+    elapsedSeconds,
+    eligibleSeconds,
+    onlineBugsPerSecond,
+    offlineEfficiency,
+    bugsFoundGained,
+  };
 }
 
 function normalizeOfflineProgress(
@@ -527,9 +544,15 @@ export function loadSave(): LoadSaveResult {
       return { game: createNewGameState(now), events: [] };
     }
 
+    const normalizedGame = normalizeGameState(savedGamePayload, now);
+    const offlineReturn = applyAssistantOfflineReturn(normalizedGame, now);
+
     return {
-      game: normalizeGameState(savedGamePayload, now),
-      events: [buildGameLoadedEvent(now, getMigratedFromVersions(parsed))],
+      game: offlineReturn.game,
+      events: [
+        ...offlineReturn.events,
+        buildGameLoadedEvent(now, getMigratedFromVersions(parsed)),
+      ],
     };
   } catch {
     return { game: createNewGameState(), events: [] };

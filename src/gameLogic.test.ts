@@ -10,9 +10,11 @@ import {
   acceptPromotion,
   advanceOnlineAssistantProduction,
   addResource,
+  applyAssistantOfflineReturn,
   calculateGameplayStat,
   calculateGameplayStats,
   convertResources,
+  consumeOfflineProgressSummary,
   createActiveModifierRegistry,
   assistantSupportUpgradeDefinitions,
   dispatchGameplayEvents,
@@ -589,6 +591,162 @@ describe("game logic", () => {
         expect(result.events).toEqual([]);
       },
     );
+  });
+
+  describe("Assistant offline return transaction", () => {
+    const savedAt = 1_000_000;
+    const unlockedAssistantGame: GameState = {
+      ...initialState,
+      resources: {
+        ...initialState.resources,
+        [MVP_IDS.resources.bugsFound]: 3,
+        [MVP_IDS.resources.money]: 7,
+      },
+      totalBugsFound: 10,
+      careerStage: MVP_IDS.careerStages.middleQa,
+      assistant: {
+        ...initialState.assistant,
+        unlocked: true,
+      },
+      offlineProgress: {
+        ...initialState.offlineProgress,
+        lastActiveAt: savedAt,
+        timestampStatus: "valid",
+      },
+    };
+
+    it("grants only Bugs Found through one Resource transaction and records the summary", () => {
+      const returnedAt = savedAt + 100_000;
+      const result = applyAssistantOfflineReturn(unlockedAssistantGame, returnedAt);
+
+      expect(result.ok).toBe(true);
+      expect(result.game.resources).toEqual({
+        [MVP_IDS.resources.bugsFound]: 31,
+        [MVP_IDS.resources.money]: 7,
+      });
+      expect(result.game.totalBugsFound).toBe(38);
+      expect(result.game.totalMoneyEarned).toBe(0);
+      expect(result.game.offlineProgress).toEqual({
+        lastActiveAt: returnedAt,
+        timestampStatus: "valid",
+        pendingSummary: {
+          startedAt: savedAt,
+          endedAt: returnedAt,
+          elapsedSeconds: 100,
+          eligibleSeconds: 100,
+          onlineBugsPerSecond: 0.8,
+          offlineEfficiency: 0.35,
+          bugsFoundGained: 28,
+        },
+        consumedSummary: null,
+      });
+      expect(result.events).toHaveLength(1);
+      expect(result.events[0]).toMatchObject({
+        id: MVP_IDS.events.resourceChanged,
+        payload: {
+          operationType: "add",
+          sourceSystem: "offline_progress",
+          reason: "Assistant offline return",
+          simulationTime: returnedAt,
+          changes: [
+            {
+              resourceId: MVP_IDS.resources.bugsFound,
+              previousValue: 3,
+              newValue: 31,
+              delta: 28,
+            },
+          ],
+        },
+      });
+      expect(
+        result.events.some(
+          (event) =>
+            event.id === MVP_IDS.events.bugReportSubmitted ||
+            event.id === MVP_IDS.events.moneyEarned,
+        ),
+      ).toBe(false);
+    });
+
+    it("records elapsed and capped time separately for a long return", () => {
+      const result = applyAssistantOfflineReturn(
+        unlockedAssistantGame,
+        savedAt + 10_000_000,
+      );
+
+      expect(result.ok).toBe(true);
+      expect(result.game.offlineProgress.pendingSummary).toMatchObject({
+        elapsedSeconds: 10_000,
+        eligibleSeconds: 7_200,
+        bugsFoundGained: 2_016,
+      });
+    });
+
+    it("keeps summaries until they are consumed or replaced by a later return", () => {
+      const firstReturn = applyAssistantOfflineReturn(
+        unlockedAssistantGame,
+        savedAt + 100_000,
+      );
+      const consumedGame = consumeOfflineProgressSummary(firstReturn.game);
+
+      expect(consumedGame.offlineProgress.pendingSummary).toBeNull();
+      expect(consumedGame.offlineProgress.consumedSummary).toEqual(
+        firstReturn.game.offlineProgress.pendingSummary,
+      );
+
+      const secondReturn = applyAssistantOfflineReturn(consumedGame, savedAt + 200_000);
+
+      expect(secondReturn.ok).toBe(true);
+      expect(secondReturn.game.offlineProgress.pendingSummary).toMatchObject({
+        startedAt: savedAt + 100_000,
+        endedAt: savedAt + 200_000,
+      });
+      expect(secondReturn.game.offlineProgress.consumedSummary).toEqual(
+        firstReturn.game.offlineProgress.pendingSummary,
+      );
+    });
+
+    it("does not grant, report, or create a summary before Assistant unlock", () => {
+      const result = applyAssistantOfflineReturn(
+        {
+          ...unlockedAssistantGame,
+          assistant: {
+            ...unlockedAssistantGame.assistant,
+            unlocked: false,
+          },
+        },
+        savedAt + 100_000,
+      );
+
+      expect(result).toMatchObject({
+        ok: true,
+        events: [],
+        game: {
+          resources: unlockedAssistantGame.resources,
+          totalBugsFound: unlockedAssistantGame.totalBugsFound,
+          totalMoneyEarned: unlockedAssistantGame.totalMoneyEarned,
+          offlineProgress: {
+            lastActiveAt: savedAt + 100_000,
+            pendingSummary: null,
+          },
+        },
+      });
+    });
+
+    it("does not commit a summary when the Resource transaction is rejected", () => {
+      const cappedGame: GameState = {
+        ...unlockedAssistantGame,
+        resources: {
+          ...unlockedAssistantGame.resources,
+          [MVP_IDS.resources.bugsFound]: MVP_RESOURCE_MAX,
+        },
+      };
+      const result = applyAssistantOfflineReturn(cappedGame, savedAt + 100_000);
+
+      expect(result.ok).toBe(false);
+      expect(result.game).toBe(cappedGame);
+      expect(result.events).toEqual([]);
+      expect(result.game.offlineProgress.pendingSummary).toBeNull();
+    });
   });
 
   it("dispatches action events to listeners in deterministic priority order", () => {

@@ -751,7 +751,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Apply offline return transaction and summary
 - Epic: Epic 7 - Offline Progress
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Grant capped offline Bugs Found and record an explicit return summary.
 - Scope: On valid return, add Bugs Found only through Resource transactions and store summary fields for elapsed seconds, capped seconds, efficiency, rate and Bugs Found gained.
 - Out of Scope: Reporting Bugs automatically; granting Money; modal visual design.
@@ -764,7 +764,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Updates Bugs Found and offline summary state
 - UI Impact: Supplies data for later offline summary UI
 - Risk Level: High
-- Definition of Done: Offline return is explicit, bounded and resource-safe.
+- Definition of Done: Offline return is explicit, bounded and resource-safe. Delivered by the QA-PLAYABLE-MVP-029 implementation PR.
 
 #### QA-PLAYABLE-MVP-030
 
