@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import type { Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { initialState } from "./gameData";
@@ -44,6 +44,18 @@ function buildPromotionCompletedGame(): GameState {
   }
 
   return result.game;
+}
+
+function buildFundedAssistantGame(money = 1_000): GameState {
+  const game = buildPromotionCompletedGame();
+
+  return {
+    ...game,
+    resources: {
+      ...game.resources,
+      [MVP_IDS.resources.money]: money,
+    },
+  };
 }
 
 async function bootAppWithSave(game?: GameState) {
@@ -103,18 +115,109 @@ describe("MVP UI smoke tests", () => {
     expectFutureSystemsToStayHidden();
   });
 
-  it("shows the Middle QA completion state without exposing future panels", async () => {
+  it("shows the Middle QA Assistant phase without claiming MVP completion", async () => {
     await bootAppWithSave(buildPromotionCompletedGame());
 
     expect(
-      await screen.findByRole("heading", { name: "Middle QA Reached" }),
+      await screen.findByRole("heading", { name: "Middle QA Workspace" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Middle QA reached")).toBeInTheDocument();
+    expect(
+      screen.getByRole("region", { name: "Junior QA Assistant" }),
+    ).toBeInTheDocument();
     expect(screen.getAllByText("Promotion completed").length).toBeGreaterThan(0);
     expect(screen.getByText("Complete")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("region", { name: "MVP completion" }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByText("0 / 0")).not.toBeInTheDocument();
     expect(screen.queryByText("Lifetime bugs found")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /promote to/i })).not.toBeInTheDocument();
     expectFutureSystemsToStayHidden();
+  });
+
+  it("purchases one Assistant level from the functional panel", async () => {
+    await bootAppWithSave(buildFundedAssistantGame());
+
+    const buyOne = await screen.findByRole("button", {
+      name: /buy 1 assistant level for \$200, resulting level 1/i,
+    });
+
+    expect(buyOne).toHaveAttribute("aria-disabled", "false");
+    fireEvent.click(buyOne);
+
+    expect(await screen.findByText("Level 1 / 25")).toBeInTheDocument();
+    expect(screen.getByText("$800")).toBeInTheDocument();
+  });
+
+  it("keeps unaffordable Assistant controls focusable and explained", async () => {
+    await bootAppWithSave(buildPromotionCompletedGame());
+
+    const buyOne = await screen.findByRole("button", {
+      name: "Buy 1 Assistant level for $200, resulting level 1",
+    });
+    const buyMax = screen.getByRole("button", {
+      name: "Buy Max Assistant levels unavailable",
+    });
+
+    expect(buyOne).toHaveAttribute("aria-disabled", "true");
+    expect(buyOne).toHaveAccessibleDescription(/not affordable/i);
+    expect(buyMax).toHaveAttribute("aria-disabled", "true");
+    expect(buyMax).toHaveAccessibleDescription(/not affordable/i);
+
+    buyOne.focus();
+    expect(buyOne).toHaveFocus();
+    fireEvent.click(buyOne);
+    expect(screen.getByText("Level 0 / 25")).toBeInTheDocument();
+  });
+
+  it("suppresses both Assistant purchase actions at max level", async () => {
+    const game = buildFundedAssistantGame(100_000);
+    await bootAppWithSave({
+      ...game,
+      assistant: {
+        ...game.assistant,
+        level: 25,
+        reachedMilestoneIds: [
+          "milestone_assistant_first",
+          "milestone_assistant_capstone",
+        ],
+      },
+    });
+
+    const buyOne = await screen.findByRole("button", {
+      name: "Buy 1 Assistant level unavailable",
+    });
+    const buyMax = screen.getByRole("button", {
+      name: "Buy Max Assistant levels unavailable",
+    });
+
+    expect(buyOne).toHaveTextContent("Max level");
+    expect(buyOne).toHaveAttribute("aria-disabled", "true");
+    expect(buyOne).toHaveAccessibleDescription(/at max level/i);
+    expect(buyMax).toHaveTextContent("Max level");
+    expect(buyMax).toHaveAttribute("aria-disabled", "true");
+    expect(buyMax).toHaveAccessibleDescription(/at max level/i);
+  });
+
+  it("shows endpoint completion only from authoritative endpoint state", async () => {
+    const game = buildFundedAssistantGame();
+    await bootAppWithSave({
+      ...game,
+      assistant: {
+        ...game.assistant,
+        level: 8,
+        reachedMilestoneIds: ["milestone_assistant_first"],
+        productionObservedAfterUnlock: true,
+        productionObservedAfterMilestone: true,
+      },
+      endpointCompleted: true,
+    });
+
+    expect(
+      await screen.findByRole("region", { name: "MVP completion" }),
+    ).toHaveTextContent("Playable Idle MVP reached");
+    expect(
+      screen.getByText(/Playable Idle MVP complete\. Future gameplay remains hidden\./i),
+    ).toBeInTheDocument();
   });
 });

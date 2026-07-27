@@ -860,7 +860,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Add functional Assistant panel
 - Epic: Epic 9 - Gameplay UI Functional Expansion
 - Priority: P1
-- Status: Ready
+- Status: Done
 - Objective: Let players inspect and buy Assistant levels after Middle QA promotion.
 - Scope: Display Assistant level, max level, passive Bugs/sec, next cost, Buy 1, Buy Max, affordability, max-level state and before/after production preview.
 - Out of Scope: Full visual redesign; final Cozy Corporate Workspace layout; Support cards; temporary player-facing layout that conflicts with approved VD-02/VD-03.
@@ -873,7 +873,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No new save fields; invokes purchase transactions
 - UI Impact: Adds functional Assistant UI
 - Risk Level: Medium
-- Definition of Done: Assistant levels are playable through functional UI.
+- Definition of Done: Assistant levels are playable through functional UI. Delivered by the QA-PLAYABLE-MVP-034 implementation PR.
 
 #### QA-PLAYABLE-MVP-035
 
