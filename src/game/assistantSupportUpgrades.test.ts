@@ -3,6 +3,7 @@ import { initialState } from "../gameData";
 import { MVP_IDS, type GameState } from "../types";
 import {
   advanceOnlineAssistantProduction,
+  applyAssistantOfflineReturn,
   purchaseAssistantLevel,
   purchaseAssistantSupportUpgrade,
 } from "./commands";
@@ -281,6 +282,110 @@ describe("Assistant Support Upgrade framework", () => {
         },
       },
     });
+  });
+
+  it("locks Offline Handover before level 5 and spends 150 Money once", () => {
+    const lockedGame = buildMiddleQaGame(300, 4);
+    const lockedPurchase = purchaseAssistantSupportUpgrade(
+      lockedGame,
+      "support_offline_handover",
+      100,
+    );
+
+    expect(lockedPurchase.ok).toBe(false);
+    expect(lockedPurchase.game).toBe(lockedGame);
+    expect(lockedPurchase.events).toEqual([]);
+
+    const availableGame = buildMiddleQaGame(300, 5);
+    const purchase = purchaseAssistantSupportUpgrade(
+      availableGame,
+      "support_offline_handover",
+      101,
+    );
+
+    expect(purchase.ok).toBe(true);
+    if (!purchase.ok) {
+      throw new Error("Offline Handover Support purchase should succeed at level 5.");
+    }
+    expect(purchase.game.resources[MVP_IDS.resources.money]).toBe(150);
+    expect(purchase.events[0]).toMatchObject({
+      id: MVP_IDS.events.resourceChanged,
+      payload: {
+        changes: [
+          {
+            resourceId: MVP_IDS.resources.money,
+            delta: -150,
+          },
+        ],
+      },
+    });
+
+    const duplicate = purchaseAssistantSupportUpgrade(
+      purchase.game,
+      "support_offline_handover",
+      102,
+    );
+    expect(duplicate.ok).toBe(false);
+    expect(duplicate.game).toBe(purchase.game);
+    expect(duplicate.events).toEqual([]);
+    expect(duplicate.game.resources[MVP_IDS.resources.money]).toBe(150);
+  });
+
+  it("improves only offline Bugs Found efficiency without Money or Report effects", () => {
+    const savedAt = 1_000_000;
+    const game: GameState = {
+      ...buildMiddleQaGame(300, 5),
+      offlineProgress: {
+        ...initialState.offlineProgress,
+        lastActiveAt: savedAt,
+        timestampStatus: "valid",
+      },
+    };
+    const purchase = purchaseAssistantSupportUpgrade(
+      game,
+      "support_offline_handover",
+      savedAt,
+    );
+
+    expect(purchase.ok).toBe(true);
+    if (!purchase.ok) {
+      throw new Error("Offline Handover Support purchase should succeed.");
+    }
+
+    const baselineOnline = advanceOnlineAssistantProduction(game, 1, savedAt + 1);
+    const supportedOnline = advanceOnlineAssistantProduction(
+      purchase.game,
+      1,
+      savedAt + 1,
+    );
+    expect(baselineOnline.ok).toBe(true);
+    expect(supportedOnline.ok).toBe(true);
+    expect(supportedOnline.game.resources[MVP_IDS.resources.bugsFound]).toBe(
+      baselineOnline.game.resources[MVP_IDS.resources.bugsFound],
+    );
+
+    const offlineReturn = applyAssistantOfflineReturn(purchase.game, savedAt + 100_000);
+
+    expect(offlineReturn.ok).toBe(true);
+    expect(offlineReturn.game.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 111.6,
+      [MVP_IDS.resources.money]: 150,
+    });
+    expect(offlineReturn.game.totalMoneyEarned).toBe(purchase.game.totalMoneyEarned);
+    expect(offlineReturn.game.offlineProgress.pendingSummary).toMatchObject({
+      elapsedSeconds: 100,
+      eligibleSeconds: 100,
+      onlineBugsPerSecond: 1.8,
+      offlineEfficiency: 0.62,
+      bugsFoundGained: 111.6,
+    });
+    expect(
+      offlineReturn.events.some(
+        (event) =>
+          event.id === MVP_IDS.events.bugReportSubmitted ||
+          event.id === MVP_IDS.events.moneyEarned,
+      ),
+    ).toBe(false);
   });
 
   it("validates stage, unlock level, definition, and affordability before mutation", () => {
