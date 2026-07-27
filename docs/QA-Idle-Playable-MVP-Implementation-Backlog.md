@@ -795,7 +795,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Expose runtime endpoint status
 - Epic: Epic 8 - Runtime Endpoint and Diagnostics
 - Priority: P0
-- Status: Ready
+- Status: Done
 - Objective: Provide internal endpoint status for the Playable Idle MVP acceptance flow.
 - Scope: Expose Assistant level target 8 reached, first milestone reached, post-milestone production tick observed and endpoint complete; provide the authoritative completion selector used by UI consumers.
 - Out of Scope: Player-facing completion ceremony; Support ownership requirements; playtest checklist.
@@ -808,7 +808,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: Reads and updates endpoint state
 - UI Impact: Supplies data for later endpoint UI
 - Risk Level: High
-- Definition of Done: Endpoint state is explicit and testable.
+- Definition of Done: Endpoint state is explicit and testable. Delivered by the QA-PLAYABLE-MVP-031 implementation PR.
 
 #### QA-PLAYABLE-MVP-032
 
