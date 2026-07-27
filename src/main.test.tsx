@@ -91,9 +91,17 @@ describe("MVP UI smoke tests", () => {
   it("displays the new-game MVP surfaces without future systems", async () => {
     await bootAppWithSave();
 
+    const workspace = await screen.findByLabelText("Junior QA workspace layout");
     expect(
-      await screen.findByRole("heading", { name: "Junior QA Workspace" }),
+      screen.getByRole("heading", { name: "Junior QA Workspace" }),
     ).toBeInTheDocument();
+    expect(workspace).toHaveAttribute("data-workspace-stage", "junior");
+    expect(
+      screen.getByRole("complementary", { name: "Investment and progression" }),
+    ).toBeInTheDocument();
+    expect(
+      workspace.querySelector('[data-workspace-region="assistant"]'),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /find bug/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /report bugs/i })).toBeInTheDocument();
     expect(screen.getByText("Bugs Found")).toBeInTheDocument();
@@ -119,9 +127,11 @@ describe("MVP UI smoke tests", () => {
   it("shows the Middle QA Assistant phase without claiming MVP completion", async () => {
     await bootAppWithSave(buildPromotionCompletedGame());
 
+    const workspace = await screen.findByLabelText("Middle QA workspace layout");
     expect(
-      await screen.findByRole("heading", { name: "Middle QA Workspace" }),
+      screen.getByRole("heading", { name: "Middle QA Workspace" }),
     ).toBeInTheDocument();
+    expect(workspace).toHaveAttribute("data-workspace-stage", "middle");
     expect(
       screen.getByRole("region", { name: "Junior QA Assistant" }),
     ).toBeInTheDocument();
@@ -134,6 +144,25 @@ describe("MVP UI smoke tests", () => {
     expect(screen.queryByText("Lifetime bugs found")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /promote to/i })).not.toBeInTheDocument();
     expectFutureSystemsToStayHidden();
+  });
+
+  it("keeps the responsive workspace focus order aligned with VD-03", async () => {
+    await bootAppWithSave(buildPromotionCompletedGame());
+
+    const mainAction = await screen.findByRole("button", { name: /find bug/i });
+    const assistant = screen.getByRole("region", { name: "Junior QA Assistant" });
+    const investment = screen.getByRole("region", { name: "Basic Upgrades" });
+    const progression = screen.getByRole("region", { name: "Promotion Progress" });
+
+    expect(mainAction.compareDocumentPosition(assistant)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(assistant.compareDocumentPosition(investment)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(investment.compareDocumentPosition(progression)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
   });
 
   it("purchases one Assistant level from the functional panel", async () => {
