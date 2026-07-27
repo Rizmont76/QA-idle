@@ -91,6 +91,18 @@ button[aria-disabled="true"] {
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
+.app-shell.stage-junior_qa {
+  border-top-color: rgba(105, 220, 161, 0.34);
+}
+
+.app-shell.stage-middle_qa {
+  border-top-color: rgba(168, 115, 255, 0.52);
+  background:
+    radial-gradient(circle at 18% 0, rgba(105, 220, 161, 0.055), transparent 28%),
+    radial-gradient(circle at 82% 0, rgba(168, 115, 255, 0.09), transparent 34%),
+    linear-gradient(180deg, rgba(22, 31, 42, 0.98), rgba(9, 14, 20, 0.99)), #0d141f;
+}
+
 .toast-stack {
   position: fixed;
   top: 18px;
@@ -466,14 +478,54 @@ h1 {
   transition: width 180ms ease;
 }
 
-.content-grid {
+.workspace-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.8fr);
+  grid-template-columns: 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.workspace-primary-column,
+.workspace-secondary-column {
+  display: grid;
+  min-width: 0;
   gap: 10px;
 }
 
+.workspace-secondary-column {
+  align-content: start;
+}
+
+.workspace-layout[data-workspace-stage="junior"] .workspace-secondary-column {
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.8fr);
+}
+
+.workspace-layout[data-workspace-stage="junior"] .career-footer {
+  grid-column: 1 / -1;
+}
+
+.workspace-layout[data-workspace-stage="middle"] {
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.8fr);
+}
+
+.workspace-primary-actions,
+.workspace-assistant {
+  margin-bottom: 0;
+}
+
+.workspace-layout[data-workspace-stage="middle"] .workspace-primary-column {
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(168, 115, 255, 0.045), rgba(168, 115, 255, 0));
+}
+
+.workspace-layout[data-workspace-stage="middle"] .workspace-assistant {
+  box-shadow:
+    inset 3px 0 0 rgba(168, 115, 255, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 12px 30px rgba(0, 0, 0, 0.16);
+}
+
 .assistant-panel {
-  margin-bottom: 10px;
   border-color: rgba(168, 115, 255, 0.38);
   background:
     radial-gradient(circle at top right, rgba(151, 96, 255, 0.12), transparent 36%),
@@ -973,7 +1025,7 @@ dd span {
   grid-template-columns: auto auto auto minmax(0, 1fr);
   gap: 16px;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 0;
   padding: 14px;
 }
 
@@ -1042,6 +1094,38 @@ dd span {
   }
 }
 
+@media (max-width: 980px) {
+  .workspace-layout,
+  .workspace-layout[data-workspace-stage="middle"] {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-primary-column,
+  .workspace-secondary-column {
+    display: contents;
+  }
+
+  .workspace-primary-actions {
+    order: 1;
+  }
+
+  .workspace-assistant {
+    order: 2;
+  }
+
+  .workspace-investment {
+    order: 3;
+  }
+
+  .workspace-progression {
+    order: 4;
+  }
+
+  .career-footer {
+    order: 5;
+  }
+}
+
 @media (max-width: 860px) {
   .app-shell {
     width: min(100% - 18px, 1180px);
@@ -1054,7 +1138,7 @@ dd span {
   .resource-grid,
   .resource-grid.two-columns,
   .action-bar,
-  .content-grid,
+  .workspace-layout,
   .assistant-summary,
   .assistant-purchase-grid,
   .support-card-grid,

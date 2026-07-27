@@ -4,3 +4,4 @@ QA-MVP-017 handoff: `npm run build` cannot write the existing local `dist/assets
 QA-MVP-019 handoff: Local `dist/assets` still has EPERM on normal Vite clean; temp outDir build passed.
 QA-MVP-027 handoff: Promote action reveal now emits `unlock.revealed` through the promotion availability transition; normal Vite build still hits local `dist/assets` EPERM, temp outDir build passed.
 QA-MVP-046 follow-up: MVP acceptance passed, but `docs/00-Master_Project_Roadmap.md` still describes MVP implementation as not started; sync roadmap status in a future documentation task.
+QA-PLAYABLE-MVP-045 verification: changed files pass Prettier, but the repository-wide `npm run check` formatting gate remains blocked by 15 pre-existing files outside this task; typecheck, lint, health, all 333 tests and production build pass.

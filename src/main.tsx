@@ -440,430 +440,460 @@ function App() {
         </section>
       )}
 
-      {visibleActions.size > 0 && (
-        <section className="action-bar" aria-label="Main actions">
-          {visibleActions.has(MVP_IDS.uiSurfaces.manualTesting) && (
-            <ActionButton
-              actionId={MVP_IDS.actions.manualTest}
-              ariaLabel={`Find Bug, gain ${formatNumber(stats.bugsPerClick)} Bugs Found`}
-              canCommit
-              className={`main-button ${clickBurst ? "is-clicked" : ""}`}
-              onAnimationEnd={() => setClickBurst(false)}
-              onClick={runQaTest}
+      <div
+        className="workspace-layout"
+        data-workspace-stage={isMiddleQa ? "middle" : "junior"}
+        aria-label={`${isMiddleQa ? "Middle" : "Junior"} QA workspace layout`}
+      >
+        <div className="workspace-primary-column">
+          {visibleActions.size > 0 && (
+            <section
+              className="action-bar workspace-primary-actions"
+              aria-label="Main actions"
+              data-workspace-region="primary-work"
             >
-              Find Bug <span>+{formatNumber(stats.bugsPerClick)}</span>
-            </ActionButton>
-          )}
-          {visibleActions.has(MVP_IDS.uiSurfaces.bugReporting) && (
-            <ActionButton
-              actionId={MVP_IDS.actions.reportBugs}
-              ariaLabel={
-                bugsFound >= 1
-                  ? `Report ${formatNumber(bugsFound)} Bugs Found to earn ${formatCurrency(
-                      bugsFound * stats.moneyPerBug,
-                    )}`
-                  : "Report Bugs unavailable"
-              }
-              canCommit={bugsFound >= 1}
-              className="secondary-button"
-              descriptionId="report-bugs-reason"
-              onClick={reportBugs}
-            >
-              Report Bugs{" "}
-              <span>
+              {visibleActions.has(MVP_IDS.uiSurfaces.manualTesting) && (
+                <ActionButton
+                  actionId={MVP_IDS.actions.manualTest}
+                  ariaLabel={`Find Bug, gain ${formatNumber(stats.bugsPerClick)} Bugs Found`}
+                  canCommit
+                  className={`main-button ${clickBurst ? "is-clicked" : ""}`}
+                  onAnimationEnd={() => setClickBurst(false)}
+                  onClick={runQaTest}
+                >
+                  Find Bug <span>+{formatNumber(stats.bugsPerClick)}</span>
+                </ActionButton>
+              )}
+              {visibleActions.has(MVP_IDS.uiSurfaces.bugReporting) && (
+                <ActionButton
+                  actionId={MVP_IDS.actions.reportBugs}
+                  ariaLabel={
+                    bugsFound >= 1
+                      ? `Report ${formatNumber(bugsFound)} Bugs Found to earn ${formatCurrency(
+                          bugsFound * stats.moneyPerBug,
+                        )}`
+                      : "Report Bugs unavailable"
+                  }
+                  canCommit={bugsFound >= 1}
+                  className="secondary-button"
+                  descriptionId="report-bugs-reason"
+                  onClick={reportBugs}
+                >
+                  Report Bugs{" "}
+                  <span>
+                    {bugsFound >= 1
+                      ? `+${formatCurrency(bugsFound * stats.moneyPerBug)}`
+                      : "No bugs ready"}
+                  </span>
+                </ActionButton>
+              )}
+              <span className="action-reason" id="report-bugs-reason">
                 {bugsFound >= 1
-                  ? `+${formatCurrency(bugsFound * stats.moneyPerBug)}`
-                  : "No bugs ready"}
+                  ? "Reports all current Bugs Found for Money."
+                  : "Find at least one bug before reporting."}
               </span>
-            </ActionButton>
+            </section>
           )}
-          <span className="action-reason" id="report-bugs-reason">
-            {bugsFound >= 1
-              ? "Reports all current Bugs Found for Money."
-              : "Find at least one bug before reporting."}
-          </span>
-        </section>
-      )}
 
-      {assistantPanel && (
-        <section className="panel assistant-panel" aria-label="Junior QA Assistant">
-          <header className="assistant-header">
-            <div>
-              <span className="assistant-kicker">Passive Baseline</span>
-              <h2>Junior QA Assistant</h2>
-            </div>
-            <strong>
-              Level {formatNumber(assistantPanel.level)} /{" "}
-              {formatNumber(assistantPanel.maxLevel)}
-            </strong>
-          </header>
-
-          <div className="assistant-summary">
-            <div className="assistant-rate">
-              <span>Passive Bugs Found</span>
-              <strong>+{formatNumber(assistantPanel.currentProduction)} / sec</strong>
-              <em>Reporting remains a manual action.</em>
-            </div>
-            <div className="assistant-endpoint">
-              <span>MVP endpoint</span>
-              <strong>
-                {assistantPanel.endpoint.endpointComplete
-                  ? "Complete"
-                  : `Level ${formatNumber(
-                      assistantPanel.endpoint.endpointLevelTarget,
-                    )} + passive tick`}
-              </strong>
-            </div>
-          </div>
-
-          <div className="assistant-purchase-grid">
-            <article className="assistant-purchase">
-              <div>
-                <h3>Buy 1 level</h3>
-                <p>
-                  Level {formatNumber(assistantPanel.buyOne.currentLevel)} to{" "}
-                  {formatNumber(assistantPanel.buyOne.resultingLevel)}
-                </p>
-                <p className="production-preview">
-                  {formatNumber(assistantPanel.buyOne.beforeProduction)} to{" "}
-                  {formatNumber(assistantPanel.buyOne.afterProduction)} Bugs/sec
-                </p>
-              </div>
-              <button
-                type="button"
-                aria-disabled={!assistantPanel.buyOne.canCommit}
-                aria-describedby="assistant-buy-one-reason"
-                aria-label={
-                  assistantPanel.buyOne.totalPrice === null
-                    ? "Buy 1 Assistant level unavailable"
-                    : `Buy 1 Assistant level for ${formatCurrency(
-                        assistantPanel.buyOne.totalPrice,
-                      )}, resulting level ${formatNumber(
-                        assistantPanel.buyOne.resultingLevel,
-                      )}`
-                }
-                onClick={buyAssistantLevel}
-              >
-                {assistantPanel.isMaxLevel
-                  ? "Max level"
-                  : assistantPanel.buyOne.totalPrice === null
-                    ? "Unavailable"
-                    : `Buy 1 · ${formatCurrency(assistantPanel.buyOne.totalPrice)}`}
-              </button>
-              <p className="purchase-reason" id="assistant-buy-one-reason">
-                {assistantPanel.buyOne.reasonUnavailable ??
-                  "Purchases exactly one level."}
-              </p>
-            </article>
-
-            <article className="assistant-purchase">
-              <div>
-                <h3>Buy Max</h3>
-                <p>
-                  {assistantPanel.buyMax.levelsToBuy > 0
-                    ? `${formatNumber(
-                        assistantPanel.buyMax.levelsToBuy,
-                      )} levels · ${formatNumber(
-                        assistantPanel.buyMax.currentLevel,
-                      )} to ${formatNumber(assistantPanel.buyMax.resultingLevel)}`
-                    : "No affordable levels"}
-                </p>
-                <p className="production-preview">
-                  {formatNumber(assistantPanel.buyMax.beforeProduction)} to{" "}
-                  {formatNumber(assistantPanel.buyMax.afterProduction)} Bugs/sec
-                </p>
-                {assistantPanel.buyMax.crossedMilestoneLevels.length > 0 && (
-                  <p className="milestone-preview">
-                    Crosses milestone{" "}
-                    {assistantPanel.buyMax.crossedMilestoneLevels
-                      .map((level) => `Level ${formatNumber(level)}`)
-                      .join(", ")}
-                  </p>
-                )}
-                {assistantPanel.buyMax.endpointProgressImpact && (
-                  <p className="endpoint-preview">
-                    {assistantPanel.buyMax.endpointProgressImpact}
-                  </p>
-                )}
-              </div>
-              <button
-                type="button"
-                aria-disabled={!assistantPanel.buyMax.canCommit}
-                aria-describedby="assistant-buy-max-reason"
-                aria-label={
-                  assistantPanel.buyMax.canCommit
-                    ? `Buy Max: ${formatNumber(
-                        assistantPanel.buyMax.levelsToBuy,
-                      )} Assistant levels for ${formatCurrency(
-                        assistantPanel.buyMax.totalPrice ?? 0,
-                      )}`
-                    : "Buy Max Assistant levels unavailable"
-                }
-                onClick={buyMaxAssistantLevels}
-              >
-                {assistantPanel.isMaxLevel
-                  ? "Max level"
-                  : assistantPanel.buyMax.totalPrice === null
-                    ? "Buy Max · Unavailable"
-                    : `Buy Max · ${formatCurrency(assistantPanel.buyMax.totalPrice)}`}
-              </button>
-              <p className="purchase-reason" id="assistant-buy-max-reason">
-                {assistantPanel.buyMax.reasonUnavailable ??
-                  `Purchases ${formatNumber(
-                    assistantPanel.buyMax.levelsToBuy,
-                  )} contiguous levels.`}
-              </p>
-            </article>
-          </div>
-
-          <section
-            className="assistant-supports"
-            aria-labelledby="support-upgrades-title"
-          >
-            <header>
-              <div>
-                <span className="assistant-kicker">Optional one-time choices</span>
-                <h3 id="support-upgrades-title">Support Upgrades</h3>
-              </div>
-              <p>Support is optional and is not required for the MVP endpoint.</p>
-            </header>
-            <div className="support-card-grid">
-              {assistantSupportCards.map((support) => {
-                const isNewlyUnlocked = newlyUnlockedSupportIds.includes(support.id);
-                const purchaseFailed = supportFailure?.supportId === support.id;
-                const status = support.owned
-                  ? "Owned"
-                  : isNewlyUnlocked
-                    ? "Newly unlocked"
-                    : support.unlocked
-                      ? support.affordable
-                        ? "Affordable"
-                        : "Unaffordable"
-                      : "Locked";
-                const reasonId = `${support.id}-reason`;
-
-                return (
-                  <article
-                    className={`support-card ${
-                      support.owned ? "is-owned" : ""
-                    } ${support.unlocked ? "is-unlocked" : "is-locked"} ${
-                      isNewlyUnlocked ? "is-newly-unlocked" : ""
-                    } ${boughtSupportId === support.id ? "is-bought" : ""}`}
-                    key={support.id}
-                    aria-label={`${support.name}, ${support.roleLabel}, optional, ${status}`}
-                    onAnimationEnd={() => {
-                      if (boughtSupportId === support.id) {
-                        setBoughtSupportId(null);
-                      }
-                    }}
-                  >
-                    <div className="support-card-heading">
-                      <div>
-                        <h4>{support.name}</h4>
-                        <p className="support-role">{support.roleLabel}</p>
-                      </div>
-                      <span className="support-status">{status}</span>
-                    </div>
-
-                    <p className="support-preview">
-                      {support.preview.kind === "production" &&
-                        `${formatNumber(support.preview.before)} to ${formatNumber(
-                          support.preview.after,
-                        )} Bugs/sec`}
-                      {support.preview.kind === "future_level_cost" &&
-                        (support.preview.before === null || support.preview.after === null
-                          ? `${formatNumber(
-                              support.preview.multiplier,
-                            )}x future Assistant level costs`
-                          : `Next level: ${formatCurrency(
-                              support.preview.before,
-                            )} to ${formatCurrency(support.preview.after)}`)}
-                      {support.preview.kind === "offline_efficiency" &&
-                        `Offline efficiency: ${formatNumber(
-                          support.preview.before * FULL_PROGRESS_PERCENT,
-                        )}% to ${formatNumber(
-                          support.preview.after * FULL_PROGRESS_PERCENT,
-                        )}%`}
-                    </p>
-
-                    <button
-                      type="button"
-                      aria-disabled={!support.canCommit}
-                      aria-describedby={reasonId}
-                      aria-label={
-                        support.owned
-                          ? `${support.name} owned`
-                          : support.unlocked
-                            ? `Buy ${support.name} for ${formatCurrency(support.price)}`
-                            : `${support.name} locked until Assistant level ${formatNumber(
-                                support.unlockLevel,
-                              )}`
-                      }
-                      onClick={() => buyAssistantSupport(support.id)}
-                    >
-                      {support.owned
-                        ? "Owned"
-                        : support.unlocked
-                          ? `Buy · ${formatCurrency(support.price)}`
-                          : `Level ${formatNumber(support.unlockLevel)} required`}
-                    </button>
-                    <p
-                      className={`support-reason ${purchaseFailed ? "is-error" : ""}`}
-                      id={reasonId}
-                      role={purchaseFailed ? "alert" : undefined}
-                    >
-                      {purchaseFailed
-                        ? supportFailure.message
-                        : (support.reasonUnavailable ??
-                          "Available to purchase with Money.")}
-                    </p>
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-        </section>
-      )}
-
-      <section className="content-grid">
-        {visibility.upgradePanels.includes(MVP_IDS.uiSurfaces.upgradesBasic) && (
-          <div className="panel">
-            <span className="panel-kicker">Manual Burst</span>
-            <h2>Basic Upgrades</h2>
-            <div className="shop-list">
-              {visibleUpgrades.map((upgrade) => {
-                const owned = game.upgrades[upgrade.id] ?? 0;
-                const cost = getUpgradeCost(upgrade);
-                const isOwned = owned >= upgrade.maxLevel;
-                const canBuy = !isOwned && money >= cost;
-
-                return (
-                  <article
-                    className={`upgrade ${
-                      boughtUpgradeId === upgrade.id ? "is-bought" : ""
-                    }`}
-                    key={upgrade.id}
-                    onAnimationEnd={() => setBoughtUpgradeId(null)}
-                  >
-                    <div>
-                      <div className="upgrade-title">
-                        <h3>{upgrade.name}</h3>
-                        <span>{isOwned ? "Owned" : "Available"}</span>
-                      </div>
-                      <p>{upgrade.description}</p>
-                      <p className="upgrade-flavor">{upgrade.flavor}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => buyUpgrade(upgrade.id)}
-                      disabled={!canBuy}
-                    >
-                      {isOwned ? "Owned" : formatCurrency(cost)}
-                    </button>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {visibility.promotionProgress.includes(MVP_IDS.uiSurfaces.promotionProgress) && (
-          <div className="panel">
-            <h2>Promotion Progress</h2>
-            <div className="rank-route" aria-label="Promotion route">
-              <div>
-                <span>{isMiddleQa ? "Completed rank" : "Current rank"}</span>
+          {assistantPanel && (
+            <section
+              className="panel assistant-panel workspace-assistant"
+              aria-label="Junior QA Assistant"
+              data-workspace-region="assistant"
+            >
+              <header className="assistant-header">
+                <div>
+                  <span className="assistant-kicker">Passive Baseline</span>
+                  <h2>Junior QA Assistant</h2>
+                </div>
                 <strong>
-                  {isMiddleQa ? "Junior QA" : (currentStage?.label ?? "Junior QA")}
+                  Level {formatNumber(assistantPanel.level)} /{" "}
+                  {formatNumber(assistantPanel.maxLevel)}
                 </strong>
+              </header>
+
+              <div className="assistant-summary">
+                <div className="assistant-rate">
+                  <span>Passive Bugs Found</span>
+                  <strong>+{formatNumber(assistantPanel.currentProduction)} / sec</strong>
+                  <em>Reporting remains a manual action.</em>
+                </div>
+                <div className="assistant-endpoint">
+                  <span>MVP endpoint</span>
+                  <strong>
+                    {assistantPanel.endpoint.endpointComplete
+                      ? "Complete"
+                      : `Level ${formatNumber(
+                          assistantPanel.endpoint.endpointLevelTarget,
+                        )} + passive tick`}
+                  </strong>
+                </div>
               </div>
-              <div>
-                <span>{isMiddleQa ? "Reached rank" : "Next rank"}</span>
-                <strong>{nextStage?.label ?? "Middle QA"}</strong>
+
+              <div className="assistant-purchase-grid">
+                <article className="assistant-purchase">
+                  <div>
+                    <h3>Buy 1 level</h3>
+                    <p>
+                      Level {formatNumber(assistantPanel.buyOne.currentLevel)} to{" "}
+                      {formatNumber(assistantPanel.buyOne.resultingLevel)}
+                    </p>
+                    <p className="production-preview">
+                      {formatNumber(assistantPanel.buyOne.beforeProduction)} to{" "}
+                      {formatNumber(assistantPanel.buyOne.afterProduction)} Bugs/sec
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    aria-disabled={!assistantPanel.buyOne.canCommit}
+                    aria-describedby="assistant-buy-one-reason"
+                    aria-label={
+                      assistantPanel.buyOne.totalPrice === null
+                        ? "Buy 1 Assistant level unavailable"
+                        : `Buy 1 Assistant level for ${formatCurrency(
+                            assistantPanel.buyOne.totalPrice,
+                          )}, resulting level ${formatNumber(
+                            assistantPanel.buyOne.resultingLevel,
+                          )}`
+                    }
+                    onClick={buyAssistantLevel}
+                  >
+                    {assistantPanel.isMaxLevel
+                      ? "Max level"
+                      : assistantPanel.buyOne.totalPrice === null
+                        ? "Unavailable"
+                        : `Buy 1 · ${formatCurrency(assistantPanel.buyOne.totalPrice)}`}
+                  </button>
+                  <p className="purchase-reason" id="assistant-buy-one-reason">
+                    {assistantPanel.buyOne.reasonUnavailable ??
+                      "Purchases exactly one level."}
+                  </p>
+                </article>
+
+                <article className="assistant-purchase">
+                  <div>
+                    <h3>Buy Max</h3>
+                    <p>
+                      {assistantPanel.buyMax.levelsToBuy > 0
+                        ? `${formatNumber(
+                            assistantPanel.buyMax.levelsToBuy,
+                          )} levels · ${formatNumber(
+                            assistantPanel.buyMax.currentLevel,
+                          )} to ${formatNumber(assistantPanel.buyMax.resultingLevel)}`
+                        : "No affordable levels"}
+                    </p>
+                    <p className="production-preview">
+                      {formatNumber(assistantPanel.buyMax.beforeProduction)} to{" "}
+                      {formatNumber(assistantPanel.buyMax.afterProduction)} Bugs/sec
+                    </p>
+                    {assistantPanel.buyMax.crossedMilestoneLevels.length > 0 && (
+                      <p className="milestone-preview">
+                        Crosses milestone{" "}
+                        {assistantPanel.buyMax.crossedMilestoneLevels
+                          .map((level) => `Level ${formatNumber(level)}`)
+                          .join(", ")}
+                      </p>
+                    )}
+                    {assistantPanel.buyMax.endpointProgressImpact && (
+                      <p className="endpoint-preview">
+                        {assistantPanel.buyMax.endpointProgressImpact}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    aria-disabled={!assistantPanel.buyMax.canCommit}
+                    aria-describedby="assistant-buy-max-reason"
+                    aria-label={
+                      assistantPanel.buyMax.canCommit
+                        ? `Buy Max: ${formatNumber(
+                            assistantPanel.buyMax.levelsToBuy,
+                          )} Assistant levels for ${formatCurrency(
+                            assistantPanel.buyMax.totalPrice ?? 0,
+                          )}`
+                        : "Buy Max Assistant levels unavailable"
+                    }
+                    onClick={buyMaxAssistantLevels}
+                  >
+                    {assistantPanel.isMaxLevel
+                      ? "Max level"
+                      : assistantPanel.buyMax.totalPrice === null
+                        ? "Buy Max · Unavailable"
+                        : `Buy Max · ${formatCurrency(assistantPanel.buyMax.totalPrice)}`}
+                  </button>
+                  <p className="purchase-reason" id="assistant-buy-max-reason">
+                    {assistantPanel.buyMax.reasonUnavailable ??
+                      `Purchases ${formatNumber(
+                        assistantPanel.buyMax.levelsToBuy,
+                      )} contiguous levels.`}
+                  </p>
+                </article>
               </div>
-            </div>
-            <div className="goal-summary">
-              <strong>{promotionGoalSummary}</strong>
-              <span>
-                {isMiddleQa
-                  ? "Promotion completed"
-                  : promotionStage
-                    ? "Promotion available"
-                    : "Promotion goal"}
-              </span>
-            </div>
-            <ProgressBar
-              label="Promotion requirements completed"
-              percent={promotionProgressPercent}
-              valueMax={Math.max(1, promotionProgress.length)}
-              valueNow={
-                isMiddleQa
-                  ? Math.max(1, promotionProgress.length)
-                  : completedPromotionRequirements
-              }
-              valueText={promotionGoalSummary}
-            />
-            {promotionProgress.length > 0 && (
-              <dl className="progress-list">
-                {promotionProgress.map((item) => {
+
+              <section
+                className="assistant-supports"
+                aria-labelledby="support-upgrades-title"
+              >
+                <header>
+                  <div>
+                    <span className="assistant-kicker">Optional one-time choices</span>
+                    <h3 id="support-upgrades-title">Support Upgrades</h3>
+                  </div>
+                  <p>Support is optional and is not required for the MVP endpoint.</p>
+                </header>
+                <div className="support-card-grid">
+                  {assistantSupportCards.map((support) => {
+                    const isNewlyUnlocked = newlyUnlockedSupportIds.includes(support.id);
+                    const purchaseFailed = supportFailure?.supportId === support.id;
+                    const status = support.owned
+                      ? "Owned"
+                      : isNewlyUnlocked
+                        ? "Newly unlocked"
+                        : support.unlocked
+                          ? support.affordable
+                            ? "Affordable"
+                            : "Unaffordable"
+                          : "Locked";
+                    const reasonId = `${support.id}-reason`;
+
+                    return (
+                      <article
+                        className={`support-card ${
+                          support.owned ? "is-owned" : ""
+                        } ${support.unlocked ? "is-unlocked" : "is-locked"} ${
+                          isNewlyUnlocked ? "is-newly-unlocked" : ""
+                        } ${boughtSupportId === support.id ? "is-bought" : ""}`}
+                        key={support.id}
+                        aria-label={`${support.name}, ${support.roleLabel}, optional, ${status}`}
+                        onAnimationEnd={() => {
+                          if (boughtSupportId === support.id) {
+                            setBoughtSupportId(null);
+                          }
+                        }}
+                      >
+                        <div className="support-card-heading">
+                          <div>
+                            <h4>{support.name}</h4>
+                            <p className="support-role">{support.roleLabel}</p>
+                          </div>
+                          <span className="support-status">{status}</span>
+                        </div>
+
+                        <p className="support-preview">
+                          {support.preview.kind === "production" &&
+                            `${formatNumber(support.preview.before)} to ${formatNumber(
+                              support.preview.after,
+                            )} Bugs/sec`}
+                          {support.preview.kind === "future_level_cost" &&
+                            (support.preview.before === null ||
+                            support.preview.after === null
+                              ? `${formatNumber(
+                                  support.preview.multiplier,
+                                )}x future Assistant level costs`
+                              : `Next level: ${formatCurrency(
+                                  support.preview.before,
+                                )} to ${formatCurrency(support.preview.after)}`)}
+                          {support.preview.kind === "offline_efficiency" &&
+                            `Offline efficiency: ${formatNumber(
+                              support.preview.before * FULL_PROGRESS_PERCENT,
+                            )}% to ${formatNumber(
+                              support.preview.after * FULL_PROGRESS_PERCENT,
+                            )}%`}
+                        </p>
+
+                        <button
+                          type="button"
+                          aria-disabled={!support.canCommit}
+                          aria-describedby={reasonId}
+                          aria-label={
+                            support.owned
+                              ? `${support.name} owned`
+                              : support.unlocked
+                                ? `Buy ${support.name} for ${formatCurrency(support.price)}`
+                                : `${support.name} locked until Assistant level ${formatNumber(
+                                    support.unlockLevel,
+                                  )}`
+                          }
+                          onClick={() => buyAssistantSupport(support.id)}
+                        >
+                          {support.owned
+                            ? "Owned"
+                            : support.unlocked
+                              ? `Buy · ${formatCurrency(support.price)}`
+                              : `Level ${formatNumber(support.unlockLevel)} required`}
+                        </button>
+                        <p
+                          className={`support-reason ${purchaseFailed ? "is-error" : ""}`}
+                          id={reasonId}
+                          role={purchaseFailed ? "alert" : undefined}
+                        >
+                          {purchaseFailed
+                            ? supportFailure.message
+                            : (support.reasonUnavailable ??
+                              "Available to purchase with Money.")}
+                        </p>
+                      </article>
+                    );
+                  })}
+                </div>
+              </section>
+            </section>
+          )}
+        </div>
+
+        <aside
+          className="workspace-secondary-column"
+          aria-label="Investment and progression"
+        >
+          {visibility.upgradePanels.includes(MVP_IDS.uiSurfaces.upgradesBasic) && (
+            <section
+              className="panel workspace-investment"
+              aria-labelledby="manual-burst-title"
+              data-workspace-region="investment"
+            >
+              <span className="panel-kicker">Manual Burst</span>
+              <h2 id="manual-burst-title">Basic Upgrades</h2>
+              <div className="shop-list">
+                {visibleUpgrades.map((upgrade) => {
+                  const owned = game.upgrades[upgrade.id] ?? 0;
+                  const cost = getUpgradeCost(upgrade);
+                  const isOwned = owned >= upgrade.maxLevel;
+                  const canBuy = !isOwned && money >= cost;
+
                   return (
-                    <RequirementRow
-                      complete={item.complete}
-                      current={
-                        item.prefix === "$"
-                          ? formatCurrency(item.current)
-                          : formatNumber(item.current)
-                      }
-                      key={item.id}
-                      label={item.label}
-                      target={
-                        item.prefix === "$"
-                          ? formatCurrency(item.required)
-                          : formatNumber(item.required)
-                      }
-                    />
+                    <article
+                      className={`upgrade ${
+                        boughtUpgradeId === upgrade.id ? "is-bought" : ""
+                      }`}
+                      key={upgrade.id}
+                      onAnimationEnd={() => setBoughtUpgradeId(null)}
+                    >
+                      <div>
+                        <div className="upgrade-title">
+                          <h3>{upgrade.name}</h3>
+                          <span>{isOwned ? "Owned" : "Available"}</span>
+                        </div>
+                        <p>{upgrade.description}</p>
+                        <p className="upgrade-flavor">{upgrade.flavor}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => buyUpgrade(upgrade.id)}
+                        disabled={!canBuy}
+                      >
+                        {isOwned ? "Owned" : formatCurrency(cost)}
+                      </button>
+                    </article>
                   );
                 })}
-              </dl>
-            )}
-            {isPromotionActionActive && promotionStage && (
-              <button className="promote-button" type="button" onClick={promote}>
-                Promote to {promotionStage.label}
-              </button>
-            )}
-          </div>
-        )}
-      </section>
+              </div>
+            </section>
+          )}
 
-      <section className="career-footer" aria-label="Promotion progress">
-        <div>
-          <strong>{currentStage?.label ?? "Junior QA"}</strong>
-          <span>{isMiddleQa ? "Current stage" : "Current rank"}</span>
-        </div>
-        <div className="career-arrow">to</div>
-        <div>
-          <strong>{footerTargetLabel}</strong>
-          <span>
-            {isMvpComplete
-              ? "Completed endpoint"
-              : isMiddleQa
-                ? "Current goal"
-                : promotionStage
-                  ? "Promotion ready"
-                  : "Next goal"}
-          </span>
-        </div>
-        <div className="career-progress">
-          <span>
-            {isMvpComplete
-              ? "Playable Idle MVP complete. No additional systems are active."
-              : activeRequirementText}
-          </span>
-          <div className="progress-track">
-            <span style={{ width: `${String(promotionProgressPercent)}%` }} />
-          </div>
-        </div>
-      </section>
+          {visibility.promotionProgress.includes(
+            MVP_IDS.uiSurfaces.promotionProgress,
+          ) && (
+            <section
+              className="panel workspace-progression"
+              aria-labelledby="promotion-progress-title"
+              data-workspace-region="progression"
+            >
+              <h2 id="promotion-progress-title">Promotion Progress</h2>
+              <div className="rank-route" aria-label="Promotion route">
+                <div>
+                  <span>{isMiddleQa ? "Completed rank" : "Current rank"}</span>
+                  <strong>
+                    {isMiddleQa ? "Junior QA" : (currentStage?.label ?? "Junior QA")}
+                  </strong>
+                </div>
+                <div>
+                  <span>{isMiddleQa ? "Reached rank" : "Next rank"}</span>
+                  <strong>{nextStage?.label ?? "Middle QA"}</strong>
+                </div>
+              </div>
+              <div className="goal-summary">
+                <strong>{promotionGoalSummary}</strong>
+                <span>
+                  {isMiddleQa
+                    ? "Promotion completed"
+                    : promotionStage
+                      ? "Promotion available"
+                      : "Promotion goal"}
+                </span>
+              </div>
+              <ProgressBar
+                label="Promotion requirements completed"
+                percent={promotionProgressPercent}
+                valueMax={Math.max(1, promotionProgress.length)}
+                valueNow={
+                  isMiddleQa
+                    ? Math.max(1, promotionProgress.length)
+                    : completedPromotionRequirements
+                }
+                valueText={promotionGoalSummary}
+              />
+              {promotionProgress.length > 0 && (
+                <dl className="progress-list">
+                  {promotionProgress.map((item) => {
+                    return (
+                      <RequirementRow
+                        complete={item.complete}
+                        current={
+                          item.prefix === "$"
+                            ? formatCurrency(item.current)
+                            : formatNumber(item.current)
+                        }
+                        key={item.id}
+                        label={item.label}
+                        target={
+                          item.prefix === "$"
+                            ? formatCurrency(item.required)
+                            : formatNumber(item.required)
+                        }
+                      />
+                    );
+                  })}
+                </dl>
+              )}
+              {isPromotionActionActive && promotionStage && (
+                <button className="promote-button" type="button" onClick={promote}>
+                  Promote to {promotionStage.label}
+                </button>
+              )}
+            </section>
+          )}
+
+          <section className="career-footer" aria-label="Career route summary">
+            <div>
+              <strong>{currentStage?.label ?? "Junior QA"}</strong>
+              <span>{isMiddleQa ? "Current stage" : "Current rank"}</span>
+            </div>
+            <div className="career-arrow">to</div>
+            <div>
+              <strong>{footerTargetLabel}</strong>
+              <span>
+                {isMvpComplete
+                  ? "Completed endpoint"
+                  : isMiddleQa
+                    ? "Current goal"
+                    : promotionStage
+                      ? "Promotion ready"
+                      : "Next goal"}
+              </span>
+            </div>
+            <div className="career-progress">
+              <span>
+                {isMvpComplete
+                  ? "Playable Idle MVP complete. No additional systems are active."
+                  : activeRequirementText}
+              </span>
+              <div className="progress-track">
+                <span style={{ width: `${String(promotionProgressPercent)}%` }} />
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
     </main>
   );
 }

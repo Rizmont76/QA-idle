@@ -989,7 +989,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Implement VD-03 workspace layout and Junior to Middle expansion
 - Epic: Epic 10 - Visual Workspace Implementation
 - Priority: P1
-- Status: Ready
+- Status: Done
 - Objective: Implement the approved MVP workspace layout and visible Junior to Middle expansion.
 - Scope: Implement Junior workspace, Middle expansion, Assistant workspace area, manual/passive control hierarchy, upgrade surfaces, responsive layout, Cozy Corporate Workspace composition and endpoint state.
 - Out of Scope: Changing mechanics; changing formulas; adding future-system gameplay.
@@ -1002,7 +1002,8 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No save data change
 - UI Impact: Implements approved workspace layout
 - Risk Level: Medium
-- Definition of Done: VD-03 workspace is implemented and tested without gameplay changes.
+- Definition of Done: VD-03 workspace is implemented and tested without gameplay changes. Delivered by the QA-PLAYABLE-MVP-045 implementation PR.
+- Implementation Result: Added stage-aware workspace composition that preserves the full-width Junior manual loop, expands Middle QA into primary Manual/Assistant and secondary Investment/Progression regions, and reflows into the mandated single-page focus order at tablet widths. Semantic region labels and integration coverage verify Junior/Middle distinction, Assistant visibility, logical focus order and formula-neutral composition.
 
 #### QA-PLAYABLE-MVP-046
 
