@@ -3,6 +3,7 @@ import { initialState } from "../gameData";
 import { MVP_IDS, type GameState } from "../types";
 import {
   advanceOnlineAssistantProduction,
+  purchaseAssistantLevel,
   purchaseAssistantSupportUpgrade,
 } from "./commands";
 import { createAssistantModifierRegistry } from "./assistantModifiers";
@@ -170,6 +171,79 @@ describe("Assistant Support Upgrade framework", () => {
             delta: 1.02,
           },
         ],
+      },
+    });
+  });
+
+  it("unlocks Training at level 2, spends 160, and discounts only future levels", () => {
+    const startingMoney = 1_000;
+    const game = buildMiddleQaGame(startingMoney, 0);
+
+    const lockedPurchase = purchaseAssistantSupportUpgrade(
+      game,
+      "support_training_economics",
+      100,
+    );
+    expect(lockedPurchase.ok).toBe(false);
+    expect(lockedPurchase.game).toBe(game);
+
+    const firstLevel = purchaseAssistantLevel(game, 101);
+    expect(firstLevel.ok).toBe(true);
+    if (!firstLevel.ok) {
+      throw new Error("First Assistant level purchase should succeed.");
+    }
+
+    const secondLevel = purchaseAssistantLevel(firstLevel.game, 102);
+    expect(secondLevel.ok).toBe(true);
+    if (!secondLevel.ok) {
+      throw new Error("Second Assistant level purchase should succeed.");
+    }
+    expect(secondLevel.game.resources[MVP_IDS.resources.money]).toBe(
+      startingMoney - 200 - 238,
+    );
+
+    const training = purchaseAssistantSupportUpgrade(
+      secondLevel.game,
+      "support_training_economics",
+      103,
+    );
+    expect(training.ok).toBe(true);
+    if (!training.ok) {
+      throw new Error("Training Support purchase should succeed at level 2.");
+    }
+    expect(training.game.resources[MVP_IDS.resources.money]).toBe(
+      startingMoney - 200 - 238 - 160,
+    );
+    expect(training.events[0]).toMatchObject({
+      id: MVP_IDS.events.resourceChanged,
+      payload: {
+        changes: [
+          {
+            resourceId: MVP_IDS.resources.money,
+            delta: -160,
+          },
+        ],
+      },
+    });
+
+    const discountedLevel = purchaseAssistantLevel(training.game, 104);
+    expect(discountedLevel.ok).toBe(true);
+    if (!discountedLevel.ok) {
+      throw new Error("Discounted Assistant level purchase should succeed.");
+    }
+    expect(discountedLevel.game.assistant.level).toBe(3);
+    expect(discountedLevel.game.resources[MVP_IDS.resources.money]).toBe(
+      startingMoney - 200 - 238 - 160 - 213,
+    );
+    expect(discountedLevel.events[1]).toMatchObject({
+      id: MVP_IDS.events.assistantLevelPurchased,
+      payload: {
+        previousLevel: 2,
+        newLevel: 3,
+        cost: {
+          resourceId: MVP_IDS.resources.money,
+          amount: 213,
+        },
       },
     });
   });

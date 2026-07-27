@@ -1,15 +1,7 @@
 import { MVP_IDS } from "../types";
 import type { AssistantSupportUpgradeId, LevelUpgradeCostResolver } from "../types";
-import { assistantSupportUpgradeDefinitions } from "./assistantProgression";
+import { calculateAssistantModifierStats } from "./assistantModifiers";
 import { activeRuntimeCandidateParameters } from "./runtimeCandidateParameters";
-
-const trainingSupportDefinition = assistantSupportUpgradeDefinitions.find(
-  ({ role }) => role === "training_economics",
-);
-if (!trainingSupportDefinition) {
-  throw new Error("Missing Training Assistant Support Upgrade definition.");
-}
-const TRAINING_SUPPORT_ID: AssistantSupportUpgradeId = trainingSupportDefinition.id;
 
 export interface AssistantNextLevelCostInput {
   readonly currentLevel: number;
@@ -37,11 +29,19 @@ export function calculateAssistantNextLevelCost({
   const nextLevel = currentLevel + 1;
   const baseLevelCost =
     cost.baseCost * cost.growth ** (nextLevel - 1) + cost.linearCost * (nextLevel - 1);
-  const discountMultiplier = ownedSupportUpgradeIds.includes(TRAINING_SUPPORT_ID)
-    ? cost.trainingSupportCostMultiplier
-    : 1;
+  const modifiedLevelCost = calculateAssistantModifierStats(
+    {
+      ownedSupportUpgradeIds,
+      reachedMilestoneIds: [],
+    },
+    {
+      bugsPerSecond: 0,
+      futureLevelCost: baseLevelCost,
+      offlineEfficiency: 0,
+    },
+  ).futureLevelCost.value;
 
-  return Math.round(baseLevelCost * discountMultiplier);
+  return Math.round(modifiedLevelCost);
 }
 
 export const resolveAssistantNextLevelCost: LevelUpgradeCostResolver = ({
