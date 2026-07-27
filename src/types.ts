@@ -684,6 +684,8 @@ export interface OfflineProgressSummary {
   endedAt: number;
   elapsedSeconds: number;
   eligibleSeconds: number;
+  onlineBugsPerSecond: number;
+  offlineEfficiency: number;
   bugsFoundGained: number;
 }
 

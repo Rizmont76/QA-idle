@@ -731,6 +731,8 @@ describe("save storage", () => {
       endedAt: Date.now(),
       elapsedSeconds: 30,
       eligibleSeconds: 30,
+      onlineBugsPerSecond: 0.8,
+      offlineEfficiency: 0.35,
       bugsFoundGained: 24,
     };
     const consumedSummary = {
@@ -738,6 +740,8 @@ describe("save storage", () => {
       endedAt: Date.now() - 60_000,
       elapsedSeconds: 60,
       eligibleSeconds: 60,
+      onlineBugsPerSecond: 0.8,
+      offlineEfficiency: 0.35,
       bugsFoundGained: 48,
     };
 
@@ -767,6 +771,70 @@ describe("save storage", () => {
         consumedSummary,
       },
     });
+  });
+
+  it("applies a valid offline return on load and persists its structured summary", () => {
+    const savedAt = Date.now() - 100_000;
+    const savedGame = createNewGameState(savedAt);
+
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        meta: {
+          schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+          createdAt: savedAt,
+          lastSavedAt: savedAt,
+          lastActiveAt: savedAt,
+          migratedFromVersions: [],
+        },
+        game: {
+          ...savedGame,
+          careerStage: MVP_IDS.careerStages.middleQa,
+          promotion: {
+            availablePromotionIds: [],
+            completedPromotionIds: [MVP_IDS.promotions.juniorToMiddle],
+          },
+          assistant: {
+            ...savedGame.assistant,
+            unlocked: true,
+          },
+          offlineProgress: {
+            ...savedGame.offlineProgress,
+            lastActiveAt: savedAt,
+          },
+        },
+      }),
+    );
+
+    const loaded = loadSave();
+
+    expect(loaded.game.resources).toEqual({
+      [MVP_IDS.resources.bugsFound]: 28,
+      [MVP_IDS.resources.money]: 0,
+    });
+    expect(loaded.game.totalBugsFound).toBe(28);
+    expect(loaded.game.totalMoneyEarned).toBe(0);
+    expect(loaded.game.offlineProgress.pendingSummary).toEqual({
+      startedAt: savedAt,
+      endedAt: Date.now(),
+      elapsedSeconds: 100,
+      eligibleSeconds: 100,
+      onlineBugsPerSecond: 0.8,
+      offlineEfficiency: 0.35,
+      bugsFoundGained: 28,
+    });
+    expect(loaded.events.map((event) => event.id)).toEqual([
+      MVP_IDS.events.resourceChanged,
+      MVP_IDS.events.gameLoaded,
+    ]);
+
+    saveGame(loaded.game);
+    const reloaded = loadSave();
+
+    expect(reloaded.game.resources[MVP_IDS.resources.bugsFound]).toBe(28);
+    expect(reloaded.game.offlineProgress.pendingSummary).toEqual(
+      loaded.game.offlineProgress.pendingSummary,
+    );
   });
 
   it("restores a valid MVP save without awarding offline progress", () => {
