@@ -9,33 +9,72 @@ export interface AssistantProgressionStatus {
   endpointConditionsSatisfied: boolean;
 }
 
-export function getAssistantProgressionStatus(
-  game: GameState,
-): AssistantProgressionStatus {
+export interface MvpEndpointStatus {
+  middleQaPromotionCompleted: boolean;
+  assistantUnlocked: boolean;
+  productionObservedAfterUnlock: boolean;
+  endpointLevelTarget: number;
+  endpointLevelReached: boolean;
+  firstMilestoneReached: boolean;
+  postMilestoneProductionObserved: boolean;
+  endpointConditionsSatisfied: boolean;
+  endpointComplete: boolean;
+}
+
+export function getMvpEndpointStatus(game: GameState): MvpEndpointStatus {
+  const middleQaPromotionCompleted =
+    game.careerStage === MVP_IDS.careerStages.middleQa &&
+    game.promotion.completedPromotionIds.includes(MVP_IDS.promotions.juniorToMiddle);
+  const endpointLevelTarget =
+    activeRuntimeCandidateParameters.endpoint.assistantLevelTarget;
+  const endpointLevelReached = game.assistant.level >= endpointLevelTarget;
   const firstMilestoneReached = game.assistant.reachedMilestoneIds.includes(
     "milestone_assistant_first",
   );
-  const capstoneReached = game.assistant.reachedMilestoneIds.includes(
-    "milestone_assistant_capstone",
-  );
-  const endpointLevelReached =
-    game.assistant.level >=
-    activeRuntimeCandidateParameters.endpoint.assistantLevelTarget;
-  const baseEndpointConditionsSatisfied =
-    game.careerStage === MVP_IDS.careerStages.middleQa &&
-    game.promotion.completedPromotionIds.includes(MVP_IDS.promotions.juniorToMiddle) &&
+  const endpointConditionsSatisfied =
+    middleQaPromotionCompleted &&
     game.assistant.unlocked &&
     game.assistant.productionObservedAfterUnlock &&
     endpointLevelReached &&
-    firstMilestoneReached;
+    firstMilestoneReached &&
+    game.assistant.productionObservedAfterMilestone;
 
   return {
-    firstMilestoneReached,
-    capstoneReached,
+    middleQaPromotionCompleted,
+    assistantUnlocked: game.assistant.unlocked,
+    productionObservedAfterUnlock: game.assistant.productionObservedAfterUnlock,
+    endpointLevelTarget,
     endpointLevelReached,
+    firstMilestoneReached,
+    postMilestoneProductionObserved: game.assistant.productionObservedAfterMilestone,
+    endpointConditionsSatisfied,
+    endpointComplete: game.endpointCompleted && endpointConditionsSatisfied,
+  };
+}
+
+export function isMvpEndpointComplete(game: GameState): boolean {
+  return getMvpEndpointStatus(game).endpointComplete;
+}
+
+export function getAssistantProgressionStatus(
+  game: GameState,
+): AssistantProgressionStatus {
+  const endpointStatus = getMvpEndpointStatus(game);
+  const capstoneReached = game.assistant.reachedMilestoneIds.includes(
+    "milestone_assistant_capstone",
+  );
+
+  return {
+    firstMilestoneReached: endpointStatus.firstMilestoneReached,
+    capstoneReached,
+    endpointLevelReached: endpointStatus.endpointLevelReached,
     endpointPendingPostMilestoneProduction:
-      baseEndpointConditionsSatisfied && !game.assistant.productionObservedAfterMilestone,
-    endpointConditionsSatisfied:
-      baseEndpointConditionsSatisfied && game.assistant.productionObservedAfterMilestone,
+      endpointStatus.middleQaPromotionCompleted &&
+      endpointStatus.assistantUnlocked &&
+      endpointStatus.productionObservedAfterUnlock &&
+      endpointStatus.endpointLevelReached &&
+      endpointStatus.firstMilestoneReached &&
+      !endpointStatus.postMilestoneProductionObserved,
+    endpointConditionsSatisfied: endpointStatus.endpointConditionsSatisfied,
   };
 }
