@@ -29,11 +29,46 @@ function buildMiddleQaGame(money = 500, assistantLevel = 25): GameState {
       ...game.assistant,
       unlocked: true,
       level: assistantLevel,
+      availableSupportUpgradeIds: assistantSupportUpgradeDefinitions
+        .filter((definition) => definition.unlockLevel <= assistantLevel)
+        .map((definition) => definition.id),
     },
   };
 }
 
 describe("Assistant Support Upgrade framework", () => {
+  it.each([
+    { level: 0, expected: ["support_immediate_production"] },
+    { level: 1, expected: ["support_immediate_production"] },
+    {
+      level: 2,
+      expected: ["support_immediate_production", "support_training_economics"],
+    },
+    {
+      level: 4,
+      expected: ["support_immediate_production", "support_training_economics"],
+    },
+    {
+      level: 5,
+      expected: [
+        "support_immediate_production",
+        "support_training_economics",
+        "support_offline_handover",
+      ],
+    },
+  ])(
+    "exposes only documented Supports at Assistant level $level",
+    ({ level, expected }) => {
+      const game = buildMiddleQaGame(500, level);
+
+      expect(game.assistant.availableSupportUpgradeIds).toEqual(expected);
+      expect(game.assistant.availableSupportUpgradeIds).not.toContain("support_team");
+      expect(game.assistant.availableSupportUpgradeIds).not.toContain(
+        "support_automation",
+      );
+    },
+  );
+
   it("exposes exactly one canonical registry of three optional one-time IDs", () => {
     expect(assistantSupportUpgradeIds).toEqual([
       "support_immediate_production",

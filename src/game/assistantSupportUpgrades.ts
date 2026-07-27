@@ -73,7 +73,8 @@ export function validateAssistantSupportPurchase(
   if (
     game.careerStage !== MVP_IDS.careerStages.middleQa ||
     !game.assistant.unlocked ||
-    game.assistant.level < definition.unlockLevel
+    game.assistant.level < definition.unlockLevel ||
+    !game.assistant.availableSupportUpgradeIds.includes(definition.id)
   ) {
     return failure(
       "not_unlocked",

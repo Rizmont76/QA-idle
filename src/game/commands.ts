@@ -15,7 +15,10 @@ import {
 } from "./resources";
 import { calculateAssistantBugsPerSecond } from "./assistantProduction";
 import { resolveAssistantNextLevelCost } from "./assistantLevelCost";
-import { assistantMilestoneDefinitions } from "./assistantProgression";
+import {
+  assistantMilestoneDefinitions,
+  getNewlyAvailableAssistantSupportUpgradeDefinitions,
+} from "./assistantProgression";
 import { validateAssistantSupportPurchase } from "./assistantSupportUpgrades";
 import { getAssistantProgressionStatus } from "./assistantEndpoint";
 import { activateAssistantAfterPromotion } from "./assistant";
@@ -207,6 +210,14 @@ export function acceptPromotion(
     evaluatedGame,
     completedPromotionId,
   );
+  const activatedAssistant = activateAssistantAfterPromotion(
+    evaluatedGame.assistant,
+    completedPromotionId,
+  );
+  const newlyAvailableSupports = activatedAssistant.availableSupportUpgradeIds.filter(
+    (supportId) =>
+      !evaluatedGame.assistant.availableSupportUpgradeIds.includes(supportId),
+  );
 
   const events = dispatchGameplayEvents(
     [
@@ -228,6 +239,20 @@ export function acceptPromotion(
           simulationTime,
         },
       },
+      ...newlyAvailableSupports.map(
+        (supportId) =>
+          ({
+            id: MVP_IDS.events.assistantSupportUnlocked,
+            payload: {
+              assistantId: MVP_IDS.assistants.juniorQa,
+              supportId,
+              unlockLevel: activatedAssistant.level,
+              previousLevel: evaluatedGame.assistant.level,
+              newLevel: activatedAssistant.level,
+              simulationTime,
+            },
+          }) as const,
+      ),
     ],
     eventListeners,
   ).events;
@@ -242,10 +267,7 @@ export function acceptPromotion(
         availablePromotionIds: [],
         completedPromotionIds,
       },
-      assistant: activateAssistantAfterPromotion(
-        evaluatedGame.assistant,
-        completedPromotionId,
-      ),
+      assistant: activatedAssistant,
       unlocks: completionVisibility.unlocks,
       uiSurfaces: completionVisibility.uiSurfaces,
     },
@@ -460,6 +482,12 @@ function purchaseAssistantLevels(
       .map((milestone) => milestone.id)
       .filter((milestoneId) => !game.assistant.reachedMilestoneIds.includes(milestoneId)),
   ];
+  const newlyAvailableSupports = getNewlyAvailableAssistantSupportUpgradeDefinitions(
+    game.assistant.unlocked,
+    plan.currentLevel,
+    plan.targetLevel,
+    game.assistant.availableSupportUpgradeIds,
+  );
   const nextGame: GameState = {
     ...game,
     resources: result.resources,
@@ -467,6 +495,10 @@ function purchaseAssistantLevels(
     assistant: {
       ...game.assistant,
       level: plan.targetLevel,
+      availableSupportUpgradeIds: [
+        ...game.assistant.availableSupportUpgradeIds,
+        ...newlyAvailableSupports.map((support) => support.id),
+      ],
       reachedMilestoneIds,
     },
   };
@@ -486,6 +518,20 @@ function purchaseAssistantLevels(
           simulationTime,
         },
       },
+      ...newlyAvailableSupports.map(
+        (support) =>
+          ({
+            id: MVP_IDS.events.assistantSupportUnlocked,
+            payload: {
+              assistantId: MVP_IDS.assistants.juniorQa,
+              supportId: support.id,
+              unlockLevel: support.unlockLevel,
+              previousLevel: plan.currentLevel,
+              newLevel: plan.targetLevel,
+              simulationTime,
+            },
+          }) as const,
+      ),
       ...crossedMilestones.map(
         (milestone) =>
           ({

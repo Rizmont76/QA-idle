@@ -44,6 +44,7 @@ export const MVP_IDS = {
     resourceChanged: "resource.changed",
     assistantProductionCommitted: "assistant.productionCommitted",
     assistantLevelPurchased: "assistant.levelPurchased",
+    assistantSupportUnlocked: "assistant.supportUnlocked",
     assistantMilestoneReached: "assistant.milestoneReached",
     endpointCompleted: "endpoint.completed",
     upgradePurchased: "upgrade.purchased",
@@ -495,6 +496,18 @@ export interface AssistantLevelPurchasedEventDescriptor {
   };
 }
 
+export interface AssistantSupportUnlockedEventDescriptor {
+  id: typeof MVP_IDS.events.assistantSupportUnlocked;
+  payload: {
+    assistantId: typeof MVP_IDS.assistants.juniorQa;
+    supportId: AssistantSupportUpgradeId;
+    unlockLevel: number;
+    previousLevel: number;
+    newLevel: number;
+    simulationTime: number;
+  };
+}
+
 export interface AssistantMilestoneReachedEventDescriptor {
   id: typeof MVP_IDS.events.assistantMilestoneReached;
   payload: {
@@ -611,6 +624,7 @@ export type GameplayEventDescriptor =
   | ResourceChangedEventDescriptor
   | AssistantProductionCommittedEventDescriptor
   | AssistantLevelPurchasedEventDescriptor
+  | AssistantSupportUnlockedEventDescriptor
   | AssistantMilestoneReachedEventDescriptor
   | EndpointCompletedEventDescriptor
   | ManualTestPerformedEventDescriptor
@@ -655,6 +669,7 @@ export interface GameState {
   assistant: {
     unlocked: boolean;
     level: number;
+    availableSupportUpgradeIds: AssistantSupportUpgradeId[];
     ownedSupportUpgradeIds: AssistantSupportUpgradeId[];
     reachedMilestoneIds: AssistantMilestoneId[];
     productionObservedAfterUnlock: boolean;

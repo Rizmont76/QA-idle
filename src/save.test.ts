@@ -131,6 +131,7 @@ describe("save storage", () => {
     expect(createNewGameState(Date.now()).assistant).toEqual({
       unlocked: false,
       level: 0,
+      availableSupportUpgradeIds: [],
       ownedSupportUpgradeIds: [],
       reachedMilestoneIds: [],
       productionObservedAfterUnlock: false,
@@ -337,6 +338,11 @@ describe("save storage", () => {
       assistant: {
         unlocked: true,
         level: 8,
+        availableSupportUpgradeIds: [
+          "support_immediate_production",
+          "support_training_economics",
+          "support_offline_handover",
+        ],
         ownedSupportUpgradeIds: ["support_immediate_production"],
         reachedMilestoneIds: ["milestone_assistant_first"],
         productionObservedAfterUnlock: true,
@@ -418,6 +424,13 @@ describe("save storage", () => {
             game.promotion.completedPromotionIds.includes(
               MVP_IDS.promotions.juniorToMiddle,
             ),
+          availableSupportUpgradeIds:
+            game.careerStage === MVP_IDS.careerStages.middleQa &&
+            game.promotion.completedPromotionIds.includes(
+              MVP_IDS.promotions.juniorToMiddle,
+            )
+              ? ["support_immediate_production"]
+              : [],
         },
         endpointCompleted: false,
         offlineProgress: {
@@ -585,6 +598,7 @@ describe("save storage", () => {
     expect(loadSave().game.assistant).toEqual({
       unlocked: false,
       level: 0,
+      availableSupportUpgradeIds: [],
       ownedSupportUpgradeIds: [],
       reachedMilestoneIds: [],
       productionObservedAfterUnlock: false,
@@ -616,6 +630,9 @@ describe("save storage", () => {
     );
 
     expect(loadSave().game.assistant.ownedSupportUpgradeIds).toEqual([
+      "support_immediate_production",
+    ]);
+    expect(loadSave().game.assistant.availableSupportUpgradeIds).toEqual([
       "support_immediate_production",
     ]);
   });
@@ -828,6 +845,7 @@ describe("save storage", () => {
       assistant: {
         ...initialState.assistant,
         unlocked: true,
+        availableSupportUpgradeIds: ["support_immediate_production"],
       },
       offlineProgress: {
         lastActiveAt: null,

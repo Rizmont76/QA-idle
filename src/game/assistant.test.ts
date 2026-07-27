@@ -43,6 +43,7 @@ describe("Junior QA Assistant data contract", () => {
     ).toEqual({
       unlocked: true,
       level: 0,
+      availableSupportUpgradeIds: ["support_immediate_production"],
       ownedSupportUpgradeIds: [],
       reachedMilestoneIds: [],
       productionObservedAfterUnlock: false,

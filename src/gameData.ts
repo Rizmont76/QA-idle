@@ -512,6 +512,7 @@ export function createInitialAssistantState(): GameState["assistant"] {
   return {
     unlocked: false,
     level: 0,
+    availableSupportUpgradeIds: [],
     ownedSupportUpgradeIds: [],
     reachedMilestoneIds: [],
     productionObservedAfterUnlock: false,
