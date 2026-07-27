@@ -707,7 +707,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Title: Preserve teaser and future-system boundaries
 - Epic: Epic 6 - Promotion and Unlock Integration
 - Priority: P1
-- Status: Ready
+- Status: Done
 - Objective: Ensure Playable Idle MVP integration does not accidentally activate Team, Automation or other excluded systems.
 - Scope: Add guards and regression coverage for full Team inactive, Automation inactive, auto-reporting inactive and teaser-only future-system exposure.
 - Out of Scope: Implementing future systems; expanding Statistics; visual redesign.
@@ -720,7 +720,7 @@ Future systems may be teased only where the canonical docs allow teaser behavior
 - Save Impact: No new save data beyond unlock state validation
 - UI Impact: May constrain teaser visibility rules
 - Risk Level: Medium
-- Definition of Done: Excluded systems remain inert across promotion, unlock, purchases and save/load.
+- Definition of Done: Excluded systems remain inert across promotion, unlock, purchases and save/load. Delivered by the QA-PLAYABLE-MVP-027 implementation PR.
 
 ### Epic 7 - Offline Progress
 

@@ -426,20 +426,25 @@ function getSavedGamePayload(parsed: unknown) {
 }
 
 function toMvpSaveGameData(game: GameState, lastPlayedAt: number): MvpSaveGameData {
+  // Persistence is an explicit MVP boundary. Rebuild the payload through the
+  // same allow-listed normalization used on load so inactive/future runtime
+  // stubs cannot become activated merely by being attached to GameState.
+  const normalizedGame = normalizeGameState(game, lastPlayedAt);
+
   return {
-    resources: game.resources,
-    totalBugsFound: game.totalBugsFound,
-    totalMoneyEarned: game.totalMoneyEarned,
+    resources: normalizedGame.resources,
+    totalBugsFound: normalizedGame.totalBugsFound,
+    totalMoneyEarned: normalizedGame.totalMoneyEarned,
     lastPlayedAt,
-    careerStage: game.careerStage,
-    promotion: game.promotion,
-    uiSurfaces: game.uiSurfaces,
-    unlocks: game.unlocks,
-    upgrades: game.upgrades,
-    assistant: game.assistant,
-    endpointCompleted: game.endpointCompleted,
+    careerStage: normalizedGame.careerStage,
+    promotion: normalizedGame.promotion,
+    uiSurfaces: normalizedGame.uiSurfaces,
+    unlocks: normalizedGame.unlocks,
+    upgrades: normalizedGame.upgrades,
+    assistant: normalizedGame.assistant,
+    endpointCompleted: normalizedGame.endpointCompleted,
     offlineProgress: {
-      ...game.offlineProgress,
+      ...normalizedGame.offlineProgress,
       lastActiveAt: lastPlayedAt,
       timestampStatus: "valid",
     },

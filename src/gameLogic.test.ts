@@ -37,6 +37,7 @@ import {
   performManualTest,
   purchaseAssistantLevel,
   purchaseMaxAssistantLevels,
+  purchaseAssistantSupportUpgrade,
   purchaseUpgrade,
   reportAllBugs,
   spendResource,
@@ -54,6 +55,90 @@ import type {
 import type { GameplayEventListener } from "./gameLogic";
 
 describe("game logic", () => {
+  describe("Playable MVP future-system boundaries", () => {
+    function buildPromotionReadyBoundaryGame(): GameState {
+      return evaluatePromotionAvailability({
+        ...initialState,
+        resources: {
+          ...initialState.resources,
+          [MVP_IDS.resources.money]: 1_000,
+        },
+        totalBugsFound: 100,
+        totalMoneyEarned: 150,
+        upgrades: {
+          ...initialState.upgrades,
+          [MVP_IDS.upgrades.betterChecklist]: 1,
+          [MVP_IDS.upgrades.coffee]: 1,
+          [MVP_IDS.upgrades.keyboardShortcuts]: 1,
+        },
+      });
+    }
+
+    it("keeps future systems inert through promotion, unlocks, purchases, and production", () => {
+      const futureSystems = {
+        team: { unlocked: false, output: 0 },
+        automation: { unlocked: false, coverage: 0 },
+        autoReporting: { unlocked: false, reportsSubmitted: 0 },
+      } as const;
+      const promotion = acceptPromotion(
+        {
+          ...buildPromotionReadyBoundaryGame(),
+          futureSystems,
+        } as GameState & { futureSystems: typeof futureSystems },
+        100,
+      );
+
+      expect(promotion.ok).toBe(true);
+      if (!promotion.ok) {
+        throw new Error("Promotion should succeed.");
+      }
+
+      const levelPurchase = purchaseAssistantLevel(promotion.game, 101);
+      expect(levelPurchase.ok).toBe(true);
+      if (!levelPurchase.ok) {
+        throw new Error("Assistant level purchase should succeed.");
+      }
+
+      const supportPurchase = purchaseAssistantSupportUpgrade(
+        levelPurchase.game,
+        "support_immediate_production",
+        102,
+      );
+      expect(supportPurchase.ok).toBe(true);
+      if (!supportPurchase.ok) {
+        throw new Error("Immediate Production Support purchase should succeed.");
+      }
+
+      const production = advanceOnlineAssistantProduction(supportPurchase.game, 10, 103);
+      expect(production.ok).toBe(true);
+      if (!production.ok) {
+        throw new Error("Assistant production should succeed.");
+      }
+
+      expect(
+        (production.game as GameState & { futureSystems: typeof futureSystems })
+          .futureSystems,
+      ).toEqual(futureSystems);
+      expect(production.game.resources[MVP_IDS.resources.money]).toBe(
+        supportPurchase.game.resources[MVP_IDS.resources.money],
+      );
+      expect(production.game.resources[MVP_IDS.resources.bugsFound]).toBeGreaterThan(0);
+      expect(production.game.totalMoneyEarned).toBe(150);
+      expect(production.events.map(({ id }) => id)).not.toContain(
+        MVP_IDS.events.bugReportSubmitted,
+      );
+      expect(production.events.map(({ id }) => id)).not.toContain(
+        MVP_IDS.events.moneyEarned,
+      );
+      expect(production.game.resources).not.toHaveProperty("team_output");
+      expect(production.game.resources).not.toHaveProperty("automation_coverage");
+      expect(production.game.uiSurfaces).not.toHaveProperty("ui_team");
+      expect(production.game.uiSurfaces).not.toHaveProperty("ui_automation");
+      expect(production.game.unlocks).not.toHaveProperty("unlock_team");
+      expect(production.game.unlocks).not.toHaveProperty("unlock_automation");
+    });
+  });
+
   describe("Assistant Buy 1 transaction", () => {
     function buildPurchasableAssistantGame(level: number, money: number): GameState {
       return {
