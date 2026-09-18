@@ -91,6 +91,52 @@ export type AssistantMilestoneId =
   "milestone_assistant_first" | "milestone_assistant_capstone";
 export type TabId = typeof MVP_IDS.uiSurfaces.manualTesting;
 
+// Active career release. The preceding MVP contracts remain available for migration.
+export type CrewId = "assistant" | "squad" | "runner" | "lab";
+export const BULK_PURCHASE_SIZE = 10;
+export const CAREER_SAVE_VERSION = 3;
+export type PurchaseMode = 1 | typeof BULK_PURCHASE_SIZE | "max";
+export interface CareerContract {
+  id: string;
+  title: string;
+  target: number;
+  reward: number;
+  duration: number;
+  progress: number;
+  elapsed: number;
+}
+export interface CareerState {
+  schemaVersion: typeof CAREER_SAVE_VERSION;
+  money: number;
+  bugs: number;
+  earned: number;
+  found: number;
+  lifetimeEarned: number;
+  lifetimeBugs: number;
+  manualTests: number;
+  stage: number;
+  bestStage: number;
+  crew: Record<CrewId, number>;
+  upgrades: string[];
+  badges: string[];
+  experience: number;
+  careers: number;
+  contractsCompleted: number;
+  contract: CareerContract | null;
+  lastTick: number;
+  playedSeconds: number;
+}
+export type CareerAction =
+  | { type: "test" }
+  | { type: "report" }
+  | { type: "hire"; id: CrewId; mode: PurchaseMode }
+  | { type: "upgrade"; id: string }
+  | { type: "promote" }
+  | { type: "contract"; id: string }
+  | { type: "claim" }
+  | { type: "cancelContract" }
+  | { type: "prestige" };
+
 export type ResourceLifetimeCategory = "disposable" | "investment";
 export type ResourceResetBehavior = "reset";
 export type ResourceFormatStyle = "integer";

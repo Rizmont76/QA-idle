@@ -1,4 +1,12 @@
 import { MVP_IDS } from "./types";
+export {
+  CAREER_STAGES,
+  CAREER_UPGRADES,
+  CREW,
+  CONTRACTS,
+  BADGES,
+  CAREER_RULES,
+} from "./game/career/content";
 import { activeRuntimeCandidateParameters } from "./game/runtimeCandidateParameters";
 import type {
   CareerStageDefinition,
