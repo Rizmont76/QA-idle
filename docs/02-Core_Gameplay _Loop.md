@@ -1,5 +1,7 @@
 # 02 - Core Gameplay Loop
 
+> **Active release — 2026-09-18:** The user-authorized career expansion is specified in [16 — Playable Career Idle](16-Career_Idle_Release.md). Its scoped rules supersede the historical MVP restrictions below for the active application, including early hiring, auto-reporting, six ranks, contracts, and Director prestige. The original MVP design and validation remain preserved as historical references.
+
 ## Document Status
 
 **Project:** QA Idle  

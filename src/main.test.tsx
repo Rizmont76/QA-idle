@@ -1,394 +1,179 @@
 import "@testing-library/jest-dom/vitest";
-import { fireEvent, screen } from "@testing-library/react";
-import type { Root } from "react-dom/client";
+import {
+  act as reactAct,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { initialState } from "./gameData";
-import { acceptPromotion, evaluatePromotionAvailability } from "./gameLogic";
-import { saveGame } from "./save";
-import { MVP_IDS } from "./types";
-import type { GameState } from "./types";
+import { CareerApp } from "./ui/CareerApp";
+import { newCareer } from "./game/career/engine";
+import { CAREER_RULES as R } from "./game/career/content";
+import { exportCareer } from "./game/career/persistence";
+import type { CareerState } from "./types";
 
-let mountedApp: Root | null = null;
-
-const hiddenFutureSystemLabels = [
-  "Team",
-  "Automation",
-  "Reputation",
-  "Contracts",
-  "Office",
-  "Company",
-  "Prestige",
-  "Achievements",
-  "Statistics",
-] as const;
-
-function buildPromotionReadyGame(): GameState {
-  return evaluatePromotionAvailability({
-    ...initialState,
-    totalBugsFound: 100,
-    totalMoneyEarned: 150,
-    upgrades: {
-      ...initialState.upgrades,
-      [MVP_IDS.upgrades.betterChecklist]: 1,
-      [MVP_IDS.upgrades.coffee]: 1,
-      [MVP_IDS.upgrades.keyboardShortcuts]: 1,
-    },
-  });
-}
-
-function buildPromotionCompletedGame(): GameState {
-  const result = acceptPromotion(buildPromotionReadyGame());
-
-  if (!result.ok) {
-    throw new Error("Expected promotion-ready smoke-test state to promote.");
+const NOW = 10_000_000;
+function boot(patch?: Partial<CareerState>) {
+  if (patch) {
+    localStorage.setItem(R.saveKey, exportCareer({ ...newCareer(NOW), ...patch }));
   }
-
-  return result.game;
+  return render(<CareerApp />);
 }
-
-function buildFundedAssistantGame(money = 1_000): GameState {
-  const game = buildPromotionCompletedGame();
-
-  return {
-    ...game,
-    resources: {
-      ...game.resources,
-      [MVP_IDS.resources.money]: money,
-    },
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(NOW);
+  localStorage.clear();
+  vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+  HTMLDialogElement.prototype.showModal = function () {
+    this.setAttribute("open", "");
   };
-}
+  HTMLDialogElement.prototype.close = function () {
+    this.removeAttribute("open");
+  };
+});
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});
 
-async function bootAppWithSave(game?: GameState) {
-  document.body.innerHTML = '<div id="root"></div>';
-
-  if (game) {
-    saveGame(game);
-  }
-
-  const module = await import("./main");
-  mountedApp = module.appRoot;
-}
-
-function expectFutureSystemsToStayHidden() {
-  for (const label of hiddenFutureSystemLabels) {
-    expect(screen.queryByText(label, { exact: false })).not.toBeInTheDocument();
-  }
-}
-
-describe("MVP UI smoke tests", () => {
-  beforeEach(() => {
-    vi.resetModules();
-    localStorage.clear();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-    mountedApp?.unmount();
-    mountedApp = null;
-    document.body.innerHTML = "";
-  });
-
-  it("displays the new-game MVP surfaces without future systems", async () => {
-    await bootAppWithSave();
-
-    const workspace = await screen.findByLabelText("Junior QA workspace layout");
-    expect(
-      screen.getByRole("heading", { name: "Junior QA Workspace" }),
-    ).toBeInTheDocument();
-    expect(workspace).toHaveAttribute("data-workspace-stage", "junior");
-    expect(
-      screen.getByRole("complementary", { name: "Investment and progression" }),
-    ).toBeInTheDocument();
-    expect(
-      workspace.querySelector('[data-workspace-region="assistant"]'),
-    ).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /find bug/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /report bugs/i })).toBeInTheDocument();
-    expect(screen.getByText("Bugs Found")).toBeInTheDocument();
-    expect(screen.getByText("Money")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Basic Upgrades" })).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Promotion Progress" }),
-    ).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /promote to/i })).not.toBeInTheDocument();
-    expectFutureSystemsToStayHidden();
-  });
-
-  it("reveals the Promote action only after promotion requirements are satisfied", async () => {
-    await bootAppWithSave(buildPromotionReadyGame());
-
-    expect(
-      await screen.findByRole("button", { name: "Promote to Middle QA" }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Promotion available")).toBeInTheDocument();
-    expectFutureSystemsToStayHidden();
-  });
-
-  it("shows the Middle QA Assistant phase without claiming MVP completion", async () => {
-    await bootAppWithSave(buildPromotionCompletedGame());
-
-    const workspace = await screen.findByLabelText("Middle QA workspace layout");
-    expect(
-      screen.getByRole("heading", { name: "Middle QA Workspace" }),
-    ).toBeInTheDocument();
-    expect(workspace).toHaveAttribute("data-workspace-stage", "middle");
-    expect(
-      screen.getByRole("region", { name: "Junior QA Assistant" }),
-    ).toBeInTheDocument();
-    expect(screen.getAllByText("Promotion completed").length).toBeGreaterThan(0);
-    expect(screen.getByText("Complete")).toBeInTheDocument();
-    expect(
-      screen.queryByRole("region", { name: "MVP completion" }),
-    ).not.toBeInTheDocument();
-    expect(screen.queryByText("0 / 0")).not.toBeInTheDocument();
-    expect(screen.queryByText("Lifetime bugs found")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /promote to/i })).not.toBeInTheDocument();
-    expectFutureSystemsToStayHidden();
-  });
-
-  it("keeps the responsive workspace focus order aligned with VD-03", async () => {
-    await bootAppWithSave(buildPromotionCompletedGame());
-
-    const mainAction = await screen.findByRole("button", { name: /find bug/i });
-    const assistant = screen.getByRole("region", { name: "Junior QA Assistant" });
-    const investment = screen.getByRole("region", { name: "Basic Upgrades" });
-    const progression = screen.getByRole("region", { name: "Promotion Progress" });
-
-    expect(mainAction.compareDocumentPosition(assistant)).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING,
-    );
-    expect(assistant.compareDocumentPosition(investment)).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING,
-    );
-    expect(investment.compareDocumentPosition(progression)).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING,
-    );
-  });
-
-  it("purchases one Assistant level from the functional panel", async () => {
-    await bootAppWithSave(buildFundedAssistantGame());
-
-    const buyOne = await screen.findByRole("button", {
-      name: /buy 1 assistant level for \$200, resulting level 1/i,
+describe("playable career UI", () => {
+  it("starts in the game and lets the player find bugs, report, and hire", () => {
+    boot();
+    expect(screen.getByRole("heading", { name: "Робоче місце." })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Контракти" })).not.toBeInTheDocument();
+    for (let i = 0; i < 25; i++) {
+      fireEvent.click(screen.getByRole("button", { name: /Знайти баг/ }));
+    }
+    expect(screen.getByTestId("money")).toHaveTextContent("$0");
+    fireEvent.click(screen.getByRole("button", { name: /Здати звіт/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Найняти QA-помічник/ }));
+    expect(screen.getByText(/Нас уже двоє/)).toBeInTheDocument();
+    reactAct(() => {
+      vi.advanceTimersByTime(2_000);
     });
-
-    expect(buyOne).toHaveAttribute("aria-disabled", "false");
-    fireEvent.click(buyOne);
-
-    expect(await screen.findByText("Level 1 / 25")).toBeInTheDocument();
-    expect(screen.getByText("$800")).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "Assistant level purchased1 level added for $200. Assistant is now level 1.",
-    );
-
-    const dismiss = screen.getByRole("button", {
-      name: "Dismiss Assistant level purchased feedback",
-    });
-    dismiss.focus();
-    expect(dismiss).toHaveFocus();
-    fireEvent.click(dismiss);
-    expect(screen.queryByText("Assistant level purchased")).not.toBeInTheDocument();
-    expect(screen.getByText("Level 1 / 25")).toBeInTheDocument();
-  });
-
-  it("keeps unaffordable Assistant controls focusable and explained", async () => {
-    await bootAppWithSave(buildPromotionCompletedGame());
-
-    const buyOne = await screen.findByRole("button", {
-      name: "Buy 1 Assistant level for $200, resulting level 1",
-    });
-    const buyMax = screen.getByRole("button", {
-      name: "Buy Max Assistant levels unavailable",
-    });
-
-    expect(buyOne).toHaveAttribute("aria-disabled", "true");
-    expect(buyOne).toHaveAccessibleDescription(/not affordable/i);
-    expect(buyMax).toHaveAttribute("aria-disabled", "true");
-    expect(buyMax).toHaveAccessibleDescription(/not affordable/i);
-
-    buyOne.focus();
-    expect(buyOne).toHaveFocus();
-    fireEvent.click(buyOne);
-    expect(screen.getByText("Level 0 / 25")).toBeInTheDocument();
-  });
-
-  it("shows exactly three staged optional Support Upgrade cards", async () => {
-    await bootAppWithSave(buildPromotionCompletedGame());
-
     expect(
-      await screen.findByRole("heading", { name: "Support Upgrades" }),
-    ).toBeInTheDocument();
-    expect(screen.getAllByRole("article", { name: /optional/i })).toHaveLength(3);
-
-    const immediate = screen.getByRole("button", {
-      name: "Buy Desk Setup Kit for $120",
-    });
-    const training = screen.getByRole("button", {
-      name: "Mentoring Checklist locked until Assistant level 2",
-    });
-    const offline = screen.getByRole("button", {
-      name: "Handover Notes locked until Assistant level 5",
-    });
-
-    expect(immediate).toHaveAttribute("aria-disabled", "true");
-    expect(immediate).toHaveAccessibleDescription(/not affordable/i);
-    expect(training).toHaveAttribute("aria-disabled", "true");
-    expect(training).toHaveAccessibleDescription(/unlocks at assistant level 2/i);
-    expect(offline).toHaveAttribute("aria-disabled", "true");
-    expect(offline).toHaveAccessibleDescription(/unlocks at assistant level 5/i);
-
-    training.focus();
-    expect(training).toHaveFocus();
+      Number(screen.getByTestId("bugs").textContent.replace(",", ".")),
+    ).toBeGreaterThan(0);
   });
-
-  it("purchases an affordable Support Upgrade once and persists ownership", async () => {
-    await bootAppWithSave(buildFundedAssistantGame());
-
-    const buySupport = await screen.findByRole("button", {
-      name: "Buy Desk Setup Kit for $120",
+  it("promotes to Middle, buys automation and earns while idle", () => {
+    boot({
+      money: 100,
+      earned: 150,
+      crew: { assistant: 3, squad: 0, runner: 0, lab: 0 },
     });
-    expect(buySupport).toHaveAttribute("aria-disabled", "false");
-
-    fireEvent.click(buySupport);
-
-    expect(
-      await screen.findByRole("button", { name: "Desk Setup Kit owned" }),
-    ).toHaveAttribute("aria-disabled", "true");
-    expect(
-      screen.getByRole("article", {
-        name: /Desk Setup Kit.*Immediate Production Support.*Owned/i,
-      }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("$880")).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "Support purchasedDesk Setup Kit purchased for $120. Immediate Production Support is active.",
-    );
-  });
-
-  it("announces a Support Upgrade unlocked by an Assistant level purchase", async () => {
-    await bootAppWithSave(buildFundedAssistantGame());
-
-    fireEvent.click(
-      await screen.findByRole("button", {
-        name: /buy 1 assistant level for \$200, resulting level 1/i,
-      }),
-    );
-    fireEvent.click(
-      await screen.findByRole("button", {
-        name: /buy 1 assistant level for \$238, resulting level 2/i,
-      }),
-    );
-
-    expect(
-      await screen.findByRole("article", {
-        name: /Mentoring Checklist.*Newly unlocked/i,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen
-        .getByText("Mentoring Checklist is now available.")
-        .closest('[role="status"]'),
-    ).toBeInTheDocument();
-  });
-
-  it("surfaces every milestone crossed by Buy Max as committed feedback", async () => {
-    await bootAppWithSave(buildFundedAssistantGame(100_000));
-
-    fireEvent.click(
-      await screen.findByRole("button", {
-        name: /Buy Max: 25 Assistant levels/i,
-      }),
-    );
-
-    const milestoneFeedback = await screen.findAllByText("Assistant milestone reached");
-    expect(milestoneFeedback).toHaveLength(2);
-    expect(screen.getByText(/Level 8 milestone effects are now active/i)).toBeVisible();
-    expect(screen.getByText(/Level 25 milestone effects are now active/i)).toBeVisible();
-  });
-
-  it("shows and dismisses an explicit offline return summary", async () => {
-    vi.spyOn(Date, "now").mockReturnValue(1_000_000);
-    const game = buildPromotionCompletedGame();
-
-    await bootAppWithSave({
-      ...game,
-      offlineProgress: {
-        ...game.offlineProgress,
-        lastActiveAt: 1_000_000,
-        timestampStatus: "valid",
-        pendingSummary: {
-          startedAt: 100_000,
-          endedAt: 1_000_000,
-          elapsedSeconds: 900,
-          eligibleSeconds: 900,
-          onlineBugsPerSecond: 1,
-          offlineEfficiency: 0.4,
-          bugsFoundGained: 360,
-        },
-      },
+    fireEvent.click(screen.getByRole("button", { name: /Отримати підвищення/ }));
+    expect(screen.getByRole("heading", { name: "Senior QA" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Купити Автоматичні звіти" }));
+    expect(screen.getByText("Автозвіти працюють")).toBeInTheDocument();
+    const oldMoney = screen.getByTestId("money").textContent;
+    reactAct(() => {
+      vi.advanceTimersByTime(5_000);
     });
-
-    const summary = await screen.findByRole("region", {
-      name: "Offline return summary",
-    });
-    expect(summary).toHaveTextContent("+360 Bugs Found while away");
-    expect(summary).toHaveTextContent("900 eligible seconds");
-    expect(summary).toHaveTextContent("Money was not produced");
-
-    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+    expect(screen.getByTestId("money").textContent).not.toBe(oldMoney);
+    expect(screen.getByTestId("bugs")).toHaveTextContent("0");
+  });
+  it("offers affordable bulk hiring and does not grant a locked producer", () => {
+    boot({ money: 110 });
+    fireEvent.click(screen.getByRole("button", { name: "Макс" }));
+    fireEvent.click(screen.getByRole("button", { name: /Найняти QA-помічник/ }));
+    const saved = JSON.parse(localStorage.getItem(R.saveKey) ?? "{}") as CareerState;
+    expect(saved.crew.assistant).toBe(3);
+    expect(saved.money).toBeGreaterThanOrEqual(0);
     expect(
-      screen.queryByRole("region", { name: "Offline return summary" }),
+      screen.queryByRole("button", { name: /Найняти QA-команда/ }),
     ).not.toBeInTheDocument();
   });
-
-  it("suppresses both Assistant purchase actions at max level", async () => {
-    const game = buildFundedAssistantGame(100_000);
-    await bootAppWithSave({
-      ...game,
-      assistant: {
-        ...game.assistant,
-        level: 25,
-        reachedMilestoneIds: [
-          "milestone_assistant_first",
-          "milestone_assistant_capstone",
-        ],
-      },
+  it("requires confirmation before prestige, preserves badges, and returns to a playable start", () => {
+    boot({
+      stage: 5,
+      bestStage: 5,
+      earned: 2_500_000,
+      lifetimeEarned: 2_500_000,
+      money: 500,
+      badges: ["director"],
     });
-
-    const buyOne = await screen.findByRole("button", {
-      name: "Buy 1 Assistant level unavailable",
-    });
-    const buyMax = screen.getByRole("button", {
-      name: "Buy Max Assistant levels unavailable",
-    });
-
-    expect(buyOne).toHaveTextContent("Max level");
-    expect(buyOne).toHaveAttribute("aria-disabled", "true");
-    expect(buyOne).toHaveAccessibleDescription(/at max level/i);
-    expect(buyMax).toHaveTextContent("Max level");
-    expect(buyMax).toHaveAttribute("aria-disabled", "true");
-    expect(buyMax).toHaveAccessibleDescription(/at max level/i);
+    fireEvent.click(screen.getByRole("button", { name: "Кар’єра" }));
+    fireEvent.click(screen.getByRole("button", { name: /Почати нову кар’єру/ }));
+    expect(screen.getByRole("dialog")).toHaveTextContent("команда");
+    fireEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "Скасувати" }),
+    );
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Почати нову кар’єру/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Отримати \+5 досвіду/ }));
+    expect(screen.getByRole("heading", { name: "Middle QA" })).toBeInTheDocument();
+    expect(screen.getByText("Автозвіти працюють")).toBeInTheDocument();
+    expect(screen.getByTestId("money")).toHaveTextContent("$50");
   });
-
-  it("shows endpoint completion only from authoritative endpoint state", async () => {
-    const game = buildFundedAssistantGame();
-    await bootAppWithSave({
-      ...game,
-      assistant: {
-        ...game.assistant,
-        level: 8,
-        reachedMilestoneIds: ["milestone_assistant_first"],
-        productionObservedAfterUnlock: true,
-        productionObservedAfterMilestone: true,
-      },
-      endpointCompleted: true,
+  it("validates imports before replacing progress", () => {
+    boot({ money: 80 });
+    fireEvent.click(screen.getByRole("button", { name: "Налаштування" }));
+    fireEvent.change(screen.getByLabelText("Встав JSON збереження для імпорту"), {
+      target: { value: "bad-json" },
     });
-
+    fireEvent.click(screen.getByRole("button", { name: /Імпортувати збереження/ }));
+    expect(screen.getByRole("alert")).toHaveTextContent("JSON");
+    expect(screen.getByTestId("money")).toHaveTextContent("$80");
+    fireEvent.change(screen.getByLabelText("Встав JSON збереження для імпорту"), {
+      target: { value: exportCareer({ ...newCareer(NOW), money: 222 }) },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Імпортувати збереження/ }));
+    expect(screen.getByRole("dialog")).toHaveTextContent("$222");
+    fireEvent.click(screen.getByRole("button", { name: "Завантажити" }));
+    expect(screen.getByTestId("money")).toHaveTextContent("$222");
+  });
+  it("makes hard reset reversible until the explicit confirmation", () => {
+    boot({ experience: 5, money: 80 });
+    fireEvent.click(screen.getByRole("button", { name: "Налаштування" }));
+    fireEvent.click(screen.getByRole("button", { name: "Скинути прогрес" }));
+    fireEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "Скасувати" }),
+    );
+    expect(screen.getByTestId("money")).toHaveTextContent("$80");
+    fireEvent.click(screen.getByRole("button", { name: "Скинути прогрес" }));
+    fireEvent.click(screen.getByRole("button", { name: "Так, почати з нуля" }));
+    expect(screen.getByTestId("money")).toHaveTextContent("$0");
+  });
+  it("checks offline rewards, summaries, and a second reload without duplicated income", () => {
+    const mounted = boot({
+      lastTick: NOW - 3_600_000,
+      stage: 1,
+      crew: { assistant: 3, squad: 0, runner: 0, lab: 0 },
+      upgrades: ["auto"],
+    });
+    expect(screen.getByRole("region", { name: "Повернення до гри" })).toBeInTheDocument();
+    const amount = screen.getByTestId("money").textContent;
+    mounted.unmount();
+    render(<CareerApp />);
     expect(
-      await screen.findByRole("region", { name: "MVP completion" }),
-    ).toHaveTextContent("Playable Idle MVP reached");
-    expect(
-      screen.getByText(/Playable Idle MVP complete\. Future gameplay remains hidden\./i),
-    ).toBeInTheDocument();
+      screen.queryByRole("region", { name: "Повернення до гри" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("money").textContent).toBe(amount);
+  });
+  it("pauses this tab when another tab takes ownership", () => {
+    boot();
+    reactAct(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: R.saveKey,
+          newValue: exportCareer(newCareer(NOW)),
+        }),
+      );
+    });
+    expect(screen.getByRole("button", { name: /Знайти баг/ })).toBeDisabled();
+    expect(screen.getByRole("alert")).toHaveTextContent("іншій вкладці");
+  });
+  it("leaves an unsupported save untouched during in-memory play", () => {
+    localStorage.setItem(R.saveKey, '{"schemaVersion":99}');
+    boot();
+    fireEvent.click(screen.getByRole("button", { name: /Знайти баг/ }));
+    reactAct(() => {
+      vi.advanceTimersByTime(5_000);
+    });
+    expect(localStorage.getItem(R.saveKey)).toBe('{"schemaVersion":99}');
+    expect(screen.getByText(/Оригінал залишено/)).toBeInTheDocument();
   });
 });
