@@ -1,11 +1,5 @@
 import type { CareerAction, CareerState } from "../../types";
-import {
-  BADGES,
-  CAREER_RULES as R,
-  CAREER_STAGES,
-  CAREER_UPGRADES,
-  CONTRACTS,
-} from "./content";
+import { BADGES, CAREER_RULES as R, CAREER_STAGES, CAREER_UPGRADES } from "./content";
 import {
   bounded,
   contractReady,
@@ -17,7 +11,11 @@ import {
   production,
   promotionReady,
   reportValue,
+  contractQuote,
+  offlineEfficiency,
 } from "./selectors";
+import { projectPhase } from "./studioSelectors";
+import { studioAction } from "./studioActions";
 
 export function newCareer(now = Date.now()): CareerState {
   return {
@@ -31,13 +29,19 @@ export function newCareer(now = Date.now()): CareerState {
     manualTests: 0,
     stage: 0,
     bestStage: 0,
-    crew: { assistant: 0, squad: 0, runner: 0, lab: 0 },
+    crew: { assistant: 0, squad: 0, runner: 0, lab: 0, cloud: 0, ai: 0, orbital: 0 },
     upgrades: [],
     badges: [],
     experience: 0,
     careers: 0,
     contractsCompleted: 0,
     contract: null,
+    project: null,
+    insights: 0,
+    lifetimeInsights: 0,
+    research: {},
+    certificates: {},
+    specialists: [],
     lastTick: now,
     playedSeconds: 0,
   };
@@ -49,11 +53,16 @@ export function awardBadges(s: CareerState): CareerState {
     : s;
 }
 function findBugs(s: CareerState, amount: number): CareerState {
+  const phase = s.project ? projectPhase(s.project) : null;
   return {
     ...s,
     bugs: bounded(s.bugs + amount),
     found: bounded(s.found + amount),
     lifetimeBugs: bounded(s.lifetimeBugs + amount),
+    project:
+      s.project && phase
+        ? { ...s.project, progress: Math.min(phase.target, s.project.progress + amount) }
+        : null,
     contract: s.contract
       ? {
           ...s.contract,
@@ -86,14 +95,21 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
     return { state: s, seconds: 0, bugs: 0, money: 0, capped: false };
   }
   const seconds = Math.min(elapsed, offlineCap(s));
-  const efficiency =
-    offline && !s.upgrades.includes("handover") ? R.offlineEfficiency : 1;
+  const efficiency = offline ? offlineEfficiency(s) : 1;
   const bugs = bounded(production(s) * seconds * efficiency);
   let next = findBugs(s, bugs);
+  const phase = next.project ? projectPhase(next.project) : null;
   next = {
     ...next,
     lastTick: now,
     playedSeconds: bounded(s.playedSeconds + (offline ? 0 : seconds)),
+    project:
+      next.project && phase
+        ? {
+            ...next.project,
+            elapsed: Math.min(phase.seconds, next.project.elapsed + seconds),
+          }
+        : null,
     contract: next.contract
       ? {
           ...next.contract,
@@ -185,20 +201,13 @@ export function act(
       break;
     }
     case "contract": {
-      const def = CONTRACTS.find((c) => c.id === action.id);
-      if (!def || state.stage < R.contractStage || state.contract) {
+      const contract = contractQuote(state, action.id);
+      if (!contract || state.contract) {
         return failure("Контракт поки недоступний.");
       }
-      const scale = R.contractScale ** (state.stage - R.contractStage);
       state = {
         ...state,
-        contract: {
-          ...def,
-          target: def.target * scale,
-          reward: def.reward * scale,
-          progress: 0,
-          elapsed: 0,
-        },
+        contract,
       };
       message = "Контракт розпочато. Кожен новий баг наближає винагороду.";
       break;
@@ -209,6 +218,8 @@ export function act(
       }
       state = {
         ...earn(state, state.contract.reward),
+        insights: bounded(state.insights + state.contract.insights),
+        lifetimeInsights: bounded(state.lifetimeInsights + state.contract.insights),
         contract: null,
         contractsCompleted: bounded(state.contractsCompleted + 1),
       };
@@ -238,9 +249,18 @@ export function act(
         bestStage: state.bestStage,
         contractsCompleted: state.contractsCompleted,
         playedSeconds: state.playedSeconds,
+        insights: state.insights,
+        lifetimeInsights: state.lifetimeInsights,
+        research: state.research,
+        certificates: state.certificates,
+        specialists: state.specialists,
       };
       message = `Нова кар’єра! +${String(reward)} досвіду. Автозвіти вже працюють.`;
       break;
+    }
+    default: {
+      const result = studioAction(state, action);
+      return { ...result, state: awardBadges(result.state) };
     }
   }
   return { state: awardBadges(state), ok: true, message };

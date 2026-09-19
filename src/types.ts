@@ -92,9 +92,10 @@ export type AssistantMilestoneId =
 export type TabId = typeof MVP_IDS.uiSurfaces.manualTesting;
 
 // Active career release. The preceding MVP contracts remain available for migration.
-export type CrewId = "assistant" | "squad" | "runner" | "lab";
+export type CrewId =
+  "assistant" | "squad" | "runner" | "lab" | "cloud" | "ai" | "orbital";
 export const BULK_PURCHASE_SIZE = 10;
-export const CAREER_SAVE_VERSION = 3;
+export const CAREER_SAVE_VERSION = 4;
 export type PurchaseMode = 1 | typeof BULK_PURCHASE_SIZE | "max";
 export interface CareerContract {
   id: string;
@@ -104,6 +105,17 @@ export interface CareerContract {
   duration: number;
   progress: number;
   elapsed: number;
+  insights: number;
+}
+export interface CareerProject {
+  id: string;
+  tier: number;
+  phase: number;
+  progress: number;
+  elapsed: number;
+  workMultiplier: number;
+  reward: number;
+  insights: number;
 }
 export interface CareerState {
   schemaVersion: typeof CAREER_SAVE_VERSION;
@@ -123,6 +135,12 @@ export interface CareerState {
   careers: number;
   contractsCompleted: number;
   contract: CareerContract | null;
+  project: CareerProject | null;
+  insights: number;
+  lifetimeInsights: number;
+  research: Record<string, number>;
+  certificates: Record<string, number>;
+  specialists: string[];
   lastTick: number;
   playedSeconds: number;
 }
@@ -135,6 +153,11 @@ export type CareerAction =
   | { type: "contract"; id: string }
   | { type: "claim" }
   | { type: "cancelContract" }
+  | { type: "startProject"; id: string }
+  | { type: "submitProject" }
+  | { type: "cancelProject" }
+  | { type: "research"; id: string }
+  | { type: "assignSpecialist"; id: string }
   | { type: "prestige" };
 
 export type ResourceLifetimeCategory = "disposable" | "investment";

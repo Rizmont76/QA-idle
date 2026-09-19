@@ -10,30 +10,12 @@ import {
 } from "./content";
 import { advanceCareer, awardBadges, newCareer } from "./engine";
 import type { TimeResult } from "./engine";
-import { bounded } from "./selectors";
+import { amount, ids, record } from "./saveValues";
+import { normalizeStudio } from "./studioPersistence";
+import { STUDIO_RULES as S } from "./expansionData";
 
-type RecordValue = Record<string, unknown>;
 const IMPORT_CHARACTER_LIMIT = 1_000_000;
 const JSON_INDENT = 2;
-function record(value: unknown): RecordValue {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
-    ? (value as RecordValue)
-    : {};
-}
-function amount(value: unknown, max: number = R.limit): number {
-  return typeof value === "number" ? bounded(value, max) : 0;
-}
-function ids(value: unknown, allowed: readonly string[]): string[] {
-  return Array.isArray(value)
-    ? [
-        ...new Set(
-          value.filter(
-            (id: unknown): id is string => typeof id === "string" && allowed.includes(id),
-          ),
-        ),
-      ]
-    : [];
-}
 function normalizeContract(value: unknown, stage: number): CareerContract | null {
   if (stage < R.contractStage) {
     return null;
@@ -44,23 +26,37 @@ function normalizeContract(value: unknown, stage: number): CareerContract | null
     return null;
   }
   // Only accept one of the legitimate snapshots from a rank reached this run.
-  const scales = CAREER_STAGES.slice(R.contractStage, stage + 1).map(
+  const scales = CAREER_STAGES.slice(def.stage, stage + 1).map(
     (_, i) => R.contractScale ** i,
   );
-  const scale = scales.find(
-    (n) => def.target * n === data["target"] && def.reward * n === data["reward"],
-  );
+  const scale = scales.find((n) => def.target * n === data["target"]);
   if (!scale) {
     return null;
   }
+  const reward = amount(data["reward"]);
+  const duration = amount(data["duration"]);
+  if (
+    reward < def.reward * scale ||
+    reward > Math.floor(def.reward * scale * S.maximumContractRewardMultiplier) ||
+    duration < Math.ceil(def.duration * S.minimumContractTimeMultiplier) ||
+    duration > def.duration
+  ) {
+    return null;
+  }
+  const extraRanks = Math.round(Math.log10(scale));
+  const maxInsights = Math.floor(
+    (def.insights + Math.floor(extraRanks / S.contractInsightRanks)) *
+      S.maximumInsightMultiplier,
+  );
   return {
     id: def.id,
     title: def.title,
     target: def.target * scale,
-    reward: def.reward * scale,
-    duration: def.duration,
+    reward,
+    duration,
+    insights: Math.floor(amount(data["insights"], maxInsights)),
     progress: amount(data["progress"], def.target * scale),
-    elapsed: amount(data["elapsed"], def.duration),
+    elapsed: amount(data["elapsed"], duration),
   };
 }
 export function normalizeCareer(value: unknown, now = Date.now()): CareerState {
@@ -111,6 +107,7 @@ export function normalizeCareer(value: unknown, now = Date.now()): CareerState {
       ? Math.min(lastTick, now)
       : now;
   state.contract = normalizeContract(data["contract"], state.stage);
+  normalizeStudio(state, data);
   return awardBadges(state);
 }
 
@@ -203,10 +200,36 @@ export function importCareer(text: string, now = Date.now()): CareerState {
   }
   const data = record(parsed);
   if (
-    data["schemaVersion"] === R.version &&
+    (data["schemaVersion"] === R.version ||
+      data["schemaVersion"] === R.previousVersion) &&
     typeof data["money"] === "number" &&
-    "crew" in data
+    typeof data["crew"] === "object" &&
+    data["crew"] !== null &&
+    !Array.isArray(data["crew"])
   ) {
+    if (data["schemaVersion"] === R.previousVersion) {
+      const crew = record(data["crew"]);
+      return normalizeCareer(
+        {
+          ...data,
+          stage: Math.min(R.prestigeStage, amount(data["stage"])),
+          bestStage: Math.min(R.prestigeStage, amount(data["bestStage"])),
+          crew: {
+            assistant: crew["assistant"],
+            squad: crew["squad"],
+            runner: crew["runner"],
+            lab: crew["lab"],
+          },
+          insights: 0,
+          lifetimeInsights: 0,
+          research: {},
+          certificates: {},
+          specialists: [],
+          project: null,
+        },
+        now,
+      );
+    }
     return normalizeCareer(data, now);
   }
   if (data["schemaVersion"] !== undefined) {
@@ -229,9 +252,11 @@ export function loadCareer(
 ): CareerLoad {
   let current: string | null;
   let legacy: string | null;
+  let previous: string | null;
   try {
     current = storage.getItem(R.saveKey);
-    legacy = current === null ? storage.getItem(R.legacyKey) : null;
+    previous = current === null ? storage.getItem(R.previousKey) : null;
+    legacy = current === null && previous === null ? storage.getItem(R.legacyKey) : null;
   } catch {
     return {
       state: newCareer(now),
@@ -246,10 +271,12 @@ export function loadCareer(
     state =
       current !== null
         ? importCareer(current, now)
-        : legacy !== null
-          ? importCareer(legacy, now)
-          : newCareer(now);
-    if (current !== null) {
+        : previous !== null
+          ? importCareer(previous, now)
+          : legacy !== null
+            ? importCareer(legacy, now)
+            : newCareer(now);
+    if (current !== null || previous !== null) {
       summary = advanceCareer(state, now, true);
       state = summary.state;
     }
@@ -276,7 +303,7 @@ export function loadCareer(
     state,
     summary,
     warning:
-      legacy !== null
+      legacy !== null || previous !== null
         ? "Попередній прогрес перенесено. Старе збереження залишилося як резервна копія."
         : "",
     blocked: false,

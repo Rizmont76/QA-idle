@@ -1,5 +1,11 @@
 import { MVP_IDS } from "./types";
 export {
+  PROJECTS,
+  RESEARCH,
+  SPECIALISTS,
+  STUDIO_RULES,
+} from "./game/career/expansionData";
+export {
   CAREER_STAGES,
   CAREER_UPGRADES,
   CREW,

@@ -62,7 +62,7 @@ describe("playable career UI", () => {
     boot({
       money: 100,
       earned: 150,
-      crew: { assistant: 3, squad: 0, runner: 0, lab: 0 },
+      crew: { cloud: 0, ai: 0, orbital: 0, assistant: 3, squad: 0, runner: 0, lab: 0 },
     });
     fireEvent.click(screen.getByRole("button", { name: /Отримати підвищення/ }));
     expect(screen.getByRole("heading", { name: "Senior QA" })).toBeInTheDocument();
@@ -97,7 +97,7 @@ describe("playable career UI", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Кар’єра" }));
     fireEvent.click(screen.getByRole("button", { name: /Почати нову кар’єру/ }));
-    expect(screen.getByRole("dialog")).toHaveTextContent("команда");
+    expect(screen.getByRole("dialog")).toHaveTextContent("незавершений проєкт");
     fireEvent.click(
       within(screen.getByRole("dialog")).getByRole("button", { name: "Скасувати" }),
     );
@@ -141,7 +141,7 @@ describe("playable career UI", () => {
     const mounted = boot({
       lastTick: NOW - 3_600_000,
       stage: 1,
-      crew: { assistant: 3, squad: 0, runner: 0, lab: 0 },
+      crew: { cloud: 0, ai: 0, orbital: 0, assistant: 3, squad: 0, runner: 0, lab: 0 },
       upgrades: ["auto"],
     });
     expect(screen.getByRole("region", { name: "Повернення до гри" })).toBeInTheDocument();

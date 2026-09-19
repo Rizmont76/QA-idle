@@ -25,6 +25,14 @@ export function duration(s: number): string {
   }
   return `${String(Math.ceil(Math.max(0, s)))} с`;
 }
+export function clockTime(s: number): string {
+  const seconds = Math.floor(Math.max(0, s));
+  const minutes = Math.floor(seconds / SECONDS_PER_MINUTE);
+  const remainder = seconds % SECONDS_PER_MINUTE;
+  return minutes > 0
+    ? `${String(minutes)} хв ${String(remainder)} с`
+    : `${String(remainder)} с`;
+}
 export function percent(value: number, target: number): number {
   return Math.min(PERCENT, Math.max(0, (value / Math.max(1, target)) * PERCENT));
 }
