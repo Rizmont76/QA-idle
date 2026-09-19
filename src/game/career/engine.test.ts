@@ -66,7 +66,9 @@ describe("career economy", () => {
     expect(production(bulk)).toBe(production(sequential));
   });
   it("doubles the whole producer group at a milestone and caps unit counts", () => {
-    const before = base({ crew: { assistant: 9, squad: 0, runner: 0, lab: 0 } });
+    const before = base({
+      crew: { cloud: 0, ai: 0, orbital: 0, assistant: 9, squad: 0, runner: 0, lab: 0 },
+    });
     const after = { ...before, crew: { ...before.crew, assistant: 10 } };
     expect(crewRate(after, "assistant") / crewRate(before, "assistant")).toBeCloseTo(
       20 / 9,
@@ -83,7 +85,7 @@ describe("career economy", () => {
     const s = base({
       earned: 150,
       money: 0,
-      crew: { assistant: 3, squad: 0, runner: 0, lab: 0 },
+      crew: { cloud: 0, ai: 0, orbital: 0, assistant: 3, squad: 0, runner: 0, lab: 0 },
     });
     expect(act(s, { type: "promote" }, NOW).state.stage).toBe(1);
     expect(act({ ...s, earned: 149 }, { type: "promote" }, NOW).ok).toBe(false);
@@ -94,7 +96,7 @@ describe("career economy", () => {
   it("settles elapsed production before buying a multiplier", () => {
     const s = base({
       money: 500,
-      crew: { assistant: 1, squad: 0, runner: 0, lab: 0 },
+      crew: { cloud: 0, ai: 0, orbital: 0, assistant: 1, squad: 0, runner: 0, lab: 0 },
       badges: ["firstHire", "firstBug", "firstPay"],
     });
     const purchased = act(s, { type: "upgrade", id: "plan" }, NOW + 1_000).state;
@@ -102,7 +104,10 @@ describe("career economy", () => {
     expect(production(purchased)).toBeCloseTo(production(s) * 1.25);
   });
   it("keeps manual play useful as production grows", () => {
-    const s = base({ stage: 4, crew: { assistant: 20, squad: 20, runner: 10, lab: 2 } });
+    const s = base({
+      stage: 4,
+      crew: { cloud: 0, ai: 0, orbital: 0, assistant: 20, squad: 20, runner: 10, lab: 2 },
+    });
     expect(manualPower(s)).toBeGreaterThan(production(s) * R.clickRateShare);
   });
   it("has unique content ids and valid bounded costs", () => {
@@ -118,7 +123,7 @@ describe("time and automation", () => {
   const producing = () =>
     base({
       stage: 1,
-      crew: { assistant: 3, squad: 1, runner: 0, lab: 0 },
+      crew: { cloud: 0, ai: 0, orbital: 0, assistant: 3, squad: 1, runner: 0, lab: 0 },
       badges: ["firstBug", "firstHire", "firstPay"],
     });
   it("uses elapsed time and makes split ticks equivalent before unlock boundaries", () => {
@@ -162,7 +167,7 @@ describe("contracts and prestige", () => {
       stage: 3,
       found: 1e6,
       bugs: 1e6,
-      crew: { assistant: 0, squad: 0, runner: 100, lab: 0 },
+      crew: { cloud: 0, ai: 0, orbital: 0, assistant: 0, squad: 0, runner: 100, lab: 0 },
     });
     const started = act(s, { type: "contract", id: "smoke" }, NOW).state;
     expect(started.contract?.progress).toBe(0);
@@ -183,7 +188,7 @@ describe("contracts and prestige", () => {
       base({
         stage: 3,
         earned: 350_000,
-        crew: { assistant: 25, squad: 0, runner: 0, lab: 0 },
+        crew: { cloud: 0, ai: 0, orbital: 0, assistant: 25, squad: 0, runner: 0, lab: 0 },
       }),
       { type: "contract", id: "smoke" },
       NOW,
@@ -202,7 +207,7 @@ describe("contracts and prestige", () => {
       money: 5_000,
       lifetimeEarned: 3_000_000,
       upgrades: ["plan", "auto"],
-      crew: { assistant: 40, squad: 8, runner: 3, lab: 1 },
+      crew: { cloud: 0, ai: 0, orbital: 0, assistant: 40, squad: 8, runner: 3, lab: 1 },
       badges: ["director"],
       contractsCompleted: 3,
     });
@@ -225,7 +230,7 @@ describe("save safety", () => {
   it("checkpoints offline production so reopening cannot replay the interval", () => {
     const initial = base({
       stage: 1,
-      crew: { assistant: 3, squad: 0, runner: 0, lab: 0 },
+      crew: { cloud: 0, ai: 0, orbital: 0, assistant: 3, squad: 0, runner: 0, lab: 0 },
       upgrades: ["auto"],
     });
     const store = storage({ [R.saveKey]: exportCareer(initial) });
@@ -282,7 +287,7 @@ describe("save safety", () => {
         experience: NaN,
         stage: 1,
         lastTick: NOW + 5_000,
-        crew: { assistant: 999, runner: 50 },
+        crew: { cloud: 0, ai: 0, orbital: 0, assistant: 999, runner: 50 },
         upgrades: ["auto", "auto", "bad", "global"],
         badges: ["bad"],
       },
@@ -306,7 +311,9 @@ describe("save safety", () => {
     }
   });
   it("reports storage failures while retaining in-memory offline progress", () => {
-    const initial = base({ crew: { assistant: 1, squad: 0, runner: 0, lab: 0 } });
+    const initial = base({
+      crew: { cloud: 0, ai: 0, orbital: 0, assistant: 1, squad: 0, runner: 0, lab: 0 },
+    });
     const store = {
       getItem: () => exportCareer(initial),
       setItem: () => {

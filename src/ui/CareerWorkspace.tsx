@@ -20,17 +20,30 @@ import {
   production,
   promotionReady,
   reportValue,
+  contractQuote,
 } from "../game/career/selectors";
+import { PROJECTS, STUDIO_RULES } from "../game/career/expansionData";
+import { certificates, projectPhase, projectReady } from "../game/career/studioSelectors";
 import { BugIcon, Meter, SectionTitle } from "./CareerWidgets";
-import { cash, duration, number } from "./careerUtils";
+import { cash, clockTime, duration, number } from "./careerUtils";
 
+const RANK_DIGITS = 2;
 interface Props {
   game: CareerState;
   send: (a: CareerAction) => void;
   career: () => void;
   cancelContract: () => void;
+  projects: () => void;
+  studio: () => void;
 }
-export function CareerWorkspace({ game: s, send, career, cancelContract }: Props) {
+export function CareerWorkspace({
+  game: s,
+  send,
+  career,
+  cancelContract,
+  projects,
+  studio,
+}: Props) {
   const [mode, setMode] = useState<PurchaseMode>(1);
   const [upgradeTab, setUpgradeTab] = useState<"available" | "owned">("available");
   const [burst, setBurst] = useState(0);
@@ -143,7 +156,7 @@ export function CareerWorkspace({ game: s, send, career, cancelContract }: Props
           </div>
           <div className="rank-number">
             0{s.stage + 1}
-            <span> / 06</span>
+            <span> / {String(CAREER_STAGES.length).padStart(RANK_DIGITS, "0")}</span>
           </div>
           <h2>{next?.title ?? "Нова кар’єра"}</h2>
           <p className="muted">
@@ -173,6 +186,24 @@ export function CareerWorkspace({ game: s, send, career, cancelContract }: Props
                   label="Команда для підвищення"
                 />
               </div>
+              {!!next.projects && (
+                <div>
+                  <div className="row-label">
+                    <span>Різні проєкти</span>
+                    <strong>
+                      {certificates(s)} <em>/ {next.projects}</em>
+                    </strong>
+                  </div>
+                  <Meter
+                    value={certificates(s)}
+                    max={next.projects}
+                    label="Проєкти для підвищення"
+                  />
+                  <button className="text-button" onClick={projects}>
+                    Відкрити портфоліо →
+                  </button>
+                </div>
+              )}
               <p className="tiny muted">Витрачені гроші теж враховуються.</p>
             </div>
           ) : (
@@ -197,8 +228,43 @@ export function CareerWorkspace({ game: s, send, career, cancelContract }: Props
                 : "Виконай умови підвищення"
               : "Переглянути престиж →"}
           </button>
+          {next && s.stage >= R.prestigeStage && (
+            <button className="text-button prestige-shortcut" onClick={career}>
+              Престиж уже доступний →
+            </button>
+          )}
         </section>
       </div>
+      {s.bestStage >= STUDIO_RULES.unlockStage && (
+        <div className="workspace-project">
+          <div>
+            <span className="eyebrow">
+              {s.project ? "АКТИВНИЙ ПРОЄКТ" : "РОЗВИВАЙ СВОЮ СТУДІЮ"}
+            </span>
+            <strong>
+              {s.project
+                ? PROJECTS.find((p) => p.id === s.project?.id)?.title
+                : "Новий клієнт чекає на твій реліз"}
+            </strong>
+            <span className="muted tiny">
+              {s.project
+                ? `${projectPhase(s.project)?.title ?? ""} · ${projectReady(s) ? "Етап готовий — здай його" : "Команда виконує перевірки"}`
+                : `${String(certificates(s))} / ${String(PROJECTS.length)} проєктів у портфоліо · фахівці та постійні бонуси`}
+            </span>
+          </div>
+          <div>
+            <button
+              className={`button ${projectReady(s) ? "primary" : "ghost"}`}
+              onClick={projects}
+            >
+              {s.project ? "До проєкту →" : "Обрати проєкт →"}
+            </button>
+            <button className="text-button insight-text" onClick={studio}>
+              {number(s.insights)} ◈ · Студія
+            </button>
+          </div>
+        </div>
+      )}
       <section className="team-section" id="team">
         <SectionTitle eyebrow="НЕХАЙ ПРАЦЮЮТЬ ЗА ТЕБЕ" title="Твоя команда">
           <div className="buy-toggle" aria-label="Кількість для покупки">
@@ -226,11 +292,17 @@ export function CareerWorkspace({ game: s, send, career, cancelContract }: Props
                   <span className={`crew-symbol crew-${c.id}`}>
                     {c.id === "runner"
                       ? "</>"
-                      : c.id === "lab"
-                        ? "⌬"
-                        : c.id === "squad"
-                          ? "▦"
-                          : "◉"}
+                      : c.id === "cloud"
+                        ? "☁"
+                        : c.id === "ai"
+                          ? "◈"
+                          : c.id === "orbital"
+                            ? "◎"
+                            : c.id === "lab"
+                              ? "⌬"
+                              : c.id === "squad"
+                                ? "▦"
+                                : "◉"}
                   </span>
                   <div>
                     <div className="eyebrow">{c.tag}</div>
@@ -374,7 +446,7 @@ export function CareerWorkspace({ game: s, send, career, cancelContract }: Props
                 <h3>{s.contract.title}</h3>
                 <p className="muted">
                   Нові баги: {number(s.contract.progress)} / {number(s.contract.target)} ·
-                  Час: {duration(s.contract.elapsed)} / {duration(s.contract.duration)}
+                  Час: {clockTime(s.contract.elapsed)} / {clockTime(s.contract.duration)}
                 </p>
                 <Meter
                   value={Math.min(
@@ -387,6 +459,9 @@ export function CareerWorkspace({ game: s, send, career, cancelContract }: Props
               </div>
               <div>
                 <strong className="contract-reward">{cash(s.contract.reward)}</strong>
+                <span className="contract-insights insight-text">
+                  +{number(s.contract.insights)} ◈ інсайтів
+                </span>
                 <button
                   className="button primary full"
                   disabled={!contractReady(s)}
@@ -403,15 +478,21 @@ export function CareerWorkspace({ game: s, send, career, cancelContract }: Props
             </article>
           ) : (
             <div className="contract-grid">
-              {CONTRACTS.map((c) => {
-                const scale = R.contractScale ** (s.stage - R.contractStage);
+              {CONTRACTS.filter((c) => c.stage <= s.stage).map((c) => {
+                const quote = contractQuote(s, c.id);
+                if (!quote) {
+                  return null;
+                }
                 return (
                   <article className="panel" key={c.id}>
                     <span className="eyebrow">
-                      {duration(c.duration)} · {number(c.target * scale)} багів
+                      {duration(quote.duration)} · {number(quote.target)} багів
                     </span>
                     <h3>{c.title}</h3>
                     <p className="muted">{c.description}</p>
+                    <p className="insight-text tiny">
+                      +{number(quote.insights)} ◈ інсайтів
+                    </p>
                     <button
                       className="button ghost full"
                       onClick={() => {
@@ -419,7 +500,7 @@ export function CareerWorkspace({ game: s, send, career, cancelContract }: Props
                       }}
                     >
                       <span>Взяти контракт</span>
-                      <strong>{cash(c.reward * scale)}</strong>
+                      <strong>{cash(quote.reward)}</strong>
                     </button>
                   </article>
                 );

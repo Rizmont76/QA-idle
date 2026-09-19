@@ -1,5 +1,7 @@
 # 16 — Playable Career Idle
 
+> **Active expansion — 2026-09-19:** [17 — Studio Expansion](17-Studio_Expansion.md) extends this release with projects, research, specialists and optional ranks beyond Director while preserving early progression.
+
 Status: implemented and verified on 2026-09-18, authorized by the request to turn QA Idle into a playable idle game. This supersedes the small MVP scope for the active application. Docs 08 and 15 and their simulations remain the historical MVP baseline. See [release verification](implementation/CAREER-IDLE-001.md).
 
 ## Product and acceptance

@@ -34,5 +34,5 @@ jobs:
       - name: Run project check
         run: pnpm run check
 
-      - name: Build
-        run: pnpm run build
+      - name: Build site and portable game
+        run: pnpm run build:portable
