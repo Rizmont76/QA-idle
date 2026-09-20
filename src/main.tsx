@@ -2,6 +2,7 @@ import ReactDOM from "react-dom/client";
 import { CareerApp } from "./ui/CareerApp";
 import "./styles.css";
 import "./studio.css";
+import "./office.css";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

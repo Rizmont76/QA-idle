@@ -21,10 +21,12 @@ import { useCareer } from "./useCareer";
 import { CareerWorkspace } from "./CareerWorkspace";
 import { CareerProjects } from "./CareerProjects";
 import { CareerStudio } from "./CareerStudio";
+import { CareerOffice } from "./CareerOffice";
 import { BugIcon, ConfirmDialog, SectionTitle } from "./CareerWidgets";
 import { cash, duration, number } from "./careerUtils";
 
-type View = "workspace" | "projects" | "studio" | "career" | "achievements" | "settings";
+type View =
+  "workspace" | "office" | "projects" | "studio" | "career" | "achievements" | "settings";
 const PERCENT = 100;
 const NAV: readonly { id: View; title: string; symbol: string; subtitle: string }[] = [
   {
@@ -32,6 +34,12 @@ const NAV: readonly { id: View; title: string; symbol: string; subtitle: string 
     title: "Робоче місце",
     symbol: "▦",
     subtitle: "Кожен баг — це можливість.",
+  },
+  {
+    id: "office",
+    title: "Офіс",
+    symbol: "⌂",
+    subtitle: "Місце, де маленька команда стає великою компанією.",
   },
   {
     id: "projects",
@@ -211,7 +219,7 @@ export function CareerApp() {
                   ? "Прогрес збережено"
                   : "Перевір збереження"}
             </span>
-            <span className="version-chip">STUDIO EDITION</span>
+            <span className="version-chip">OFFICE EDITION</span>
           </div>
         </header>
         {warning && (
@@ -243,8 +251,16 @@ export function CareerApp() {
                 {number(summary.bugs)} багів
                 {summary.money > 0
                   ? ` · +${cash(summary.money)}`
-                  : " · здай звіт, щоб отримати гроші"}
+                  : auto
+                    ? " · автозвіти активні"
+                    : " · здай звіт, щоб отримати гроші"}
               </p>
+              {(summary.autoContracts ?? 0) > 0 && (
+                <p>
+                  Автоматично завершено контрактів: {number(summary.autoContracts ?? 0)} ·
+                  +{number(summary.autoInsights ?? 0)} ◈ інсайтів
+                </p>
+              )}
             </div>
             <button className="button ghost" onClick={dismissSummary}>
               Чудово ✓
@@ -303,6 +319,9 @@ export function CareerApp() {
             <CareerWorkspace
               game={s}
               send={send}
+              office={() => {
+                navigate("office");
+              }}
               projects={() => {
                 navigate("projects");
               }}
@@ -314,6 +333,21 @@ export function CareerApp() {
               }}
               cancelContract={() => {
                 setConfirmation("contract");
+              }}
+            />
+          )}
+          {view === "office" && (
+            <CareerOffice
+              game={s}
+              send={send}
+              workspace={() => {
+                navigate("workspace");
+              }}
+              projects={() => {
+                navigate("projects");
+              }}
+              studio={() => {
+                navigate("studio");
               }}
             />
           )}
@@ -607,6 +641,9 @@ export function CareerApp() {
             проєкт скинуться. Досягнення, досвід, інсайти, дослідження, фахівці,
             сертифікати й загальна статистика залишаться.
           </p>
+          <p>
+            Офіс і ліцензія диспетчера залишаться. Автоповтор контрактів стане на паузу.
+          </p>
         </ConfirmDialog>
       )}
       {confirmation === "reset" && (
@@ -666,6 +703,7 @@ export function CareerApp() {
             Прогрес цього контракту зникне, винагороди не буде. Гроші й знайдені баги
             залишаться.
           </p>
+          {s.office.contractId && <p>Диспетчер також стане на паузу.</p>}
         </ConfirmDialog>
       )}
       {confirmation === "project" && (
