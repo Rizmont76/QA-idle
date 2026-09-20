@@ -22,11 +22,20 @@ import { CareerWorkspace } from "./CareerWorkspace";
 import { CareerProjects } from "./CareerProjects";
 import { CareerStudio } from "./CareerStudio";
 import { CareerOffice } from "./CareerOffice";
+import { CareerProducts } from "./CareerProducts";
+import { productReady, royaltyRate } from "../game/career/products";
 import { BugIcon, ConfirmDialog, SectionTitle } from "./CareerWidgets";
 import { cash, duration, number } from "./careerUtils";
 
 type View =
-  "workspace" | "office" | "projects" | "studio" | "career" | "achievements" | "settings";
+  | "workspace"
+  | "office"
+  | "projects"
+  | "products"
+  | "studio"
+  | "career"
+  | "achievements"
+  | "settings";
 const PERCENT = 100;
 const NAV: readonly { id: View; title: string; symbol: string; subtitle: string }[] = [
   {
@@ -46,6 +55,12 @@ const NAV: readonly { id: View; title: string; symbol: string; subtitle: string 
     title: "Проєкти",
     symbol: "▣",
     subtitle: "Кожен реліз залишає історію. І сертифікат.",
+  },
+  {
+    id: "products",
+    title: "Продукти",
+    symbol: "⬡",
+    subtitle: "Твої інструменти. Твої релізи. Твій постійний дохід.",
   },
   {
     id: "studio",
@@ -97,7 +112,7 @@ export function CareerApp() {
   } = useCareer();
   const [view, setView] = useState<View>("workspace");
   const [confirmation, setConfirmation] = useState<
-    "prestige" | "reset" | "import" | "contract" | "project" | null
+    "prestige" | "reset" | "import" | "contract" | "project" | "product" | null
   >(null);
   const [saveText, setSaveText] = useState("");
   const [importError, setImportError] = useState("");
@@ -106,6 +121,7 @@ export function CareerApp() {
   const stage = CAREER_STAGES[s.stage] ?? CAREER_STAGES[0];
   const rate = production(s);
   const auto = hasAutoReport(s);
+  const royalties = royaltyRate(s);
   const reward = prestigeReward(s);
   const projectNotification = projectReady(s);
   const researchNotification = RESEARCH.some(
@@ -167,6 +183,7 @@ export function CareerApp() {
               <span aria-hidden="true">{n.symbol}</span>
               {n.title}
               {((n.id === "projects" && projectNotification) ||
+                (n.id === "products" && productReady(s)) ||
                 (n.id === "studio" && researchNotification)) && (
                 <i className="nav-notification" aria-hidden="true" />
               )}
@@ -219,7 +236,7 @@ export function CareerApp() {
                   ? "Прогрес збережено"
                   : "Перевір збереження"}
             </span>
-            <span className="version-chip">OFFICE EDITION</span>
+            <span className="version-chip">PRODUCT EDITION</span>
           </div>
         </header>
         {warning && (
@@ -261,6 +278,9 @@ export function CareerApp() {
                   +{number(summary.autoInsights ?? 0)} ◈ інсайтів
                 </p>
               )}
+              {(summary.productMoney ?? 0) > 0 && (
+                <p>Із них від продуктів: +{cash(summary.productMoney ?? 0)}</p>
+              )}
             </div>
             <button className="button ghost" onClick={dismissSummary}>
               Чудово ✓
@@ -275,10 +295,11 @@ export function CareerApp() {
                 <span className="resource-label">НА РАХУНКУ</span>
                 <strong data-testid="money">{cash(s.money)}</strong>
                 <small>
-                  {auto
-                    ? `+${cash(rate * reportValue(s))} / с`
+                  {auto || royalties > 0
+                    ? `+${cash((auto ? rate * reportValue(s) : 0) + royalties)} / с`
                     : "Здай звіт, щоб отримати гроші"}
                 </small>
+                {royalties > 0 && <small>Продукти: +{cash(royalties)} / с</small>}
               </div>
             </article>
             <article className="resource-card">
@@ -352,14 +373,41 @@ export function CareerApp() {
             />
           )}
           {view === "projects" && (
-            <CareerProjects
+            <>
+              <div className="products-shortcut">
+                <span>
+                  Бронза, срібло й золото відкривають версії власних інструментів.
+                </span>
+                <button
+                  className="text-button"
+                  onClick={() => {
+                    navigate("products");
+                  }}
+                >
+                  Створити власний продукт →
+                </button>
+              </div>
+              <CareerProjects
+                game={s}
+                send={send}
+                studio={() => {
+                  navigate("studio");
+                }}
+                cancelProject={() => {
+                  setConfirmation("project");
+                }}
+              />
+            </>
+          )}
+          {view === "products" && (
+            <CareerProducts
               game={s}
               send={send}
-              studio={() => {
-                navigate("studio");
+              projects={() => {
+                navigate("projects");
               }}
-              cancelProject={() => {
-                setConfirmation("project");
+              cancelProduct={() => {
+                setConfirmation("product");
               }}
             />
           )}
@@ -644,6 +692,10 @@ export function CareerApp() {
           <p>
             Офіс і ліцензія диспетчера залишаться. Автоповтор контрактів стане на паузу.
           </p>
+          <p>
+            Випущені продукти залишаться; дохід відновиться на їхньому початковому ранзі.
+            Незавершена розробка скинеться без повернення інвестиції.
+          </p>
         </ConfirmDialog>
       )}
       {confirmation === "reset" && (
@@ -660,8 +712,8 @@ export function CareerApp() {
           }}
         >
           <p>
-            Поточна кар’єра, студія, сертифікати, досвід та досягнення будуть видалені.
-            Повернути їх можна буде лише з експортованої копії.
+            Поточна кар’єра, студія, продукти, сертифікати, досвід та досягнення будуть
+            видалені. Повернути їх можна буде лише з експортованої копії.
           </p>
         </ConfirmDialog>
       )}
@@ -720,6 +772,23 @@ export function CareerApp() {
           <p>
             Прогрес усіх етапів цього проходження зникне, винагороди не буде. Раніше
             отримані сертифікати, фахівці та інсайти залишаться.
+          </p>
+        </ConfirmDialog>
+      )}
+      {confirmation === "product" && (
+        <ConfirmDialog
+          title="Скасувати розробку?"
+          label="Так, скасувати розробку"
+          close={() => {
+            setConfirmation(null);
+          }}
+          confirm={() => {
+            send({ type: "cancelProduct" });
+          }}
+        >
+          <p>
+            Прогрес цієї версії зникне. Витрачені гроші та інсайти не повернуться. Раніше
+            випущені версії продовжать працювати.
           </p>
         </ConfirmDialog>
       )}

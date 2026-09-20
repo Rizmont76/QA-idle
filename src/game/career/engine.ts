@@ -17,6 +17,7 @@ import {
 import { projectPhase } from "./studioSelectors";
 import { studioAction } from "./studioActions";
 import { dispatchPayment, dispatchQuote, officeAction } from "./office";
+import { developmentTerms, productAction, royaltyRate } from "./products";
 
 export function newCareer(now = Date.now()): CareerState {
   return {
@@ -43,6 +44,7 @@ export function newCareer(now = Date.now()): CareerState {
     research: {},
     certificates: {},
     specialists: [],
+    products: { releases: {}, development: null, earned: 0 },
     office: { licensed: false, contractId: null, completed: 0, earned: 0, insights: 0 },
     lastTick: now,
     playedSeconds: 0,
@@ -56,11 +58,23 @@ export function awardBadges(s: CareerState): CareerState {
 }
 function findBugs(s: CareerState, amount: number): CareerState {
   const phase = s.project ? projectPhase(s.project) : null;
+  const development = s.products.development;
+  const terms = developmentTerms(development);
   return {
     ...s,
     bugs: bounded(s.bugs + amount),
     found: bounded(s.found + amount),
     lifetimeBugs: bounded(s.lifetimeBugs + amount),
+    products: {
+      ...s.products,
+      development:
+        development && terms
+          ? {
+              ...development,
+              progress: Math.min(terms.target, development.progress + amount),
+            }
+          : null,
+    },
     project:
       s.project && phase
         ? { ...s.project, progress: Math.min(phase.target, s.project.progress + amount) }
@@ -92,6 +106,7 @@ export interface TimeResult {
   capped: boolean;
   autoContracts?: number;
   autoInsights?: number;
+  productMoney?: number;
 }
 export function advanceCareer(s: CareerState, now: number, offline = false): TimeResult {
   const elapsed = (now - s.lastTick) / R.milliseconds;
@@ -136,6 +151,7 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
     capped: elapsed > seconds,
     autoContracts: next.office.completed - s.office.completed,
     autoInsights: next.office.insights - s.office.insights,
+    productMoney: next.products.earned - s.products.earned,
   };
 }
 function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeResult {
@@ -143,8 +159,22 @@ function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeRe
   const bugs = bounded(production(s) * seconds * efficiency);
   let next = findBugs(s, bugs);
   const phase = next.project ? projectPhase(next.project) : null;
+  const development = next.products.development;
+  const terms = developmentTerms(development);
+  const royalties = bounded(royaltyRate(s) * seconds * efficiency);
   next = {
-    ...next,
+    ...earn(next, royalties),
+    products: {
+      ...next.products,
+      earned: bounded(next.products.earned + royalties),
+      development:
+        development && terms
+          ? {
+              ...development,
+              elapsed: Math.min(terms.seconds, development.elapsed + seconds),
+            }
+          : null,
+    },
     lastTick: s.lastTick + seconds * R.milliseconds,
     playedSeconds: bounded(s.playedSeconds + (offline ? 0 : seconds)),
     project:
@@ -298,6 +328,7 @@ export function act(
         research: state.research,
         certificates: state.certificates,
         specialists: state.specialists,
+        products: { ...state.products, development: null },
         office: { ...state.office, contractId: null },
       };
       message = `Нова кар’єра! +${String(reward)} досвіду. Автозвіти вже працюють.`;
@@ -306,6 +337,12 @@ export function act(
     case "buyDispatcher":
     case "dispatch": {
       const result = officeAction(state, action);
+      return { ...result, state: awardBadges(result.state) };
+    }
+    case "developProduct":
+    case "publishProduct":
+    case "cancelProduct": {
+      const result = productAction(state, action);
       return { ...result, state: awardBadges(result.state) };
     }
     default: {

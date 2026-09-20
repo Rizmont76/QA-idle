@@ -14,6 +14,7 @@ import { amount, ids, record } from "./saveValues";
 import { normalizeStudio } from "./studioPersistence";
 import { STUDIO_RULES as S } from "./expansionData";
 import { normalizeOffice } from "./office";
+import { normalizeProducts } from "./products";
 
 const IMPORT_CHARACTER_LIMIT = 1_000_000;
 const JSON_INDENT = 2;
@@ -110,6 +111,7 @@ export function normalizeCareer(value: unknown, now = Date.now()): CareerState {
   state.contract = normalizeContract(data["contract"], state.stage);
   normalizeStudio(state, data);
   normalizeOffice(state, data["office"]);
+  normalizeProducts(state, data["products"]);
   return awardBadges(state);
 }
 
@@ -229,6 +231,7 @@ export function importCareer(text: string, now = Date.now()): CareerState {
           specialists: [],
           project: null,
           office: undefined,
+          products: undefined,
         },
         now,
       );

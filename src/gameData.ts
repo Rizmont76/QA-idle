@@ -1004,3 +1004,4 @@ export function validateMvpContentRegistries(
   };
 }
 export { OFFICES, OFFICE_RULES } from "./game/career/office";
+export { PRODUCTS, PRODUCT_RULES } from "./game/career/productData";
