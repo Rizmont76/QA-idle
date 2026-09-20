@@ -117,6 +117,12 @@ export interface CareerProject {
   reward: number;
   insights: number;
 }
+export interface ProductDevelopment {
+  id: string;
+  version: number;
+  progress: number;
+  elapsed: number;
+}
 export interface CareerState {
   schemaVersion: typeof CAREER_SAVE_VERSION;
   money: number;
@@ -141,6 +147,11 @@ export interface CareerState {
   research: Record<string, number>;
   certificates: Record<string, number>;
   specialists: string[];
+  products: {
+    releases: Record<string, number>;
+    development: ProductDevelopment | null;
+    earned: number;
+  };
   office: {
     licensed: boolean;
     contractId: string | null;
@@ -167,6 +178,9 @@ export type CareerAction =
   | { type: "assignSpecialist"; id: string }
   | { type: "buyDispatcher" }
   | { type: "dispatch"; id: string | null }
+  | { type: "developProduct"; id: string }
+  | { type: "publishProduct" }
+  | { type: "cancelProduct" }
   | { type: "prestige" };
 
 export type ResourceLifetimeCategory = "disposable" | "investment";

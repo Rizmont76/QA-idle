@@ -1,5 +1,7 @@
 # QA Idle Documentation Index
 
+Current product expansion: [19 — Studio Products](19-Studio_Products.md), owning developed tools, version releases and permanent product income.
+
 Current office expansion: [18 — Living Office](18-Living_Office.md), owning visual office growth and opt-in automatic contract dispatch.
 
 Current content expansion: [17 — Studio Expansion](17-Studio_Expansion.md), adding projects, permanent research, specialists and ranks beyond Director.

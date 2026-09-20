@@ -1,5 +1,7 @@
 # 17 — Studio Expansion
 
+Extension: [19 — Studio Products](19-Studio_Products.md) connects project certificates to owned QA tools and passive product income.
+
 Extension: [18 — Living Office](18-Living_Office.md) adds optional contract dispatch; it owns the explicit automation exception to manual contract claims.
 
 Status: implemented and locally verified on 2026-09-19. Authorized by the request for substantially more game content. Extends [16 — Career Idle](16-Career_Idle_Release.md); unchanged rules remain authoritative. Existing careers continue without reset.

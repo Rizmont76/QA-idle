@@ -332,7 +332,7 @@ export const PROJECTS: readonly ProjectDefinition[] = [
   {
     id: "platform",
     title: "Власна QA-платформа",
-    client: "Твоя команда · перший власний продукт",
+    client: "Твоя команда · флагман студії",
     genre: "ФІНАЛ КАМПАНІЇ",
     color: "mint",
     brief:
