@@ -24,6 +24,7 @@ import {
 } from "../game/career/selectors";
 import { PROJECTS, STUDIO_RULES } from "../game/career/expansionData";
 import { certificates, projectPhase, projectReady } from "../game/career/studioSelectors";
+import { dispatchQuote } from "../game/career/office";
 import { BugIcon, Meter, SectionTitle } from "./CareerWidgets";
 import { cash, clockTime, duration, number } from "./careerUtils";
 
@@ -35,6 +36,7 @@ interface Props {
   cancelContract: () => void;
   projects: () => void;
   studio: () => void;
+  office: () => void;
 }
 export function CareerWorkspace({
   game: s,
@@ -43,6 +45,7 @@ export function CareerWorkspace({
   cancelContract,
   projects,
   studio,
+  office,
 }: Props) {
   const [mode, setMode] = useState<PurchaseMode>(1);
   const [upgradeTab, setUpgradeTab] = useState<"available" | "owned">("available");
@@ -51,6 +54,7 @@ export function CareerWorkspace({
   const ready = promotionReady(s);
   const rate = production(s);
   const auto = hasAutoReport(s);
+  const dispatch = dispatchQuote(s);
   const upgrades = CAREER_UPGRADES.filter(
     (u) =>
       u.stage <= s.stage &&
@@ -437,11 +441,29 @@ export function CareerWorkspace({
           <SectionTitle eyebrow="ДОДАТКОВИЙ ВИКЛИК" title="Контракти">
             <span className="muted tiny">Виконано: {s.contractsCompleted}</span>
           </SectionTitle>
+          <div className="workspace-dispatch">
+            <span>
+              {dispatch
+                ? `⇄ Автоповтор: ${dispatch.title}`
+                : "Нехай диспетчер повторює контракти за тебе."}
+            </span>
+            <button
+              className="text-button"
+              aria-label="Керувати автоматизацією контрактів"
+              onClick={office}
+            >
+              Диспетчер в офісі →
+            </button>
+          </div>
           {s.contract ? (
             <article className="panel active-contract">
               <div>
                 <span className="live-badge">
-                  {contractReady(s) ? "✓ Завершено" : "● У роботі"}
+                  {dispatch?.id === s.contract.id
+                    ? "⇄ Автоматична здача"
+                    : contractReady(s)
+                      ? "✓ Завершено"
+                      : "● У роботі"}
                 </span>
                 <h3>{s.contract.title}</h3>
                 <p className="muted">

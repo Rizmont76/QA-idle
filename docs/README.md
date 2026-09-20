@@ -1,5 +1,7 @@
 # QA Idle Documentation Index
 
+Current office expansion: [18 — Living Office](18-Living_Office.md), owning visual office growth and opt-in automatic contract dispatch.
+
 Current content expansion: [17 — Studio Expansion](17-Studio_Expansion.md), adding projects, permanent research, specialists and ranks beyond Director.
 
 Active release: [16 — Playable Career Idle](16-Career_Idle_Release.md) specifies the user-authorized expansion beyond the historical MVP. The scoped addenda in documents 00–14 route active implementation to this contract; document 15 and earlier backlog tasks retain their historical meaning.

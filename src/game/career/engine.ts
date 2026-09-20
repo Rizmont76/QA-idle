@@ -16,6 +16,7 @@ import {
 } from "./selectors";
 import { projectPhase } from "./studioSelectors";
 import { studioAction } from "./studioActions";
+import { dispatchPayment, dispatchQuote, officeAction } from "./office";
 
 export function newCareer(now = Date.now()): CareerState {
   return {
@@ -42,6 +43,7 @@ export function newCareer(now = Date.now()): CareerState {
     research: {},
     certificates: {},
     specialists: [],
+    office: { licensed: false, contractId: null, completed: 0, earned: 0, insights: 0 },
     lastTick: now,
     playedSeconds: 0,
   };
@@ -88,6 +90,8 @@ export interface TimeResult {
   bugs: number;
   money: number;
   capped: boolean;
+  autoContracts?: number;
+  autoInsights?: number;
 }
 export function advanceCareer(s: CareerState, now: number, offline = false): TimeResult {
   const elapsed = (now - s.lastTick) / R.milliseconds;
@@ -95,13 +99,53 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
     return { state: s, seconds: 0, bugs: 0, money: 0, capped: false };
   }
   const seconds = Math.min(elapsed, offlineCap(s));
+  let next = s;
+  let remaining = seconds;
+  let totalBugs = 0;
+  while (remaining > 0) {
+    const quote = dispatchQuote(next);
+    if (!quote || (next.contract && next.contract.id !== quote.id)) {
+      const result = advanceSlice(next, remaining, offline);
+      next = result.state;
+      totalBugs += result.bugs;
+      break;
+    }
+    const contract = next.contract ?? quote;
+    next = { ...next, contract };
+    const rate = production(next) * (offline ? offlineEfficiency(next) : 1);
+    const missing = Math.max(0, contract.target - contract.progress);
+    const workTime = missing === 0 ? 0 : rate > 0 ? missing / rate : Infinity;
+    const untilReady = Math.max(0, contract.duration - contract.elapsed, workTime);
+    const step = Math.min(remaining, untilReady);
+    const result = advanceSlice(next, step, offline);
+    next = result.state;
+    totalBugs += result.bugs;
+    remaining = Math.max(0, remaining - step);
+    if (untilReady > step) {
+      break;
+    }
+    // The analytically computed boundary satisfies both goals. Avoid tiny
+    // floating-point residuals causing a zero-length completion loop.
+    next = awardBadges(dispatchPayment(next));
+  }
+  return {
+    state: { ...next, lastTick: now },
+    seconds,
+    bugs: bounded(totalBugs),
+    money: next.money - s.money,
+    capped: elapsed > seconds,
+    autoContracts: next.office.completed - s.office.completed,
+    autoInsights: next.office.insights - s.office.insights,
+  };
+}
+function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeResult {
   const efficiency = offline ? offlineEfficiency(s) : 1;
   const bugs = bounded(production(s) * seconds * efficiency);
   let next = findBugs(s, bugs);
   const phase = next.project ? projectPhase(next.project) : null;
   next = {
     ...next,
-    lastTick: now,
+    lastTick: s.lastTick + seconds * R.milliseconds,
     playedSeconds: bounded(s.playedSeconds + (offline ? 0 : seconds)),
     project:
       next.project && phase
@@ -125,7 +169,7 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
     seconds,
     bugs,
     money: next.money - s.money,
-    capped: elapsed > seconds,
+    capped: false,
   };
 }
 export interface ActionResult {
@@ -227,7 +271,7 @@ export function act(
       break;
     }
     case "cancelContract": {
-      state = { ...state, contract: null };
+      state = { ...state, contract: null, office: { ...state.office, contractId: null } };
       message = "Контракт скасовано.";
       break;
     }
@@ -254,9 +298,15 @@ export function act(
         research: state.research,
         certificates: state.certificates,
         specialists: state.specialists,
+        office: { ...state.office, contractId: null },
       };
       message = `Нова кар’єра! +${String(reward)} досвіду. Автозвіти вже працюють.`;
       break;
+    }
+    case "buyDispatcher":
+    case "dispatch": {
+      const result = officeAction(state, action);
+      return { ...result, state: awardBadges(result.state) };
     }
     default: {
       const result = studioAction(state, action);

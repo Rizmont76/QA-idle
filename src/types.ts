@@ -141,6 +141,13 @@ export interface CareerState {
   research: Record<string, number>;
   certificates: Record<string, number>;
   specialists: string[];
+  office: {
+    licensed: boolean;
+    contractId: string | null;
+    completed: number;
+    earned: number;
+    insights: number;
+  };
   lastTick: number;
   playedSeconds: number;
 }
@@ -158,6 +165,8 @@ export type CareerAction =
   | { type: "cancelProject" }
   | { type: "research"; id: string }
   | { type: "assignSpecialist"; id: string }
+  | { type: "buyDispatcher" }
+  | { type: "dispatch"; id: string | null }
   | { type: "prestige" };
 
 export type ResourceLifetimeCategory = "disposable" | "investment";

@@ -1003,3 +1003,4 @@ export function validateMvpContentRegistries(
     errors,
   };
 }
+export { OFFICES, OFFICE_RULES } from "./game/career/office";
