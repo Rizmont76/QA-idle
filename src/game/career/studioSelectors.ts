@@ -1,5 +1,6 @@
 import type { CareerProject, CareerState, CrewId } from "../../types";
 import { PROJECTS, RESEARCH, SPECIALISTS, STUDIO_RULES as S } from "./expansionData";
+import { productBoost } from "./productEffects";
 import type {
   ProjectDefinition,
   ResearchDefinition,
@@ -52,7 +53,13 @@ export function staffProduction(s: CareerState, id: CrewId): number {
   );
 }
 export function insightReward(s: CareerState, base: number): number {
-  return Math.floor(base * (1 + researchBonus(s, "insight")));
+  return Math.floor(base * (1 + researchBonus(s, "insight") + productBoost(s, "open")));
+}
+export function projectThroughput(s: CareerState): number {
+  return (1 + productBoost(s, "internal")) / (1 - researchBonus(s, "projectWork"));
+}
+export function automaticPhases(s: CareerState): boolean {
+  return (s.research["fieldnotes"] ?? 0) > 0;
 }
 export function projectRank(def: ProjectDefinition, tier: number): number {
   const lastRank = 8;
@@ -71,12 +78,13 @@ export function projectUnlocked(s: CareerState, def: ProjectDefinition): boolean
 export function projectQuote(s: CareerState, def: ProjectDefinition): CareerProject {
   const tier = s.certificates[def.id] ?? 0;
   return {
+    flowVersion: 1,
     id: def.id,
     tier,
     phase: 0,
     progress: 0,
     elapsed: 0,
-    workMultiplier: 1 - researchBonus(s, "projectWork"),
+    workMultiplier: 1,
     reward: def.reward * S.projectCashGrowth ** tier,
     insights: insightReward(s, def.insights * (tier + 1)),
   };
@@ -91,7 +99,7 @@ export function projectPhase(project: CareerProject) {
     target: Math.ceil(
       phase.target * S.projectWorkGrowth ** project.tier * project.workMultiplier,
     ),
-    seconds: Math.ceil(phase.seconds * (1 + project.tier * S.tierTimeBonus)),
+    seconds: 0,
   };
 }
 export function projectReady(s: CareerState): boolean {
@@ -99,7 +107,5 @@ export function projectReady(s: CareerState): boolean {
     return false;
   }
   const phase = projectPhase(s.project);
-  return (
-    !!phase && s.project.progress >= phase.target && s.project.elapsed >= phase.seconds
-  );
+  return !!phase && s.project.progress >= phase.target;
 }

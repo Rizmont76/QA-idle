@@ -1,10 +1,9 @@
 import "@testing-library/jest-dom/vitest";
-import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import type { CareerState } from "../types";
 import { newCareer } from "../game/career/engine";
 import { CAREER_RULES as R } from "../game/career/content";
-import { exportCareer } from "../game/career/persistence";
 import { CareerApp } from "./CareerApp";
 const NOW = 20_000_000;
 beforeEach(() => {
@@ -24,15 +23,15 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.useRealTimers();
 });
-function boot(patch: Partial<CareerState> = {}) {
-  localStorage.setItem(R.saveKey, exportCareer({ ...newCareer(NOW), ...patch }));
+function boot(patch: Record<string, unknown> = {}) {
+  localStorage.setItem(R.saveKey, JSON.stringify({ ...newCareer(NOW), ...patch }));
   render(<CareerApp />);
   fireEvent.click(screen.getByRole("button", { name: "Продукти" }));
 }
 function saved(): CareerState {
   return JSON.parse(localStorage.getItem(R.saveKey) ?? "{}") as CareerState;
 }
-it("shows six concepts, clear prerequisites and a route back to projects", () => {
+it("shows six tools, prerequisites and a route to projects", () => {
   boot();
   expect(
     screen
@@ -40,77 +39,63 @@ it("shows six concepts, clear prerequisites and a route back to projects", () =>
       .filter((card) => card.classList.contains("product-card")),
   ).toHaveLength(6);
   expect(
-    screen.getByRole("button", { name: "Розробити Checklist Studio v1.0" }),
+    screen.getByRole("button", { name: "Запустити Checklist Studio" }),
   ).toBeDisabled();
-  fireEvent.click(screen.getByRole("button", { name: /Сертифікати відкривають/ }));
+  fireEvent.click(screen.getByRole("button", { name: /Наступний клієнт/ }));
   expect(
     screen.getByRole("heading", { name: "Чужі релізи. Твоя історія." }),
   ).toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: /Створити власний продукт/ }));
-  expect(screen.getByRole("heading", { name: "Каталог продуктів" })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: /Керувати продуктами/ }));
+  expect(screen.getByRole("heading", { name: "Портфель студії" })).toBeInTheDocument();
 });
-it("invests, progresses, requires publication, then earns and confirms cancellation", () => {
+it("launches instantly and switches between cash, project work and knowledge", () => {
   boot({
     stage: 3,
     bestStage: 3,
     money: 100_000,
     insights: 20,
-    certificates: { button: 2 },
-    crew: { ...newCareer(NOW).crew, assistant: 100 },
+    certificates: { button: 1 },
   });
-  fireEvent.click(
-    screen.getByRole("button", { name: "Розробити Checklist Studio v1.0" }),
-  );
+  fireEvent.click(screen.getByRole("button", { name: "Запустити Checklist Studio" }));
   expect(saved().money).toBe(96_000);
   expect(saved().insights).toBe(17);
-  expect(screen.getByRole("button", { name: /Випустити продукт/ })).toBeDisabled();
-  act(() => {
-    vi.advanceTimersByTime(95_000);
-  });
-  expect(saved().products.releases).toEqual({});
-  fireEvent.click(screen.getByRole("button", { name: /Випустити продукт/ }));
-  expect(screen.getByRole("region", { name: "Продукт випущено" })).toHaveTextContent(
-    "Checklist Studio v1.0",
-  );
+  expect(saved().products.releases).toEqual({ checklist: 1 });
+  expect(
+    screen.getByRole("button", { name: "Checklist Studio: Ліцензії" }),
+  ).toHaveAttribute("aria-pressed", "true");
   act(() => {
     vi.advanceTimersByTime(10_000);
   });
   expect(saved().products.earned).toBeCloseTo(120);
-  fireEvent.click(
-    screen.getByRole("button", { name: "Розробити Checklist Studio v2.0" }),
-  );
-  fireEvent.click(screen.getByRole("button", { name: "Скасувати розробку" }));
-  const dialog = screen.getByRole("dialog");
-  expect(dialog).toHaveTextContent("Витрачені гроші та інсайти не повернуться");
-  fireEvent.click(within(dialog).getByRole("button", { name: "Скасувати" }));
-  expect(saved().products.development).not.toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: "Скасувати розробку" }));
-  fireEvent.click(screen.getByRole("button", { name: "Так, скасувати розробку" }));
-  expect(saved().products).toMatchObject({
-    development: null,
-    releases: { checklist: 1 },
+  fireEvent.click(screen.getByRole("button", { name: "Checklist Studio: Для команди" }));
+  act(() => {
+    vi.advanceTimersByTime(10_000);
   });
+  expect(saved().products.earned).toBeCloseTo(120);
+  expect(saved().products.modes["checklist"]).toBe("internal");
+  fireEvent.click(
+    screen.getByRole("button", { name: "Checklist Studio: Відкритий код" }),
+  );
+  expect(saved().products.modes["checklist"]).toBe("open");
+  expect(
+    screen.queryByRole("button", { name: /Випустити продукт/ }),
+  ).not.toBeInTheDocument();
 });
-it("reports offline product income and explains dormant retained releases", () => {
-  const base = {
-    stage: 2,
+it("explains legacy refunds once and dormant retained tools", () => {
+  boot({
+    stage: 0,
     bestStage: 4,
     certificates: { button: 3 },
     products: { releases: { checklist: 3 }, development: null, earned: 0 },
-    lastTick: NOW - 60_000,
-  };
-  boot(base);
-  expect(screen.getByRole("region", { name: "Повернення до гри" })).toHaveTextContent(
-    "Із них від продуктів: +$13.5K",
+  });
+  expect(screen.getByRole("region", { name: "Повернення інвестицій" })).toHaveTextContent(
+    "$624K",
   );
-  expect(screen.getByRole("region", { name: "Портфоліо продуктів" })).toHaveTextContent(
-    "$300",
-  );
-  cleanup();
-  boot({ ...base, stage: 0 });
   expect(screen.getByRole("article", { name: "Checklist Studio" })).toHaveTextContent(
     "Очікує рангу",
   );
-  expect(saved().products.releases).toEqual({ checklist: 3 });
+  expect(saved().products.releases).toEqual({ checklist: 1 });
   expect(saved().products.earned).toBe(0);
+  fireEvent.click(screen.getByRole("button", { name: "Зрозуміло" }));
+  expect(saved().products.refund).toBeNull();
 });

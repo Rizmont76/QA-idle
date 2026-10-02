@@ -1,4 +1,5 @@
 import type { CareerAction, CareerState } from "../../types";
+import { PRODUCT_MODEL_VERSION } from "../../types";
 import { BADGES, CAREER_RULES as R, CAREER_STAGES, CAREER_UPGRADES } from "./content";
 import {
   bounded,
@@ -17,7 +18,9 @@ import {
 import { projectPhase } from "./studioSelectors";
 import { studioAction } from "./studioActions";
 import { dispatchPayment, dispatchQuote, officeAction } from "./office";
-import { developmentTerms, productAction, royaltyRate } from "./products";
+import { productAction } from "./products";
+import { gainClients, MARKET, royaltyRate } from "./productEffects";
+import { advanceProject } from "./projectFlow";
 
 export function newCareer(now = Date.now()): CareerState {
   return {
@@ -44,7 +47,14 @@ export function newCareer(now = Date.now()): CareerState {
     research: {},
     certificates: {},
     specialists: [],
-    products: { releases: {}, development: null, earned: 0 },
+    products: {
+      model: PRODUCT_MODEL_VERSION,
+      releases: {},
+      modes: {},
+      clients: 0,
+      refund: null,
+      earned: 0,
+    },
     office: { licensed: false, contractId: null, completed: 0, earned: 0, insights: 0 },
     lastTick: now,
     playedSeconds: 0,
@@ -57,28 +67,12 @@ export function awardBadges(s: CareerState): CareerState {
     : s;
 }
 function findBugs(s: CareerState, amount: number): CareerState {
-  const phase = s.project ? projectPhase(s.project) : null;
-  const development = s.products.development;
-  const terms = developmentTerms(development);
   return {
     ...s,
     bugs: bounded(s.bugs + amount),
     found: bounded(s.found + amount),
     lifetimeBugs: bounded(s.lifetimeBugs + amount),
-    products: {
-      ...s.products,
-      development:
-        development && terms
-          ? {
-              ...development,
-              progress: Math.min(terms.target, development.progress + amount),
-            }
-          : null,
-    },
-    project:
-      s.project && phase
-        ? { ...s.project, progress: Math.min(phase.target, s.project.progress + amount) }
-        : null,
+    project: advanceProject(s, amount),
     contract: s.contract
       ? {
           ...s.contract,
@@ -159,21 +153,12 @@ function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeRe
   const bugs = bounded(production(s) * seconds * efficiency);
   let next = findBugs(s, bugs);
   const phase = next.project ? projectPhase(next.project) : null;
-  const development = next.products.development;
-  const terms = developmentTerms(development);
   const royalties = bounded(royaltyRate(s) * seconds * efficiency);
   next = {
     ...earn(next, royalties),
     products: {
       ...next.products,
       earned: bounded(next.products.earned + royalties),
-      development:
-        development && terms
-          ? {
-              ...development,
-              elapsed: Math.min(terms.seconds, development.elapsed + seconds),
-            }
-          : null,
     },
     lastTick: s.lastTick + seconds * R.milliseconds,
     playedSeconds: bounded(s.playedSeconds + (offline ? 0 : seconds)),
@@ -298,6 +283,7 @@ export function act(
         contractsCompleted: bounded(state.contractsCompleted + 1),
       };
       message = "Контракт закрито. Клієнт задоволений!";
+      state = gainClients(state, MARKET.contractClients);
       break;
     }
     case "cancelContract": {
@@ -328,7 +314,7 @@ export function act(
         research: state.research,
         certificates: state.certificates,
         specialists: state.specialists,
-        products: { ...state.products, development: null },
+        products: state.products,
         office: { ...state.office, contractId: null },
       };
       message = `Нова кар’єра! +${String(reward)} досвіду. Автозвіти вже працюють.`;
@@ -339,9 +325,9 @@ export function act(
       const result = officeAction(state, action);
       return { ...result, state: awardBadges(result.state) };
     }
-    case "developProduct":
-    case "publishProduct":
-    case "cancelProduct": {
+    case "launchProduct":
+    case "productMode":
+    case "dismissProductRefund": {
       const result = productAction(state, action);
       return { ...result, state: awardBadges(result.state) };
     }

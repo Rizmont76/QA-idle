@@ -21,6 +21,7 @@ import {
   projectQuote,
   projectReady,
   projectUnlocked,
+  projectThroughput,
   researchBonus,
   researchCost,
   specialistSlots,
@@ -92,7 +93,7 @@ describe("project campaign", () => {
       ).ok,
     ).toBe(false);
   });
-  it("counts only new bugs and requires both work and elapsed time", () => {
+  it("counts only new bugs and can finish immediately without a minimum timer", () => {
     let s = act(
       fixture({ bugs: 1e8 }),
       { type: "startProject", id: "button" },
@@ -103,8 +104,6 @@ describe("project campaign", () => {
     s = act(s, { type: "test" }, NOW).state;
     expect(s.project?.progress).toBeGreaterThan(0);
     s = { ...s, project: { ...required(s.project), progress: 80, elapsed: 0 } };
-    expect(projectReady(s)).toBe(false);
-    s = advanceCareer(s, NOW + 20_000).state;
     expect(projectReady(s)).toBe(true);
   });
   it("offline completes only the current phase and cannot award certificates", () => {
@@ -112,7 +111,7 @@ describe("project campaign", () => {
     s = act(s, { type: "startProject", id: "button" }, NOW).state;
     const result = advanceCareer(s, NOW + 100 * 3_600_000, true);
     expect(result.capped).toBe(true);
-    expect(result.state.project).toMatchObject({ phase: 0, progress: 80, elapsed: 20 });
+    expect(result.state.project).toMatchObject({ phase: 0, progress: 80, elapsed: 0 });
     expect(result.state.certificates).toEqual({});
     const next = act(
       result.state,
@@ -138,19 +137,21 @@ describe("project campaign", () => {
     expect(act(s, { type: "assignSpecialist", id: "marta" }, s.lastTick).ok).toBe(true);
     expect(projectUnlocked(s, required(PROJECTS[1]))).toBe(true);
   });
-  it("snapshots research and rewards, and replays increase difficulty", () => {
+  it("snapshots rewards but applies research speed immediately, with gentler replays", () => {
     let s = fixture({ research: { fieldnotes: 2, discoveries: 1 } });
     s = act(s, { type: "startProject", id: "button" }, NOW).state;
-    expect(projectPhase(required(s.project))?.target).toBe(74);
+    expect(projectPhase(required(s.project))?.target).toBe(80);
+    expect(projectThroughput(s)).toBe(1.25);
     const accepted = s.project;
     s = act(s, { type: "research", id: "fieldnotes" }, NOW).state;
     expect(s.project).toEqual(accepted);
+    expect(projectThroughput(s)).toBeCloseTo(1 / 0.7);
     const silver = projectQuote(
       fixture({ certificates: { button: 1 } }),
       required(PROJECTS[0]),
     );
     expect(silver).toMatchObject({ tier: 1, reward: 8_000, insights: 6 });
-    expect(projectPhase(silver)).toMatchObject({ target: 960, seconds: 25 });
+    expect(projectPhase(silver)).toMatchObject({ target: 320, seconds: 0 });
   });
   it("cancellation discards active work but preserves certificates", () => {
     let s = act(
@@ -279,7 +280,7 @@ describe("expanded contracts and promotions", () => {
     });
     const quote = contractQuote(base, "smoke");
     expect(quote).toMatchObject({
-      duration: 48,
+      duration: 36,
       reward: 19_200,
       target: 4_000,
       insights: 1,

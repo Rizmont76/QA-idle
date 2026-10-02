@@ -40,10 +40,11 @@ function normalizeProject(value: unknown, s: CareerState): CareerProject | null 
   const maxInsights = Math.floor(def.insights * (tier + 1) * S.maximumInsightMultiplier);
   const insights = Math.floor(amount(data["insights"], maxInsights));
   const project = {
+    flowVersion: 1 as const,
     id: def.id,
     tier,
     phase: phaseIndex,
-    workMultiplier,
+    workMultiplier: 1,
     reward,
     insights,
     progress: 0,
@@ -53,8 +54,15 @@ function normalizeProject(value: unknown, s: CareerState): CareerProject | null 
   if (!phase) {
     return null;
   }
-  project.progress = amount(data["progress"], phase.target);
-  project.elapsed = amount(data["elapsed"], phase.seconds);
+  const oldWorkGrowth = 12;
+  const oldTarget = Math.ceil(
+    (def.phases[phaseIndex]?.target ?? 1) * oldWorkGrowth ** tier * workMultiplier,
+  );
+  project.progress =
+    data["flowVersion"] === 1
+      ? amount(data["progress"], phase.target)
+      : (amount(data["progress"], oldTarget) / oldTarget) * phase.target;
+  project.elapsed = 0;
   return project;
 }
 

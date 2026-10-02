@@ -4,19 +4,19 @@ import type { CareerState } from "../../types";
 import { act, advanceCareer, newCareer } from "./engine";
 import { BADGES, CAREER_RULES as R } from "./content";
 import { PROJECTS } from "./expansionData";
-import { PRODUCTS, PRODUCT_RULES as P } from "./productData";
-import { productReady, productTerms, royaltyRate } from "./products";
+import { PRODUCTS } from "./productData";
+import { gainClients, marketStrength, productBoost, royaltyRate } from "./productEffects";
 import { exportCareer, importCareer, loadCareer, normalizeCareer } from "./persistence";
-import { offlineCap, production } from "./selectors";
+import { contractQuote, offlineCap } from "./selectors";
+import { projectPhase, projectThroughput } from "./studioSelectors";
 
 const NOW = 1_000_000;
-function required<T>(value: T | null | undefined): T {
-  if (value === null || value === undefined) {
-    throw new Error("Expected a test fixture value");
+function required<T>(v: T | null | undefined): T {
+  if (v === null || v === undefined) {
+    throw new Error("Missing fixture");
   }
-  return value;
+  return v;
 }
-const FIRST = required(PRODUCTS[0]);
 function fixture(patch: Partial<CareerState> = {}): CareerState {
   return {
     ...newCareer(NOW),
@@ -31,40 +31,26 @@ function fixture(patch: Partial<CareerState> = {}): CareerState {
     ...patch,
   };
 }
-function ready(s = fixture()): CareerState {
-  const started = act(s, { type: "developProduct", id: FIRST.id }, NOW).state;
-  const job = required(started.products.development);
-  const terms = productTerms(FIRST, job.version);
-  return {
-    ...started,
-    products: {
-      ...started.products,
-      development: { ...job, progress: terms.target, elapsed: terms.seconds },
-    },
-  };
-}
-function published(s = fixture()): CareerState {
-  return act(ready(s), { type: "publishProduct" }, NOW).state;
+function launched(s = fixture()) {
+  return act(s, { type: "launchProduct", id: "checklist" }, s.lastTick).state;
 }
 
-describe("studio products", () => {
-  it("validates all 18 authored releases and keeps their investments attainable", () => {
-    expect(new Set(PRODUCTS.map((p) => p.id)).size).toBe(6);
+describe("products as studio tools", () => {
+  it("launches all six once, requiring only a first certificate and base rank", () => {
+    let s = fixture({ certificates: Object.fromEntries(PROJECTS.map((p) => [p.id, 1])) });
     for (const def of PRODUCTS) {
-      expect(PROJECTS.some((p) => p.id === def.project)).toBe(true);
-      expect(def.releases).toHaveLength(P.versions);
-      for (const version of [1, 2, 3]) {
-        const terms = productTerms(def, version);
-        expect(terms.cost).toBeLessThan(R.limit);
-        expect(terms.target).toBeLessThan(R.limit);
-        expect(terms.cost / terms.income).toBeGreaterThanOrEqual(300);
-        expect(terms.cost / terms.income).toBeLessThanOrEqual(6_000);
-        expect(terms.seconds).toBeGreaterThan(0);
-        expect(terms.stage).toBeLessThanOrEqual(8);
-      }
+      const before = s;
+      const result = act(s, { type: "launchProduct", id: def.id }, NOW);
+      expect(result.ok).toBe(true);
+      s = result.state;
+      expect(s.money).toBe(before.money - def.cost);
+      expect(s.insights).toBe(before.insights - def.insights);
+      expect(s.products.releases[def.id]).toBe(1);
+      expect(act(s, { type: "launchProduct", id: def.id }, NOW).state).toEqual(s);
     }
+    expect(Object.keys(s.products.releases)).toHaveLength(6);
   });
-  it("requires rank, certificate, money and insights before spending", () => {
+  it("validates prerequisites without spending or granting work", () => {
     for (const patch of [
       { stage: 1 },
       { certificates: {} },
@@ -72,142 +58,97 @@ describe("studio products", () => {
       { insights: 2 },
     ]) {
       const s = fixture(patch);
-      const result = act(s, { type: "developProduct", id: FIRST.id }, NOW);
+      const result = act(s, { type: "launchProduct", id: "checklist" }, NOW);
       expect(result.ok).toBe(false);
-      expect(result.state.money).toBe(s.money);
-      expect(result.state.insights).toBe(s.insights);
-      expect(result.state.products.development).toBeNull();
+      expect(result.state).toEqual(s);
     }
-    expect(act(fixture(), { type: "developProduct", id: "unknown" }, NOW).ok).toBe(false);
-  });
-  it("spends once and rejects a second job in the shared development slot", () => {
-    const s = fixture();
-    const started = act(s, { type: "developProduct", id: FIRST.id }, NOW).state;
-    expect(started.money).toBe(s.money - 4_000);
-    expect(started.insights).toBe(s.insights - 3);
-    for (const id of [FIRST.id, "devices"]) {
-      const result = act(started, { type: "developProduct", id }, NOW);
-      expect(result.ok).toBe(false);
-      expect(result.state.products).toEqual(started.products);
-      expect(result.state.money).toBe(started.money);
-    }
-  });
-  it("requires both fresh bugs and elapsed time, never stored bugs", () => {
-    const started = act(
-      fixture({ bugs: 1e10 }),
-      { type: "developProduct", id: FIRST.id },
-      NOW,
-    ).state;
-    const waited = advanceCareer(started, NOW + 100_000).state;
-    expect(waited.products.development).toMatchObject({ progress: 0, elapsed: 90 });
-    expect(productReady(waited)).toBe(false);
-    expect(act(waited, { type: "publishProduct" }, waited.lastTick).ok).toBe(false);
-    const bugOnly = {
-      ...started,
-      products: {
-        ...started.products,
-        development: { ...required(started.products.development), progress: 2_000 },
-      },
-    };
-    expect(productReady(bugOnly)).toBe(false);
-    expect(act(bugOnly, { type: "publishProduct" }, NOW).ok).toBe(false);
-  });
-  it("counts manual tests and team bugs while leaving other work intact", () => {
-    const s = act(
-      fixture({ crew: { ...newCareer(NOW).crew, assistant: 10 } }),
-      { type: "startProject", id: "button" },
-      NOW,
-    ).state;
-    // Already-gold projects cannot start; use an ordinary unfinished bronze project.
-    const projectState = act(
-      { ...s, certificates: { button: 1 } },
-      { type: "startProject", id: "cart" },
-      NOW,
-    ).state;
-    const started = act(
-      projectState,
-      { type: "developProduct", id: FIRST.id },
-      NOW,
-    ).state;
-    const manual = act(started, { type: "test" }, NOW).state;
-    expect(required(manual.products.development).progress).toBeGreaterThan(0);
-    expect(required(manual.products.development).progress).toBe(
-      required(manual.project).progress,
-    );
-    const advanced = advanceCareer(manual, NOW + 1_000).state;
+    expect(act(fixture(), { type: "launchProduct", id: "unknown" }, NOW).ok).toBe(false);
     expect(
-      required(advanced.products.development).progress -
-        required(manual.products.development).progress,
-    ).toBeCloseTo(production(manual));
-    expect(required(advanced.project).phase).toBe(0);
+      act(fixture(), { type: "productMode", id: "checklist", mode: "internal" }, NOW).ok,
+    ).toBe(false);
   });
-  it("never retroactively develops or earns before the player's action", () => {
-    const started = act(
-      fixture({ crew: { ...newCareer(NOW).crew, assistant: 100 } }),
-      { type: "developProduct", id: FIRST.id },
+  it("never retroactively earns before launch or applies a mode before its action", () => {
+    const s = act(
+      fixture(),
+      { type: "launchProduct", id: "checklist" },
       NOW + 500_000,
     ).state;
-    expect(started.products.development).toMatchObject({ progress: 0, elapsed: 0 });
-    const launched = act(ready(), { type: "publishProduct" }, NOW + 500_000).state;
-    expect(launched.products.earned).toBe(0);
-    expect(
-      advanceCareer(launched, launched.lastTick + 10_000).state.products.earned,
-    ).toBe(120);
+    expect(s.products.earned).toBe(0);
+    const next = act(
+      s,
+      { type: "productMode", id: "checklist", mode: "internal" },
+      s.lastTick + 10_000,
+    ).state;
+    expect(next.products.earned).toBe(120);
+    expect(advanceCareer(next, next.lastTick + 10_000).productMoney).toBe(0);
+    expect(royaltyRate(next)).toBe(0);
+    expect(projectThroughput(next)).toBe(1.25);
   });
-  it("publishes once and earns without crew or automatic reports", () => {
-    const s = published();
-    expect(s.products.releases).toEqual({ checklist: 1 });
-    expect(s.products.development).toBeNull();
-    expect(act(s, { type: "publishProduct" }, NOW).ok).toBe(false);
-    const next = advanceCareer(s, NOW + 10_000);
-    expect(next.money).toBe(120);
-    expect(next.productMoney).toBe(120);
-    expect(next.state.earned).toBe(120);
-    expect(next.state.lifetimeEarned - s.lifetimeEarned).toBe(120);
-    expect(next.bugs).toBe(0);
-  });
-  it("requires silver/gold for new versions and replaces, rather than sums, income", () => {
-    const s = published();
-    expect(
-      act(
-        { ...s, certificates: { button: 1 } },
-        { type: "developProduct", id: FIRST.id },
-        NOW,
-      ).ok,
-    ).toBe(false);
-    const upgraded = act(ready(s), { type: "publishProduct" }, NOW).state;
-    expect(royaltyRate(upgraded)).toBe(60);
-    const mastered = act(ready(upgraded), { type: "publishProduct" }, NOW).state;
-    expect(royaltyRate(mastered)).toBe(300);
-    expect(act(mastered, { type: "developProduct", id: FIRST.id }, NOW).ok).toBe(false);
-  });
-  it("keeps previous income during development and cancels without refund", () => {
-    const s = published();
-    const started = act(s, { type: "developProduct", id: FIRST.id }, NOW).state;
-    const next = advanceCareer(started, NOW + 60_000).state;
-    expect(next.products.earned).toBe(720);
-    const canceled = act(next, { type: "cancelProduct" }, next.lastTick).state;
-    expect(canceled.money).toBe(next.money);
-    expect(canceled.insights).toBe(next.insights);
-    expect(canceled.products).toMatchObject({
-      development: null,
-      releases: { checklist: 1 },
-    });
-    expect(royaltyRate(canceled)).toBe(12);
-  });
-  it("caps offline royalties, applies efficiency and never auto-publishes", () => {
-    const s = ready(
-      published(fixture({ crew: { ...newCareer(NOW).crew, assistant: 100 } })),
+  it("makes roles mutually exclusive, and open source affects only new quotes", () => {
+    const s = launched();
+    const original = required(contractQuote(s, "smoke"));
+    const open = act(
+      { ...s, contract: original },
+      { type: "productMode", id: "checklist", mode: "open" },
+      NOW,
+    ).state;
+    expect(royaltyRate(open)).toBe(0);
+    expect(productBoost(open, "internal")).toBe(0);
+    expect(productBoost(open, "open")).toBe(0.125);
+    expect(open.contract).toEqual(original);
+    expect(required(contractQuote(open, "smoke")).insights).toBe(
+      Math.floor(original.insights * 1.125),
     );
-    const next = advanceCareer(s, NOW + 100_000_000, true);
-    expect(next.capped).toBe(true);
-    expect(next.productMoney).toBe(offlineCap(s) * R.offlineEfficiency * 12);
-    expect(next.state.products.releases).toEqual({ checklist: 1 });
-    expect(productReady(next.state)).toBe(true);
-    expect(advanceCareer(next.state, next.state.lastTick, true).money).toBe(0);
   });
-  it("combines many dispatcher boundaries without duplicating royalties", () => {
-    const s = published(
+  it("earns without crew/reports, caps offline time and applies efficiency", () => {
+    const s = launched();
+    const online = advanceCareer(s, NOW + 10_000);
+    expect(online.productMoney).toBe(120);
+    expect(online.state.earned).toBe(120);
+    expect(online.state.lifetimeEarned - s.lifetimeEarned).toBe(120);
+    expect(online.bugs).toBe(0);
+    const offline = advanceCareer(s, NOW + 100_000_000, true);
+    expect(offline.capped).toBe(true);
+    expect(offline.productMoney).toBe(offlineCap(s) * R.offlineEfficiency * 12);
+    expect(advanceCareer(offline.state, offline.state.lastTick, true).money).toBe(0);
+  });
+  it("grows clients only after ownership; bounds strength and never awards on switching", () => {
+    expect(gainClients(fixture(), 10).products.clients).toBe(0);
+    let s = gainClients(launched(), 10);
+    expect(s.products.clients).toBe(10);
+    s = act(s, { type: "productMode", id: "checklist", mode: "internal" }, NOW).state;
+    expect(s.products.clients).toBe(10);
+    s = gainClients(s, 1000);
+    expect(s.products.clients).toBe(400);
+    expect(marketStrength(s)).toBe(3);
+    expect(productBoost(s, "internal")).toBe(0.75);
+  });
+  it("awards clients once for manual contracts and certificates, never cancellation", () => {
+    let s = launched(fixture({ certificates: { button: 1 } }));
+    const contract = required(contractQuote(s, "smoke"));
+    s = act(
+      {
+        ...s,
+        contract: { ...contract, elapsed: contract.duration, progress: contract.target },
+      },
+      { type: "claim" },
+      NOW,
+    ).state;
+    expect(s.products.clients).toBe(1);
+    s = act(s, { type: "claim" }, NOW).state;
+    expect(s.products.clients).toBe(1);
+    s = act(s, { type: "startProject", id: "cart" }, NOW).state;
+    const project = { ...required(s.project), phase: 2 };
+    s = act(
+      { ...s, project: { ...project, progress: required(projectPhase(project)).target } },
+      { type: "submitProject" },
+      NOW,
+    ).state;
+    expect(s.products.clients).toBe(11);
+    expect(act(s, { type: "cancelProject" }, NOW).state.products.clients).toBe(11);
+  });
+  it("splits royalties correctly across dispatcher growth boundaries", () => {
+    const s = launched(
       fixture({
         stage: 3,
         contractsCompleted: 3,
@@ -224,112 +165,24 @@ describe("studio products", () => {
     const combined = advanceCareer(s, NOW + 601_000);
     let incremental = s;
     for (let i = 1; i <= 601; i++) {
-      incremental = advanceCareer(incremental, NOW + i * 1_000).state;
+      incremental = advanceCareer(incremental, NOW + i * 1000).state;
     }
-    expect(combined.productMoney).toBeCloseTo(601 * 12);
-    expect(combined.state.money).toBeCloseTo(incremental.money);
-    expect(combined.state.products).toEqual(incremental.products);
+    expect(combined.state.money).toBeCloseTo(incremental.money, 0);
+    expect(combined.state.products.clients).toBe(10);
+    expect(combined.state.products.earned).toBeCloseTo(incremental.products.earned, 6);
     expect(combined.autoContracts).toBe(10);
   });
-  it("preserves products and stats through prestige, pauses income until base rank", () => {
-    const s = ready(
-      advanceCareer(published(fixture({ earned: 25_000_000 })), NOW + 10_000).state,
-    );
-    const next = act(s, { type: "prestige" }, s.lastTick).state;
-    expect(next.products).toEqual({
-      releases: { checklist: 1 },
-      development: null,
-      earned: 120,
-    });
-    expect(royaltyRate(next)).toBe(0);
-    expect(royaltyRate({ ...next, stage: 2 })).toBe(12);
-    expect(importCareer(exportCareer(next), next.lastTick).products).toEqual(
-      next.products,
-    );
+  it("preserves ownership, modes and clients through prestige; rank gates all effects", () => {
+    let s = gainClients(launched(fixture({ earned: 25_000_000 })), 100);
+    s = act(s, { type: "productMode", id: "checklist", mode: "internal" }, NOW).state;
+    const next = act(s, { type: "prestige" }, NOW).state;
+    expect(next.products).toEqual(s.products);
+    expect(productBoost(next, "internal")).toBe(0);
+    expect(productBoost({ ...next, stage: 2 }, "internal")).toBe(0.5);
+    expect(importCareer(exportCareer(next), NOW).products).toEqual(next.products);
   });
-  it("loads old v4 and v3 without granting products, normalizes invalid records", () => {
-    const s = fixture();
-    expect(normalizeCareer({ ...s, products: undefined }, NOW).products).toEqual(
-      newCareer(NOW).products,
-    );
-    expect(
-      importCareer(JSON.stringify({ ...published(), schemaVersion: 3 }), NOW).products,
-    ).toEqual(newCareer(NOW).products);
-    const bad = normalizeCareer(
-      {
-        ...s,
-        products: {
-          releases: { checklist: 99, devices: -1, qaos: Infinity, unknown: 3 },
-          earned: -10,
-          development: { id: "devices", version: 2, progress: 9999, elapsed: 9999 },
-        },
-      },
-      NOW,
-    );
-    expect(bad.products).toEqual({
-      releases: { checklist: 3 },
-      development: null,
-      earned: 0,
-    });
-    const locked = normalizeCareer(
-      { ...s, certificates: {}, products: { releases: { checklist: 1 }, earned: 500 } },
-      NOW,
-    );
-    expect(locked.products).toEqual(newCareer(NOW).products);
-  });
-  it("clamps valid development and discards unknown, skipped and locked versions", () => {
-    const s = fixture();
-    const good = normalizeCareer(
-      {
-        ...s,
-        products: {
-          development: { id: FIRST.id, version: 1, progress: 1e14, elapsed: 1e14 },
-        },
-      },
-      NOW,
-    );
-    expect(good.products.development).toMatchObject({ progress: 2_000, elapsed: 90 });
-    for (const job of [
-      { id: "unknown", version: 1 },
-      { id: FIRST.id, version: 2 },
-      { id: FIRST.id, version: 1.5 },
-    ]) {
-      expect(
-        normalizeCareer({ ...s, products: { development: job } }, NOW).products
-          .development,
-      ).toBeNull();
-    }
-    expect(
-      normalizeCareer({ ...s, stage: 1, products: good.products }, NOW).products
-        .development,
-    ).toBeNull();
-    const nan = normalizeCareer(
-      {
-        ...s,
-        products: {
-          development: { id: FIRST.id, version: 1, progress: NaN, elapsed: Infinity },
-        },
-      },
-      NOW,
-    );
-    expect(nan.products.development).toMatchObject({ progress: 0, elapsed: 0 });
-  });
-  it("checkpoints offline royalties exactly once across reloads", () => {
-    const data = new Map<string, string>([[R.saveKey, exportCareer(published())]]);
-    const storage = {
-      getItem: (key: string) => data.get(key) ?? null,
-      setItem: (key: string, value: string) => {
-        data.set(key, value);
-      },
-    };
-    const first = loadCareer(storage, NOW + 100_000);
-    const second = loadCareer(storage, NOW + 100_000);
-    expect(required(first.summary).productMoney).toBe(900);
-    expect(second.state.money).toBe(first.state.money);
-    expect(second.state.products).toEqual(first.state.products);
-  });
-  it("ignores invalid time and keeps all earnings finite at the currency cap", () => {
-    const s = published(
+  it("keeps earnings finite at the currency cap and ignores invalid time", () => {
+    const s = launched(
       fixture({ money: R.limit, earned: R.limit, lifetimeEarned: R.limit }),
     );
     for (const now of [NaN, Infinity, NOW - 1]) {
@@ -341,7 +194,132 @@ describe("studio products", () => {
     ).state;
     expect(next.money).toBe(R.limit);
     expect(next.earned).toBe(R.limit);
-    expect(next.lifetimeEarned).toBe(R.limit);
     expect(next.products.earned).toBe(R.limit);
+  });
+});
+
+describe("product save conversion", () => {
+  it("refunds v2/v3 investments and converts ownership exactly once", () => {
+    const source = fixture({ money: 10, insights: 0, lifetimeEarned: 99_999_999 });
+    const migrated = normalizeCareer(
+      { ...source, products: { releases: { checklist: 3 }, earned: 100 } },
+      NOW,
+    );
+    expect(migrated.products.releases).toEqual({ checklist: 1 });
+    expect(migrated.products.modes).toEqual({ checklist: "license" });
+    expect(migrated.products.refund).toEqual({ money: 624_000, insights: 15 });
+    expect(migrated.money).toBe(624_010);
+    expect(migrated.insights).toBe(15);
+    expect(migrated.earned).toBe(source.earned);
+    expect(migrated.lifetimeEarned).toBe(source.lifetimeEarned);
+    const next = importCareer(exportCareer(migrated), NOW);
+    expect(next).toEqual(migrated);
+    const dismissed = act(next, { type: "dismissProductRefund" }, NOW).state;
+    expect(importCareer(exportCareer(dismissed), NOW).products.refund).toBeNull();
+  });
+  it("refunds a valid pending launch without granting its product or trusting saved prices", () => {
+    const source = fixture({ money: 0, insights: 0 });
+    const next = normalizeCareer(
+      {
+        ...source,
+        products: {
+          development: { id: "checklist", version: 1, cost: 1e14, progress: 0 },
+        },
+      },
+      NOW,
+    );
+    expect(next.products.releases).toEqual({});
+    expect(next.products.refund).toEqual({ money: 4000, insights: 3 });
+    expect(next.money).toBe(4000);
+    expect(next.insights).toBe(3);
+  });
+  it("refunds both earlier upgrades and a paid pending next version", () => {
+    const s = normalizeCareer(
+      {
+        ...fixture(),
+        products: {
+          releases: { checklist: 2 },
+          development: { id: "checklist", version: 3 },
+        },
+      },
+      NOW,
+    );
+    expect(s.products.refund).toEqual({ money: 624_000, insights: 15 });
+  });
+  it("rejects unknown, skipped, fractional and rank/certificate locked investments", () => {
+    for (const job of [
+      { id: "unknown", version: 1 },
+      { id: "checklist", version: 2 },
+      { id: "checklist", version: 1.5 },
+    ]) {
+      expect(
+        normalizeCareer({ ...fixture(), products: { development: job } }, NOW).products
+          .refund,
+      ).toBeNull();
+    }
+    for (const patch of [{ stage: 1 }, { certificates: {} }]) {
+      expect(
+        normalizeCareer(
+          {
+            ...fixture(patch),
+            products: { development: { id: "checklist", version: 1 } },
+          },
+          NOW,
+        ).products.refund,
+      ).toBeNull();
+    }
+  });
+  it("normalizes modes, clients and ownership without paying again for a refund notice", () => {
+    const s = fixture({ money: 100 });
+    const next = normalizeCareer(
+      {
+        ...s,
+        products: {
+          model: 2,
+          releases: { checklist: 99, devices: -1, qaos: Infinity, unknown: 1 },
+          clients: 999,
+          modes: { checklist: "hacker" },
+          earned: -10,
+          refund: { money: 1e10, insights: -20 },
+        },
+      },
+      NOW,
+    );
+    expect(next.products).toMatchObject({
+      releases: { checklist: 1 },
+      modes: { checklist: "license" },
+      clients: 400,
+      earned: 0,
+    });
+    expect(next.money).toBe(100);
+    expect(
+      normalizeCareer({ ...s, products: { model: 2, clients: 10 } }, NOW).products
+        .clients,
+    ).toBe(0);
+    expect(normalizeCareer({ ...s, products: undefined }, NOW).products).toEqual(
+      newCareer(NOW).products,
+    );
+    expect(
+      importCareer(JSON.stringify({ ...launched(), schemaVersion: 3 }), NOW).products,
+    ).toEqual(newCareer(NOW).products);
+  });
+  it("checkpoints refunds and offline royalties once across reloads", () => {
+    const legacy = {
+      ...fixture({ money: 0, insights: 0 }),
+      products: { releases: { checklist: 3 }, earned: 0 },
+    };
+    const data = new Map<string, string>([[R.saveKey, JSON.stringify(legacy)]]);
+    const storage = {
+      getItem: (key: string) => data.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        data.set(key, value);
+      },
+    };
+    const first = loadCareer(storage, NOW + 100_000);
+    const second = loadCareer(storage, NOW + 100_000);
+    expect(required(first.summary).productMoney).toBe(900);
+    expect(first.state.money).toBe(624_900);
+    expect(second.state.money).toBe(first.state.money);
+    expect(second.state.products).toEqual(first.state.products);
   });
 });

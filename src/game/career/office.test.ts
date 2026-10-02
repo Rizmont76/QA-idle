@@ -161,7 +161,7 @@ describe("office dispatch", () => {
   it("does not advance project phases while dispatch runs", () => {
     const started = act(fixture(), { type: "startProject", id: "button" }, NOW).state;
     const result = advanceCareer(started, NOW + 600_000).state;
-    expect(result.project).toMatchObject({ phase: 0, progress: 80, elapsed: 20 });
+    expect(result.project).toMatchObject({ phase: 0, progress: 80, elapsed: 0 });
     expect(result.certificates).toEqual({});
     expect(result.office.completed).toBe(10);
   });

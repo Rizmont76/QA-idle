@@ -3,13 +3,17 @@ import type { CareerAction, CareerProject, CareerState } from "../types";
 import { CAREER_STAGES } from "../game/career/content";
 import { PROJECTS, SPECIALISTS, STUDIO_RULES as S } from "../game/career/expansionData";
 import {
+  automaticPhases,
   certificates,
   projectPhase,
   projectQuote,
   projectRank,
   projectReady,
   projectUnlocked,
+  projectThroughput,
 } from "../game/career/studioSelectors";
+import { production } from "../game/career/selectors";
+import { PRODUCTS } from "../game/career/productData";
 import { cash, clockTime, number } from "./careerUtils";
 import { Meter, SectionTitle } from "./CareerWidgets";
 
@@ -30,6 +34,7 @@ export function CareerProjects({ game: s, send, cancelProject, studio }: Props) 
   const activeDef = PROJECTS.find((p) => p.id === active?.id);
   const phase = active ? projectPhase(active) : null;
   const ready = projectReady(s);
+  const workRate = production(s) * projectThroughput(s);
   const list = PROJECTS.filter(
     (p) =>
       filter === "all" ||
@@ -133,7 +138,7 @@ export function CareerProjects({ game: s, send, cancelProject, studio }: Props) 
               <div className="project-meters">
                 <div>
                   <div className="row-label">
-                    <span>Нові баги</span>
+                    <span>Робота етапу</span>
                     <strong>
                       {number(active.progress)} / {number(phase.target)}
                     </strong>
@@ -141,17 +146,24 @@ export function CareerProjects({ game: s, send, cancelProject, studio }: Props) 
                   <Meter
                     value={active.progress}
                     max={phase.target}
-                    label="Баги для етапу"
+                    label="Робота для етапу"
                   />
                 </div>
                 <div>
                   <div className="row-label">
-                    <span>Час перевірки</span>
+                    <span>Команда завершить етап</span>
                     <strong>
-                      {clockTime(active.elapsed)} / {clockTime(phase.seconds)}
+                      {ready
+                        ? "Готово!"
+                        : workRate > 0
+                          ? `≈ ${clockTime(Math.ceil((phase.target - active.progress) / workRate))}`
+                          : "Допоможи ручними тестами"}
                     </strong>
                   </div>
-                  <Meter value={active.elapsed} max={phase.seconds} label="Час етапу" />
+                  <p className="tiny muted">
+                    Кожен новий баг дає ×{number(projectThroughput(s))} роботи. Ручні
+                    тести скорочують прогноз; обов’язкового таймера немає.
+                  </p>
                 </div>
               </div>
             </div>
@@ -177,8 +189,9 @@ export function CareerProjects({ game: s, send, cancelProject, studio }: Props) 
             </div>
           </div>
           <p className="tiny muted">
-            Ручні тести й команда допомагають одночасно проєкту та контракту. Готовий етап
-            чекатиме на твоє рішення.
+            {automaticPhases(s)
+              ? "Польові нотатки: команда сама здає проміжні етапи, також офлайн. Фінальний реліз — за тобою."
+              : "Ручні тести й команда рухають проєкт і контракт. Польові нотатки в студії автоматизують проміжні етапи."}
           </p>
         </section>
       )}
@@ -215,6 +228,7 @@ export function CareerProjects({ game: s, send, cancelProject, studio }: Props) 
           const previous = PROJECTS[index - 1];
           const previousMissing = previous && !(s.certificates[previous.id] ?? 0);
           const specialist = SPECIALISTS.find((p) => p.project === def.id);
+          const tool = PRODUCTS.find((p) => p.project === def.id);
           return (
             <article
               className={`panel project-card tone-${def.color} ${current ? "current" : ""}`}
@@ -259,11 +273,19 @@ export function CareerProjects({ game: s, send, cancelProject, studio }: Props) 
                 </div>
               )}
               {!complete && (
-                <div className="project-rewards">
-                  <span>{cash(quote.reward)}</span>
-                  <span>+{number(quote.insights)} ◈</span>
-                  <span>{CERTIFICATION_NAMES[tier]}</span>
-                </div>
+                <>
+                  {tool && (
+                    <p className="tiny insight-text">
+                      ⬡ {tier > 0 ? "Відкрито" : "Перший сертифікат відкриє"}:{" "}
+                      {tool.title} · три ролі для студії
+                    </p>
+                  )}
+                  <div className="project-rewards">
+                    <span>{cash(quote.reward)}</span>
+                    <span>+{number(quote.insights)} ◈</span>
+                    <span>{CERTIFICATION_NAMES[tier]}</span>
+                  </div>
+                </>
               )}
               <button
                 className={`button full ${unlocked && !active ? "primary" : "ghost"}`}

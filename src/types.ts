@@ -96,6 +96,7 @@ export type CrewId =
   "assistant" | "squad" | "runner" | "lab" | "cloud" | "ai" | "orbital";
 export const BULK_PURCHASE_SIZE = 10;
 export const CAREER_SAVE_VERSION = 4;
+export const PRODUCT_MODEL_VERSION = 2;
 export type PurchaseMode = 1 | typeof BULK_PURCHASE_SIZE | "max";
 export interface CareerContract {
   id: string;
@@ -108,6 +109,7 @@ export interface CareerContract {
   insights: number;
 }
 export interface CareerProject {
+  flowVersion?: 1;
   id: string;
   tier: number;
   phase: number;
@@ -117,12 +119,7 @@ export interface CareerProject {
   reward: number;
   insights: number;
 }
-export interface ProductDevelopment {
-  id: string;
-  version: number;
-  progress: number;
-  elapsed: number;
-}
+export type ProductMode = "license" | "internal" | "open";
 export interface CareerState {
   schemaVersion: typeof CAREER_SAVE_VERSION;
   money: number;
@@ -148,8 +145,11 @@ export interface CareerState {
   certificates: Record<string, number>;
   specialists: string[];
   products: {
+    model: typeof PRODUCT_MODEL_VERSION;
     releases: Record<string, number>;
-    development: ProductDevelopment | null;
+    modes: Record<string, ProductMode>;
+    clients: number;
+    refund: { money: number; insights: number } | null;
     earned: number;
   };
   office: {
@@ -178,9 +178,9 @@ export type CareerAction =
   | { type: "assignSpecialist"; id: string }
   | { type: "buyDispatcher" }
   | { type: "dispatch"; id: string | null }
-  | { type: "developProduct"; id: string }
-  | { type: "publishProduct" }
-  | { type: "cancelProduct" }
+  | { type: "launchProduct"; id: string }
+  | { type: "productMode"; id: string; mode: ProductMode }
+  | { type: "dismissProductRefund" }
   | { type: "prestige" };
 
 export type ResourceLifetimeCategory = "disposable" | "investment";

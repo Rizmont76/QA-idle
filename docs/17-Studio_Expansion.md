@@ -1,5 +1,7 @@
 # 17 — Studio Expansion
 
+Superseded in part by [20 — Meaningful Progression](20-Meaningful_Progression.md): project timers, replay work scaling and research effect values. Historical verification below describes the prior release.
+
 Extension: [19 — Studio Products](19-Studio_Products.md) connects project certificates to owned QA tools and passive product income.
 
 Extension: [18 — Living Office](18-Living_Office.md) adds optional contract dispatch; it owns the explicit automation exception to manual contract claims.

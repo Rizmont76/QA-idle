@@ -15,6 +15,7 @@ import {
 import { offlineCap, offlineEfficiency } from "../game/career/selectors";
 import { Meter, SectionTitle } from "./CareerWidgets";
 import { duration, number } from "./careerUtils";
+import { researchPreview } from "./researchPreview";
 
 const PERCENT = 100;
 const BRANCHES = [
@@ -130,6 +131,7 @@ export function CareerStudio({
                 const cost = researchCost(s, def);
                 const full = level >= def.max;
                 const dependency = RESEARCH.find((r) => r.id === def.requires?.id);
+                const preview = researchPreview(s, def);
                 return (
                   <article
                     className={`panel research-card ${!unlocked ? "locked" : ""} ${full ? "complete" : ""}`}
@@ -143,6 +145,18 @@ export function CareerStudio({
                     </div>
                     <h3>{def.title}</h3>
                     <p>{def.description}</p>
+                    <div className="research-preview">
+                      <span>{preview.label}</span>
+                      <strong>
+                        {preview.before}
+                        {!full && (
+                          <>
+                            {" "}
+                            → <em>{preview.after}</em>
+                          </>
+                        )}
+                      </strong>
+                    </div>
                     <Meter value={level} max={def.max} label={`Рівень ${def.title}`} />
                     {dependency && (
                       <p className={`research-dependency ${unlocked ? "satisfied" : ""}`}>
