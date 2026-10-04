@@ -120,6 +120,26 @@ export interface CareerProject {
   insights: number;
 }
 export type ProductMode = "license" | "internal" | "open";
+export type PipelineAllocation = [number, number, number];
+export type PipelinePolicy = "hire" | "upgrades" | "promote" | "projects";
+export type PipelineTrialId = "budget" | "verification" | "deployment";
+export interface PipelineTrial {
+  id: PipelineTrialId;
+  allocation: PipelineAllocation;
+  queues: [number, number];
+  progress: number;
+  elapsed: number;
+}
+export interface PipelineState {
+  credits: number;
+  total: number;
+  coreLevel: number;
+  allocation: PipelineAllocation;
+  queues: [number, number];
+  completed: PipelineTrialId[];
+  trial: PipelineTrial | null;
+  automation: Record<PipelinePolicy, boolean>;
+}
 export interface CareerState {
   schemaVersion: typeof CAREER_SAVE_VERSION;
   money: number;
@@ -144,6 +164,7 @@ export interface CareerState {
   research: Record<string, number>;
   certificates: Record<string, number>;
   specialists: string[];
+  pipeline: PipelineState;
   products: {
     model: typeof PRODUCT_MODEL_VERSION;
     releases: Record<string, number>;
@@ -181,6 +202,12 @@ export type CareerAction =
   | { type: "launchProduct"; id: string }
   | { type: "productMode"; id: string; mode: ProductMode }
   | { type: "dismissProductRefund" }
+  | { type: "pipelineAllocate"; station: number; delta: -1 | 1; trial?: boolean }
+  | { type: "pipelineCore" }
+  | { type: "startTrial"; id: PipelineTrialId }
+  | { type: "cancelTrial" }
+  | { type: "claimTrial" }
+  | { type: "pipelinePolicy"; id: PipelinePolicy; enabled: boolean }
   | { type: "prestige" };
 
 export type ResourceLifetimeCategory = "disposable" | "investment";
