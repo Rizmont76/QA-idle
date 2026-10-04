@@ -15,6 +15,7 @@ import { normalizeStudio } from "./studioPersistence";
 import { STUDIO_RULES as S } from "./expansionData";
 import { normalizeOffice } from "./office";
 import { normalizeProducts } from "./products";
+import { normalizePipeline } from "./pipelinePersistence";
 
 const IMPORT_CHARACTER_LIMIT = 1_000_000;
 const JSON_INDENT = 2;
@@ -112,6 +113,7 @@ export function normalizeCareer(value: unknown, now = Date.now()): CareerState {
   normalizeStudio(state, data);
   normalizeOffice(state, data["office"]);
   normalizeProducts(state, data["products"]);
+  normalizePipeline(state, data["pipeline"]);
   return awardBadges(state);
 }
 
