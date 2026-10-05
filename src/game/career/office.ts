@@ -1,4 +1,5 @@
 import type { CareerAction, CareerState } from "../../types";
+import { gainClients, MARKET } from "./productEffects";
 import { contractQuote, bounded } from "./selectors";
 import { amount, record } from "./saveValues";
 
@@ -105,20 +106,23 @@ export function dispatchPayment(s: CareerState): CareerState {
   if (!c) {
     return s;
   }
-  return {
-    ...s,
-    contract: null,
-    money: bounded(s.money + c.reward),
-    earned: bounded(s.earned + c.reward),
-    lifetimeEarned: bounded(s.lifetimeEarned + c.reward),
-    insights: bounded(s.insights + c.insights),
-    lifetimeInsights: bounded(s.lifetimeInsights + c.insights),
-    contractsCompleted: bounded(s.contractsCompleted + 1),
-    office: {
-      ...s.office,
-      completed: bounded(s.office.completed + 1),
-      earned: bounded(s.office.earned + c.reward),
-      insights: bounded(s.office.insights + c.insights),
+  return gainClients(
+    {
+      ...s,
+      contract: null,
+      money: bounded(s.money + c.reward),
+      earned: bounded(s.earned + c.reward),
+      lifetimeEarned: bounded(s.lifetimeEarned + c.reward),
+      insights: bounded(s.insights + c.insights),
+      lifetimeInsights: bounded(s.lifetimeInsights + c.insights),
+      contractsCompleted: bounded(s.contractsCompleted + 1),
+      office: {
+        ...s.office,
+        completed: bounded(s.office.completed + 1),
+        earned: bounded(s.office.earned + c.reward),
+        insights: bounded(s.office.insights + c.insights),
+      },
     },
-  };
+    MARKET.contractClients,
+  );
 }

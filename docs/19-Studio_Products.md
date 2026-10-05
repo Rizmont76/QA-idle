@@ -1,5 +1,7 @@
 # 19 — Studio Products
 
+Product development/version rules are superseded by [20 — Meaningful Progression](20-Meaningful_Progression.md). Registry base investments and legacy version formulas below remain migration inputs. Verification describes the previous release.
+
 Status: approved implementation scope, 2026-09-20. Authorized by the request to continue expanding the game. Extends [17 — Studio Expansion](17-Studio_Expansion.md) and [18 — Living Office](18-Living_Office.md); existing rules remain unchanged.
 
 ## Player loop

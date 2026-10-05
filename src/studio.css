@@ -899,3 +899,22 @@
     font-size: 20px;
   }
 }
+.research-preview {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  margin: 14px 0;
+  border-radius: 10px;
+  background: rgba(103, 232, 186, 0.06);
+}
+.research-preview span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.research-preview strong {
+  font-size: 13px;
+}
+.research-preview em {
+  color: var(--mint);
+  font-style: normal;
+}

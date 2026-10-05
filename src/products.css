@@ -574,3 +574,45 @@
     font-size: 20px;
   }
 }
+.product-roles {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+.product-roles button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  text-align: left;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+.product-roles button.selected {
+  color: var(--mint);
+  background: rgba(103, 232, 186, 0.08);
+  border-color: var(--mint);
+}
+.product-roles button:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 3px;
+}
+.product-role-note,
+.product-market-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.product-role-note {
+  min-height: 62px;
+}
+.product-market-note {
+  margin: 12px 0 28px;
+}

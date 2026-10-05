@@ -163,19 +163,20 @@ describe("studio campaign balance", () => {
     expect(active.state.stage).toBe(8);
     expect(certificates(active.state)).toBe(9);
     expect(active.director).toBeGreaterThan(300);
-    expect(active.seconds).toBeGreaterThan(1_800);
-    expect(active.seconds).toBeLessThan(14_400);
+    expect(active.seconds).toBeGreaterThan(900);
+    expect(active.seconds).toBeLessThan(1_800);
     expect(active.state.research["automation"]).toBeGreaterThan(0);
     expect(active.state.money).toBeGreaterThanOrEqual(0);
   });
   it(`low-click campaign ${String(idle.seconds)}s; Founder ${String(idle.founder)}s`, () => {
     expect(idle.state.stage).toBe(8);
     expect(certificates(idle.state)).toBe(9);
-    expect(idle.seconds).toBeLessThan(21_600);
+    expect(idle.seconds).toBeGreaterThan(1_200);
+    expect(idle.seconds).toBeLessThan(2_400);
   });
   it(`all gold certifications attainable in another ${String(mastery.seconds)}s`, () => {
     expect(PROJECTS.every((p) => mastery.state.certificates[p.id] === 3)).toBe(true);
-    expect(mastery.seconds).toBeLessThan(36_000);
+    expect(mastery.seconds).toBeLessThan(300);
     expect(mastery.state.badges).toContain("allGold");
   });
 });

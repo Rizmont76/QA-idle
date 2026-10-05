@@ -1,6 +1,7 @@
 import type { CareerAction, CareerState } from "../../types";
 import { PROJECTS, RESEARCH, SPECIALISTS, STUDIO_RULES as S } from "./expansionData";
 import { bounded } from "./selectors";
+import { gainClients, MARKET } from "./productEffects";
 import {
   projectQuote,
   projectReady,
@@ -76,7 +77,7 @@ export function studioAction(
     case "submitProject": {
       const project = state.project;
       if (!project || !projectReady(state)) {
-        return fail("Виконай ціль за багами та часом, щоб здати етап.");
+        return fail("Заверши роботу етапу новими багами, щоб здати його.");
       }
       const def = PROJECTS.find((p) => p.id === project.id);
       if (!def || (state.certificates[def.id] ?? 0) !== project.tier) {
@@ -101,6 +102,7 @@ export function studioAction(
         };
         const specialist =
           project.tier === 0 ? SPECIALISTS.find((p) => p.project === def.id) : undefined;
+        state = gainClients(state, MARKET.projectClients);
         message = `Проєкт завершено! +${String(project.insights)} інсайтів.${specialist ? ` ${specialist.name} чекає в студії.` : " Сертифікат у портфоліо."}`;
       }
       break;

@@ -23,7 +23,7 @@ import { CareerProjects } from "./CareerProjects";
 import { CareerStudio } from "./CareerStudio";
 import { CareerOffice } from "./CareerOffice";
 import { CareerProducts } from "./CareerProducts";
-import { productReady, royaltyRate } from "../game/career/products";
+import { royaltyRate } from "../game/career/products";
 import { BugIcon, ConfirmDialog, SectionTitle } from "./CareerWidgets";
 import { cash, duration, number } from "./careerUtils";
 
@@ -60,7 +60,7 @@ const NAV: readonly { id: View; title: string; symbol: string; subtitle: string 
     id: "products",
     title: "Продукти",
     symbol: "⬡",
-    subtitle: "Твої інструменти. Твої релізи. Твій постійний дохід.",
+    subtitle: "Твої інструменти. Твоя стратегія розвитку.",
   },
   {
     id: "studio",
@@ -112,7 +112,7 @@ export function CareerApp() {
   } = useCareer();
   const [view, setView] = useState<View>("workspace");
   const [confirmation, setConfirmation] = useState<
-    "prestige" | "reset" | "import" | "contract" | "project" | "product" | null
+    "prestige" | "reset" | "import" | "contract" | "project" | null
   >(null);
   const [saveText, setSaveText] = useState("");
   const [importError, setImportError] = useState("");
@@ -183,7 +183,6 @@ export function CareerApp() {
               <span aria-hidden="true">{n.symbol}</span>
               {n.title}
               {((n.id === "projects" && projectNotification) ||
-                (n.id === "products" && productReady(s)) ||
                 (n.id === "studio" && researchNotification)) && (
                 <i className="nav-notification" aria-hidden="true" />
               )}
@@ -236,7 +235,7 @@ export function CareerApp() {
                   ? "Прогрес збережено"
                   : "Перевір збереження"}
             </span>
-            <span className="version-chip">PRODUCT EDITION</span>
+            <span className="version-chip">FLOW EDITION</span>
           </div>
         </header>
         {warning && (
@@ -376,7 +375,8 @@ export function CareerApp() {
             <>
               <div className="products-shortcut">
                 <span>
-                  Бронза, срібло й золото відкривають версії власних інструментів.
+                  Клієнти відкривають інструменти: гроші, швидші проєкти або більше
+                  інсайтів.
                 </span>
                 <button
                   className="text-button"
@@ -384,7 +384,7 @@ export function CareerApp() {
                     navigate("products");
                   }}
                 >
-                  Створити власний продукт →
+                  Керувати продуктами →
                 </button>
               </div>
               <CareerProjects
@@ -405,9 +405,6 @@ export function CareerApp() {
               send={send}
               projects={() => {
                 navigate("projects");
-              }}
-              cancelProduct={() => {
-                setConfirmation("product");
               }}
             />
           )}
@@ -694,7 +691,7 @@ export function CareerApp() {
           </p>
           <p>
             Випущені продукти залишаться; дохід відновиться на їхньому початковому ранзі.
-            Незавершена розробка скинеться без повернення інвестиції.
+            Клієнти та обрані ролі продуктів також залишаться.
           </p>
         </ConfirmDialog>
       )}
@@ -772,23 +769,6 @@ export function CareerApp() {
           <p>
             Прогрес усіх етапів цього проходження зникне, винагороди не буде. Раніше
             отримані сертифікати, фахівці та інсайти залишаться.
-          </p>
-        </ConfirmDialog>
-      )}
-      {confirmation === "product" && (
-        <ConfirmDialog
-          title="Скасувати розробку?"
-          label="Так, скасувати розробку"
-          close={() => {
-            setConfirmation(null);
-          }}
-          confirm={() => {
-            send({ type: "cancelProduct" });
-          }}
-        >
-          <p>
-            Прогрес цієї версії зникне. Витрачені гроші та інсайти не повернуться. Раніше
-            випущені версії продовжать працювати.
           </p>
         </ConfirmDialog>
       )}
