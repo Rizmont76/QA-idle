@@ -1,3 +1,4 @@
+import { architectureEffects } from "./architectureEffects";
 import type { CareerContract, CareerState, CrewId, PurchaseMode } from "../../types";
 import {
   CAREER_RULES as R,
@@ -45,7 +46,8 @@ export function crewRate(s: CareerState, id: CrewId): number {
       multiplier(s, "production") *
       permanentMultiplier(s) *
       (1 + researchBonus(s, "production")) *
-      staffProduction(s, id),
+      staffProduction(s, id) *
+      architectureEffects(s).crew,
   );
 }
 export function production(s: CareerState): number {

@@ -5,6 +5,7 @@ import type {
   PipelineState,
   PipelineTrialId,
 } from "../../types";
+import { newArchitecture } from "./architectureData";
 
 export const PIPELINE = {
   baseCores: 6,
@@ -111,6 +112,7 @@ export function newPipeline(): PipelineState {
     completed: [],
     trial: null,
     automation: { hire: false, upgrades: false, promote: false, projects: false },
+    architecture: newArchitecture(),
   };
 }
 export const coreBudget = (p: PipelineState) =>

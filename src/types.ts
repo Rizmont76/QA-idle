@@ -123,6 +123,16 @@ export type ProductMode = "license" | "internal" | "open";
 export type PipelineAllocation = [number, number, number];
 export type PipelinePolicy = "hire" | "upgrades" | "promote" | "projects";
 export type PipelineTrialId = "budget" | "verification" | "deployment";
+export type RackModuleId = "build" | "verify" | "deploy" | "bus" | "archive" | "manager";
+export type BlueprintId = "cycle" | "bus" | "flow" | "studio";
+export type ArchitecturePolicy = "autoBalance" | "autoCores";
+export interface ArchitectureState {
+  layout: (RackModuleId | null)[];
+  powerLevel: number;
+  blueprints: BlueprintId[];
+  autoBalance: boolean;
+  autoCores: boolean;
+}
 export interface PipelineTrial {
   id: PipelineTrialId;
   allocation: PipelineAllocation;
@@ -139,6 +149,7 @@ export interface PipelineState {
   completed: PipelineTrialId[];
   trial: PipelineTrial | null;
   automation: Record<PipelinePolicy, boolean>;
+  architecture: ArchitectureState;
 }
 export interface CareerState {
   schemaVersion: typeof CAREER_SAVE_VERSION;
@@ -204,6 +215,10 @@ export type CareerAction =
   | { type: "dismissProductRefund" }
   | { type: "pipelineAllocate"; station: number; delta: -1 | 1; trial?: boolean }
   | { type: "pipelineCore" }
+  | { type: "rackModule"; slot: number; id: RackModuleId | null }
+  | { type: "rackPower" }
+  | { type: "claimBlueprint"; id: BlueprintId }
+  | { type: "architecturePolicy"; id: ArchitecturePolicy; enabled: boolean }
   | { type: "startTrial"; id: PipelineTrialId }
   | { type: "cancelTrial" }
   | { type: "claimTrial" }
