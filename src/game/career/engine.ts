@@ -1,3 +1,4 @@
+import { architectureAction } from "./architectureActions";
 import type { CareerAction, CareerState } from "../../types";
 import { PRODUCT_MODEL_VERSION } from "../../types";
 import { BADGES, CAREER_RULES as R, CAREER_STAGES, CAREER_UPGRADES } from "./content";
@@ -24,7 +25,7 @@ import { advanceProject } from "./projectFlow";
 import { AUTOMATION_ORDER, newPipeline, PIPELINE } from "./pipelineData";
 import { advancePipeline } from "./pipelineFlow";
 import { pipelineAction } from "./pipelineActions";
-import { automationActive, automationIntent } from "./pipelineAutomation";
+import { autoCoreIntent, automationActive, automationIntent } from "./pipelineAutomation";
 import { nextPassiveBadge } from "./badgeFlow";
 
 export function newCareer(now = Date.now()): CareerState {
@@ -168,6 +169,12 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
           next = automatic.state;
           automatedActions += automatic.ok ? 1 : 0;
         }
+      }
+      const coreIntent = autoCoreIntent(next);
+      if (coreIntent) {
+        const automatic = act(next, coreIntent, next.lastTick);
+        next = automatic.state;
+        automatedActions += automatic.ok ? 1 : 0;
       }
     }
   }
@@ -363,6 +370,11 @@ export function act(
       const result = officeAction(state, action);
       return { ...result, state: awardBadges(result.state) };
     }
+    case "rackModule":
+    case "rackPower":
+    case "claimBlueprint":
+    case "architecturePolicy":
+      return architectureAction(state, action);
     case "pipelineAllocate":
     case "pipelineCore":
     case "startTrial":

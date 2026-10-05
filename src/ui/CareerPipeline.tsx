@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { CareerArchitecture } from "./CareerArchitecture";
+import { architectureUnlocked, pipelineRates } from "../game/career/architectureEffects";
 import type { CareerAction, CareerState, PipelineAllocation } from "../types";
 import { CAREER_RULES } from "../game/career/content";
 import {
@@ -47,6 +50,7 @@ function FlowBoard({
   send,
   trial = false,
   stopped = false,
+  automatic = false,
 }: {
   allocation: PipelineAllocation;
   queues: [number, number];
@@ -55,6 +59,7 @@ function FlowBoard({
   send: Props["send"];
   trial?: boolean;
   stopped?: boolean;
+  automatic?: boolean;
 }) {
   const capacity = stationCapacity(allocation, rates);
   const actual = stopped ? [0, 0, 0] : flowRates(capacity, queues);
@@ -99,7 +104,7 @@ function FlowBoard({
             </p>
             <div className="core-controls">
               <button
-                disabled={stopped || allocation[index] === 0}
+                disabled={stopped || automatic || allocation[index] === 0}
                 aria-label={`${trial ? "Випробування" : "Конвеєр"}: ${title} — забрати ядро`}
                 onClick={() =>
                   send({ type: "pipelineAllocate", station: index, delta: -1, trial })
@@ -111,7 +116,7 @@ function FlowBoard({
                 {allocation[index]} <small>ядер</small>
               </strong>
               <button
-                disabled={stopped || free === 0}
+                disabled={stopped || automatic || free === 0}
                 aria-label={`${trial ? "Випробування" : "Конвеєр"}: ${title} — додати ядро`}
                 onClick={() =>
                   send({ type: "pipelineAllocate", station: index, delta: 1, trial })
@@ -154,13 +159,14 @@ function FlowBoard({
         ))}
       </div>
       <p className="flow-tip">
-        Забери ядро кнопкою − й додай його до іншого вузла. Повна черга стримує попередній
-        вузол; порожня — залишає наступний без роботи.
+        {automatic
+          ? "Авторозподіл увімкнено. Для ручного керування вимкни його в «Архітектурі»."
+          : "Забери ядро кнопкою − й додай його до іншого вузла. Повна черга стримує попередній вузол; порожня — залишає наступний без роботи."}
       </p>
     </div>
   );
 }
-export function CareerPipeline({ game: s, send, career }: Props) {
+function PipelineWorkshop({ game: s, send, career }: Props) {
   const p = s.pipeline;
   const unlocked = s.careers > 0;
   const trial = p.trial;
@@ -253,7 +259,8 @@ export function CareerPipeline({ game: s, send, career }: Props) {
             <FlowBoard
               allocation={p.allocation}
               queues={p.queues}
-              rates={PIPELINE.rates}
+              rates={pipelineRates(s)}
+              automatic={s.pipeline.architecture.autoBalance}
               budget={coreBudget(p)}
               send={send}
             />
@@ -418,6 +425,44 @@ export function CareerPipeline({ game: s, send, career }: Props) {
               );
             })}
           </div>
+        </>
+      )}
+    </>
+  );
+}
+
+export function CareerPipeline(props: Props) {
+  const available = architectureUnlocked(props.game);
+  const [view, setView] = useState<"pipeline" | "architecture">(
+    available ? "architecture" : "pipeline",
+  );
+  return (
+    <>
+      <nav className="pipeline-subnav" aria-label="Майстерня">
+        <button aria-pressed={view === "pipeline"} onClick={() => setView("pipeline")}>
+          Конвеєр
+        </button>
+        <button
+          aria-pressed={view === "architecture"}
+          onClick={() => setView("architecture")}
+        >
+          Архітектура <span>{available ? "НОВИЙ ШАР" : "◇"}</span>
+        </button>
+      </nav>
+      {view === "architecture" ? (
+        <CareerArchitecture
+          game={props.game}
+          send={props.send}
+          pipeline={() => setView("pipeline")}
+        />
+      ) : (
+        <>
+          {available && (
+            <button className="rack-gateway" onClick={() => setView("architecture")}>
+              ╋ Серверна шафа відкрита · Збирай схеми та автоматизуй конвеєр →
+            </button>
+          )}
+          <PipelineWorkshop {...props} />
         </>
       )}
     </>

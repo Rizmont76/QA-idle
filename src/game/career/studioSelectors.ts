@@ -1,3 +1,4 @@
+import { architectureEffects } from "./architectureEffects";
 import type { CareerProject, CareerState, CrewId } from "../../types";
 import { PROJECTS, RESEARCH, SPECIALISTS, STUDIO_RULES as S } from "./expansionData";
 import { productBoost } from "./productEffects";
@@ -56,7 +57,10 @@ export function insightReward(s: CareerState, base: number): number {
   return Math.floor(base * (1 + researchBonus(s, "insight") + productBoost(s, "open")));
 }
 export function projectThroughput(s: CareerState): number {
-  return (1 + productBoost(s, "internal")) / (1 - researchBonus(s, "projectWork"));
+  return (
+    (architectureEffects(s).projects * (1 + productBoost(s, "internal"))) /
+    (1 - researchBonus(s, "projectWork"))
+  );
 }
 export function automaticPhases(s: CareerState): boolean {
   return (s.research["fieldnotes"] ?? 0) > 0;

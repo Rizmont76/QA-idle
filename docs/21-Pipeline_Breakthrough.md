@@ -1,5 +1,7 @@
 # 21 — Pipeline Breakthrough
 
+Follow-up: [22 — Architecture Rack](22-Architecture_Rack.md) extends the main pipeline with spatial modules after all trial rewards. Trial rules below remain unchanged.
+
 Status: authorized 2026-10-04. Extends 16–20 with discoveries that change play, automation
 of earlier work, alternative progression and a visible next unlock. No narrative victory gate.
 

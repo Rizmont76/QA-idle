@@ -1,3 +1,4 @@
+import { architecturePolicyUnlocked, balanceArchitecture } from "./architectureEffects";
 import type { CareerAction, CareerState } from "../../types";
 import type { ActionResult } from "./engine";
 import {
@@ -19,6 +20,13 @@ export function pipelineAction(state: CareerState, action: CareerAction): Action
   let message = "";
   switch (action.type) {
     case "pipelineAllocate": {
+      if (
+        !action.trial &&
+        p.architecture.autoBalance &&
+        architecturePolicyUnlocked(state, "autoBalance")
+      ) {
+        return fail("Вимкни авторозподіл у вкладці «Архітектура».");
+      }
       const def = PIPELINE_TRIALS.find((t) => t.id === p.trial?.id);
       const source = action.trial ? p.trial : p;
       if (!source || (action.trial && (!def || (p.trial?.progress ?? 0) >= def.target))) {
@@ -48,7 +56,9 @@ export function pipelineAction(state: CareerState, action: CareerAction): Action
         return fail("Потрібно більше кредитів збірки.");
       }
       next = { ...p, credits: p.credits - cost, coreLevel: p.coreLevel + 1 };
-      message = "+1 ядро. Розподіли його між вузлами.";
+      message = p.architecture.autoBalance
+        ? "+1 ядро. Авторозподіл оновлено."
+        : "+1 ядро. Розподіли його між вузлами.";
       break;
     }
     case "startTrial": {
@@ -100,5 +110,5 @@ export function pipelineAction(state: CareerState, action: CareerAction): Action
     default:
       return fail("Невідома дія конвеєра.");
   }
-  return { state: { ...state, pipeline: next }, ok: true, message };
+  return { state: balanceArchitecture({ ...state, pipeline: next }), ok: true, message };
 }
