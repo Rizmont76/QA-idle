@@ -23,6 +23,7 @@ import { CareerProjects } from "./CareerProjects";
 import { CareerStudio } from "./CareerStudio";
 import { CareerOffice } from "./CareerOffice";
 import { CareerProducts } from "./CareerProducts";
+import { CareerPipeline, DiscoveryCard } from "./CareerPipeline";
 import { royaltyRate } from "../game/career/products";
 import { BugIcon, ConfirmDialog, SectionTitle } from "./CareerWidgets";
 import { cash, duration, number } from "./careerUtils";
@@ -32,6 +33,7 @@ type View =
   | "office"
   | "projects"
   | "products"
+  | "pipeline"
   | "studio"
   | "career"
   | "achievements"
@@ -73,6 +75,12 @@ const NAV: readonly { id: View; title: string; symbol: string; subtitle: string 
     title: "Кар’єра",
     symbol: "↗",
     subtitle: "Від першого звіту до власної спадщини.",
+  },
+  {
+    id: "pipeline",
+    title: "CI/CD",
+    symbol: "⤳",
+    subtitle: "Перетвори ручну роботу на систему, що працює сама.",
   },
   {
     id: "achievements",
@@ -235,7 +243,7 @@ export function CareerApp() {
                   ? "Прогрес збережено"
                   : "Перевір збереження"}
             </span>
-            <span className="version-chip">FLOW EDITION</span>
+            <span className="version-chip">PIPELINE EDITION</span>
           </div>
         </header>
         {warning && (
@@ -279,6 +287,15 @@ export function CareerApp() {
               )}
               {(summary.productMoney ?? 0) > 0 && (
                 <p>Із них від продуктів: +{cash(summary.productMoney ?? 0)}</p>
+              )}
+              {(summary.pipelineCredits ?? 0) > 0 && (
+                <p>Конвеєр: +{number(summary.pipelineCredits ?? 0)} ▧ кредитів збірки</p>
+              )}
+              {(summary.automatedActions ?? 0) > 0 && (
+                <p>
+                  Політики кар’єри виконали {number(summary.automatedActions ?? 0)} дій.
+                  Автопокупки вже оплачені з рахунку.
+                </p>
               )}
             </div>
             <button className="button ghost" onClick={dismissSummary}>
@@ -335,6 +352,12 @@ export function CareerApp() {
               </span>
             </article>
           </div>
+          {view === "workspace" && (
+            <DiscoveryCard game={s} open={() => navigate("pipeline")} />
+          )}
+          {view === "pipeline" && (
+            <CareerPipeline game={s} send={send} career={() => navigate("career")} />
+          )}
           {view === "workspace" && (
             <CareerWorkspace
               game={s}
@@ -456,8 +479,9 @@ export function CareerApp() {
                   <div className="prestige-symbol">∞</div>
                   <h2>Залиш свій слід.</h2>
                   <p className="muted">
-                    Почни нову кар’єру. Знання залишаться з тобою — і кожен наступний шлях
-                    буде швидшим.
+                    {s.careers < 1
+                      ? "Перший престиж відкриє CI/CD-конвеєр: розподіл ядер, випробування та автоматизацію кар’єри."
+                      : "Конвеєр, відкриті політики й знання залишаться з тобою. Нова кар’єра працюватиме швидше."}
                   </p>
                   <div className="prestige-stats">
                     <div>
@@ -677,6 +701,11 @@ export function CareerApp() {
             navigate("workspace");
           }}
         >
+          <p className="mint">
+            {s.careers < 1
+              ? "Нове відкриття: майстерня CI/CD. Шість ядер, власний потік релізів і випробування з нагородами назавжди."
+              : "Конвеєр, кредити збірки, ядра, випробування й увімкнені політики автоматизації зберігаються."}
+          </p>
           <p>
             Ти отримаєш <strong>+{reward} постійного досвіду</strong>, $50 на старті та
             автоматичні звіти.

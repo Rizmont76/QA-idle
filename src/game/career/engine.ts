@@ -21,6 +21,11 @@ import { dispatchPayment, dispatchQuote, officeAction } from "./office";
 import { productAction } from "./products";
 import { gainClients, MARKET, royaltyRate } from "./productEffects";
 import { advanceProject } from "./projectFlow";
+import { AUTOMATION_ORDER, newPipeline, PIPELINE } from "./pipelineData";
+import { advancePipeline } from "./pipelineFlow";
+import { pipelineAction } from "./pipelineActions";
+import { automationActive, automationIntent } from "./pipelineAutomation";
+import { nextPassiveBadge } from "./badgeFlow";
 
 export function newCareer(now = Date.now()): CareerState {
   return {
@@ -47,6 +52,7 @@ export function newCareer(now = Date.now()): CareerState {
     research: {},
     certificates: {},
     specialists: [],
+    pipeline: newPipeline(),
     products: {
       model: PRODUCT_MODEL_VERSION,
       releases: {},
@@ -101,6 +107,8 @@ export interface TimeResult {
   autoContracts?: number;
   autoInsights?: number;
   productMoney?: number;
+  pipelineCredits?: number;
+  automatedActions?: number;
 }
 export function advanceCareer(s: CareerState, now: number, offline = false): TimeResult {
   const elapsed = (now - s.lastTick) / R.milliseconds;
@@ -111,31 +119,57 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
   let next = s;
   let remaining = seconds;
   let totalBugs = 0;
+  let automatedActions = 0;
   while (remaining > 0) {
-    const quote = dispatchQuote(next);
-    if (!quote || (next.contract && next.contract.id !== quote.id)) {
-      const result = advanceSlice(next, remaining, offline);
-      next = result.state;
-      totalBugs += result.bugs;
-      break;
+    const automatic = automationActive(next);
+    if (automatic) {
+      next = awardBadges(hasAutoReport(next) && next.bugs > 0 ? report(next) : next);
     }
-    const contract = next.contract ?? quote;
-    next = { ...next, contract };
-    const rate = production(next) * (offline ? offlineEfficiency(next) : 1);
-    const missing = Math.max(0, contract.target - contract.progress);
-    const workTime = missing === 0 ? 0 : rate > 0 ? missing / rate : Infinity;
-    const untilReady = Math.max(0, contract.duration - contract.elapsed, workTime);
-    const step = Math.min(remaining, untilReady);
+    const badge = automatic ? nextPassiveBadge(next, offline) : null;
+    const quote = dispatchQuote(next);
+    let untilReady = Infinity;
+    if (quote && (!next.contract || next.contract.id === quote.id)) {
+      const contract = next.contract ?? quote;
+      next = { ...next, contract };
+      const rate = production(next) * (offline ? offlineEfficiency(next) : 1);
+      const missing = Math.max(0, contract.target - contract.progress);
+      const workTime = missing === 0 ? 0 : rate > 0 ? missing / rate : Infinity;
+      untilReady = Math.max(0, contract.duration - contract.elapsed, workTime);
+    }
+    const nextAutomationAt =
+      (Math.floor(next.lastTick / PIPELINE.automationMs) + 1) * PIPELINE.automationMs;
+    const untilAutomation = automatic
+      ? (nextAutomationAt - next.lastTick) / R.milliseconds
+      : Infinity;
+    const step = Math.min(
+      remaining,
+      untilReady,
+      untilAutomation,
+      badge?.seconds ?? Infinity,
+    );
     const result = advanceSlice(next, step, offline);
     next = result.state;
     totalBugs += result.bugs;
     remaining = Math.max(0, remaining - step);
-    if (untilReady > step) {
-      break;
+    if (badge && badge.seconds <= step && !next.badges.includes(badge.id)) {
+      // The analytic threshold was crossed; don't delay a bonus due to rounding.
+      next = { ...next, badges: [...next.badges, badge.id] };
     }
-    // The analytically computed boundary satisfies both goals. Avoid tiny
-    // floating-point residuals causing a zero-length completion loop.
-    next = awardBadges(dispatchPayment(next));
+    if (untilReady <= step) {
+      // Analytic boundary satisfies both goals, avoiding floating-point residue.
+      next = awardBadges(dispatchPayment(next));
+    }
+    if (untilAutomation <= step) {
+      next = { ...next, lastTick: nextAutomationAt };
+      for (const policy of AUTOMATION_ORDER) {
+        const intent = automationIntent(next, policy);
+        if (intent) {
+          const automatic = act(next, intent, next.lastTick);
+          next = automatic.state;
+          automatedActions += automatic.ok ? 1 : 0;
+        }
+      }
+    }
   }
   return {
     state: { ...next, lastTick: now },
@@ -146,6 +180,8 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
     autoContracts: next.office.completed - s.office.completed,
     autoInsights: next.office.insights - s.office.insights,
     productMoney: next.products.earned - s.products.earned,
+    pipelineCredits: next.pipeline.total - s.pipeline.total,
+    automatedActions,
   };
 }
 function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeResult {
@@ -156,6 +192,7 @@ function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeRe
   const royalties = bounded(royaltyRate(s) * seconds * efficiency);
   next = {
     ...earn(next, royalties),
+    pipeline: advancePipeline(s, seconds * efficiency),
     products: {
       ...next.products,
       earned: bounded(next.products.earned + royalties),
@@ -315,9 +352,10 @@ export function act(
         certificates: state.certificates,
         specialists: state.specialists,
         products: state.products,
+        pipeline: state.pipeline,
         office: { ...state.office, contractId: null },
       };
-      message = `Нова кар’єра! +${String(reward)} досвіду. Автозвіти вже працюють.`;
+      message = `Нова кар’єра! +${String(reward)} досвіду. CI/CD-конвеєр працює — відкрий новий шар.`;
       break;
     }
     case "buyDispatcher":
@@ -325,6 +363,13 @@ export function act(
       const result = officeAction(state, action);
       return { ...result, state: awardBadges(result.state) };
     }
+    case "pipelineAllocate":
+    case "pipelineCore":
+    case "startTrial":
+    case "cancelTrial":
+    case "claimTrial":
+    case "pipelinePolicy":
+      return pipelineAction(state, action);
     case "launchProduct":
     case "productMode":
     case "dismissProductRefund": {

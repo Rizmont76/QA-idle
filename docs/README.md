@@ -1,5 +1,7 @@
 # QA Idle Documentation Index
 
+Next progression layer: [21 — Pipeline Breakthrough](21-Pipeline_Breakthrough.md) owns the first-prestige workshop, trials, automation policies and discovery UI.
+
 Active gameplay redesign: [20 — Meaningful Progression](20-Meaningful_Progression.md) supersedes project waiting, product versions and studio effects in 17/19 based on player feedback.
 
 Current product expansion: [19 — Studio Products](19-Studio_Products.md), owning developed tools, version releases and permanent product income.

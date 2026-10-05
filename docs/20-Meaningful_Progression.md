@@ -1,5 +1,7 @@
 # 20 — Meaningful Progression
 
+The next layer is specified in [21 — Pipeline Breakthrough](21-Pipeline_Breakthrough.md).
+
 Status: approved redesign scope, 2026-10-02, responding to direct player feedback about timer walls, duplicate product/project loops and weak studio research. This supersedes the affected rules in 17 and 19. Unchanged career, contract, offline and prestige rules remain in force.
 
 ## Projects: work, not mandatory waiting

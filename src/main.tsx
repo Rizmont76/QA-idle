@@ -4,6 +4,7 @@ import "./styles.css";
 import "./studio.css";
 import "./office.css";
 import "./products.css";
+import "./pipeline.css";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
