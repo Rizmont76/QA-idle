@@ -1,3 +1,4 @@
+import { pipelineRates } from "./architectureEffects";
 import type { CareerState, PipelineAllocation } from "../../types";
 import { PIPELINE, PIPELINE_TRIALS } from "./pipelineData";
 import { bounded } from "./selectors";
@@ -79,7 +80,7 @@ export function advancePipeline(
     return p;
   }
   const main = simulatePipeline(
-    stationCapacity(p.allocation, PIPELINE.rates),
+    stationCapacity(p.allocation, pipelineRates(s)),
     p.queues,
     seconds,
   );

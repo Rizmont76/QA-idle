@@ -5,6 +5,7 @@ import "./studio.css";
 import "./office.css";
 import "./products.css";
 import "./pipeline.css";
+import "./architecture.css";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

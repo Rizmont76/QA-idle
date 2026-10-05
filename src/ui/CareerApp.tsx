@@ -243,7 +243,7 @@ export function CareerApp() {
                   ? "Прогрес збережено"
                   : "Перевір збереження"}
             </span>
-            <span className="version-chip">PIPELINE EDITION</span>
+            <span className="version-chip">ARCHITECTURE EDITION</span>
           </div>
         </header>
         {warning && (
@@ -481,7 +481,7 @@ export function CareerApp() {
                   <p className="muted">
                     {s.careers < 1
                       ? "Перший престиж відкриє CI/CD-конвеєр: розподіл ядер, випробування та автоматизацію кар’єри."
-                      : "Конвеєр, відкриті політики й знання залишаться з тобою. Нова кар’єра працюватиме швидше."}
+                      : "Конвеєр, серверна шафа, креслення й відкриті політики залишаться з тобою. Нова кар’єра працюватиме швидше."}
                   </p>
                   <div className="prestige-stats">
                     <div>

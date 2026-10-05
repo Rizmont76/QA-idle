@@ -1,3 +1,5 @@
+import { architecturePolicyUnlocked } from "./architectureEffects";
+import { corePrice, PIPELINE } from "./pipelineData";
 import type { CareerAction, CareerState, PipelinePolicy } from "../../types";
 import { CAREER_UPGRADES, CREW } from "./content";
 import { PROJECTS } from "./expansionData";
@@ -7,9 +9,10 @@ import { PIPELINE_POLICIES, policyUnlocked } from "./pipelineData";
 
 export const automationActive = (s: CareerState) =>
   s.careers > 0 &&
-  PIPELINE_POLICIES.some(
-    ({ id }) => s.pipeline.automation[id] && policyUnlocked(s.pipeline, id),
-  );
+  (autoCoresActive(s) ||
+    PIPELINE_POLICIES.some(
+      ({ id }) => s.pipeline.automation[id] && policyUnlocked(s.pipeline, id),
+    ));
 export function automationIntent(
   s: CareerState,
   id: PipelinePolicy,
@@ -43,4 +46,14 @@ export function automationIntent(
       return def ? { type: "startProject", id: def.id } : null;
     }
   }
+}
+
+const autoCoresActive = (s: CareerState) =>
+  s.pipeline.architecture.autoCores && architecturePolicyUnlocked(s, "autoCores");
+export function autoCoreIntent(s: CareerState): CareerAction | null {
+  return autoCoresActive(s) &&
+    s.pipeline.coreLevel < PIPELINE.maxCoreLevel &&
+    s.pipeline.credits >= corePrice(s.pipeline)
+    ? { type: "pipelineCore" }
+    : null;
 }

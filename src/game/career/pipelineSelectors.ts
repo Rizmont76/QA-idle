@@ -1,3 +1,5 @@
+import { BLUEPRINTS } from "./architectureData";
+import { blueprintProgress } from "./architectureActions";
 import type { CareerState } from "../../types";
 import { CAREER_RULES } from "./content";
 import { PIPELINE, PIPELINE_TRIALS } from "./pipelineData";
@@ -64,12 +66,25 @@ export function nextDiscovery(s: CareerState): {
       action: "Обрати випробування",
     };
   }
+  const next = BLUEPRINTS.find((b) => !p.architecture.blueprints.includes(b.id));
+  if (next) {
+    return {
+      title:
+        next.id === "cycle"
+          ? "Новий шар → серверна шафа"
+          : next.title + " → нове відкриття",
+      detail: next.description + " Нагорода: " + next.reward + ".",
+      value: blueprintProgress(s, next.id),
+      target: next.target,
+      action: "До архітектури",
+    };
+  }
   return {
-    title: "Кар’єра працює на тебе",
+    title: "Студія працює за твоєю схемою",
     detail:
-      "Усі випробування пройдені. Увімкни відкриті політики, розширюй конвеєр і збирай срібні та золоті сертифікати.",
-    value: p.completed.length,
-    target: PIPELINE_TRIALS.length,
-    action: "Керувати автоматизацією",
+      "Усі креслення зібрані. Перемикай конфігурації між швидким конвеєром і сильною командою, збирай срібні та золоті сертифікати.",
+    value: p.architecture.blueprints.length,
+    target: BLUEPRINTS.length,
+    action: "Налаштувати архітектуру",
   };
 }
