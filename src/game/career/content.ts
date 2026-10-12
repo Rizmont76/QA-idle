@@ -9,6 +9,7 @@ export const CAREER_RULES = {
   previousVersion: 3,
   legacyKey: "qa-idle-save-v1",
   limit: 1e15,
+  moneyLimit: 1e21,
   experienceLimit: 1e6,
   crewLimit: 100,
   costGrowth: 1.3,
@@ -66,7 +67,7 @@ export const CAREER_STAGES: readonly [CareerRank, ...CareerRank[]] = [
   {
     title: "Senior QA",
     label: "Нехай код тестує код",
-    earned: 2_500,
+    earned: 120_000,
     crew: 8,
     value: 1.5,
     unlock: "Автотести та паралельні запуски",
@@ -76,7 +77,7 @@ export const CAREER_STAGES: readonly [CareerRank, ...CareerRank[]] = [
   {
     title: "QA Lead",
     label: "Твоя команда. Твої релізи.",
-    earned: 35_000,
+    earned: 5_000_000,
     crew: 15,
     value: 2,
     unlock: "Контракти з додатковими винагородами",
@@ -86,7 +87,7 @@ export const CAREER_STAGES: readonly [CareerRank, ...CareerRank[]] = [
   {
     title: "Head of QA",
     label: "Якість у промислових масштабах",
-    earned: 350_000,
+    earned: 200_000_000,
     crew: 25,
     value: 2.5,
     unlock: "QA-лабораторії та спостережуваність",
@@ -96,7 +97,7 @@ export const CAREER_STAGES: readonly [CareerRank, ...CareerRank[]] = [
   {
     title: "Director",
     label: "Твій досвід тепер працює на тебе",
-    earned: 2_500_000,
+    earned: 10_000_000_000,
     crew: 40,
     value: 3,
     unlock: "Хмарні ферми; перший престиж відкриває CI/CD-конвеєр",
@@ -106,7 +107,7 @@ export const CAREER_STAGES: readonly [CareerRank, ...CareerRank[]] = [
   {
     title: "VP of Quality",
     label: "Якість перетинає кордони",
-    earned: 50_000_000,
+    earned: 500_000_000_000,
     crew: 70,
     projects: 3,
     value: 4,
@@ -117,7 +118,7 @@ export const CAREER_STAGES: readonly [CareerRank, ...CareerRank[]] = [
   {
     title: "Chief Quality Officer",
     label: "Ти задаєш стандарт",
-    earned: 1_000_000_000,
+    earned: 200_000_000_000_000,
     crew: 110,
     projects: 5,
     value: 5,
@@ -128,7 +129,7 @@ export const CAREER_STAGES: readonly [CareerRank, ...CareerRank[]] = [
   {
     title: "Founder",
     label: "Тепер це твоя студія",
-    earned: 25_000_000_000,
+    earned: 30_000_000_000_000_000,
     crew: 160,
     projects: 8,
     value: 7,

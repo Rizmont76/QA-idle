@@ -2,6 +2,8 @@ import type { CareerAction, CareerState } from "../../types";
 import { gainClients, MARKET } from "./productEffects";
 import { contractQuote, bounded } from "./selectors";
 import { amount, record } from "./saveValues";
+import { earn } from "./earnings";
+import { CAREER_RULES as R } from "./content";
 
 export const OFFICE_RULES = { licenseCost: 20, stage: 3, contracts: 3 } as const;
 export const OFFICES = [
@@ -108,18 +110,15 @@ export function dispatchPayment(s: CareerState): CareerState {
   }
   return gainClients(
     {
-      ...s,
+      ...earn(s, c.reward),
       contract: null,
-      money: bounded(s.money + c.reward),
-      earned: bounded(s.earned + c.reward),
-      lifetimeEarned: bounded(s.lifetimeEarned + c.reward),
       insights: bounded(s.insights + c.insights),
       lifetimeInsights: bounded(s.lifetimeInsights + c.insights),
       contractsCompleted: bounded(s.contractsCompleted + 1),
       office: {
         ...s.office,
         completed: bounded(s.office.completed + 1),
-        earned: bounded(s.office.earned + c.reward),
+        earned: bounded(s.office.earned + c.reward, R.moneyLimit),
         insights: bounded(s.office.insights + c.insights),
       },
     },

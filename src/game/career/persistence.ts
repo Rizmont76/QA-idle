@@ -78,9 +78,18 @@ export function normalizeCareer(value: unknown, now = Date.now()): CareerState {
     "playedSeconds",
   ] as const;
   for (const key of numericKeys) {
-    state[key] = amount(data[key]);
+    state[key] = amount(
+      data[key],
+      key === "money" || key === "earned" || key === "lifetimeEarned"
+        ? R.moneyLimit
+        : R.limit,
+    );
   }
   state.experience = Math.floor(amount(data["experience"], R.experienceLimit));
+  state.rankEarned =
+    data["rankEarned"] === undefined
+      ? state.earned
+      : amount(data["rankEarned"], state.earned);
   state.careers = Math.floor(state.careers);
   state.stage = Math.floor(amount(data["stage"], CAREER_STAGES.length - 1));
   state.bestStage = Math.max(
@@ -143,9 +152,10 @@ export function migrateLegacy(value: unknown, now = Date.now()): CareerState {
   }
   let state = newCareer(now);
   const resources = record(data["resources"]);
-  state.money = amount(resources["money"] ?? data["money"]);
+  state.money = amount(resources["money"] ?? data["money"], R.moneyLimit);
   state.bugs = amount(resources["bugs_found"] ?? data["bugs"]);
-  state.earned = Math.max(state.money, amount(data["totalMoneyEarned"]));
+  state.earned = Math.max(state.money, amount(data["totalMoneyEarned"], R.moneyLimit));
+  state.rankEarned = state.earned;
   state.found = Math.max(state.bugs, amount(data["totalBugsFound"]));
   state.lifetimeEarned = state.earned;
   state.lifetimeBugs = state.found;

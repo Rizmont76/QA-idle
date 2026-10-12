@@ -141,8 +141,8 @@ describe("office dispatch", () => {
   });
   it("uses reduced offline output when work is the bottleneck", () => {
     const s = fixture({ upgrades: [], crew: { ...newCareer(NOW).crew, assistant: 1 } });
-    const online = advanceCareer(s, NOW + 5_500_000);
-    const offline = advanceCareer(s, NOW + 5_500_000, true);
+    const online = advanceCareer(s, NOW + 687_500);
+    const offline = advanceCareer(s, NOW + 687_500, true);
     expect(online.state.office.completed).toBe(1);
     expect(offline.state.office.completed).toBe(0);
   });

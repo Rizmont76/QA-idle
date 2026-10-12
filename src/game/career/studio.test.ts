@@ -236,7 +236,7 @@ describe("permanent studio", () => {
     const s = fixture({
       stage: 5,
       earned: 2_500_000,
-      certificates: firstCertificates(3),
+      certificates: firstCertificates(5),
       research: { automation: 2 },
       specialists: ["marta", "taras"],
       project: projectQuote(fixture(), required(PROJECTS[0])),
@@ -268,7 +268,7 @@ describe("expanded contracts and promotions", () => {
     expect(contractQuote(fixture({ stage: 3 }), "launch")).toBeNull();
     const base = fixture({
       stage: 3,
-      certificates: firstCertificates(3),
+      certificates: firstCertificates(5),
       specialists: ["sofia"],
       research: {
         bargaining: 1,
@@ -301,13 +301,15 @@ describe("expanded contracts and promotions", () => {
   it("requires certificates for the optional post-Director ranks", () => {
     let s = fixture({
       stage: 5,
-      earned: 50_000_000,
-      crew: { ...newCareer(NOW).crew, assistant: 70 },
+      earned: 500_000_000_000,
+      rankEarned: 500_000_000_000,
+      products: { ...newCareer(NOW).products, releases: { checklist: 1, devices: 1 } },
+      crew: { ...newCareer(NOW).crew, assistant: 70, cloud: 10 },
     });
     expect(promotionReady(s)).toBe(false);
-    s = { ...s, certificates: firstCertificates(3) };
+    s = { ...s, certificates: firstCertificates(5) };
     expect(act(s, { type: "promote" }, NOW).state.stage).toBe(6);
-    expect(certificates(s)).toBe(3);
+    expect(certificates(s)).toBe(5);
   });
   it("ships complete registries without duplicate IDs or impossible prerequisite order", () => {
     expect(CAREER_STAGES).toHaveLength(9);

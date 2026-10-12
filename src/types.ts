@@ -121,7 +121,7 @@ export interface CareerProject {
 }
 export type ProductMode = "license" | "internal" | "open";
 export type PipelineAllocation = [number, number, number];
-export type PipelinePolicy = "hire" | "upgrades" | "promote" | "projects";
+export type PipelinePolicy = "hire" | "upgrades" | "promote" | "projects" | "chapters";
 export type PipelineTrialId = "budget" | "verification" | "deployment";
 export type RackModuleId = "build" | "verify" | "deploy" | "bus" | "archive" | "manager";
 export type BlueprintId = "cycle" | "bus" | "flow" | "studio";
@@ -173,6 +173,7 @@ export interface CareerState {
   money: number;
   bugs: number;
   earned: number;
+  rankEarned: number;
   found: number;
   lifetimeEarned: number;
   lifetimeBugs: number;

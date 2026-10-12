@@ -61,11 +61,11 @@ it("a long tick and small ticks conserve the same project work", () => {
 });
 it("buying field notes accelerates the current project only after purchase", () => {
   const s = fixture({ research: {}, crew: { ...newCareer(NOW).crew, assistant: 1 } });
-  const next = act(s, { type: "research", id: "fieldnotes" }, NOW + 10_000).state;
-  expect(next.project?.progress).toBeCloseTo(production(s) * 10);
-  const after = advanceCareer(next, next.lastTick + 10_000).state;
+  const next = act(s, { type: "research", id: "fieldnotes" }, NOW + 5_000).state;
+  expect(next.project?.progress).toBeCloseTo(production(s) * 5);
+  const after = advanceCareer(next, next.lastTick + 5_000).state;
   expect(required(after.project).progress - required(next.project).progress).toBeCloseTo(
-    (production(next) * 10) / 0.9,
+    (production(next) * 5) / 0.9,
   );
 });
 it("maps legacy silver progress proportionally, preserves rewards, and does not migrate twice", () => {

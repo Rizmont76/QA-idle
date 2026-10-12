@@ -194,6 +194,7 @@ describe("old-layer automation", () => {
       s.office = { ...s.office, licensed: true, contractId: "smoke" };
       s.pipeline.completed = ["budget", "verification", "deployment"];
       s.pipeline.automation = {
+        chapters: true,
         hire: true,
         projects: true,
         promote: true,
@@ -210,11 +211,16 @@ describe("old-layer automation", () => {
       expect(long.upgrades).toEqual(fine.upgrades);
       expect(long.badges).toEqual(fine.badges);
       expect(long.certificates).toEqual(fine.certificates);
-      expect(long.project).toMatchObject({
-        id: fine.project?.id,
-        phase: fine.project?.phase,
-      });
-      expect(long.project?.progress).toBeCloseTo(fine.project?.progress ?? 0, 5);
+      if (fine.project) {
+        expect(long.project).toMatchObject({
+          id: fine.project.id,
+          phase: fine.project.phase,
+        });
+        expect(long.project?.progress).toBeCloseTo(fine.project.progress, 5);
+      } else {
+        expect(long.project).toBeNull();
+      }
+      expect(long.rankEarned).toBeCloseTo(fine.rankEarned, 4);
       expect(long.office).toEqual(fine.office);
       expect(long.pipeline).toEqual(fine.pipeline);
       expect(long.crew.assistant).toBeGreaterThan(15);
@@ -293,7 +299,13 @@ describe("persistence and offline", () => {
     s.money = 50;
     s.upgrades = ["auto", "handover"];
     s.pipeline.completed = ["budget", "verification", "deployment"];
-    s.pipeline.automation = { hire: true, upgrades: true, promote: true, projects: true };
+    s.pipeline.automation = {
+      hire: true,
+      upgrades: true,
+      promote: true,
+      projects: true,
+      chapters: true,
+    };
     const result = advanceCareer(s, NOW + 100 * 3600000, true);
     expect(result.capped).toBe(true);
     expect(result.seconds).toBe(57600);

@@ -58,7 +58,7 @@ it("launches instantly and switches between cash, project work and knowledge", (
   });
   fireEvent.click(screen.getByRole("button", { name: "Запустити Checklist Studio" }));
   expect(saved().money).toBe(96_000);
-  expect(saved().insights).toBe(17);
+  expect(saved().insights).toBe(20);
   expect(saved().products.releases).toEqual({ checklist: 1 });
   expect(
     screen.getByRole("button", { name: "Checklist Studio: Ліцензії" }),

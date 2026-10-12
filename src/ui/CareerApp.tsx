@@ -14,8 +14,6 @@ import {
   offlineCap,
   permanentMultiplier,
   prestigeReward,
-  production,
-  reportValue,
 } from "../game/career/selectors";
 import { useCareer } from "./useCareer";
 import { CareerWorkspace } from "./CareerWorkspace";
@@ -24,7 +22,10 @@ import { CareerStudio } from "./CareerStudio";
 import { CareerOffice } from "./CareerOffice";
 import { CareerProducts } from "./CareerProducts";
 import { CareerPipeline, DiscoveryCard } from "./CareerPipeline";
-import { royaltyRate } from "../game/career/products";
+import { CareerResourceStrip } from "./CareerResourceStrip";
+import { CareerResources } from "./CareerResources";
+import { CareerChapter } from "./CareerChapter";
+import { PromotionNotice } from "./PromotionNotice";
 import { BugIcon, ConfirmDialog, SectionTitle } from "./CareerWidgets";
 import { cash, duration, number } from "./careerUtils";
 import { pipelineView, prestigeDiscovered, viewUnlocked } from "../game/career/discovery";
@@ -83,6 +84,12 @@ const NAV: readonly { id: View; title: string; symbol: string; subtitle: string 
     subtitle: "Маленькі перемоги. Постійні бонуси.",
   },
   {
+    id: "resources",
+    title: "Ресурси",
+    symbol: "≋",
+    subtitle: "Звідки надходить, куди витрачається і що залишається.",
+  },
+  {
     id: "settings",
     title: "Налаштування",
     symbol: "⚙",
@@ -109,6 +116,8 @@ export function CareerApp() {
     otherTab,
     summary,
     dismissSummary,
+    promotion,
+    dismissPromotion,
     toast,
     clearToast,
   } = useCareer();
@@ -141,9 +150,7 @@ export function CareerApp() {
         }
       : (NAV.find((n) => n.id === view) ?? NAV[0]);
   const stage = CAREER_STAGES[s.stage] ?? CAREER_STAGES[0];
-  const rate = production(s);
   const auto = hasAutoReport(s);
-  const royalties = royaltyRate(s);
   const reward = prestigeReward(s);
   const projectNotification = projectReady(s);
   const researchNotification = RESEARCH.some(
@@ -259,7 +266,7 @@ export function CareerApp() {
                   ? "Прогрес збережено"
                   : "Перевір збереження"}
             </span>
-            <span className="version-chip">DISCOVERY EDITION</span>
+            <span className="version-chip">CHAPTERS EDITION</span>
           </div>
         </header>
         {warning && (
@@ -333,54 +340,26 @@ export function CareerApp() {
               navigate("pipeline");
             }}
           />
-          <div className="resource-strip">
-            <article className="resource-card">
-              <span className="resource-icon mint">$</span>
-              <div>
-                <span className="resource-label">НА РАХУНКУ</span>
-                <strong data-testid="money">{cash(s.money)}</strong>
-                <small>
-                  {auto || royalties > 0
-                    ? `+${cash((auto ? rate * reportValue(s) : 0) + royalties)} / с`
-                    : "Здай звіт, щоб отримати гроші"}
-                </small>
-                {royalties > 0 && <small>Продукти: +{cash(royalties)} / с</small>}
-              </div>
-            </article>
-            <article className="resource-card">
-              <span className="resource-icon amber">
-                <BugIcon />
-              </span>
-              <div>
-                <span className="resource-label">ЗНАЙДЕНІ БАГИ</span>
-                <strong data-testid="bugs">{number(s.bugs)}</strong>
-                <small>{cash(reportValue(s))} за кожен баг</small>
-              </div>
-            </article>
-            <article className="resource-card">
-              <span className="resource-icon blue">↯</span>
-              <div>
-                <span className="resource-label">ПРОДУКТИВНІСТЬ</span>
-                <strong>
-                  {number(rate)}
-                  <em> / с</em>
-                </strong>
-                <small>
-                  {auto
-                    ? "Автозвіти працюють"
-                    : rate > 0
-                      ? "Баги накопичуються автоматично"
-                      : "Найми першого помічника"}
-                </small>
-              </div>
-              <span
-                className={`automation-indicator ${auto ? "on" : ""}`}
-                title={auto ? "Автоматичні звіти" : "Ручні звіти"}
-              >
-                ↻
-              </span>
-            </article>
-          </div>
+          <CareerResourceStrip game={s} />
+          {promotion && <PromotionNotice impact={promotion} close={dismissPromotion} />}
+          {viewUnlocked(s, "resources") && view !== "resources" && (
+            <div className="resource-shortcut">
+              <button className="text-button" onClick={() => navigate("resources")}>
+                Усі ресурси →
+              </button>
+            </div>
+          )}
+          {view === "resources" && (
+            <CareerResources
+              game={s}
+              open={(next, nextLayer) => {
+                if (nextLayer) {
+                  setLayer(nextLayer);
+                }
+                navigate(next);
+              }}
+            />
+          )}
           {view === "workspace" && prestigeDiscovered(s) && (
             <DiscoveryCard
               game={s}
@@ -399,6 +378,7 @@ export function CareerApp() {
           {view === "workspace" && (
             <CareerWorkspace
               game={s}
+              open={navigate}
               send={send}
               office={() => {
                 navigate("office");
@@ -482,6 +462,7 @@ export function CareerApp() {
           )}
           {view === "career" && (
             <>
+              <CareerChapter game={s} open={navigate} />
               <SectionTitle
                 eyebrow="КОЖЕН РАНГ ВІДКРИВАЄ МОЖЛИВОСТІ"
                 title="Твій кар’єрний шлях"
@@ -508,7 +489,7 @@ export function CareerApp() {
                         <small>
                           {i === 0
                             ? "Кожна кар’єра починається тут"
-                            : `${cash(rank.earned)} за кар’єру · ${String(rank.crew)} од. команди${rank.projects ? ` · ${String(rank.projects)} різних проєктів` : ""}`}
+                            : `${cash(rank.earned)} на попередньому ранзі · ${String(rank.crew)} од. команди${rank.projects ? ` · ${String(rank.projects)} різних проєктів` : ""}`}
                         </small>
                       </div>
                     </article>

@@ -28,8 +28,12 @@ import { viewUnlocked } from "../game/career/discovery";
 import { dispatchQuote, dispatcherUnlocked } from "../game/career/office";
 import { BugIcon, Meter, SectionTitle } from "./CareerWidgets";
 import { cash, clockTime, duration, number } from "./careerUtils";
+import { promotionPreview } from "../game/career/chapters";
+import { CareerChapter } from "./CareerChapter";
+import type { CareerView } from "../game/career/discovery";
 
 interface Props {
+  open: (view: CareerView) => void;
   game: CareerState;
   send: (a: CareerAction) => void;
   career: () => void;
@@ -39,6 +43,7 @@ interface Props {
   office: () => void;
 }
 export function CareerWorkspace({
+  open,
   game: s,
   send,
   career,
@@ -51,6 +56,7 @@ export function CareerWorkspace({
   const [upgradeTab, setUpgradeTab] = useState<"available" | "owned">("available");
   const [burst, setBurst] = useState(0);
   const next = CAREER_STAGES[s.stage + 1];
+  const promoted = promotionPreview(s);
   const ready = promotionReady(s);
   const rate = production(s);
   const auto = hasAutoReport(s);
@@ -162,16 +168,30 @@ export function CareerWorkspace({
           <p className="muted">
             {next?.unlock ?? "Перетвори цю кар’єру на постійний бонус до наступної."}
           </p>
+          {promoted && (
+            <p className="rank-boost-preview">
+              Підвищення: ×2 сила команди й тестів
+              <br />
+              <small>
+                {number(rate)} → {number(production(promoted))} багів/с ·{" "}
+                {number(manualPower(s))} → {number(manualPower(promoted))} за тест
+              </small>
+            </p>
+          )}
           {next ? (
             <div className="requirements">
               <div>
                 <div className="row-label">
-                  <span>Зароблено за кар’єру</span>
+                  <span>Зароблено на цьому ранзі</span>
                   <strong>
-                    {cash(s.earned)} <em>/ {cash(next.earned)}</em>
+                    {cash(s.rankEarned)} <em>/ {cash(next.earned)}</em>
                   </strong>
                 </div>
-                <Meter value={s.earned} max={next.earned} label="Дохід для підвищення" />
+                <Meter
+                  value={s.rankEarned}
+                  max={next.earned}
+                  label="Дохід для підвищення"
+                />
               </div>
               <div>
                 <div className="row-label">
@@ -204,7 +224,9 @@ export function CareerWorkspace({
                   </button>
                 </div>
               )}
-              <p className="tiny muted">Витрачені гроші теж враховуються.</p>
+              <p className="tiny muted">
+                Витрачені гроші теж враховуються. Виконай також цілі поточної глави.
+              </p>
             </div>
           ) : (
             <div className="prestige-symbol" aria-hidden="true">
@@ -235,6 +257,7 @@ export function CareerWorkspace({
           )}
         </section>
       </div>
+      <CareerChapter game={s} open={open} />
       {s.bestStage >= STUDIO_RULES.unlockStage && (
         <div className="workspace-project">
           <div>
@@ -369,7 +392,7 @@ export function CareerWorkspace({
           })}
         </div>
       </section>
-      <section className="upgrades-section">
+      <section className="upgrades-section" id="upgrades">
         <SectionTitle eyebrow="ПРАЦЮЙ РОЗУМНІШЕ" title="Покращення">
           <div className="text-tabs">
             <button
@@ -426,7 +449,7 @@ export function CareerWorkspace({
         )}
       </section>
       {s.stage >= R.contractStage && (
-        <section>
+        <section id="contracts">
           <SectionTitle eyebrow="ДОДАТКОВИЙ ВИКЛИК" title="Контракти">
             <span className="muted tiny">Виконано: {s.contractsCompleted}</span>
           </SectionTitle>

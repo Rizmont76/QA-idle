@@ -62,6 +62,8 @@ describe("playable career UI", () => {
     boot({
       money: 100,
       earned: 150,
+      rankEarned: 150,
+      upgrades: ["checklist"],
       crew: { cloud: 0, ai: 0, orbital: 0, assistant: 3, squad: 0, runner: 0, lab: 0 },
     });
     fireEvent.click(screen.getByRole("button", { name: /Отримати підвищення/ }));
@@ -73,7 +75,10 @@ describe("playable career UI", () => {
       vi.advanceTimersByTime(5_000);
     });
     expect(screen.getByTestId("money").textContent).not.toBe(oldMoney);
-    expect(screen.getByTestId("bugs")).toHaveTextContent("0");
+    expect(screen.getByText("ОБРОБЛЕНО ЗА КАР’ЄРУ")).toBeInTheDocument();
+    const saved = JSON.parse(localStorage.getItem(R.saveKey) ?? "{}") as CareerState;
+    expect(saved.bugs).toBe(0);
+    expect(saved.found).toBeGreaterThan(0);
   });
   it("offers affordable bulk hiring and does not grant a locked producer", () => {
     boot({ money: 110 });

@@ -1,5 +1,7 @@
 # QA Idle Documentation Index
 
+Current pacing: [25 — Career Chapters](25-Career_Chapters.md) owns rank income, chapter evidence, promotion boosts, stable reporting and the resource overview. Track delivery in [TODO](../TODO.md).
+
 Current presentation: [24 — Progressive Discovery](24-Progressive_Discovery.md) owns hidden future tabs/features and distinct layer themes. Track delivery in [TODO](../TODO.md).
 
 Current continuation: [23 — Network Generators](23-Network_Generators.md) owns the generator chain, local reboots, protocol choices and guidance after architecture.

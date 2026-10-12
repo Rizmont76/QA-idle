@@ -29,6 +29,7 @@ import { advancePipeline } from "./pipelineFlow";
 import { pipelineAction } from "./pipelineActions";
 import { autoCoreIntent, automationActive, automationIntent } from "./pipelineAutomation";
 import { nextPassiveBadge } from "./badgeFlow";
+import { earn } from "./earnings";
 
 export function newCareer(now = Date.now()): CareerState {
   return {
@@ -36,6 +37,7 @@ export function newCareer(now = Date.now()): CareerState {
     money: 0,
     bugs: 0,
     earned: 0,
+    rankEarned: 0,
     found: 0,
     lifetimeEarned: 0,
     lifetimeBugs: 0,
@@ -90,16 +92,8 @@ function findBugs(s: CareerState, amount: number): CareerState {
       : null,
   };
 }
-function earn(s: CareerState, amount: number): CareerState {
-  return {
-    ...s,
-    money: bounded(s.money + amount),
-    earned: bounded(s.earned + amount),
-    lifetimeEarned: bounded(s.lifetimeEarned + amount),
-  };
-}
 function report(s: CareerState): CareerState {
-  return { ...earn(s, bounded(s.bugs * reportValue(s))), bugs: 0 };
+  return { ...earn(s, bounded(s.bugs * reportValue(s), R.moneyLimit)), bugs: 0 };
 }
 export interface TimeResult {
   state: CareerState;
@@ -120,6 +114,7 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
     return { state: s, seconds: 0, bugs: 0, money: 0, capped: false };
   }
   const seconds = Math.min(elapsed, offlineCap(s));
+  const endTick = s.lastTick + seconds * R.milliseconds;
   let next = s;
   let remaining = seconds;
   let totalBugs = 0;
@@ -154,7 +149,6 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
     const result = advanceSlice(next, step, offline);
     next = result.state;
     totalBugs += result.bugs;
-    remaining = Math.max(0, remaining - step);
     if (badge && badge.seconds <= step && !next.badges.includes(badge.id)) {
       // The analytic threshold was crossed; don't delay a bonus due to rounding.
       next = { ...next, badges: [...next.badges, badge.id] };
@@ -186,6 +180,9 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
         automatedActions += automatic.ok ? 1 : 0;
       }
     }
+    // Recompute from the absolute endpoint. Repeated fractional badge/contract
+    // slices must not round away an automation boundary at the end of a tick.
+    remaining = Math.max(0, (endTick - next.lastTick) / R.milliseconds);
   }
   return {
     state: { ...next, lastTick: now },
@@ -203,10 +200,10 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
 }
 function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeResult {
   const efficiency = offline ? offlineEfficiency(s) : 1;
-  const bugs = bounded(production(s) * seconds * efficiency);
+  const bugs = bounded(production(s) * seconds * efficiency, R.moneyLimit);
   let next = findBugs(s, bugs);
   const phase = next.project ? projectPhase(next.project) : null;
-  const royalties = bounded(royaltyRate(s) * seconds * efficiency);
+  const royalties = bounded(royaltyRate(s) * seconds * efficiency, R.moneyLimit);
   next = {
     ...earn(next, royalties),
     pipeline: {
@@ -215,7 +212,7 @@ function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeRe
     },
     products: {
       ...next.products,
-      earned: bounded(next.products.earned + royalties),
+      earned: bounded(next.products.earned + royalties, R.moneyLimit),
     },
     lastTick: s.lastTick + seconds * R.milliseconds,
     playedSeconds: bounded(s.playedSeconds + (offline ? 0 : seconds)),
@@ -234,7 +231,7 @@ function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeRe
       : null,
   };
   if (hasAutoReport(next)) {
-    next = report(next);
+    next = { ...earn(next, (s.bugs + bugs) * reportValue(s)), bugs: 0 };
   }
   return {
     state: awardBadges(next),
@@ -311,6 +308,7 @@ export function act(
       state = {
         ...state,
         stage: state.stage + 1,
+        rankEarned: 0,
         bestStage: Math.max(state.bestStage, state.stage + 1),
       };
       message = `Вітаємо! Тепер ти ${CAREER_STAGES[state.stage]?.title ?? "Director"}.`;
@@ -410,6 +408,11 @@ export function act(
       const result = studioAction(state, action);
       return { ...result, state: awardBadges(result.state) };
     }
+  }
+  // Settle manual tests and the first auto-report purchase atomically, so the
+  // UI never exposes a temporary unsold balance between actions and ticks.
+  if (hasAutoReport(state) && state.bugs > 0) {
+    state = report(state);
   }
   return { state: awardBadges(state), ok: true, message };
 }

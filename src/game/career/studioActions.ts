@@ -1,6 +1,7 @@
 import type { CareerAction, CareerState } from "../../types";
 import { PROJECTS, RESEARCH, SPECIALISTS, STUDIO_RULES as S } from "./expansionData";
 import { bounded } from "./selectors";
+import { earn } from "./earnings";
 import { gainClients, MARKET } from "./productEffects";
 import {
   projectQuote,
@@ -91,11 +92,8 @@ export function studioAction(
         message = "Етап прийнято. Починаємо наступну перевірку!";
       } else {
         state = {
-          ...state,
+          ...earn(state, project.reward),
           project: null,
-          money: bounded(state.money + project.reward),
-          earned: bounded(state.earned + project.reward),
-          lifetimeEarned: bounded(state.lifetimeEarned + project.reward),
           insights: bounded(state.insights + project.insights),
           lifetimeInsights: bounded(state.lifetimeInsights + project.insights),
           certificates: { ...state.certificates, [def.id]: project.tier + 1 },

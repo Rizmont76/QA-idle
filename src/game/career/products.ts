@@ -4,6 +4,7 @@ import { PRODUCTS, PRODUCT_RULES as P } from "./productData";
 import type { ProductDefinition } from "./productData";
 import { amount, record } from "./saveValues";
 import { bounded } from "./selectors";
+import { CAREER_RULES as R } from "./content";
 import { MARKET, PRODUCT_MODES } from "./productEffects";
 export { productIncome, royaltyRate } from "./productEffects";
 
@@ -99,7 +100,9 @@ export function normalizeProducts(state: CareerState, value: unknown): void {
     if (legacy) {
       for (let tier = 1; tier < version; tier++) {
         returnedCash += def.cost * P.costGrowth ** tier;
-        returnedInsights += def.insights * (tier + 1);
+        returnedInsights +=
+          (def.id === "checklist" ? P.legacyChecklistInsights : def.insights) *
+          (tier + 1);
       }
     }
   }
@@ -115,14 +118,15 @@ export function normalizeProducts(state: CareerState, value: unknown): void {
     (state.certificates[def.project] ?? 0) >= version
   ) {
     returnedCash += def.cost * P.costGrowth ** (version - 1);
-    returnedInsights += def.insights * version;
+    returnedInsights +=
+      (def.id === "checklist" ? P.legacyChecklistInsights : def.insights) * version;
   }
   const owned = Object.keys(state.products.releases).length > 0;
   state.products.earned = owned ? amount(data["earned"], state.lifetimeEarned) : 0;
   state.products.clients =
     owned && !legacy ? Math.floor(amount(data["clients"], MARKET.clients)) : 0;
   if (legacy && (returnedCash > 0 || returnedInsights > 0)) {
-    const money = bounded(state.money + returnedCash);
+    const money = bounded(state.money + returnedCash, R.moneyLimit);
     const insights = bounded(state.insights + returnedInsights);
     state.products.refund = {
       money: money - state.money,
@@ -134,7 +138,7 @@ export function normalizeProducts(state: CareerState, value: unknown): void {
   } else if (!legacy && data["refund"] !== null && typeof data["refund"] === "object") {
     const refund = record(data["refund"]);
     state.products.refund = {
-      money: amount(refund["money"]),
+      money: amount(refund["money"], R.moneyLimit),
       insights: amount(refund["insights"]),
     };
   }

@@ -5,6 +5,7 @@ import { networkDiscovery, networkUnlocked } from "./networkEffects";
 import type { CareerState } from "../../types";
 import { CAREER_RULES, CAREER_STAGES } from "./content";
 import { PIPELINE, PIPELINE_TRIALS } from "./pipelineData";
+import { chapterRows } from "./chapters";
 
 export function nextDiscovery(s: CareerState): {
   title: string;
@@ -20,13 +21,16 @@ export function nextDiscovery(s: CareerState): {
   if (s.careers < 1) {
     const rank = CAREER_STAGES[Math.min(s.stage + 1, CAREER_RULES.prestigeStage)];
     const missingCrew = Math.max(0, (rank?.crew ?? 0) - crewCount(s));
-    const missingMoney = Math.max(0, (rank?.earned ?? 0) - s.earned);
+    const missingMoney = Math.max(0, (rank?.earned ?? 0) - s.rankEarned);
+    const missingGoal = chapterRows(s).find((r) => !r.done);
     const step =
       missingCrew > 0
         ? `До ${rank?.title ?? "Director"} бракує ${String(missingCrew)} одиниць команди. Наймай команду на робочому місці.`
         : missingMoney > 0
           ? `До ${rank?.title ?? "Director"} залишилось заробити $${Math.ceil(missingMoney).toLocaleString("uk-UA")}.`
-          : `Умови ${rank?.title ?? "Director"} виконані — прийми підвищення.`;
+          : missingGoal
+            ? `Ціль рангу: ${missingGoal.title} — ${String(missingGoal.value)} / ${String(missingGoal.target)}.`
+            : `Умови ${rank?.title ?? "Director"} виконані — прийми підвищення.`;
     return {
       title: "Перший престиж → CI/CD-конвеєр",
       detail:

@@ -61,7 +61,7 @@ export const PIPELINE_TRIALS: readonly TrialDefinition[] = [
     rates: [3, 2, 0.5],
     allocation: [3, 2, 1],
     target: 180,
-    reward: "Автопокупка покращень і автоматичні підвищення",
+    reward: "Автопокращення, підвищення й цілі рангів",
   },
 ];
 export const PIPELINE_POLICIES: readonly {
@@ -73,7 +73,8 @@ export const PIPELINE_POLICIES: readonly {
   {
     id: "hire",
     title: "Автонайм",
-    description: "Витрачає гроші: купує одну найдешевшу доступну одиницю команди.",
+    description:
+      "Витрачає гроші: спочатку наймає потрібних для цілі рангу виробників, потім — найдешевшу одиницю.",
     unlock: "25 релізів",
   },
   {
@@ -96,8 +97,16 @@ export const PIPELINE_POLICIES: readonly {
       "Приймає підвищення, коли всі умови виконані. Престиж залишається твоїм рішенням.",
     unlock: "Повільний деплой",
   },
+  {
+    id: "chapters",
+    title: "Автоцілі рангів",
+    description:
+      "Витрачає гроші ТА інсайти: виробники, дослідження й інструменти для цілі рангу. Запрошує фахівця, якщо нікого немає; повторює контракт для потрібних інсайтів. Зберігає ролі продуктів і твій склад фахівців.",
+    unlock: "Повільний деплой",
+  },
 ];
 export const AUTOMATION_ORDER: readonly PipelinePolicy[] = [
+  "chapters",
   "promote",
   "upgrades",
   "hire",
@@ -112,7 +121,13 @@ export function newPipeline(): PipelineState {
     queues: [0, 0],
     completed: [],
     trial: null,
-    automation: { hire: false, upgrades: false, promote: false, projects: false },
+    automation: {
+      hire: false,
+      upgrades: false,
+      promote: false,
+      projects: false,
+      chapters: false,
+    },
     architecture: newArchitecture(),
     network: newNetwork(),
   };
@@ -133,6 +148,7 @@ export function policyUnlocked(p: PipelineState, id: PipelinePolicy): boolean {
       return p.completed.includes("verification");
     case "upgrades":
     case "promote":
+    case "chapters":
       return p.completed.includes("deployment");
   }
 }

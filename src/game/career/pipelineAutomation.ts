@@ -7,6 +7,8 @@ import { PROJECTS } from "./expansionData";
 import { hireQuote, promotionReady } from "./selectors";
 import { projectReady, projectUnlocked } from "./studioSelectors";
 import { PIPELINE_POLICIES, policyUnlocked } from "./pipelineData";
+import { chapterCrew } from "./chapters";
+import { chapterIntent } from "./chapterActions";
 
 export const automationActive = (s: CareerState) =>
   s.careers > 0 &&
@@ -23,6 +25,8 @@ export function automationIntent(
     return null;
   }
   switch (id) {
+    case "chapters":
+      return chapterIntent(s);
     case "promote":
       return promotionReady(s) ? { type: "promote" } : null;
     case "upgrades": {
@@ -32,6 +36,10 @@ export function automationIntent(
       return def && s.money >= def.cost ? { type: "upgrade", id: def.id } : null;
     }
     case "hire": {
+      const required = chapterCrew(s);
+      if (required && hireQuote(s, required.id, 1).count) {
+        return { type: "hire", id: required.id, mode: 1 };
+      }
       const candidates = CREW.map((c) => ({ id: c.id, quote: hireQuote(s, c.id, 1) }))
         .filter((c) => c.quote.count > 0)
         .sort((a, b) => a.quote.cost - b.quote.cost);
