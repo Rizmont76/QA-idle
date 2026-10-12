@@ -14,6 +14,7 @@ import {
 } from "../game/career/studioSelectors";
 import { production } from "../game/career/selectors";
 import { PRODUCTS } from "../game/career/productData";
+import { projectDiscovered, viewUnlocked } from "../game/career/discovery";
 import { cash, clockTime, number } from "./careerUtils";
 import { Meter, SectionTitle } from "./CareerWidgets";
 
@@ -37,14 +38,17 @@ export function CareerProjects({ game: s, send, cancelProject, studio }: Props) 
   const workRate = production(s) * projectThroughput(s);
   const list = PROJECTS.filter(
     (p) =>
-      filter === "all" ||
-      (filter === "available" ? projectUnlocked(s, p) : (s.certificates[p.id] ?? 0) > 0),
+      projectDiscovered(s, p) &&
+      (filter === "all" ||
+        (filter === "available"
+          ? projectUnlocked(s, p)
+          : (s.certificates[p.id] ?? 0) > 0)),
   );
   return (
     <>
       <section className="panel expansion-hero project-hero">
         <div>
-          <div className="eyebrow">КАМПАНІЯ · 9 ІСТОРІЙ</div>
+          <div className="eyebrow">КОЖЕН КЛІЄНТ ВІДКРИВАЄ МОЖЛИВОСТІ</div>
           <h2>
             {count === PROJECTS.length
               ? "Твоя студія залишила свій слід."
@@ -59,13 +63,19 @@ export function CareerProjects({ game: s, send, cancelProject, studio }: Props) 
         <div className="hero-score">
           <strong>
             {count}
-            <span>/{PROJECTS.length}</span>
+            <span>/{PROJECTS.filter((p) => projectDiscovered(s, p)).length}</span>
           </strong>
           <span>проєктів у портфоліо</span>
-          <Meter value={count} max={PROJECTS.length} label="Прогрес кампанії" />
-          <button className="text-button" onClick={studio}>
-            {number(s.insights)} ◈ інсайтів → Студія
-          </button>
+          <Meter
+            value={count}
+            max={PROJECTS.filter((p) => projectDiscovered(s, p)).length}
+            label="Прогрес кампанії"
+          />
+          {viewUnlocked(s, "studio") && (
+            <button className="text-button" onClick={studio}>
+              {number(s.insights)} ◈ інсайтів → Студія
+            </button>
+          )}
         </div>
       </section>
       {completed &&

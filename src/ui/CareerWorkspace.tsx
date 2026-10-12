@@ -24,11 +24,11 @@ import {
 } from "../game/career/selectors";
 import { PROJECTS, STUDIO_RULES } from "../game/career/expansionData";
 import { certificates, projectPhase, projectReady } from "../game/career/studioSelectors";
-import { dispatchQuote } from "../game/career/office";
+import { viewUnlocked } from "../game/career/discovery";
+import { dispatchQuote, dispatcherUnlocked } from "../game/career/office";
 import { BugIcon, Meter, SectionTitle } from "./CareerWidgets";
 import { cash, clockTime, duration, number } from "./careerUtils";
 
-const RANK_DIGITS = 2;
 interface Props {
   game: CareerState;
   send: (a: CareerAction) => void;
@@ -60,7 +60,6 @@ export function CareerWorkspace({
       u.stage <= s.stage &&
       (upgradeTab === "owned" ? s.upgrades.includes(u.id) : !s.upgrades.includes(u.id)),
   );
-  const nextLocked = CREW.find((c) => c.stage > s.stage);
   return (
     <>
       <div className="workspace-top">
@@ -158,10 +157,7 @@ export function CareerWorkspace({
             <span className="eyebrow">НАСТУПНА ВЕЛИКА ЦІЛЬ</span>
             <span className="small-icon">↗</span>
           </div>
-          <div className="rank-number">
-            0{s.stage + 1}
-            <span> / {String(CAREER_STAGES.length).padStart(RANK_DIGITS, "0")}</span>
-          </div>
+          <div className="rank-number">0{s.stage + 1}</div>
           <h2>{next?.title ?? "Нова кар’єра"}</h2>
           <p className="muted">
             {next?.unlock ?? "Перетвори цю кар’єру на постійний бонус до наступної."}
@@ -253,7 +249,7 @@ export function CareerWorkspace({
             <span className="muted tiny">
               {s.project
                 ? `${projectPhase(s.project)?.title ?? ""} · ${projectReady(s) ? "Етап готовий — здай його" : "Команда виконує перевірки"}`
-                : `${String(certificates(s))} / ${String(PROJECTS.length)} проєктів у портфоліо · фахівці та постійні бонуси`}
+                : `${String(certificates(s))} проєктів у портфоліо`}
             </span>
           </div>
           <div>
@@ -263,9 +259,11 @@ export function CareerWorkspace({
             >
               {s.project ? "До проєкту →" : "Обрати проєкт →"}
             </button>
-            <button className="text-button insight-text" onClick={studio}>
-              {number(s.insights)} ◈ · Студія
-            </button>
+            {viewUnlocked(s, "studio") && (
+              <button className="text-button insight-text" onClick={studio}>
+                {number(s.insights)} ◈ · Студія
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -369,15 +367,6 @@ export function CareerWorkspace({
               </article>
             );
           })}
-          {nextLocked && (
-            <article className="crew-locked">
-              <span className="lock-mark">◇</span>
-              <div className="eyebrow">НАСТУПНЕ ВІДКРИТТЯ</div>
-              <h3>{nextLocked.name}</h3>
-              <p>{CAREER_STAGES[nextLocked.stage]?.title}</p>
-              <span>Нова потужність для твоєї команди</span>
-            </article>
-          )}
         </div>
       </section>
       <section className="upgrades-section">
@@ -441,20 +430,25 @@ export function CareerWorkspace({
           <SectionTitle eyebrow="ДОДАТКОВИЙ ВИКЛИК" title="Контракти">
             <span className="muted tiny">Виконано: {s.contractsCompleted}</span>
           </SectionTitle>
-          <div className="workspace-dispatch">
-            <span>
-              {dispatch
-                ? `⇄ Автоповтор: ${dispatch.title}`
-                : "Нехай диспетчер повторює контракти за тебе."}
-            </span>
-            <button
-              className="text-button"
-              aria-label="Керувати автоматизацією контрактів"
-              onClick={office}
-            >
-              Диспетчер в офісі →
-            </button>
-          </div>
+          {(dispatcherUnlocked(s) || s.office.licensed) && (
+            <>
+              {" "}
+              <div className="workspace-dispatch">
+                <span>
+                  {dispatch
+                    ? `⇄ Автоповтор: ${dispatch.title}`
+                    : "Нехай диспетчер повторює контракти за тебе."}
+                </span>
+                <button
+                  className="text-button"
+                  aria-label="Керувати автоматизацією контрактів"
+                  onClick={office}
+                >
+                  Диспетчер в офісі →
+                </button>
+              </div>
+            </>
+          )}
           {s.contract ? (
             <article className="panel active-contract">
               <div>

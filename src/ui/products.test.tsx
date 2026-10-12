@@ -31,13 +31,13 @@ function boot(patch: Record<string, unknown> = {}) {
 function saved(): CareerState {
   return JSON.parse(localStorage.getItem(R.saveKey) ?? "{}") as CareerState;
 }
-it("shows six tools, prerequisites and a route to projects", () => {
-  boot();
+it("shows only discovered tools and a route to projects", () => {
+  boot({ stage: 2, bestStage: 2, certificates: { button: 1 } });
   expect(
     screen
       .getAllByRole("article")
       .filter((card) => card.classList.contains("product-card")),
-  ).toHaveLength(6);
+  ).toHaveLength(1);
   expect(
     screen.getByRole("button", { name: "Запустити Checklist Studio" }),
   ).toBeDisabled();

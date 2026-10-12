@@ -27,17 +27,11 @@ import { CareerPipeline, DiscoveryCard } from "./CareerPipeline";
 import { royaltyRate } from "../game/career/products";
 import { BugIcon, ConfirmDialog, SectionTitle } from "./CareerWidgets";
 import { cash, duration, number } from "./careerUtils";
-
-type View =
-  | "workspace"
-  | "office"
-  | "projects"
-  | "products"
-  | "pipeline"
-  | "studio"
-  | "career"
-  | "achievements"
-  | "settings";
+import { pipelineView, prestigeDiscovered, viewUnlocked } from "../game/career/discovery";
+import type { CareerView as View, PipelineView } from "../game/career/discovery";
+import { architectureUnlocked } from "../game/career/architectureEffects";
+import { networkUnlocked } from "../game/career/networkEffects";
+import { UnlockNotice } from "./UnlockNotice";
 const PERCENT = 100;
 const NAV: readonly { id: View; title: string; symbol: string; subtitle: string }[] = [
   {
@@ -118,14 +112,34 @@ export function CareerApp() {
     toast,
     clearToast,
   } = useCareer();
-  const [view, setView] = useState<View>("workspace");
+  const [requestedView, setView] = useState<View>("workspace");
+  const [saveRevision, setSaveRevision] = useState(0);
+  const view = viewUnlocked(s, requestedView) ? requestedView : "workspace";
+  const [requestedLayer, setLayer] = useState<PipelineView>(
+    networkUnlocked(s)
+      ? "network"
+      : architectureUnlocked(s)
+        ? "architecture"
+        : "pipeline",
+  );
+  const layer = pipelineView(s, requestedLayer);
+  const visibleNav = NAV.filter((n) => viewUnlocked(s, n.id));
   const [confirmation, setConfirmation] = useState<
     "prestige" | "reset" | "import" | "contract" | "project" | null
   >(null);
   const [saveText, setSaveText] = useState("");
   const [importError, setImportError] = useState("");
   const [pendingSave, setPendingSave] = useState<CareerState | null>(null);
-  const currentNav = NAV.find((n) => n.id === view) ?? NAV[0];
+  const currentNav =
+    view === "pipeline" && layer !== "pipeline"
+      ? {
+          title: layer === "architecture" ? "Архітектура" : "Мережа",
+          subtitle:
+            layer === "architecture"
+              ? "Збирай схеми, що посилюють твою студію."
+              : "Потужність, яка створює нову потужність.",
+        }
+      : (NAV.find((n) => n.id === view) ?? NAV[0]);
   const stage = CAREER_STAGES[s.stage] ?? CAREER_STAGES[0];
   const rate = production(s);
   const auto = hasAutoReport(s);
@@ -139,7 +153,7 @@ export function CareerApp() {
       s.insights >= researchCost(s, node),
   );
   function navigate(next: View) {
-    setView(next);
+    setView(viewUnlocked(s, next) ? next : "workspace");
     window.scrollTo({ top: 0, behavior: "instant" });
   }
   function previewImport() {
@@ -154,7 +168,7 @@ export function CareerApp() {
     }
   }
   return (
-    <div className="app-shell">
+    <div className="app-shell" data-layer={view === "pipeline" ? layer : view}>
       <a className="skip-link" href="#game-content">
         До гри
       </a>
@@ -178,7 +192,7 @@ export function CareerApp() {
         </a>
         <div className="sidebar-label">ТВІЙ ПРОСТІР</div>
         <nav aria-label="Головна навігація">
-          {NAV.map((n) => (
+          {visibleNav.map((n) => (
             <button
               key={n.id}
               className={`nav-link ${view === n.id ? "selected" : ""}`}
@@ -199,19 +213,21 @@ export function CareerApp() {
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="career-pass">
-            <span className="eyebrow">ПОСТІЙНИЙ ДОСВІД</span>
-            <div>
-              <span>✦</span>
-              <strong>{number(s.experience)}</strong>
-              <small>+{number(s.experience * R.experienceBonus * PERCENT)}%</small>
+          {prestigeDiscovered(s) && (
+            <div className="career-pass">
+              <span className="eyebrow">ПОСТІЙНИЙ ДОСВІД</span>
+              <div>
+                <span>✦</span>
+                <strong>{number(s.experience)}</strong>
+                <small>+{number(s.experience * R.experienceBonus * PERCENT)}%</small>
+              </div>
+              <p>
+                {s.careers
+                  ? `${String(s.careers + 1)}-га кар’єра. Ти вже знаєш, як це працює.`
+                  : "Твій досвід залишиться з тобою після нової кар’єри."}
+              </p>
             </div>
-            <p>
-              {s.careers
-                ? `${String(s.careers + 1)}-га кар’єра. Ти вже знаєш, як це працює.`
-                : "Твій досвід залишиться з тобою після нової кар’єри."}
-            </p>
-          </div>
+          )}
           <div className="profile">
             <span className="avatar">QA</span>
             <div>
@@ -243,7 +259,7 @@ export function CareerApp() {
                   ? "Прогрес збережено"
                   : "Перевір збереження"}
             </span>
-            <span className="version-chip">NETWORK EDITION</span>
+            <span className="version-chip">DISCOVERY EDITION</span>
           </div>
         </header>
         {warning && (
@@ -307,6 +323,16 @@ export function CareerApp() {
           </section>
         )}
         <fieldset className="game-fieldset" disabled={otherTab}>
+          <UnlockNotice
+            key={saveRevision}
+            game={s}
+            entries={visibleNav}
+            open={navigate}
+            openLayer={(next) => {
+              setLayer(next);
+              navigate("pipeline");
+            }}
+          />
           <div className="resource-strip">
             <article className="resource-card">
               <span className="resource-icon mint">$</span>
@@ -355,11 +381,20 @@ export function CareerApp() {
               </span>
             </article>
           </div>
-          {view === "workspace" && (
-            <DiscoveryCard game={s} open={() => navigate("pipeline")} />
+          {view === "workspace" && prestigeDiscovered(s) && (
+            <DiscoveryCard
+              game={s}
+              open={() => navigate(s.careers > 0 ? "pipeline" : "career")}
+            />
           )}
           {view === "pipeline" && (
-            <CareerPipeline game={s} send={send} career={() => navigate("career")} />
+            <CareerPipeline
+              game={s}
+              send={send}
+              career={() => navigate("career")}
+              view={layer}
+              setView={setLayer}
+            />
           )}
           {view === "workspace" && (
             <CareerWorkspace
@@ -399,20 +434,22 @@ export function CareerApp() {
           )}
           {view === "projects" && (
             <>
-              <div className="products-shortcut">
-                <span>
-                  Клієнти відкривають інструменти: гроші, швидші проєкти або більше
-                  інсайтів.
-                </span>
-                <button
-                  className="text-button"
-                  onClick={() => {
-                    navigate("products");
-                  }}
-                >
-                  Керувати продуктами →
-                </button>
-              </div>
+              {viewUnlocked(s, "products") && (
+                <div className="products-shortcut">
+                  <span>
+                    Клієнти відкривають інструменти: гроші, швидші проєкти або більше
+                    інсайтів.
+                  </span>
+                  <button
+                    className="text-button"
+                    onClick={() => {
+                      navigate("products");
+                    }}
+                  >
+                    Керувати продуктами →
+                  </button>
+                </div>
+              )}
               <CareerProjects
                 game={s}
                 send={send}
@@ -446,14 +483,14 @@ export function CareerApp() {
           {view === "career" && (
             <>
               <SectionTitle
-                eyebrow="ДЕВ’ЯТЬ ПОСАД. ВЛАСНА СТУДІЯ."
+                eyebrow="КОЖЕН РАНГ ВІДКРИВАЄ МОЖЛИВОСТІ"
                 title="Твій кар’єрний шлях"
               >
                 <span className="pill">{stage.title}</span>
               </SectionTitle>
               <div className="career-layout">
                 <div className="career-timeline">
-                  {CAREER_STAGES.map((rank, i) => (
+                  {CAREER_STAGES.filter((_, i) => i <= s.bestStage + 1).map((rank, i) => (
                     <article
                       key={rank.title}
                       className={`timeline-card ${i === s.stage ? "current" : ""} ${i < s.stage ? "complete" : ""}`}
@@ -477,49 +514,52 @@ export function CareerApp() {
                     </article>
                   ))}
                 </div>
-                <section className="panel prestige-panel">
-                  <div className="eyebrow">КІНЕЦЬ — ЦЕ ПОЧАТОК</div>
-                  <div className="prestige-symbol">∞</div>
-                  <h2>Залиш свій слід.</h2>
-                  <p className="muted">
-                    {s.careers < 1
-                      ? "Перший престиж відкриє CI/CD-конвеєр: розподіл ядер, випробування та автоматизацію кар’єри."
-                      : "Конвеєр, серверна шафа, креслення й відкриті політики залишаться з тобою. Нова кар’єра працюватиме швидше."}
-                  </p>
-                  <div className="prestige-stats">
-                    <div>
-                      <span>Накопичений досвід</span>
-                      <strong>{number(s.experience)} ✦</strong>
-                    </div>
-                    <div>
-                      <span>Поточний постійний множник</span>
-                      <strong>×{number(permanentMultiplier(s))}</strong>
-                    </div>
-                    <div>
-                      <span>За нову кар’єру зараз</span>
-                      <strong className="mint">+{number(reward)} ✦</strong>
-                    </div>
-                  </div>
-                  {reward > 0 && (
-                    <p className="prestige-preview">
-                      Досвід дасть ще +{number(reward * R.experienceBonus * PERCENT)}%
-                      базової продуктивності. Стартуєш із $50 та автозвітами.
+                {prestigeDiscovered(s) && (
+                  <section className="panel prestige-panel">
+                    <div className="eyebrow">КІНЕЦЬ — ЦЕ ПОЧАТОК</div>
+                    <div className="prestige-symbol">∞</div>
+                    <h2>Залиш свій слід.</h2>
+                    <p className="muted">
+                      {s.careers < 1
+                        ? "Перший престиж відкриє CI/CD-конвеєр: розподіл ядер, випробування та автоматизацію кар’єри."
+                        : "Усі відкриті системи й автоматизація залишаться з тобою. Нова кар’єра працюватиме швидше."}
                     </p>
-                  )}
-                  <button
-                    className="button primary full"
-                    disabled={reward <= 0}
-                    onClick={() => {
-                      setConfirmation("prestige");
-                    }}
-                  >
-                    {reward > 0 ? "Почати нову кар’єру ↻" : "Відкриється на Director"}
-                  </button>
-                  <p className="tiny muted">
-                    Престиж доступний від Director. Рухайся до Founder за більшим досвідом
-                    або почни нову кар’єру зараз. Студія й портфоліо залишаться.
-                  </p>
-                </section>
+                    <div className="prestige-stats">
+                      <div>
+                        <span>Накопичений досвід</span>
+                        <strong>{number(s.experience)} ✦</strong>
+                      </div>
+                      <div>
+                        <span>Поточний постійний множник</span>
+                        <strong>×{number(permanentMultiplier(s))}</strong>
+                      </div>
+                      <div>
+                        <span>За нову кар’єру зараз</span>
+                        <strong className="mint">+{number(reward)} ✦</strong>
+                      </div>
+                    </div>
+                    {reward > 0 && (
+                      <p className="prestige-preview">
+                        Досвід дасть ще +{number(reward * R.experienceBonus * PERCENT)}%
+                        базової продуктивності. Стартуєш із $50 та автозвітами.
+                      </p>
+                    )}
+                    <button
+                      className="button primary full"
+                      disabled={reward <= 0}
+                      onClick={() => {
+                        setConfirmation("prestige");
+                      }}
+                    >
+                      {reward > 0 ? "Почати нову кар’єру ↻" : "Відкриється на Director"}
+                    </button>
+                    <p className="tiny muted">
+                      Престиж доступний від Director. Рухайся до Founder за більшим
+                      досвідом або почни нову кар’єру зараз. Студія й портфоліо
+                      залишаться.
+                    </p>
+                  </section>
+                )}
               </div>
             </>
           )}
@@ -529,9 +569,7 @@ export function CareerApp() {
                 eyebrow="ТВОЇ МАЛЕНЬКІ ВЕЛИКІ ПЕРЕМОГИ"
                 title="Колекція досягнень"
               >
-                <span className="pill">
-                  {s.badges.length} / {BADGES.length}
-                </span>
+                <span className="pill">{s.badges.length} відкрито</span>
               </SectionTitle>
               <div className="achievement-intro">
                 Кожне досягнення дає <strong>+2% продуктивності назавжди</strong>. Твій
@@ -542,7 +580,7 @@ export function CareerApp() {
                 .
               </div>
               <div className="badge-grid">
-                {BADGES.map((b) => {
+                {BADGES.filter((b) => s.badges.includes(b.id)).map((b) => {
                   const earned = s.badges.includes(b.id);
                   return (
                     <article
@@ -737,6 +775,7 @@ export function CareerApp() {
           }}
           confirm={() => {
             replace(newCareer());
+            setSaveRevision((revision) => revision + 1);
             navigate("workspace");
           }}
         >
@@ -755,6 +794,7 @@ export function CareerApp() {
           }}
           confirm={() => {
             replace(advanceCareer(pendingSave, Date.now(), true).state);
+            setSaveRevision((revision) => revision + 1);
             setSaveText("");
             navigate("workspace");
           }}

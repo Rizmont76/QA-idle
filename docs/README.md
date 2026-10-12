@@ -1,5 +1,7 @@
 # QA Idle Documentation Index
 
+Current presentation: [24 — Progressive Discovery](24-Progressive_Discovery.md) owns hidden future tabs/features and distinct layer themes. Track delivery in [TODO](../TODO.md).
+
 Current continuation: [23 — Network Generators](23-Network_Generators.md) owns the generator chain, local reboots, protocol choices and guidance after architecture.
 
 Next discovery: [22 — Architecture Rack](22-Architecture_Rack.md) owns spatial modules, blueprint rewards and pipeline automation after the three trials.

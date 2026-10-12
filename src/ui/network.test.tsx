@@ -39,16 +39,14 @@ function boot(s: CareerState) {
 function saved(): CareerState {
   return JSON.parse(localStorage.getItem(CAREER_RULES.saveKey) ?? "{}") as CareerState;
 }
-it("previews the generator chain before the final blueprint without enabling it", () => {
-  boot(newCareer(NOW));
-  fireEvent.click(screen.getByRole("button", { name: /Мережа/ }));
-  expect(
-    screen.getByRole("heading", { name: "Зростання, яке створює себе." }),
-  ).toBeInTheDocument();
+it("hides the generator layer before the final blueprint", () => {
+  const s = fixture();
+  s.pipeline.architecture.blueprints = ["cycle", "bus", "flow"];
+  boot(s);
+  expect(screen.queryByRole("button", { name: "Мережа" })).not.toBeInTheDocument();
   expect(
     screen.queryByRole("button", { name: "Купити: Агенти" }),
   ).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: "До архітектури →" }));
   expect(screen.getByRole("heading", { name: "Архітектура студії" })).toBeInTheDocument();
 });
 it("opens the next layer, makes agents productive and keeps automatic purchases opt-in", () => {
@@ -64,8 +62,12 @@ it("opens the next layer, makes agents productive and keeps automatic purchases 
   fireEvent.click(screen.getByRole("button", { name: "Купити: Агенти" }));
   expect(saved().pipeline.network.units[0]).toBe(2);
   expect(saved().pipeline.network.purchased[0]).toBe(1);
-  expect(screen.getByRole("switch", { name: "Автопокупка генераторів" })).toBeDisabled();
-  expect(screen.getByRole("button", { name: "Купити: Планувальники" })).toBeDisabled();
+  expect(
+    screen.queryByRole("switch", { name: "Автопокупка генераторів" }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Купити: Планувальники" }),
+  ).not.toBeInTheDocument();
 });
 it("confirms a local reboot, retains career progress and spends earned protocols", () => {
   const s = fixture();

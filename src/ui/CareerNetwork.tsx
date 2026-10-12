@@ -87,18 +87,17 @@ export function CareerNetwork({
             </section>
           </div>
           <section className="network-chain" aria-label="Ланцюжок генераторів">
-            <span>Регіони</span>
-            <b>→</b>
-            <span>Кластери</span>
-            <b>→</b>
-            <span>Планувальники</span>
-            <b>→</b>
-            <span>Агенти</span>
-            <b>→</b>
+            {GENERATORS.filter((g) => generatorUnlocked(s, g.tier))
+              .reverse()
+              .map((g) => (
+                <span key={g.tier}>
+                  {g.title} <b>→</b>
+                </span>
+              ))}
             <strong>Обчислення</strong>
           </section>
           <div className="generator-grid">
-            {GENERATORS.map((g) => {
+            {GENERATORS.filter((g) => generatorUnlocked(s, g.tier)).map((g) => {
               const available = generatorUnlocked(s, g.tier);
               const price = generatorPrice(s, g.tier);
               const capped = n.purchased[g.tier] >= NETWORK.purchaseLimit;
@@ -149,90 +148,110 @@ export function CareerNetwork({
             Створені генератори одразу працюють і не підвищують ціну покупки. Уся мережа
             працює також офлайн.
           </p>
-          <section
-            className={`panel network-reboot ${reward > 0 ? "ready" : ""}`}
-            aria-label="Перезапуск мережі"
-          >
-            <div>
-              <span className="eyebrow">ПОСТІЙНИЙ РОЗВИТОК</span>
-              <h2>Почни знову. Побудуй більше.</h2>
-              <p>
-                Поверни мережу до одного агента й отримай протоколи. Кожен перезапуск
-                додає +25% швидкості генераторів.
-              </p>
-              <small>
-                Перезапусків: {number(n.reboots)} · Швидкість мережі ×
-                {precise(multiplier)} · Зв’язок зі студією ×{precise(bridge)}
-              </small>
-            </div>
-            <div className="reboot-action">
-              <strong>+{number(reward)} ⌬</strong>
-              <span>протоколи за перезапуск</span>
-              <button
-                className="button primary"
-                disabled={reward < 1}
-                onClick={() => confirm(true)}
+          {(n.best >= NETWORK.rebootAt || n.reboots > 0) && (
+            <>
+              {" "}
+              <section
+                className={`panel network-reboot ${reward > 0 ? "ready" : ""}`}
+                aria-label="Перезапуск мережі"
               >
-                {reward > 0
-                  ? "Перезапустити мережу →"
-                  : `Після ${number(NETWORK.rebootAt)} обчислень`}
-              </button>
-            </div>
-          </section>
-          <SectionTitle eyebrow="ОБЕРИ, ЩО РОЗВИВАТИ" title="Постійні протоколи">
-            <span className="pill">⌬ {protocols(n.protocols)}</span>
-          </SectionTitle>
-          <div className="protocol-grid">
-            {NETWORK_PROTOCOLS.map((p) => {
-              const price = protocolPrice(s, p.id);
-              return (
-                <article className="panel network-protocol" key={p.id}>
-                  <span className="protocol-icon" aria-hidden="true">
-                    {p.icon}
-                  </span>
-                  <h3>{p.title}</h3>
-                  <p>{p.description}</p>
+                <div>
+                  <span className="eyebrow">ПОСТІЙНИЙ РОЗВИТОК</span>
+                  <h2>Почни знову. Побудуй більше.</h2>
+                  <p>
+                    Поверни мережу до одного агента й отримай протоколи. Кожен перезапуск
+                    додає +25% швидкості генераторів.
+                  </p>
                   <small>
-                    Рівень {n.upgrades[p.id]} / {p.costs.length}
+                    Перезапусків: {number(n.reboots)} · Швидкість мережі ×
+                    {precise(multiplier)} · Зв’язок зі студією ×{precise(bridge)}
                   </small>
+                </div>
+                <div className="reboot-action">
+                  <strong>+{number(reward)} ⌬</strong>
+                  <span>протоколи за перезапуск</span>
                   <button
-                    className="button secondary"
-                    aria-label={`Протокол: ${p.title}`}
-                    disabled={price === undefined || n.protocols < price}
-                    onClick={() => send({ type: "networkProtocol", id: p.id })}
+                    className="button primary"
+                    disabled={reward < 1}
+                    onClick={() => confirm(true)}
                   >
-                    {price === undefined
-                      ? "Повністю розвинено ✓"
-                      : `Наступний рівень · ${String(price)} ⌬`}
+                    {reward > 0
+                      ? "Перезапустити мережу →"
+                      : `Після ${number(NETWORK.rebootAt)} обчислень`}
                   </button>
-                </article>
-              );
-            })}
-          </div>
-          <section className="panel pipeline-policy network-policy">
-            <div>
-              <h3>Автопокупка генераторів</h3>
-              <p>
-                Кожні 5 секунд купує один генератор найвищої доступної ланки, яку можна
-                оплатити. Витрачає обчислення. Перезапуск і протоколи обираєш ти.
-              </p>
-              <small>
-                {n.upgrades.autobuy > 0
-                  ? "Протокол «Саморозвиток» активовано"
-                  : "Відкриває протокол «Саморозвиток»"}
-              </small>
-            </div>
-            <button
-              role="switch"
-              className={`policy-switch ${n.autoBuy ? "on" : ""}`}
-              aria-label="Автопокупка генераторів"
-              aria-checked={n.autoBuy}
-              disabled={n.upgrades.autobuy < 1}
-              onClick={() => send({ type: "networkAuto", enabled: !n.autoBuy })}
-            >
-              {n.autoBuy ? "Увімкнено" : n.upgrades.autobuy > 0 ? "Вимкнено" : "Закрито"}
-            </button>
-          </section>
+                </div>
+              </section>
+            </>
+          )}
+          {n.totalProtocols > 0 && (
+            <>
+              {" "}
+              <SectionTitle eyebrow="ОБЕРИ, ЩО РОЗВИВАТИ" title="Постійні протоколи">
+                <span className="pill">⌬ {protocols(n.protocols)}</span>
+              </SectionTitle>
+              <div className="protocol-grid">
+                {NETWORK_PROTOCOLS.map((p) => {
+                  const price = protocolPrice(s, p.id);
+                  return (
+                    <article className="panel network-protocol" key={p.id}>
+                      <span className="protocol-icon" aria-hidden="true">
+                        {p.icon}
+                      </span>
+                      <h3>{p.title}</h3>
+                      <p>{p.description}</p>
+                      <small>
+                        Рівень {n.upgrades[p.id]} / {p.costs.length}
+                      </small>
+                      <button
+                        className="button secondary"
+                        aria-label={`Протокол: ${p.title}`}
+                        disabled={price === undefined || n.protocols < price}
+                        onClick={() => send({ type: "networkProtocol", id: p.id })}
+                      >
+                        {price === undefined
+                          ? "Повністю розвинено ✓"
+                          : `Наступний рівень · ${String(price)} ⌬`}
+                      </button>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
+          )}
+          {n.upgrades.autobuy > 0 && (
+            <>
+              {" "}
+              <section className="panel pipeline-policy network-policy">
+                <div>
+                  <h3>Автопокупка генераторів</h3>
+                  <p>
+                    Кожні 5 секунд купує один генератор найвищої доступної ланки, яку
+                    можна оплатити. Витрачає обчислення. Перезапуск і протоколи обираєш
+                    ти.
+                  </p>
+                  <small>
+                    {n.upgrades.autobuy > 0
+                      ? "Протокол «Саморозвиток» активовано"
+                      : "Відкриває протокол «Саморозвиток»"}
+                  </small>
+                </div>
+                <button
+                  role="switch"
+                  className={`policy-switch ${n.autoBuy ? "on" : ""}`}
+                  aria-label="Автопокупка генераторів"
+                  aria-checked={n.autoBuy}
+                  disabled={n.upgrades.autobuy < 1}
+                  onClick={() => send({ type: "networkAuto", enabled: !n.autoBuy })}
+                >
+                  {n.autoBuy
+                    ? "Увімкнено"
+                    : n.upgrades.autobuy > 0
+                      ? "Вимкнено"
+                      : "Закрито"}
+                </button>
+              </section>
+            </>
+          )}
         </>
       )}
       {confirming && (

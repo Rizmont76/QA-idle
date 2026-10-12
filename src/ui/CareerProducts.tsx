@@ -5,6 +5,7 @@ import { PROJECTS } from "../game/career/expansionData";
 import { PRODUCTS } from "../game/career/productData";
 import type { ProductDefinition } from "../game/career/productData";
 import { productUnlocked } from "../game/career/products";
+import { productDiscovered } from "../game/career/discovery";
 import {
   MARKET,
   PRODUCT_MODES,
@@ -165,10 +166,11 @@ export function CareerProducts({ game: s, send, projects }: Props) {
   const owned = PRODUCTS.filter((p) => (s.products.releases[p.id] ?? 0) > 0).length;
   const list = PRODUCTS.filter(
     (p) =>
-      filter === "all" ||
-      (filter === "owned"
-        ? (s.products.releases[p.id] ?? 0) > 0
-        : !(s.products.releases[p.id] ?? 0) && productUnlocked(s, p)),
+      productDiscovered(s, p) &&
+      (filter === "all" ||
+        (filter === "owned"
+          ? (s.products.releases[p.id] ?? 0) > 0
+          : !(s.products.releases[p.id] ?? 0) && productUnlocked(s, p))),
   );
   return (
     <>
@@ -253,7 +255,7 @@ export function CareerProducts({ game: s, send, projects }: Props) {
         кампанії розвиває бізнес.
       </p>
       <SectionTitle
-        eyebrow="6 ІНСТРУМЕНТІВ · РІЗНІ СПОСОБИ ГРАТИ"
+        eyebrow="ТВОЇ ІНСТРУМЕНТИ · РІЗНІ СПОСОБИ ГРАТИ"
         title="Портфель студії"
       >
         <div className="filter-group" role="group" aria-label="Фільтр продуктів">

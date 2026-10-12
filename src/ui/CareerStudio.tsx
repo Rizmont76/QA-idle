@@ -50,7 +50,9 @@ export function CareerStudio({
   const [tab, setTab] = useState<"research" | "specialists">("research");
   const slots = specialistSlots(s);
   const levels = Object.values(s.research).reduce((a, b) => a + b, 0);
-  const maxLevels = RESEARCH.reduce((a, r) => a + r.max, 0);
+  const discoveredResearch = RESEARCH.filter((r) => researchUnlocked(s, r));
+  const maxLevels = discoveredResearch.reduce((a, r) => a + r.max, 0);
+  const hasSpecialists = SPECIALISTS.some((p) => recruited(s, p.id));
   return (
     <>
       <section className="panel expansion-hero studio-hero">
@@ -97,17 +99,19 @@ export function CareerStudio({
               {levels}/{maxLevels}
             </span>
           </button>
-          <button
-            aria-pressed={tab === "specialists"}
-            onClick={() => {
-              setTab("specialists");
-            }}
-          >
-            Фахівці{" "}
-            <span>
-              {s.specialists.length}/{slots}
-            </span>
-          </button>
+          {hasSpecialists && (
+            <button
+              aria-pressed={tab === "specialists"}
+              onClick={() => {
+                setTab("specialists");
+              }}
+            >
+              Фахівці{" "}
+              <span>
+                {s.specialists.length}/{slots}
+              </span>
+            </button>
+          )}
         </div>
         <span className="tiny muted">
           Офлайн: {duration(offlineCap(s))} · {number(offlineEfficiency(s) * PERCENT)}%
@@ -116,7 +120,9 @@ export function CareerStudio({
       </div>
       {tab === "research" ? (
         <div className="research-branches">
-          {BRANCHES.map((branch) => (
+          {BRANCHES.filter((branch) =>
+            discoveredResearch.some((r) => r.branch === branch.id),
+          ).map((branch) => (
             <section className={`research-branch branch-${branch.id}`} key={branch.id}>
               <header>
                 <span>{branch.symbol}</span>
@@ -125,65 +131,69 @@ export function CareerStudio({
                   <p>{branch.subtitle}</p>
                 </div>
               </header>
-              {RESEARCH.filter((r) => r.branch === branch.id).map((def) => {
-                const level = s.research[def.id] ?? 0;
-                const unlocked = researchUnlocked(s, def);
-                const cost = researchCost(s, def);
-                const full = level >= def.max;
-                const dependency = RESEARCH.find((r) => r.id === def.requires?.id);
-                const preview = researchPreview(s, def);
-                return (
-                  <article
-                    className={`panel research-card ${!unlocked ? "locked" : ""} ${full ? "complete" : ""}`}
-                    key={def.id}
-                  >
-                    <div className="panel-topline">
-                      <span className="eyebrow">ПОСТІЙНЕ ДОСЛІДЖЕННЯ</span>
-                      <strong>
-                        {level}/{def.max}
-                      </strong>
-                    </div>
-                    <h3>{def.title}</h3>
-                    <p>{def.description}</p>
-                    <div className="research-preview">
-                      <span>{preview.label}</span>
-                      <strong>
-                        {preview.before}
-                        {!full && (
-                          <>
-                            {" "}
-                            → <em>{preview.after}</em>
-                          </>
-                        )}
-                      </strong>
-                    </div>
-                    <Meter value={level} max={def.max} label={`Рівень ${def.title}`} />
-                    {dependency && (
-                      <p className={`research-dependency ${unlocked ? "satisfied" : ""}`}>
-                        {unlocked ? "✓" : "◇"} {dependency.title} · рівень{" "}
-                        {def.requires?.level}
-                      </p>
-                    )}
-                    <button
-                      className={`button full ${unlocked && !full && s.insights >= cost ? "primary" : "ghost"}`}
-                      disabled={!unlocked || full || s.insights < cost}
-                      aria-label={`Дослідити ${def.title}`}
-                      onClick={() => {
-                        send({ type: "research", id: def.id });
-                      }}
+              {discoveredResearch
+                .filter((r) => r.branch === branch.id)
+                .map((def) => {
+                  const level = s.research[def.id] ?? 0;
+                  const unlocked = researchUnlocked(s, def);
+                  const cost = researchCost(s, def);
+                  const full = level >= def.max;
+                  const dependency = RESEARCH.find((r) => r.id === def.requires?.id);
+                  const preview = researchPreview(s, def);
+                  return (
+                    <article
+                      className={`panel research-card ${!unlocked ? "locked" : ""} ${full ? "complete" : ""}`}
+                      key={def.id}
                     >
-                      <span>
-                        {full
-                          ? "✓ Завершено"
-                          : !unlocked
-                            ? "Спочатку передумови"
-                            : "Дослідити"}
-                      </span>
-                      {!full && <strong>{number(cost)} ◈</strong>}
-                    </button>
-                  </article>
-                );
-              })}
+                      <div className="panel-topline">
+                        <span className="eyebrow">ПОСТІЙНЕ ДОСЛІДЖЕННЯ</span>
+                        <strong>
+                          {level}/{def.max}
+                        </strong>
+                      </div>
+                      <h3>{def.title}</h3>
+                      <p>{def.description}</p>
+                      <div className="research-preview">
+                        <span>{preview.label}</span>
+                        <strong>
+                          {preview.before}
+                          {!full && (
+                            <>
+                              {" "}
+                              → <em>{preview.after}</em>
+                            </>
+                          )}
+                        </strong>
+                      </div>
+                      <Meter value={level} max={def.max} label={`Рівень ${def.title}`} />
+                      {dependency && (
+                        <p
+                          className={`research-dependency ${unlocked ? "satisfied" : ""}`}
+                        >
+                          {unlocked ? "✓" : "◇"} {dependency.title} · рівень{" "}
+                          {def.requires?.level}
+                        </p>
+                      )}
+                      <button
+                        className={`button full ${unlocked && !full && s.insights >= cost ? "primary" : "ghost"}`}
+                        disabled={!unlocked || full || s.insights < cost}
+                        aria-label={`Дослідити ${def.title}`}
+                        onClick={() => {
+                          send({ type: "research", id: def.id });
+                        }}
+                      >
+                        <span>
+                          {full
+                            ? "✓ Завершено"
+                            : !unlocked
+                              ? "Спочатку передумови"
+                              : "Дослідити"}
+                        </span>
+                        {!full && <strong>{number(cost)} ◈</strong>}
+                      </button>
+                    </article>
+                  );
+                })}
             </section>
           ))}
         </div>
@@ -229,7 +239,7 @@ export function CareerStudio({
           </section>
           <SectionTitle eyebrow="ЗАПРОШУЙ ЧЕРЕЗ ПРОЄКТИ" title="Люди твоєї студії" />
           <div className="specialist-grid">
-            {SPECIALISTS.map((def) => {
+            {SPECIALISTS.filter((def) => recruited(s, def.id)).map((def) => {
               const unlocked = recruited(s, def.id);
               const active = s.specialists.includes(def.id);
               const project = PROJECTS.find((p) => p.id === def.project);
