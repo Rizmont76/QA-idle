@@ -186,8 +186,12 @@ describe("contracts and prestige", () => {
     expect(paid.bugs).toBeGreaterThan(s.bugs);
   });
   it("carries contract snapshots through promotion and offline return", () => {
+    const pipeline = newCareer(NOW).pipeline;
+    pipeline.total = 100;
+    pipeline.completed = ["budget"];
     let s = act(
       base({
+        pipeline,
         stage: 3,
         earned: 200_000_000,
         rankEarned: 200_000_000,
@@ -246,7 +250,7 @@ describe("save safety", () => {
     expect(second.state.money).toBe(first.state.money);
     expect(second.summary?.seconds).toBe(0);
   });
-  it("migrates v2 without retroactive rewards and preserves the original", () => {
+  it("migrates v2 without retroactive production, settles owned bugs once and preserves the original", () => {
     const original = JSON.stringify({
       meta: { schemaVersion: 2 },
       game: {
@@ -265,8 +269,9 @@ describe("save safety", () => {
     });
     const store = storage({ [R.legacyKey]: original });
     const loaded = loadCareer(store, NOW);
-    expect(loaded.state.money).toBe(333);
-    expect(loaded.state.bugs).toBe(17);
+    expect(loaded.state.money).toBe(333 + 17 * reportValue(loaded.state));
+    expect(loaded.state.bugs).toBe(0);
+    expect(loadCareer(store, NOW).state.money).toBe(loaded.state.money);
     expect(loaded.state.crew.assistant).toBe(9);
     expect(loaded.state.upgrades).toEqual(
       expect.arrayContaining(["checklist", "coffee", "plan", "handover"]),

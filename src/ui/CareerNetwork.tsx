@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { CareerAction, CareerState } from "../types";
+import { affordable } from "../game/career/afford";
 import { GENERATORS, NETWORK, NETWORK_PROTOCOLS } from "../game/career/networkData";
 import {
   computationRate,
@@ -131,7 +132,7 @@ export function CareerNetwork({
                   <button
                     className="button secondary"
                     aria-label={`Купити: ${g.title}`}
-                    disabled={!available || capped || n.computations < price}
+                    disabled={!available || capped || !affordable(n.computations, price)}
                     onClick={() => send({ type: "networkBuy", tier: g.tier })}
                   >
                     {!available

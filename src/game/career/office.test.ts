@@ -9,6 +9,8 @@ import { officeLevel } from "./office";
 
 const NOW = 1_000_000;
 function fixture(patch: Partial<CareerState> = {}): CareerState {
+  const pipeline = newCareer(NOW).pipeline;
+  pipeline.allocation = [0, 0, 0];
   return {
     ...newCareer(NOW),
     stage: 3,
@@ -19,6 +21,7 @@ function fixture(patch: Partial<CareerState> = {}): CareerState {
     contractsCompleted: 3,
     insights: 100,
     lifetimeInsights: 100,
+    pipeline,
     office: { licensed: true, contractId: "smoke", completed: 0, earned: 0, insights: 0 },
     ...patch,
   };

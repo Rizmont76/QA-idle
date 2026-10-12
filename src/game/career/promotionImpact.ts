@@ -12,6 +12,7 @@ export function promotionImpact(before: CareerState, after: CareerState) {
   return after.careers === before.careers && after.stage > before.stage
     ? {
         title: CAREER_STAGES[after.stage]?.title ?? "Новий ранг",
+        capability: CAREER_STAGES[after.stage]?.unlock ?? "Нова можливість",
         before: snapshot(before),
         after: snapshot(after),
       }

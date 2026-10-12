@@ -1,6 +1,8 @@
 import { architecturePolicyUnlocked, balanceArchitecture } from "./architectureEffects";
 import type { CareerAction, CareerState } from "../../types";
 import type { ActionResult } from "./engine";
+import { pipelineUnlocked, trialUnlocked } from "./pipelineUnlocks";
+import { affordable } from "./afford";
 import {
   allocatedCores,
   coreBudget,
@@ -12,8 +14,8 @@ import {
 
 export function pipelineAction(state: CareerState, action: CareerAction): ActionResult {
   const fail = (message: string): ActionResult => ({ state, ok: false, message });
-  if (state.careers < 1) {
-    return fail("Конвеєр відкриється після першого престижу.");
+  if (!pipelineUnlocked(state)) {
+    return fail("Конвеєр відкриється на Senior QA.");
   }
   const p = state.pipeline;
   let next: typeof p;
@@ -52,10 +54,10 @@ export function pipelineAction(state: CareerState, action: CareerAction): Action
     }
     case "pipelineCore": {
       const cost = corePrice(p);
-      if (p.coreLevel >= PIPELINE.maxCoreLevel || p.credits < cost) {
+      if (p.coreLevel >= PIPELINE.maxCoreLevel || !affordable(p.credits, cost)) {
         return fail("Потрібно більше кредитів збірки.");
       }
-      next = { ...p, credits: p.credits - cost, coreLevel: p.coreLevel + 1 };
+      next = { ...p, credits: Math.max(0, p.credits - cost), coreLevel: p.coreLevel + 1 };
       message = p.architecture.autoBalance
         ? "+1 ядро. Авторозподіл оновлено."
         : "+1 ядро. Розподіли його між вузлами.";
@@ -63,12 +65,7 @@ export function pipelineAction(state: CareerState, action: CareerAction): Action
     }
     case "startTrial": {
       const def = PIPELINE_TRIALS.find((t) => t.id === action.id);
-      if (
-        !def ||
-        p.total < PIPELINE.trialsAt ||
-        p.trial ||
-        p.completed.includes(def.id)
-      ) {
+      if (!def || !trialUnlocked(state, def) || p.trial || p.completed.includes(def.id)) {
         return fail("Випробування поки недоступне.");
       }
       next = {

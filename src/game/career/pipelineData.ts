@@ -7,8 +7,11 @@ import type {
 } from "../../types";
 import { newArchitecture } from "./architectureData";
 import { newNetwork } from "./networkData";
+import { PIPELINE_MODEL_VERSION } from "../../types";
 
 export const PIPELINE = {
+  unlockStage: 2,
+  scriptRate: 0.5,
   baseCores: 6,
   buffer: 200,
   rates: [3, 1.5, 1] as PipelineAllocation,
@@ -23,6 +26,7 @@ export const PIPELINE = {
 export const STATIONS = ["Збірка", "Перевірка", "Деплой"] as const;
 export interface TrialDefinition {
   id: PipelineTrialId;
+  stage: number;
   title: string;
   description: string;
   cores: number;
@@ -34,6 +38,7 @@ export interface TrialDefinition {
 export const PIPELINE_TRIALS: readonly TrialDefinition[] = [
   {
     id: "budget",
+    stage: 2,
     title: "Малий бюджет",
     description:
       "Лише чотири ядра. Знайди розподіл, у якому жоден вузол не марнує потужність.",
@@ -45,6 +50,7 @@ export const PIPELINE_TRIALS: readonly TrialDefinition[] = [
   },
   {
     id: "verification",
+    stage: 3,
     title: "Важка регресія",
     description: "Перевірка одного релізу стала втричі дорожчою. Звільни вузьке місце.",
     cores: 6,
@@ -55,13 +61,14 @@ export const PIPELINE_TRIALS: readonly TrialDefinition[] = [
   },
   {
     id: "deployment",
+    stage: 4,
     title: "Повільний деплой",
     description: "Сервер приймає лише пів релізу на ядро за секунду. Перебудуй конвеєр.",
     cores: 6,
     rates: [3, 2, 0.5],
     allocation: [3, 2, 1],
     target: 180,
-    reward: "Автопокращення, підвищення й цілі рангів",
+    reward: "Автопокращення, підвищення й розвиток студії",
   },
 ];
 export const PIPELINE_POLICIES: readonly {
@@ -99,9 +106,9 @@ export const PIPELINE_POLICIES: readonly {
   },
   {
     id: "chapters",
-    title: "Автоцілі рангів",
+    title: "Автостудія",
     description:
-      "Витрачає гроші ТА інсайти: виробники, дослідження й інструменти для цілі рангу. Запрошує фахівця, якщо нікого немає; повторює контракт для потрібних інсайтів. Зберігає ролі продуктів і твій склад фахівців.",
+      "Витрачає гроші ТА інсайти: запускає доступні інструменти й купує дослідження. Зберігає інсайти для найближчого інструмента та ролі власних продуктів. Нагороди випробувань забираєш ти.",
     unlock: "Повільний деплой",
   },
 ];
@@ -114,6 +121,7 @@ export const AUTOMATION_ORDER: readonly PipelinePolicy[] = [
 ];
 export function newPipeline(): PipelineState {
   return {
+    model: PIPELINE_MODEL_VERSION,
     credits: 0,
     total: 0,
     coreLevel: 0,

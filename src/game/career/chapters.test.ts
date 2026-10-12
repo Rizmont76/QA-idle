@@ -44,6 +44,15 @@ function completeRank(stage: number) {
   for (const r of RESEARCH) {
     s.research[r.id] = 1;
   }
+  if (stage >= 2) {
+    s.pipeline.total = 100;
+  }
+  if (stage >= 3) {
+    s.pipeline.completed = ["budget"];
+  }
+  if (stage >= 4) {
+    s.pipeline.completed = ["budget", "verification"];
+  }
   return s;
 }
 describe("career chapters", () => {
@@ -56,18 +65,22 @@ describe("career chapters", () => {
         expect(chapterValue(s, goal)).toBeGreaterThanOrEqual(goal.target);
       }
       if (stage === 1) {
-        expect(promotionReady({ ...s, crew: { ...s.crew, squad: 2 } })).toBe(false);
+        expect(promotionReady({ ...s, certificates: {} })).toBe(false);
       }
       if (stage === 2) {
-        expect(promotionReady({ ...s, products: { ...s.products, releases: {} } })).toBe(
+        expect(promotionReady({ ...s, pipeline: { ...s.pipeline, total: 0 } })).toBe(
           false,
         );
       }
       if (stage === 3) {
-        expect(promotionReady({ ...s, research: {} })).toBe(false);
+        expect(promotionReady({ ...s, pipeline: { ...s.pipeline, completed: [] } })).toBe(
+          false,
+        );
       }
       if (stage === 4) {
-        expect(promotionReady({ ...s, specialists: [] })).toBe(false);
+        expect(
+          promotionReady({ ...s, pipeline: { ...s.pipeline, completed: ["budget"] } }),
+        ).toBe(false);
       }
     }
   });
@@ -132,7 +145,7 @@ describe("career chapters", () => {
       lifetimeEarned: 4e16,
     });
   });
-  it("makes new insight spending opt-in and prioritizes the chapter producer", () => {
+  it("keeps optional studio investment opt-in without making purchases rank requirements", () => {
     const s = completeRank(2);
     s.careers = 1;
     s.crew.runner = 0;

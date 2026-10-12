@@ -97,6 +97,7 @@ export type CrewId =
 export const BULK_PURCHASE_SIZE = 10;
 export const CAREER_SAVE_VERSION = 4;
 export const PRODUCT_MODEL_VERSION = 2;
+export const PIPELINE_MODEL_VERSION = 2;
 export type PurchaseMode = 1 | typeof BULK_PURCHASE_SIZE | "max";
 export interface CareerContract {
   id: string;
@@ -141,6 +142,7 @@ export interface PipelineTrial {
   elapsed: number;
 }
 export interface PipelineState {
+  model: 1 | typeof PIPELINE_MODEL_VERSION;
   credits: number;
   total: number;
   coreLevel: number;

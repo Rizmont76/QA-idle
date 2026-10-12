@@ -5,6 +5,10 @@ import { CAREER_STAGES, CAREER_UPGRADES, CREW } from "./content";
 import { PROJECTS, RESEARCH } from "./expansionData";
 import { chapterInsightReserve, chapterIntent } from "./chapterActions";
 import { chapterComplete } from "./chapters";
+import { optimalAllocation, pipelineRates } from "./architectureEffects";
+import { coreBudget, corePrice, PIPELINE_TRIALS } from "./pipelineData";
+import { pipelineUnlocked, trialUnlocked } from "./pipelineUnlocks";
+import type { PipelineAllocation } from "../../types";
 import {
   contractReady,
   hasAutoReport,
@@ -39,6 +43,7 @@ export function campaign(
   let founder = 0;
   let firstHire = 0;
   let automation = hasAutoReport(initial) ? 1 : 0;
+  const discoveries: { title: string; seconds: number }[] = [];
   const result = (seconds: number) => ({
     state,
     seconds,
@@ -50,6 +55,7 @@ export function campaign(
     founder,
     firstHire,
     automation,
+    discoveries,
   });
   const doAction = (action: CareerAction) => {
     state = act(state, action, state.lastTick).state;
@@ -59,6 +65,20 @@ export function campaign(
     }
     if (!automation && hasAutoReport(state)) {
       automation = second;
+    }
+  };
+  const allocate = (target: PipelineAllocation, trial = false) => {
+    const allocation = () =>
+      trial ? (state.pipeline.trial?.allocation ?? [0, 0, 0]) : state.pipeline.allocation;
+    for (let station = 0; station < target.length; station++) {
+      while ((allocation()[station] ?? 0) > (target[station] ?? 0)) {
+        doAction({ type: "pipelineAllocate", station, delta: -1, trial });
+      }
+    }
+    for (let station = 0; station < target.length; station++) {
+      while ((allocation()[station] ?? 0) < (target[station] ?? 0)) {
+        doAction({ type: "pipelineAllocate", station, delta: 1, trial });
+      }
     }
   };
   for (let second = 1; second <= 43_200; second++) {
@@ -80,6 +100,9 @@ export function campaign(
       doAction({ type: "promote" });
       milestones.push(`${CAREER_STAGES[state.stage]?.title ?? "?"}: ${String(second)}s`);
       rankSeconds.push(second);
+      if (state.stage === 2) {
+        discoveries.push({ title: "CI/CD → постійні автотести", seconds: second });
+      }
       if (state.stage === 5) {
         director = second;
       }
@@ -121,9 +144,45 @@ export function campaign(
     if (second % 5 !== 0) {
       continue;
     }
+    if (pipelineUnlocked(state)) {
+      if (
+        state.pipeline.coreLevel < 3 &&
+        state.pipeline.credits >= corePrice(state.pipeline)
+      ) {
+        doAction({ type: "pipelineCore" });
+      }
+      if (!state.pipeline.architecture.autoBalance) {
+        allocate(
+          optimalAllocation(
+            coreBudget(state.pipeline),
+            pipelineRates(state),
+            state.pipeline.allocation,
+          ),
+        );
+      }
+      if (state.pipeline.trial) {
+        const trial = PIPELINE_TRIALS.find((t) => t.id === state.pipeline.trial?.id);
+        if (trial && state.pipeline.trial.progress >= trial.target) {
+          doAction({ type: "claimTrial" });
+          discoveries.push({ title: trial.reward, seconds: second });
+        }
+      }
+      if (!state.pipeline.trial) {
+        const trial = PIPELINE_TRIALS.find(
+          (t) => !state.pipeline.completed.includes(t.id) && trialUnlocked(state, t),
+        );
+        if (trial) {
+          doAction({ type: "startTrial", id: trial.id });
+          allocate(optimalAllocation(trial.cores, trial.rates, trial.allocation), true);
+        }
+      }
+    }
     const chapterAction = chapterIntent(state);
     if (chapterAction) {
       doAction(chapterAction);
+      if (chapterAction.type === "launchProduct") {
+        doAction({ type: "productMode", id: chapterAction.id, mode: "internal" });
+      }
     }
     const researchOrder = [
       "automation",

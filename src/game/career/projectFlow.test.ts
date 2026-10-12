@@ -5,6 +5,7 @@ import { act, advanceCareer, newCareer } from "./engine";
 import { advanceProject } from "./projectFlow";
 import { projectPhase, projectQuote, projectReady } from "./studioSelectors";
 import { PROJECTS } from "./expansionData";
+import { BADGES } from "./content";
 import { exportCareer, importCareer, normalizeCareer } from "./persistence";
 import { manualPower, production } from "./selectors";
 
@@ -16,12 +17,16 @@ function required<T>(value: T | null | undefined): T {
   return value;
 }
 function fixture(patch: Partial<CareerState> = {}): CareerState {
+  const pipeline = newCareer(NOW).pipeline;
+  pipeline.allocation = [0, 0, 0];
   const s = {
     ...newCareer(NOW),
     stage: 3,
     bestStage: 3,
     insights: 100,
     research: { fieldnotes: 1 },
+    badges: BADGES.map((b) => b.id),
+    pipeline,
     ...patch,
   };
   return act(s, { type: "startProject", id: "button" }, NOW).state;

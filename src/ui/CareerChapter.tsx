@@ -58,7 +58,7 @@ export function CareerChapter({
                   });
                 }
               }}
-              aria-label={`${row.title}: ${String(row.value)} з ${String(row.target)}`}
+              aria-label={`${row.title}: ${number(row.value)} з ${number(row.target)}`}
             >
               <span className="chapter-check">{row.done ? "✓" : "○"}</span>
               <span>
@@ -82,7 +82,7 @@ export function CareerChapter({
       )}
       <p className="chapter-caption">
         {s.stage < CAREER_STAGES.length - 1
-          ? "Цілі глави + дохід рангу + команда відкриють підвищення. Гроші можна витрачати."
+          ? "Освоюй можливості й заробляй дохід рангу. Гроші можна витрачати на розвиток."
           : "Додаткова мета. Престиж уже доступний."}
       </p>
     </section>

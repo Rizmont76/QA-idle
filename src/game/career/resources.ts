@@ -1,6 +1,9 @@
 import type { CareerState } from "../../types";
 import type { CareerView, PipelineView } from "./discovery";
 import { prestigeDiscovered, viewUnlocked } from "./discovery";
+import { pipelineUnlocked } from "./pipelineUnlocks";
+import { compiledTestRate } from "./selectors";
+import { openInsightRate } from "./productEffects";
 import { crewCount, hasAutoReport, production, reportValue } from "./selectors";
 import { royaltyRate } from "./products";
 import { certificates } from "./studioSelectors";
@@ -14,12 +17,15 @@ import {
 import { computationRate, networkUnlocked } from "./networkEffects";
 import { NETWORK } from "./networkData";
 
+const SECONDS_PER_MINUTE = 60;
+
 export interface ResourceRow {
   id: string;
   title: string;
   symbol: string;
   balance: number;
   rate?: number;
+  rateUnit?: "с" | "хв";
   money?: boolean;
   source: string;
   use: string;
@@ -60,10 +66,12 @@ export function resourceOverview(s: CareerState): ResourceRow[] {
     rows.push({
       id: "insights",
       title: "Інсайти",
+      rate: openInsightRate(s) * SECONDS_PER_MINUTE,
+      rateUnit: "хв",
       symbol: "◈",
       balance: s.insights,
       source:
-        "Завершені етапи проєктів і контракти. Це нагороди за події, не дохід за секунду.",
+        "Етапи проєктів і контракти. Відкритий код також дає інсайти за нові автотести.",
       use: "Дослідження студії та запуск продуктів.",
       persistence: "Залишаються після престижу.",
       view: "studio",
@@ -105,7 +113,19 @@ export function resourceOverview(s: CareerState): ResourceRow[] {
       view: "career",
     });
   }
-  if (s.careers > 0) {
+  if (pipelineUnlocked(s)) {
+    rows.push({
+      id: "autotests",
+      title: "Постійні автотести",
+      symbol: "↯",
+      balance: s.pipeline.total,
+      rate: sustainableRate(s),
+      source: "Кожен реліз основного CI/CD створює один автотест.",
+      use: `Виробляють ${compiledTestRate(s).toLocaleString("uk-UA", { maximumFractionDigits: 0 })} багів/с. Не витрачаються.`,
+      persistence: "Залишаються й працюють після престижу.",
+      view: "pipeline",
+      layer: "pipeline",
+    });
     rows.push({
       id: "credits",
       title: "Кредити збірки",
@@ -159,7 +179,7 @@ export function resourceCapacity(s: CareerState) {
       detail: "Одиниці виробництва у поточній кар’єрі",
     },
   ];
-  if (s.careers > 0) {
+  if (pipelineUnlocked(s)) {
     rows.push({
       title: "Ядра конвеєра",
       value: allocatedCores(s.pipeline.allocation),

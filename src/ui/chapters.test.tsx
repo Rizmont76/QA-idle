@@ -28,9 +28,11 @@ function boot(patch: Partial<CareerState> = {}) {
 function saved(): CareerState {
   return JSON.parse(localStorage.getItem(CAREER_RULES.saveKey) ?? "{}") as CareerState;
 }
-it("keeps the automatic bug counter monotonic through purchase, manual tests and ticks", () => {
+it("keeps gifted automatic reporting monotonic through manual tests and ticks", () => {
   boot({ stage: 1, bestStage: 1, money: 80, bugs: 9, found: 9, lifetimeBugs: 9 });
-  fireEvent.click(screen.getByRole("button", { name: "Купити Автоматичні звіти" }));
+  expect(
+    screen.queryByRole("button", { name: "Купити Автоматичні звіти" }),
+  ).not.toBeInTheDocument();
   expect(screen.getByText("ОБРОБЛЕНО ЗА КАР’ЄРУ")).toBeInTheDocument();
   expect(saved().bugs).toBe(0);
   const before = saved().found;

@@ -9,9 +9,11 @@ import { projectReady, projectUnlocked } from "./studioSelectors";
 import { PIPELINE_POLICIES, policyUnlocked } from "./pipelineData";
 import { chapterCrew } from "./chapters";
 import { chapterIntent } from "./chapterActions";
+import { pipelineUnlocked } from "./pipelineUnlocks";
+import { affordable } from "./afford";
 
 export const automationActive = (s: CareerState) =>
-  s.careers > 0 &&
+  pipelineUnlocked(s) &&
   (networkAutomationActive(s) ||
     autoCoresActive(s) ||
     PIPELINE_POLICIES.some(
@@ -21,7 +23,11 @@ export function automationIntent(
   s: CareerState,
   id: PipelinePolicy,
 ): CareerAction | null {
-  if (s.careers < 1 || !s.pipeline.automation[id] || !policyUnlocked(s.pipeline, id)) {
+  if (
+    !pipelineUnlocked(s) ||
+    !s.pipeline.automation[id] ||
+    !policyUnlocked(s.pipeline, id)
+  ) {
     return null;
   }
   switch (id) {
@@ -63,7 +69,7 @@ const autoCoresActive = (s: CareerState) =>
 export function autoCoreIntent(s: CareerState): CareerAction | null {
   return autoCoresActive(s) &&
     s.pipeline.coreLevel < PIPELINE.maxCoreLevel &&
-    s.pipeline.credits >= corePrice(s.pipeline)
+    affordable(s.pipeline.credits, corePrice(s.pipeline))
     ? { type: "pipelineCore" }
     : null;
 }

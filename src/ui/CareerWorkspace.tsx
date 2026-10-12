@@ -31,6 +31,9 @@ import { cash, clockTime, duration, number } from "./careerUtils";
 import { promotionPreview } from "../game/career/chapters";
 import { CareerChapter } from "./CareerChapter";
 import type { CareerView } from "../game/career/discovery";
+import { pipelineRates, sustainableRate } from "../game/career/architectureEffects";
+import { compiledTestRate } from "../game/career/selectors";
+import { pipelineUnlocked } from "../game/career/pipelineUnlocks";
 
 interface Props {
   open: (view: CareerView) => void;
@@ -193,19 +196,21 @@ export function CareerWorkspace({
                   label="Дохід для підвищення"
                 />
               </div>
-              <div>
-                <div className="row-label">
-                  <span>Одиниці команди</span>
-                  <strong>
-                    {crewCount(s)} <em>/ {next.crew}</em>
-                  </strong>
+              {next.crew > 0 && (
+                <div>
+                  <div className="row-label">
+                    <span>Одиниці команди</span>
+                    <strong>
+                      {crewCount(s)} <em>/ {next.crew}</em>
+                    </strong>
+                  </div>
+                  <Meter
+                    value={crewCount(s)}
+                    max={next.crew}
+                    label="Команда для підвищення"
+                  />
                 </div>
-                <Meter
-                  value={crewCount(s)}
-                  max={next.crew}
-                  label="Команда для підвищення"
-                />
-              </div>
+              )}
               {!!next.projects && (
                 <div>
                   <div className="row-label">
@@ -258,6 +263,35 @@ export function CareerWorkspace({
         </section>
       </div>
       <CareerChapter game={s} open={open} />
+      {pipelineUnlocked(s) && (
+        <section
+          className="panel pipeline-growth"
+          aria-label="Автотести й зростання виробництва"
+        >
+          <div>
+            <span className="eyebrow">КОД ТЕСТУЄ КОД</span>
+            <h3>Виробництво росте між покупками.</h3>
+            <p className="muted">
+              Релізи створюють автотести. Вони працюють і залишаються після престижу.
+            </p>
+          </div>
+          <div>
+            <strong>{number(s.pipeline.total)}</strong>
+            <small>постійних автотестів</small>
+          </div>
+          <div>
+            <strong>+{number(compiledTestRate(s))}</strong>
+            <small>багів/с від автотестів</small>
+          </div>
+          <div>
+            <strong>+{number(sustainableRate(s))} / с</strong>
+            <small>нових автотестів у сталому потоці</small>
+          </div>
+          <button className="button secondary" onClick={() => open("pipeline")}>
+            Розігнати конвеєр →
+          </button>
+        </section>
+      )}
       {s.bestStage >= STUDIO_RULES.unlockStage && (
         <div className="workspace-project">
           <div>
@@ -311,6 +345,16 @@ export function CareerWorkspace({
             const quote = hireQuote(s, c.id, mode);
             const milestone = CREW_MILESTONES.find((n) => n > s.crew[c.id]);
             const maxed = s.crew[c.id] >= R.crewLimit;
+            const station = ({ runner: 1, lab: 2, cloud: 0 } as Record<string, number>)[
+              c.id
+            ];
+            const nextRates = pipelineRates({
+              ...s,
+              crew: {
+                ...s.crew,
+                [c.id]: Math.min(R.crewLimit, s.crew[c.id] + (quote.count || 1)),
+              },
+            });
             return (
               <article className="panel crew-card" key={c.id}>
                 <div className="crew-top">
@@ -339,6 +383,13 @@ export function CareerWorkspace({
                   </div>
                 </div>
                 <p className="crew-description">{c.description}</p>
+                {pipelineUnlocked(s) && station !== undefined && !maxed && (
+                  <p className="crew-pipeline-effect">
+                    {["Збірка", "Перевірка", "Деплой"][station]}:{" "}
+                    {number(pipelineRates(s)[station] ?? 0)} →{" "}
+                    {number(nextRates[station] ?? 0)} / ядро
+                  </p>
+                )}
                 <div className="crew-production">
                   <strong>+{number(crewRate(s, c.id))}</strong>
                   <span> багів/с</span>

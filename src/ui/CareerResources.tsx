@@ -34,7 +34,7 @@ export function CareerResources({
               <small>
                 {row.rate === undefined
                   ? "Нагорода за події"
-                  : `+${row.money ? cash(row.rate) : number(row.rate)} / с`}
+                  : `+${row.money ? cash(row.rate) : number(row.rate)} / ${row.rateUnit ?? "с"}`}
               </small>
               <button className="text-button" onClick={() => open(row.view, row.layer)}>
                 Відкрити →

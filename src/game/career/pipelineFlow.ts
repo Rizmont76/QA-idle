@@ -2,9 +2,12 @@ import { pipelineRates } from "./architectureEffects";
 import type { CareerState, PipelineAllocation } from "../../types";
 import { PIPELINE, PIPELINE_TRIALS } from "./pipelineData";
 import { bounded } from "./selectors";
+import { CAREER_RULES } from "./content";
+import { pipelineUnlocked } from "./pipelineUnlocks";
 
 const EPSILON = 1e-8;
 const PROPAGATION_PASSES = 3;
+const TRIANGLE_AREA_DIVISOR = 2;
 export function flowRates(
   capacity: PipelineAllocation,
   queues: [number, number],
@@ -38,11 +41,12 @@ export function simulatePipeline(
   initial: [number, number],
   seconds: number,
   target = Infinity,
-): { queues: [number, number]; released: number; elapsed: number } {
+): { queues: [number, number]; released: number; elapsed: number; releaseArea: number } {
   const queues: [number, number] = [...initial];
   let remaining = seconds;
   let released = 0;
   let elapsed = 0;
+  let releaseArea = 0;
   while (remaining > EPSILON && released < target) {
     const [build, verify, deploy] = flowRates(capacity, queues);
     const change = [build - verify, verify - deploy];
@@ -62,6 +66,7 @@ export function simulatePipeline(
       queues[i] =
         value < EPSILON ? 0 : value > PIPELINE.buffer - EPSILON ? PIPELINE.buffer : value;
     }
+    releaseArea += released * step + (deploy * step * step) / TRIANGLE_AREA_DIVISOR;
     released = Math.min(target, released + deploy * step);
     elapsed += step;
     remaining -= step;
@@ -69,20 +74,26 @@ export function simulatePipeline(
       released = target;
     }
   }
-  return { queues, released, elapsed: released < target ? seconds : elapsed };
+  return {
+    queues,
+    released,
+    elapsed: released < target ? seconds : elapsed,
+    releaseArea,
+  };
 }
-export function advancePipeline(
+export function pipelineStep(
   s: CareerState,
   seconds: number,
-): CareerState["pipeline"] {
+): { state: CareerState["pipeline"]; releaseArea: number } {
   const p = s.pipeline;
-  if (s.careers < 1) {
-    return p;
+  if (!pipelineUnlocked(s)) {
+    return { state: p, releaseArea: 0 };
   }
   const main = simulatePipeline(
     stationCapacity(p.allocation, pipelineRates(s)),
     p.queues,
     seconds,
+    Math.max(0, CAREER_RULES.limit - p.total),
   );
   let trial = p.trial;
   const def = PIPELINE_TRIALS.find((t) => t.id === trial?.id);
@@ -101,10 +112,15 @@ export function advancePipeline(
     };
   }
   return {
-    ...p,
-    credits: bounded(p.credits + main.released),
-    total: bounded(p.total + main.released),
-    queues: main.queues,
-    trial,
+    state: {
+      ...p,
+      credits: bounded(p.credits + main.released),
+      total: bounded(p.total + main.released),
+      queues: main.queues,
+      trial,
+    },
+    releaseArea: main.releaseArea + main.released * (seconds - main.elapsed),
   };
 }
+export const advancePipeline = (s: CareerState, seconds: number) =>
+  pipelineStep(s, seconds).state;

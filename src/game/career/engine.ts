@@ -1,4 +1,5 @@
 import { architectureAction } from "./architectureActions";
+import { balanceArchitecture } from "./architectureEffects";
 import { networkAction, networkAutomationIntent } from "./networkActions";
 import { advanceNetwork } from "./networkFlow";
 import type { CareerAction, CareerState } from "../../types";
@@ -12,7 +13,6 @@ import {
   manualPower,
   offlineCap,
   prestigeReward,
-  production,
   promotionReady,
   reportValue,
   contractQuote,
@@ -22,14 +22,21 @@ import { projectPhase } from "./studioSelectors";
 import { studioAction } from "./studioActions";
 import { dispatchPayment, dispatchQuote, officeAction } from "./office";
 import { productAction } from "./products";
-import { gainClients, MARKET, royaltyRate } from "./productEffects";
+import {
+  gainClients,
+  MARKET,
+  openInsightsPerRelease,
+  royaltyWork,
+} from "./productEffects";
 import { advanceProject } from "./projectFlow";
 import { AUTOMATION_ORDER, newPipeline, PIPELINE } from "./pipelineData";
-import { advancePipeline } from "./pipelineFlow";
+import { passiveProduction, secondsToBugs } from "./passiveProduction";
 import { pipelineAction } from "./pipelineActions";
 import { autoCoreIntent, automationActive, automationIntent } from "./pipelineAutomation";
 import { nextPassiveBadge } from "./badgeFlow";
 import { earn } from "./earnings";
+
+const TIME_EPSILON_SECONDS = 1e-7;
 
 export function newCareer(now = Date.now()): CareerState {
   return {
@@ -95,6 +102,8 @@ function findBugs(s: CareerState, amount: number): CareerState {
 function report(s: CareerState): CareerState {
   return { ...earn(s, bounded(s.bugs * reportValue(s), R.moneyLimit)), bugs: 0 };
 }
+export const settleAutoReports = (s: CareerState) =>
+  hasAutoReport(s) && s.bugs > 0 ? report(s) : s;
 export interface TimeResult {
   state: CareerState;
   seconds: number;
@@ -114,32 +123,29 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
     return { state: s, seconds: 0, bugs: 0, money: 0, capped: false };
   }
   const seconds = Math.min(elapsed, offlineCap(s));
-  const endTick = s.lastTick + seconds * R.milliseconds;
   let next = s;
   let remaining = seconds;
+  let processed = 0;
   let totalBugs = 0;
   let automatedActions = 0;
   while (remaining > 0) {
     const automatic = automationActive(next);
-    if (automatic) {
-      next = awardBadges(hasAutoReport(next) && next.bugs > 0 ? report(next) : next);
-    }
-    const badge = automatic ? nextPassiveBadge(next, offline) : null;
+    next = awardBadges(hasAutoReport(next) && next.bugs > 0 ? report(next) : next);
+    const nextAutomationAt =
+      (Math.floor(next.lastTick / PIPELINE.automationMs) + 1) * PIPELINE.automationMs;
+    const untilAutomation = automatic
+      ? (nextAutomationAt - s.lastTick) / R.milliseconds - processed
+      : Infinity;
+    const badge = nextPassiveBadge(next, offline, Math.min(remaining, untilAutomation));
     const quote = dispatchQuote(next);
     let untilReady = Infinity;
     if (quote && (!next.contract || next.contract.id === quote.id)) {
       const contract = next.contract ?? quote;
       next = { ...next, contract };
-      const rate = production(next) * (offline ? offlineEfficiency(next) : 1);
       const missing = Math.max(0, contract.target - contract.progress);
-      const workTime = missing === 0 ? 0 : rate > 0 ? missing / rate : Infinity;
+      const workTime = secondsToBugs(next, missing, remaining, offline);
       untilReady = Math.max(0, contract.duration - contract.elapsed, workTime);
     }
-    const nextAutomationAt =
-      (Math.floor(next.lastTick / PIPELINE.automationMs) + 1) * PIPELINE.automationMs;
-    const untilAutomation = automatic
-      ? (nextAutomationAt - next.lastTick) / R.milliseconds
-      : Infinity;
     const step = Math.min(
       remaining,
       untilReady,
@@ -148,17 +154,19 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
     );
     const result = advanceSlice(next, step, offline);
     next = result.state;
+    processed += step;
     totalBugs += result.bugs;
     if (badge && badge.seconds <= step && !next.badges.includes(badge.id)) {
       // The analytic threshold was crossed; don't delay a bonus due to rounding.
       next = { ...next, badges: [...next.badges, badge.id] };
     }
-    if (untilReady <= step) {
+    if (untilReady <= step + TIME_EPSILON_SECONDS) {
       // Analytic boundary satisfies both goals, avoiding floating-point residue.
       next = awardBadges(dispatchPayment(next));
     }
-    if (untilAutomation <= step) {
+    if (untilAutomation <= step + TIME_EPSILON_SECONDS) {
       next = { ...next, lastTick: nextAutomationAt };
+      processed = (nextAutomationAt - s.lastTick) / R.milliseconds;
       for (const policy of AUTOMATION_ORDER) {
         const intent = automationIntent(next, policy);
         if (intent) {
@@ -180,9 +188,9 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
         automatedActions += automatic.ok ? 1 : 0;
       }
     }
-    // Recompute from the absolute endpoint. Repeated fractional badge/contract
-    // slices must not round away an automation boundary at the end of a tick.
-    remaining = Math.max(0, (endTick - next.lastTick) / R.milliseconds);
+    // Accumulate continuous seconds without rounding sub-ms badge boundaries
+    // through a large Date timestamp. Snap offsets at explicit automation events.
+    remaining = Math.max(0, seconds - processed);
   }
   return {
     state: { ...next, lastTick: now },
@@ -200,14 +208,22 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
 }
 function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeResult {
   const efficiency = offline ? offlineEfficiency(s) : 1;
-  const bugs = bounded(production(s) * seconds * efficiency, R.moneyLimit);
+  const flow = passiveProduction(s, seconds * efficiency);
+  const bugs = flow.bugs;
   let next = findBugs(s, bugs);
   const phase = next.project ? projectPhase(next.project) : null;
-  const royalties = bounded(royaltyRate(s) * seconds * efficiency, R.moneyLimit);
+  const royalties = bounded(
+    royaltyWork(s, seconds * efficiency, flow.scriptBugs),
+    R.moneyLimit,
+  );
+  const insights =
+    Math.max(0, flow.pipeline.total - s.pipeline.total) * openInsightsPerRelease(s);
   next = {
     ...earn(next, royalties),
+    insights: bounded(next.insights + insights),
+    lifetimeInsights: bounded(next.lifetimeInsights + insights),
     pipeline: {
-      ...advancePipeline(s, seconds * efficiency),
+      ...flow.pipeline,
       network: advanceNetwork(s, seconds * efficiency),
     },
     products: {
@@ -226,7 +242,11 @@ function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeRe
     contract: next.contract
       ? {
           ...next.contract,
-          elapsed: Math.min(next.contract.duration, next.contract.elapsed + seconds),
+          elapsed:
+            next.contract.elapsed + seconds >=
+            next.contract.duration - TIME_EPSILON_SECONDS
+              ? next.contract.duration
+              : next.contract.elapsed + seconds,
         }
       : null,
   };
@@ -310,6 +330,10 @@ export function act(
         stage: state.stage + 1,
         rankEarned: 0,
         bestStage: Math.max(state.bestStage, state.stage + 1),
+        upgrades:
+          state.pipeline.model === 1 || state.upgrades.includes("auto")
+            ? state.upgrades
+            : [...state.upgrades, "auto"],
       };
       message = `Вітаємо! Тепер ти ${CAREER_STAGES[state.stage]?.title ?? "Director"}.`;
       break;
@@ -373,13 +397,13 @@ export function act(
         pipeline: state.pipeline,
         office: { ...state.office, contractId: null },
       };
-      message = `Нова кар’єра! +${String(reward)} досвіду. CI/CD-конвеєр працює — відкрий новий шар.`;
+      message = `Нова кар’єра! +${String(reward)} досвіду. Автотести й автоматизація залишились; три прориви відкривають серверну шафу.`;
       break;
     }
     case "buyDispatcher":
     case "dispatch": {
       const result = officeAction(state, action);
-      return { ...result, state: awardBadges(result.state) };
+      return { ...result, state: awardBadges(balanceArchitecture(result.state)) };
     }
     case "networkBuy":
     case "networkReboot":
@@ -402,7 +426,7 @@ export function act(
     case "productMode":
     case "dismissProductRefund": {
       const result = productAction(state, action);
-      return { ...result, state: awardBadges(result.state) };
+      return { ...result, state: awardBadges(balanceArchitecture(result.state)) };
     }
     default: {
       const result = studioAction(state, action);
@@ -414,5 +438,5 @@ export function act(
   if (hasAutoReport(state) && state.bugs > 0) {
     state = report(state);
   }
-  return { state: awardBadges(state), ok: true, message };
+  return { state: awardBadges(balanceArchitecture(state)), ok: true, message };
 }

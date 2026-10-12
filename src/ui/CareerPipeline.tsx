@@ -4,7 +4,10 @@ import type { PipelineView } from "../game/career/discovery";
 import { CareerArchitecture } from "./CareerArchitecture";
 import { architectureUnlocked, pipelineRates } from "../game/career/architectureEffects";
 import type { CareerAction, CareerState } from "../types";
+import { pipelineUnlocked, trialUnlocked } from "../game/career/pipelineUnlocks";
 import { CAREER_RULES } from "../game/career/content";
+import { compiledTestRate } from "../game/career/selectors";
+import { affordable } from "../game/career/afford";
 import {
   coreBudget,
   corePrice,
@@ -45,7 +48,7 @@ export function DiscoveryCard({ game, open }: { game: CareerState; open: () => v
 
 function PipelineWorkshop({ game: s, send, career }: Props) {
   const p = s.pipeline;
-  const unlocked = s.careers > 0;
+  const unlocked = pipelineUnlocked(s);
   const trial = p.trial;
   const trialDef = PIPELINE_TRIALS.find((t) => t.id === trial?.id);
   const trialReady = !!trial && !!trialDef && trial.progress >= trialDef.target;
@@ -61,17 +64,15 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
           <span className="eyebrow">ТВОЯ ПЕРША ЗМІНА МАСШТАБУ</span>
           <h2>Від команди — до системи.</h2>
           <p>
-            Досягни Director і почни нову кар’єру. Тут з’являться шість ядер і
-            безперервний потік релізів. Його швидкість визначатимеш ти.
+            Досягни Senior QA. Тут з’являться шість ядер і потік релізів, які створюють
+            постійні автотести. Його швидкість визначатимеш ти.
           </p>
           <p>
             Випробування відкриють автоматизацію проєктів, найму й підвищень. Після
             наступного престижу вона залишиться з тобою.
           </p>
           <button className="button primary" onClick={career}>
-            {s.stage >= CAREER_RULES.prestigeStage
-              ? "Зробити перший престиж →"
-              : "Досягнути Director →"}
+            Досягнути Senior QA →
           </button>
         </section>
       ) : (
@@ -82,13 +83,15 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
                 <span className="eyebrow">БЕЗПЕРЕРВНИЙ ПОТІК</span>
                 <h2>Збалансуй вузли.</h2>
                 <p className="muted">
-                  Один реліз = один кредит збірки. Кар’єра продовжується паралельно.
+                  Один реліз = один постійний автотест + один кредит збірки. Автотести
+                  знаходять баги й прискорюють дохід.
                 </p>
               </div>
               <div className="pipeline-currency">
                 <span>КРЕДИТИ ЗБІРКИ</span>
                 <strong>▧ {number(p.credits)}</strong>
                 <small>Всього релізів: {number(p.total)}</small>
+                <small>Автотести: +{number(compiledTestRate(s))} багів/с</small>
               </div>
             </div>
             <FlowBoard
@@ -110,7 +113,8 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
               <button
                 className="button secondary"
                 disabled={
-                  p.coreLevel >= PIPELINE.maxCoreLevel || p.credits < corePrice(p)
+                  p.coreLevel >= PIPELINE.maxCoreLevel ||
+                  !affordable(p.credits, corePrice(p))
                 }
                 onClick={() => send({ type: "pipelineCore" })}
               >
@@ -187,7 +191,7 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
                 </section>
               )}
               <div className="trial-options">
-                {PIPELINE_TRIALS.map((def) => (
+                {PIPELINE_TRIALS.filter((def) => trialUnlocked(s, def)).map((def) => (
                   <article
                     key={def.id}
                     className={`panel trial-option ${p.completed.includes(def.id) ? "complete" : ""}`}
@@ -288,7 +292,7 @@ export function CareerPipeline(
   const available = architectureUnlocked(props.game);
   const network = networkUnlocked(props.game);
   const { view, setView } = props;
-  if (props.game.careers < 1) {
+  if (!pipelineUnlocked(props.game)) {
     return null;
   }
   return (

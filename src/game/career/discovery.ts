@@ -7,6 +7,7 @@ import type { ProductDefinition } from "./productData";
 import { architectureUnlocked } from "./architectureEffects";
 import { networkUnlocked } from "./networkEffects";
 import { recruited } from "./studioSelectors";
+import { pipelineUnlocked } from "./pipelineUnlocks";
 
 export type CareerView =
   | "workspace"
@@ -57,7 +58,7 @@ export function viewUnlocked(s: CareerState, view: CareerView): boolean {
     case "products":
       return PRODUCTS.some((p) => productDiscovered(s, p));
     case "pipeline":
-      return s.careers > 0;
+      return pipelineUnlocked(s);
     case "resources":
       return viewUnlocked(s, "studio") || s.careers > 0;
     case "achievements":

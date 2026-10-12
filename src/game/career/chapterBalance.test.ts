@@ -13,31 +13,23 @@ const repeat = campaign(
 );
 const bulk = campaign(newCareer(1), false, false, true, true);
 it(`bulk reinvestment Director ${String(bulk.director)}s; ${bulk.milestones.join("; ")}`, () => {
-  expect(bulk.director).toBeGreaterThan(1200);
-  expect(bulk.director).toBeLessThan(2400);
-  for (let i = 1; i < bulk.rankSeconds.length; i++) {
-    expect((bulk.rankSeconds[i] ?? 0) - (bulk.rankSeconds[i - 1] ?? 0)).toBeGreaterThan(
-      180,
-    );
-  }
+  expect(bulk.director).toBeGreaterThan(300);
+  expect(bulk.director).toBeLessThan(1200);
+  expect(bulk.discoveries[0]?.seconds).toBeLessThan(300);
+  expect(bulk.state.pipeline.completed.length).toBeGreaterThanOrEqual(2);
+  expect(bulk.state.pipeline.total).toBeGreaterThan(100);
 });
 it(`first Director: active ${String(active.director)}s, low-click ${String(low.director)}s; ${active.milestones.join("; ")}`, () => {
-  expect(active.director).toBeGreaterThan(1200);
-  expect(active.director).toBeLessThan(2400);
-  expect(low.director).toBeGreaterThan(1200);
-  expect(low.director).toBeLessThan(3000);
-  for (let i = 1; i < active.rankSeconds.length; i++) {
-    expect(
-      (active.rankSeconds[i] ?? 0) - (active.rankSeconds[i - 1] ?? 0),
-    ).toBeGreaterThan(180);
-  }
+  expect(active.director).toBeGreaterThan(300);
+  expect(active.director).toBeLessThan(1200);
+  expect(low.director).toBeLessThan(1500);
+  expect(active.discoveries[0]?.seconds).toBeLessThan(300);
+  expect(active.discoveries.some((d) => d.title.includes("Автопроєкти"))).toBe(true);
+  expect(low.state.pipeline.total).toBeGreaterThan(100);
 });
-it(`retained knowledge accelerates repeat Director to ${String(repeat.director)}s without instant rank cascades`, () => {
+it(`retained production compresses the mastered career to ${String(repeat.director)}s`, () => {
   expect(repeat.director).toBeGreaterThan(0);
   expect(repeat.director).toBeLessThan(active.director / 2);
-  for (let i = 1; i < repeat.rankSeconds.length; i++) {
-    expect(
-      (repeat.rankSeconds[i] ?? 0) - (repeat.rankSeconds[i - 1] ?? 0),
-    ).toBeGreaterThan(10);
-  }
+  expect(repeat.state.pipeline.total).toBeGreaterThanOrEqual(active.state.pipeline.total);
+  expect(repeat.state.stage).toBe(5);
 });

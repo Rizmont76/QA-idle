@@ -73,8 +73,8 @@ describe("analytic generator chain", () => {
   it("uses the existing offline cap and efficiency and never overflows", () => {
     const s = fixture();
     const offline = advanceCareer(s, NOW + 10000, true);
-    expect(offline.state.pipeline.network.computations).toBe(7.5);
-    expect(offline.networkComputations).toBe(7.5);
+    expect(offline.state.pipeline.network.computations).toBeCloseTo(7.5, 10);
+    expect(offline.networkComputations).toBeCloseTo(7.5, 10);
     s.pipeline.network.units = [
       NETWORK.limit,
       NETWORK.limit,
@@ -99,8 +99,8 @@ describe("network decisions and permanent protocols", () => {
     expect(generatorUnlocked(s, 2)).toBe(true);
     expect(generatorUnlocked(s, 3)).toBe(false);
     s = apply(s, { type: "networkBuy", tier: 1 });
-    expect(s.pipeline.network.computations).toBe(920);
-    expect(s.pipeline.network.best).toBe(1000);
+    expect(s.pipeline.network.computations).toBeCloseTo(920, 8);
+    expect(s.pipeline.network.best).toBeCloseTo(1000, 8);
     expect(generatorPrice(s, 1)).toBe(128);
     expect(s.pipeline.network.units[1]).toBe(1);
   });
@@ -261,7 +261,7 @@ describe("automation, load and discovery continuity", () => {
       expect(u).toBeCloseTo(fine.pipeline.network.units[i] ?? 0, 6),
     );
     expect(offline.crew).toEqual(fine.crew);
-    expect(offline.money).toBeCloseTo(fine.money, 3);
+    expect(offline.money / fine.money).toBeCloseTo(1, 12);
     expect(offline.certificates).toEqual(fine.certificates);
     expect(offline.pipeline.network.reboots).toBe(1);
   });

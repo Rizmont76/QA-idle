@@ -33,6 +33,7 @@ import type { CareerView as View, PipelineView } from "../game/career/discovery"
 import { architectureUnlocked } from "../game/career/architectureEffects";
 import { networkUnlocked } from "../game/career/networkEffects";
 import { UnlockNotice } from "./UnlockNotice";
+import { discoveryTarget } from "../game/career/pipelineSelectors";
 const PERCENT = 100;
 const NAV: readonly { id: View; title: string; symbol: string; subtitle: string }[] = [
   {
@@ -266,7 +267,7 @@ export function CareerApp() {
                   ? "Прогрес збережено"
                   : "Перевір збереження"}
             </span>
-            <span className="version-chip">CHAPTERS EDITION</span>
+            <span className="version-chip">BREAKTHROUGHS EDITION</span>
           </div>
         </header>
         {warning && (
@@ -360,11 +361,8 @@ export function CareerApp() {
               }}
             />
           )}
-          {view === "workspace" && prestigeDiscovered(s) && (
-            <DiscoveryCard
-              game={s}
-              open={() => navigate(s.careers > 0 ? "pipeline" : "career")}
-            />
+          {view === "workspace" && viewUnlocked(s, "pipeline") && (
+            <DiscoveryCard game={s} open={() => navigate(discoveryTarget(s))} />
           )}
           {view === "pipeline" && (
             <CareerPipeline
@@ -489,7 +487,7 @@ export function CareerApp() {
                         <small>
                           {i === 0
                             ? "Кожна кар’єра починається тут"
-                            : `${cash(rank.earned)} на попередньому ранзі · ${String(rank.crew)} од. команди${rank.projects ? ` · ${String(rank.projects)} різних проєктів` : ""}`}
+                            : `${cash(rank.earned)} на попередньому ранзі${rank.crew ? ` · ${String(rank.crew)} од. команди` : ""}${rank.projects ? ` · ${String(rank.projects)} різних проєктів` : ""}`}
                         </small>
                       </div>
                     </article>
@@ -502,7 +500,7 @@ export function CareerApp() {
                     <h2>Залиш свій слід.</h2>
                     <p className="muted">
                       {s.careers < 1
-                        ? "Перший престиж відкриє CI/CD-конвеєр: розподіл ядер, випробування та автоматизацію кар’єри."
+                        ? "Автотести й автоматизація залишаться. Три нагороди випробувань і перший престиж відкриють серверну шафу."
                         : "Усі відкриті системи й автоматизація залишаться з тобою. Нова кар’єра працюватиме швидше."}
                     </p>
                     <div className="prestige-stats">
@@ -725,7 +723,7 @@ export function CareerApp() {
         >
           <p className="mint">
             {s.careers < 1
-              ? "Нове відкриття: майстерня CI/CD. Шість ядер, власний потік релізів і випробування з нагородами назавжди."
+              ? "Автотести залишаться й підхоплять нову кар’єру. Після трьох нагород випробувань відкриється серверна шафа з модулями."
               : "Конвеєр, кредити збірки, ядра, випробування й увімкнені політики автоматизації зберігаються."}
           </p>
           <p>
