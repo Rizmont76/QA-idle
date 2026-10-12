@@ -51,12 +51,7 @@ describe("products as studio tools", () => {
     expect(Object.keys(s.products.releases)).toHaveLength(6);
   });
   it("validates prerequisites without spending or granting work", () => {
-    for (const patch of [
-      { stage: 1 },
-      { certificates: {} },
-      { money: 3_999 },
-      { insights: 2 },
-    ]) {
+    for (const patch of [{ stage: 1 }, { certificates: {} }, { money: 3_999 }]) {
       const s = fixture(patch);
       const result = act(s, { type: "launchProduct", id: "checklist" }, NOW);
       expect(result.ok).toBe(false);
@@ -183,18 +178,22 @@ describe("products as studio tools", () => {
   });
   it("keeps earnings finite at the currency cap and ignores invalid time", () => {
     const s = launched(
-      fixture({ money: R.limit, earned: R.limit, lifetimeEarned: R.limit }),
+      fixture({
+        money: R.moneyLimit,
+        earned: R.moneyLimit,
+        lifetimeEarned: R.moneyLimit,
+      }),
     );
     for (const now of [NaN, Infinity, NOW - 1]) {
       expect(advanceCareer(s, now).state).toBe(s);
     }
     const next = advanceCareer(
-      { ...s, money: R.limit, products: { ...s.products, earned: R.limit } },
+      { ...s, money: R.moneyLimit, products: { ...s.products, earned: R.moneyLimit } },
       NOW + 100_000_000,
     ).state;
-    expect(next.money).toBe(R.limit);
-    expect(next.earned).toBe(R.limit);
-    expect(next.products.earned).toBe(R.limit);
+    expect(next.money).toBe(R.moneyLimit);
+    expect(next.earned).toBe(R.moneyLimit);
+    expect(next.products.earned).toBe(R.moneyLimit);
   });
 });
 

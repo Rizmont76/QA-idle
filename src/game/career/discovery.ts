@@ -15,6 +15,7 @@ export type CareerView =
   | "products"
   | "pipeline"
   | "studio"
+  | "resources"
   | "career"
   | "achievements"
   | "settings";
@@ -57,6 +58,8 @@ export function viewUnlocked(s: CareerState, view: CareerView): boolean {
       return PRODUCTS.some((p) => productDiscovered(s, p));
     case "pipeline":
       return s.careers > 0;
+    case "resources":
+      return viewUnlocked(s, "studio") || s.careers > 0;
     case "achievements":
       return s.badges.length > 0;
   }

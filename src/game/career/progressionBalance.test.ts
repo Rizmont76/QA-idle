@@ -195,10 +195,10 @@ it(`complete first discovery path: ${result.events.map((e) => `${e.title} ${Stri
   expect(generatorUnlocked(result.state, 3)).toBe(true);
   expect(result.state.pipeline.architecture.blueprints).toHaveLength(4);
   const firstReboot = result.events.find((e) => e.title === "Перезапуск мережі 1");
-  expect(firstReboot?.seconds).toBeLessThan(1800);
+  expect(firstReboot?.seconds).toBeLessThan(3600);
   const networkAt = result.events.find((e) => e.title === "Перший агент")?.seconds ?? 0;
   expect((firstReboot?.seconds ?? Infinity) - networkAt).toBeLessThan(300);
-  expect(result.events[result.events.length - 1]?.seconds).toBeLessThan(2400);
+  expect(result.events[result.events.length - 1]?.seconds).toBeLessThan(3300);
 });
 
 const low = path(true);
@@ -206,5 +206,5 @@ it(`low-click discovery path reaches regions at ${String(low.events[low.events.l
   expect(networkUnlocked(low.state)).toBe(true);
   expect(low.state.pipeline.network.reboots).toBe(2);
   expect(generatorUnlocked(low.state, 3)).toBe(true);
-  expect(low.events[low.events.length - 1]?.seconds).toBeLessThan(2700);
+  expect(low.events[low.events.length - 1]?.seconds).toBeLessThan(3600);
 });

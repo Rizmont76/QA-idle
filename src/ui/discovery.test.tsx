@@ -57,6 +57,8 @@ it("reveals rank tabs during play, announces them and keeps the first project fo
   const s = newCareer(NOW);
   s.money = 200;
   s.earned = 150;
+  s.rankEarned = 150;
+  s.upgrades = ["checklist"];
   s.lifetimeEarned = 150;
   s.crew.assistant = 3;
   boot(s);

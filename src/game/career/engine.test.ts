@@ -81,14 +81,16 @@ describe("career economy", () => {
     expect(full.crew.assistant).toBe(R.crewLimit);
     expect(hireQuote(full, "assistant", 10).count).toBe(0);
   });
-  it("requires lifetime run income and staff, not an unspent balance, to promote", () => {
+  it("requires current rank income, chapter evidence and staff to promote", () => {
     const s = base({
       earned: 150,
+      rankEarned: 150,
+      upgrades: ["checklist"],
       money: 0,
       crew: { cloud: 0, ai: 0, orbital: 0, assistant: 3, squad: 0, runner: 0, lab: 0 },
     });
     expect(act(s, { type: "promote" }, NOW).state.stage).toBe(1);
-    expect(act({ ...s, earned: 149 }, { type: "promote" }, NOW).ok).toBe(false);
+    expect(act({ ...s, rankEarned: 149 }, { type: "promote" }, NOW).ok).toBe(false);
     expect(
       act({ ...s, crew: { ...s.crew, assistant: 2 } }, { type: "promote" }, NOW).ok,
     ).toBe(false);
@@ -187,7 +189,11 @@ describe("contracts and prestige", () => {
     let s = act(
       base({
         stage: 3,
-        earned: 350_000,
+        earned: 200_000_000,
+        rankEarned: 200_000_000,
+        contractsCompleted: 3,
+        research: { automation: 3, fieldnotes: 2, intuition: 1 },
+        certificates: { button: 1, cart: 1, mobile: 1 },
         crew: { cloud: 0, ai: 0, orbital: 0, assistant: 25, squad: 0, runner: 0, lab: 0 },
       }),
       { type: "contract", id: "smoke" },

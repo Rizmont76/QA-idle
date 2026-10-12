@@ -184,7 +184,13 @@ describe("automation, load and discovery continuity", () => {
     s = apply(s, { type: "networkProtocol", id: "cascade" });
     s = apply(s, { type: "networkProtocol", id: "bridge" });
     s = apply(s, { type: "networkAuto", enabled: true });
-    s.pipeline.automation = { hire: true, upgrades: true, promote: true, projects: true };
+    s.pipeline.automation = {
+      hire: true,
+      upgrades: true,
+      promote: true,
+      projects: true,
+      chapters: false,
+    };
     const result = advanceCareer(s, NOW + 100 * 3600000, true);
     expect(result.capped).toBe(true);
     expect(result.seconds).toBe(57600);
@@ -230,7 +236,13 @@ describe("automation, load and discovery continuity", () => {
     s = apply(s, { type: "networkProtocol", id: "autobuy" });
     s = apply(s, { type: "networkProtocol", id: "cascade" });
     s = apply(s, { type: "networkAuto", enabled: true });
-    s.pipeline.automation = { hire: true, upgrades: true, promote: true, projects: true };
+    s.pipeline.automation = {
+      hire: true,
+      upgrades: true,
+      promote: true,
+      projects: true,
+      chapters: false,
+    };
     let fine = s;
     for (let i = 1; i <= 1601; i++) {
       fine = advanceCareer(fine, NOW + i * 250).state;

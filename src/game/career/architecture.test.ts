@@ -300,7 +300,13 @@ describe("pipeline automation and persistence", () => {
     s = arrange(s, STUDIO_LAYOUT);
     s = apply(s, { type: "architecturePolicy", id: "autoBalance", enabled: true });
     s = apply(s, { type: "architecturePolicy", id: "autoCores", enabled: true });
-    s.pipeline.automation = { hire: true, upgrades: true, promote: true, projects: true };
+    s.pipeline.automation = {
+      hire: true,
+      upgrades: true,
+      promote: true,
+      projects: true,
+      chapters: false,
+    };
     let fine = s;
     for (let i = 1; i <= 2401; i++) {
       fine = advanceCareer(fine, NOW + i * 250).state;

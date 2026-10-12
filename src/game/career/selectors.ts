@@ -18,6 +18,7 @@ import {
   staffProduction,
 } from "./studioSelectors";
 import { STUDIO_RULES as S } from "./expansionData";
+import { chapterComplete, rankMultiplier } from "./chapters";
 
 export function bounded(value: number, max: number = R.limit): number {
   return Number.isFinite(value) ? Math.max(0, Math.min(max, value)) : 0;
@@ -45,6 +46,7 @@ export function crewRate(s: CareerState, id: CrewId): number {
       MILESTONE_MULTIPLIER ** milestones *
       multiplier(s, "production") *
       permanentMultiplier(s) *
+      rankMultiplier(s) *
       (1 + researchBonus(s, "production")) *
       staffProduction(s, id) *
       architectureEffects(s).crew,
@@ -61,6 +63,7 @@ export function manualPower(s: CareerState): number {
     flat *
       multiplier(s, "click") *
       permanentMultiplier(s) *
+      rankMultiplier(s) *
       (1 + researchBonus(s, "manual") + staffBonus(s, "manual")) +
       production(s) * R.clickRateShare,
   );
@@ -122,9 +125,10 @@ export function promotionReady(s: CareerState): boolean {
   const next = CAREER_STAGES[s.stage + 1];
   return (
     !!next &&
-    s.earned >= next.earned &&
+    s.rankEarned >= next.earned &&
     crewCount(s) >= next.crew &&
-    certificates(s) >= (next.projects ?? 0)
+    certificates(s) >= (next.projects ?? 0) &&
+    chapterComplete(s)
   );
 }
 export function prestigeReward(s: CareerState): number {

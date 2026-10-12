@@ -4,6 +4,8 @@ import { CAREER_RULES as R, BADGES } from "../game/career/content";
 import { act, advanceCareer } from "../game/career/engine";
 import type { TimeResult } from "../game/career/engine";
 import { exportCareer, loadCareer } from "../game/career/persistence";
+import { promotionImpact } from "../game/career/promotionImpact";
+import type { PromotionImpact } from "../game/career/promotionImpact";
 
 export function useCareer() {
   const [loaded] = useState(() =>
@@ -27,6 +29,7 @@ export function useCareer() {
       : null,
   );
   const [toast, setToast] = useState("");
+  const [promotion, setPromotion] = useState<PromotionImpact | null>(null);
 
   function persist(state: CareerState) {
     if (blocked.current || paused.current) {
@@ -41,6 +44,13 @@ export function useCareer() {
     }
   }
   function commit(state: CareerState) {
+    if (state.careers !== current.current.careers) {
+      setPromotion(null);
+    }
+    const impact = promotionImpact(current.current, state);
+    if (impact) {
+      setPromotion(impact);
+    }
     const badge = state.badges.find((id) => !current.current.badges.includes(id));
     if (badge) {
       setToast(
@@ -71,6 +81,7 @@ export function useCareer() {
     blocked.current = false;
     setWarning("");
     setSummary(null);
+    setPromotion(null);
     current.current = state;
     setGame(state);
     persist(state);
@@ -96,6 +107,10 @@ export function useCareer() {
       const now = Date.now();
       const wasOffline = offline || now - current.current.lastTick > R.sleepThresholdMs;
       const result = advanceCareer(current.current, now, wasOffline);
+      const impact = promotionImpact(current.current, result.state);
+      if (impact) {
+        setPromotion(impact);
+      }
       const badge = result.state.badges.find(
         (id) => !current.current.badges.includes(id),
       );
@@ -164,6 +179,10 @@ export function useCareer() {
     warning,
     otherTab,
     summary,
+    promotion,
+    dismissPromotion: () => {
+      setPromotion(null);
+    },
     dismissSummary: () => {
       setSummary(null);
     },

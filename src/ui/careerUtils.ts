@@ -2,12 +2,28 @@ const COMPACT_AT = 10_000;
 const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3_600;
 const PERCENT = 100;
+const QUADRILLION = 1e15;
+const QUINTILLION = 1e18;
+const SEXTILLION = 1e21;
+const largeNumber = new Intl.NumberFormat("en", {
+  maximumFractionDigits: 1,
+  useGrouping: false,
+});
 const format = new Intl.NumberFormat("uk-UA", { maximumFractionDigits: 1 });
 const compact = new Intl.NumberFormat("en", {
   notation: "compact",
   maximumFractionDigits: 1,
 });
 export function number(n: number): string {
+  if (n >= SEXTILLION) {
+    return `${largeNumber.format(n / SEXTILLION)}Sx`;
+  }
+  if (n >= QUINTILLION) {
+    return `${largeNumber.format(n / QUINTILLION)}Qi`;
+  }
+  if (n >= QUADRILLION) {
+    return `${largeNumber.format(n / QUADRILLION)}Qa`;
+  }
   return n >= COMPACT_AT ? compact.format(n) : format.format(n);
 }
 export function cash(n: number): string {

@@ -51,6 +51,250 @@
   --layer-accent: #aec0d4;
   --layer-surface: #1b222c;
 }
+.app-shell[data-layer="resources"] {
+  --layer-accent: #b0d8bc;
+  --layer-surface: #1b2723;
+}
+.resource-shortcut {
+  text-align: right;
+  margin: -12px 0 18px;
+}
+.career-chapter {
+  padding: 25px;
+  margin-bottom: 24px;
+}
+.chapter-intro {
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: center;
+}
+.chapter-intro h2 {
+  font-size: 23px;
+  margin: 12px 0;
+}
+.chapter-intro p {
+  max-width: 720px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.chapter-power {
+  flex-shrink: 0;
+  text-align: right;
+  color: var(--layer-accent);
+}
+.chapter-power strong {
+  display: block;
+  font-size: 36px;
+}
+.chapter-power small {
+  display: block;
+  line-height: 1.6;
+  font-size: 11px;
+  color: var(--muted);
+}
+.chapter-goals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+.chapter-goal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  background: #0b101744;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+  color: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.chapter-goal.done {
+  border-color: color-mix(in srgb, var(--layer-accent) 35%, var(--line));
+}
+.chapter-check {
+  font-size: 22px;
+  color: var(--layer-accent);
+}
+.chapter-goal small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 5px;
+}
+.chapter-caption {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 16px 0 0;
+  line-height: 1.6;
+}
+.rank-boost-preview {
+  color: var(--layer-accent);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.rank-boost-preview small {
+  font-size: 11px;
+  color: var(--muted);
+}
+.promotion-notice {
+  padding: 24px;
+  margin: 0 0 24px;
+  border: 1px solid var(--layer-accent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--layer-accent) 12%, var(--panel));
+}
+.promotion-notice-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+.promotion-notice h2 {
+  font-size: 28px;
+  margin: 10px 0;
+}
+.promotion-notice p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.promotion-impact {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+.promotion-impact small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+.promotion-impact strong {
+  display: block;
+  font-size: 22px;
+  color: var(--layer-accent);
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 700px) {
+  .career-chapter {
+    padding: 20px;
+  }
+  .chapter-intro {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .chapter-power {
+    display: flex;
+    text-align: left;
+    align-items: center;
+    gap: 16px;
+  }
+  .chapter-goals {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .promotion-notice-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .promotion-impact {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+}
+.overview-intro {
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 760px;
+}
+.resource-ledger {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 24px 0;
+  background: var(--panel);
+}
+.ledger-heading,
+.ledger-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.7fr) 1fr 1.2fr;
+  gap: 25px;
+  padding: 22px;
+}
+.ledger-heading {
+  color: var(--muted);
+  font-size: 12px;
+  background: #ffffff04;
+}
+.ledger-row {
+  border-top: 1px solid var(--line);
+}
+.ledger-row p {
+  font-size: 13px;
+  line-height: 1.65;
+  margin: 0 0 10px;
+}
+.ledger-row small {
+  display: block;
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 12px;
+}
+.ledger-balance strong {
+  display: block;
+  font-size: 26px;
+  margin: 12px 0 6px;
+  font-variant-numeric: tabular-nums;
+}
+.ledger-balance button {
+  margin-top: 12px;
+}
+.ledger-mobile-label {
+  display: none;
+}
+.overview-capacity {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+.overview-capacity .panel {
+  padding: 22px;
+}
+.overview-capacity strong {
+  display: block;
+  font-size: 24px;
+  margin-top: 12px;
+}
+.overview-capacity p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+@media (max-width: 700px) {
+  .ledger-heading {
+    display: none;
+  }
+  .ledger-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding: 20px;
+  }
+  .ledger-row:first-of-type {
+    border-top: 0;
+  }
+  .ledger-mobile-label {
+    display: block;
+    color: var(--layer-accent);
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+}
 .app-shell .sidebar {
   background: color-mix(in srgb, var(--layer-accent) 5%, #101620);
   border-color: color-mix(in srgb, var(--layer-accent) 20%, #202936);

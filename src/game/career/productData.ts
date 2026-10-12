@@ -1,4 +1,5 @@
 export const PRODUCT_RULES = {
+  legacyChecklistInsights: 3,
   versions: 3,
   lastStage: 8,
   costGrowth: 12,
@@ -35,7 +36,7 @@ export const PRODUCTS: readonly ProductDefinition[] = [
     project: "button",
     stage: 2,
     cost: 4_000,
-    insights: 3,
+    insights: 0,
     target: 2_000,
     seconds: 90,
     income: 12,
