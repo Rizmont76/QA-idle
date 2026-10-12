@@ -18,9 +18,15 @@ import {
 } from "./studioSelectors";
 import { STUDIO_RULES as S } from "./expansionData";
 import { chapterComplete, rankMultiplier } from "./chapters";
-import { permanentMultiplier, productionFactor, scriptPower } from "./productionEffects";
+import {
+  agentPower,
+  permanentMultiplier,
+  productionFactor,
+  scriptPower,
+} from "./productionEffects";
 export { permanentMultiplier } from "./productionEffects";
 import { legacyRankRequirements } from "./legacyChapters";
+import { computationRate } from "./networkEffects";
 
 export function bounded(value: number, max: number = R.limit): number {
   return Number.isFinite(value) ? Math.max(0, Math.min(max, value)) : 0;
@@ -48,8 +54,12 @@ export function crewRate(s: CareerState, id: CrewId): number {
   );
 }
 export function production(s: CareerState): number {
-  return bounded(crewProduction(s) + compiledTestRate(s));
+  return bounded(baseProduction(s) + distributedTestRate(s));
 }
+export const baseProduction = (s: CareerState) =>
+  bounded(crewProduction(s) + compiledTestRate(s));
+export const distributedTestRate = (s: CareerState) =>
+  Math.min(Math.max(0, R.limit - baseProduction(s)), computationRate(s) * agentPower(s));
 export const crewProduction = (s: CareerState) =>
   bounded(CREW.reduce((n, c) => n + crewRate(s, c.id), 0));
 export const compiledTestRate = (s: CareerState) =>

@@ -1,0 +1,119 @@
+.rack-configurations {
+  margin: 30px 0;
+}
+.rack-configurations > p {
+  font-size: 12px;
+  line-height: 1.7;
+  margin: -10px 0 18px;
+}
+.rack-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.rack-preset {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.rack-preset.selected {
+  border-color: var(--mint);
+  background: color-mix(in srgb, var(--mint) 8%, var(--panel));
+}
+.rack-preset h3 {
+  margin: 12px 0 10px;
+}
+.rack-preset p {
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 12px;
+  margin: 0 0 20px;
+}
+.rack-preset dl {
+  margin: auto 0 20px;
+}
+.rack-preset dt {
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 12px;
+}
+.rack-preset dd {
+  margin: 5px 0 0;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.rack-preset dd strong {
+  color: var(--mint);
+}
+.network-studio-link {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+  padding: 26px;
+  margin-bottom: 24px;
+  border-color: color-mix(in srgb, var(--mint) 42%, var(--line));
+  background: linear-gradient(
+    130deg,
+    color-mix(in srgb, var(--mint) 13%, var(--panel)),
+    var(--panel)
+  );
+}
+.network-studio-link h2 {
+  margin: 12px 0;
+  line-height: 1.25;
+}
+.network-studio-link p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.network-link-impact {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  min-width: 0;
+}
+.network-link-impact > span {
+  font-size: 11px;
+}
+.network-link-impact > strong {
+  color: var(--mint);
+  font-size: 28px;
+  overflow-wrap: anywhere;
+}
+.network-link-impact > strong small {
+  font-size: 11px;
+  font-weight: 500;
+}
+.network-link-impact .button {
+  white-space: normal;
+  line-height: 1.6;
+}
+.network-reset-impact {
+  padding: 16px;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #101721;
+}
+.network-reset-impact > strong {
+  color: var(--amber);
+  font-size: 13px;
+}
+@media (max-width: 1000px) {
+  .rack-preset-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 680px) {
+  .network-studio-link {
+    grid-template-columns: 1fr;
+    padding: 18px;
+    gap: 14px;
+  }
+  .rack-preset {
+    padding: 18px;
+  }
+}

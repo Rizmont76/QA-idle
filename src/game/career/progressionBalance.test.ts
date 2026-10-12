@@ -19,6 +19,7 @@ import {
   rebootReward,
 } from "./networkEffects";
 import { GENERATORS, NETWORK } from "./networkData";
+import { baseProduction, distributedTestRate } from "./selectors";
 
 function path(lowClick = false) {
   const first = campaign(newCareer(1000), lowClick, false, true);
@@ -207,4 +208,43 @@ it(`low-click discovery path reaches regions at ${String(low.events[low.events.l
   expect(low.state.pipeline.network.reboots).toBe(2);
   expect(generatorUnlocked(low.state, 3)).toBe(true);
   expect(low.events[low.events.length - 1]?.seconds).toBeLessThan(3600);
+});
+
+function connectedFrontier(initial: ReturnType<typeof path>) {
+  let state = initial.state;
+  const start = state.lastTick;
+  const events: string[] = [];
+  const doAction = (action: CareerAction) => {
+    const result = act(state, action, state.lastTick);
+    if (!result.ok) {
+      throw new Error(result.message);
+    }
+    state = result.state;
+  };
+  doAction({ type: "networkReboot" });
+  doAction({ type: "networkProtocol", id: "bridge" });
+  doAction({ type: "networkConnect" });
+  events.push("Агенти підключені");
+  if (state.pipeline.architecture.powerLevel === 0) {
+    doAction({ type: "rackPower" });
+  }
+  doAction({ type: "rackPreset", id: "production" });
+  events.push("Схема виробництва");
+  for (let second = 1; second <= 900; second++) {
+    state = advanceCareer(state, start + second * 1000).state;
+    if (distributedTestRate(state) >= baseProduction(state) / 2) {
+      return { state, seconds: second, events };
+    }
+  }
+  return { state, seconds: 900, events };
+}
+const connected = connectedFrontier(result);
+it(`late frontier: connected fleet reaches half of earlier production after ${String(connected.seconds)}s; ${connected.events.join("; ")}`, () => {
+  expect(connected.state.pipeline.network.linked).toBe(true);
+  expect(distributedTestRate(connected.state)).toBeGreaterThanOrEqual(
+    baseProduction(connected.state) / 2,
+  );
+  expect(connected.seconds).toBeLessThan(900);
+  expect(connected.state.pipeline.total).toBeGreaterThan(result.state.pipeline.total);
+  expect(connected.state.pipeline.network.reboots).toBe(3);
 });

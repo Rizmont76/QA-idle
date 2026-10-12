@@ -48,7 +48,9 @@ describe("analytic generator chain", () => {
     expect(advanceNetwork(s, 10).computations).toBe(10);
     s.pipeline.network.units = [0, 0, 0, 1];
     const result = advanceNetwork(s, 100);
-    expect(result.units).toEqual([0.5, 0.375, 0.5, 1]);
+    [0.5, 0.375, 0.5, 1].forEach((value, tier) =>
+      expect(result.units[tier]).toBeCloseTo(value, 12),
+    );
     expect(result.computations).toBeCloseTo(12.5);
   });
   it("agrees with many split advances for every polynomial tier and partial seconds", () => {

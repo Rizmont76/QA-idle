@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers -- Authored rack balance, documented in 22-Architecture_Rack. */
-import type { ArchitectureState, BlueprintId, RackModuleId } from "../../types";
+import type {
+  ArchitectureState,
+  BlueprintId,
+  RackModuleId,
+  RackPresetId,
+} from "../../types";
 
 export const RACK = {
   columns: 3,
@@ -131,6 +136,33 @@ export const ARCHITECTURE_POLICIES = [
       "Витрачає кредити збірки: кожні 5 секунд купує одне доступне ядро. Живлення шафи купуєш ти.",
   },
 ] as const;
+export const RACK_PRESETS: readonly {
+  id: RackPresetId;
+  title: string;
+  description: string;
+  layout: readonly (RackModuleId | null)[];
+}[] = [
+  {
+    id: "flow",
+    title: "Потік та інсайти",
+    description:
+      "Три шини посилюють усі вузли. Більше релізів, кредитів та інсайтів відкритого коду.",
+    layout: ["build", "bus", "verify", "bus", "deploy", "bus"],
+  },
+  {
+    id: "production",
+    title: "Виробництво",
+    description:
+      "Два оркестратори посилюють наявну команду, автотести та підключених агентів.",
+    layout: ["build", "manager", "verify", "manager", "deploy", null],
+  },
+  {
+    id: "projects",
+    title: "Проєкти",
+    description: "Два архіви прискорюють сертифікації. Корисно для срібла й золота.",
+    layout: ["build", "archive", "verify", "archive", "deploy", null],
+  },
+];
 export function newArchitecture(): ArchitectureState {
   return {
     layout: Array.from({ length: RACK.slots }, () => null),

@@ -2,7 +2,7 @@ import type { CareerState } from "../../types";
 import type { CareerView, PipelineView } from "./discovery";
 import { prestigeDiscovered, viewUnlocked } from "./discovery";
 import { pipelineUnlocked } from "./pipelineUnlocks";
-import { compiledTestRate } from "./selectors";
+import { compiledTestRate, distributedTestRate } from "./selectors";
 import { openInsightRate } from "./productEffects";
 import { crewCount, hasAutoReport, production, reportValue } from "./selectors";
 import { royaltyRate } from "./products";
@@ -14,7 +14,12 @@ import {
   powerUsed,
   sustainableRate,
 } from "./architectureEffects";
-import { computationRate, networkUnlocked } from "./networkEffects";
+import {
+  agentGenerationRate,
+  computationRate,
+  networkConnected,
+  networkUnlocked,
+} from "./networkEffects";
 import { NETWORK } from "./networkData";
 
 const SECONDS_PER_MINUTE = 60;
@@ -35,6 +40,11 @@ export interface ResourceRow {
 }
 export function resourceOverview(s: CareerState): ResourceRow[] {
   const auto = hasAutoReport(s);
+  const bugSources = [
+    "Ручні тести й команда",
+    ...(pipelineUnlocked(s) ? ["постійні автотести"] : []),
+    ...(networkConnected(s) ? ["підключені агенти мережі"] : []),
+  ].join(", ");
   const rows: ResourceRow[] = [
     {
       id: "money",
@@ -55,8 +65,8 @@ export function resourceOverview(s: CareerState): ResourceRow[] {
       balance: s.bugs,
       rate: auto ? 0 : production(s),
       source: auto
-        ? "Ручні тести й команда. Автозвіти одразу перетворюють баги на гроші."
-        : "Ручні тести й команда. Здай звіт на робочому місці.",
+        ? `${bugSources}. Автозвіти одразу перетворюють баги на гроші.`
+        : `${bugSources}. Здай звіт на робочому місці.`,
       use: "Звіти дають гроші; знайдені баги паралельно просувають проєкт і контракт.",
       persistence: "Запас скидається у новій кар’єрі.",
       view: "workspace",
@@ -140,6 +150,21 @@ export function resourceOverview(s: CareerState): ResourceRow[] {
     });
   }
   if (networkUnlocked(s)) {
+    if (networkConnected(s)) {
+      rows.push({
+        id: "networkAgents",
+        title: "Агенти мережі",
+        symbol: "◉",
+        balance: s.pipeline.network.units[0],
+        rate: agentGenerationRate(s),
+        source: "Планувальники створюють нових агентів. Кожен одразу працює.",
+        use: `Тестують студію: ${distributedTestRate(s).toLocaleString("uk-UA", { maximumFractionDigits: 0 })} багів/с. Також генерують обчислення.`,
+        persistence:
+          "Престиж зберігає флот. Перезапуск мережі повертає до одного агента.",
+        view: "pipeline",
+        layer: "network",
+      });
+    }
     rows.push({
       id: "computations",
       title: "Обчислення",

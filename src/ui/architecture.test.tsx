@@ -34,6 +34,39 @@ it("hides spatial layers until the trial rewards are claimed", () => {
   expect(screen.queryByRole("button", { name: "Мережа" })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Встановити:/ })).not.toBeInTheDocument();
   expect(screen.getByRole("heading", { name: "Майстерня CI/CD" })).toBeInTheDocument();
+  expect(
+    screen.queryByRole("region", { name: "Готові схеми шафи" }),
+  ).not.toBeInTheDocument();
+});
+
+it("shows actual scheme payoffs and keeps unavailable power requirements visible", () => {
+  const s = newCareer(NOW);
+  s.careers = 1;
+  s.bestStage = 5;
+  s.pipeline.total = 10_000;
+  s.pipeline.credits = 1_000;
+  s.pipeline.completed = ["budget", "verification", "deployment"];
+  s.pipeline.architecture.blueprints = ["cycle", "bus", "flow", "studio"];
+  boot(s);
+  fireEvent.click(screen.getByRole("button", { name: "Архітектура" }));
+  expect(screen.getByRole("region", { name: "Готові схеми шафи" })).toHaveTextContent(
+    "Багів / с",
+  );
+  expect(
+    screen.getByRole("button", { name: "Застосувати схему: Виробництво" }),
+  ).toBeDisabled();
+  expect(screen.getByRole("article", { name: "Схема: Виробництво" })).toHaveTextContent(
+    "Потрібно 10 живлення",
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: "Застосувати схему: Потік та інсайти" }),
+  );
+  expect(
+    saved().pipeline.architecture.layout.filter((module) => module === "bus"),
+  ).toHaveLength(3);
+  expect(
+    screen.getByRole("button", { name: "Застосувати схему: Потік та інсайти" }),
+  ).toHaveTextContent("Поточна схема ✓");
 });
 it("places modules, claims a blueprint, saves it and opens the next instrument", () => {
   const s = newCareer(NOW);

@@ -1,10 +1,11 @@
 import type { CareerAction, CareerState, NetworkUnits } from "../../types";
 import type { ActionResult } from "./engine";
-import { GENERATORS, NETWORK, newNetwork } from "./networkData";
+import { GENERATORS, NETWORK, rebootNetworkState } from "./networkData";
 import {
   generatorPrice,
   generatorUnlocked,
   networkAutomationActive,
+  networkConnectionUnlocked,
   networkUnlocked,
   protocolPrice,
   rebootReward,
@@ -47,15 +48,7 @@ export function networkAction(s: CareerState, action: CareerAction): ActionResul
       if (reward < 1) {
         return fail("Перезапуск відкриється після 2000 обчислень за запуск.");
       }
-      next = {
-        ...newNetwork(),
-        best: n.best,
-        reboots: Math.min(NETWORK.limit, n.reboots + 1),
-        protocols: Math.min(NETWORK.limit, n.protocols + reward),
-        totalProtocols: Math.min(NETWORK.limit, n.totalProtocols + reward),
-        upgrades: { ...n.upgrades },
-        autoBuy: n.autoBuy,
-      };
+      next = rebootNetworkState(n, reward);
       message = `+${String(reward)} ⌬. Обери постійний розвиток мережі.`;
       break;
     }
@@ -77,6 +70,15 @@ export function networkAction(s: CareerState, action: CareerAction): ActionResul
         return fail("Спочатку відкрий протокол «Саморозвиток».");
       }
       next = { ...n, autoBuy: action.enabled };
+      break;
+    case "networkConnect":
+      if (!networkConnectionUnlocked(s) || n.linked) {
+        return fail(
+          "Потрібен протокол «Єдина платформа». Підключення виконується один раз.",
+        );
+      }
+      next = { ...n, linked: true };
+      message = "Агенти підключені. Вищі генератори тепер розганяють тестування студії.";
       break;
     default:
       return fail("Невідома дія мережі.");

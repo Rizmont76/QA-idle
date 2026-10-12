@@ -6,6 +6,8 @@ import { researchBonus } from "./studioSelectors";
 import { architectureEffects } from "./architectureEffects";
 import { PIPELINE } from "./pipelineData";
 import { pipelineUnlocked } from "./pipelineUnlocks";
+import { networkConnected } from "./networkEffects";
+import { NETWORK } from "./networkData";
 
 export const permanentMultiplier = (s: CareerState) =>
   1 + s.experience * R.experienceBonus + s.badges.length * R.badgeBonus;
@@ -22,4 +24,9 @@ export const productionFactor = (s: CareerState) =>
 export const scriptPower = (s: CareerState) =>
   s.pipeline.model === PIPELINE_MODEL_VERSION && pipelineUnlocked(s)
     ? PIPELINE.scriptRate * productionFactor(s)
+    : 0;
+
+export const agentPower = (s: CareerState) =>
+  s.pipeline.model === PIPELINE_MODEL_VERSION && networkConnected(s)
+    ? NETWORK.agentBugs * productionFactor(s)
     : 0;

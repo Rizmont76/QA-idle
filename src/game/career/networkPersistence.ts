@@ -33,6 +33,7 @@ export function normalizeNetwork(s: CareerState, value: unknown): void {
   }
   n.protocols = Math.floor(amount(data["protocols"], n.totalProtocols - spentProtocols));
   n.autoBuy = n.upgrades.autobuy > 0 && data["autoBuy"] === true;
+  n.linked = n.upgrades.bridge > 0 && data["linked"] === true;
   const units = Array.isArray(data["units"]) ? (data["units"] as unknown[]) : [];
   const purchased = Array.isArray(data["purchased"])
     ? (data["purchased"] as unknown[])

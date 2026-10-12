@@ -1,5 +1,7 @@
 # QA Idle Documentation Index
 
+Current late-frontier connection: [27 — Connected Late Frontiers](27-Connected_Late_Frontiers.md) connects the network fleet to bug production and offers rack layouts with actual economic previews. It preserves document 26's early discovery and permanent capital.
+
 Current core-loop redesign: [26 — Early Breakthroughs](26-Early_Breakthroughs.md) owns early pipeline discovery, compiled autotest production, crew/tool interactions and capability-based promotion objectives. It supersedes the named rules in 20–25. Track iterations in [TODO](../TODO.md).
 
 Current pacing foundation: [25 — Career Chapters](25-Career_Chapters.md) owns independent rank income, promotion boosts, stable reporting and the resource overview. Document 26 replaces its mandatory chapter counts and early pacing.

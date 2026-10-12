@@ -5,6 +5,7 @@ import {
   BLUEPRINTS,
   RACK,
   RACK_MODULES,
+  RACK_PRESETS,
 } from "../game/career/architectureData";
 import {
   architectureEffects,
@@ -22,6 +23,9 @@ import { blueprintProgress, blueprintReady } from "../game/career/architectureAc
 import { PIPELINE_TRIALS, STATIONS } from "../game/career/pipelineData";
 import { Meter, SectionTitle } from "./CareerWidgets";
 import { number } from "./careerUtils";
+import { rackPresetPreview, rackPresetsUnlocked } from "../game/career/rackPresets";
+
+const SECONDS_PER_MINUTE = 60;
 
 export function CareerArchitecture({
   game: s,
@@ -246,6 +250,79 @@ export function CareerArchitecture({
               <small>до виконаної роботи</small>
             </div>
           </section>
+          {rackPresetsUnlocked(s) && (
+            <section aria-label="Готові схеми шафи" className="rack-configurations">
+              <SectionTitle
+                eyebrow="СХЕМА ПІД ТВОЮ ПОТОЧНУ МЕТУ"
+                title="Обери напрям студії"
+              />
+              <p className="muted">
+                {a.autoBalance
+                  ? "Авторозподіл підбере ядра для кожної схеми."
+                  : "Ефект із поточним розподілом ядер."}{" "}
+                Перемикання безкоштовне; власну схему можна зібрати вручну.
+              </p>
+              <div className="rack-preset-grid">
+                {RACK_PRESETS.map((def) => {
+                  const preview = rackPresetPreview(s, def.id);
+                  if (!preview) {
+                    return null;
+                  }
+                  return (
+                    <article
+                      className={`panel rack-preset ${preview.selected ? "selected" : ""}`}
+                      key={def.id}
+                      aria-label={`Схема: ${def.title}`}
+                    >
+                      <span className="eyebrow">ϟ {preview.power} живлення</span>
+                      <h3>{def.title}</h3>
+                      <p>{def.description}</p>
+                      <dl>
+                        <dt>Багів / с</dt>
+                        <dd>
+                          {number(preview.current.bugs)} →{" "}
+                          <strong>{number(preview.bugs)}</strong>
+                        </dd>
+                        <dt>Релізів / с</dt>
+                        <dd>
+                          {number(preview.current.rate)} →{" "}
+                          <strong>{number(preview.rate)}</strong>
+                        </dd>
+                        <dt>Роботи проєктів / с</dt>
+                        <dd>
+                          {number(preview.current.projectWork)} →{" "}
+                          <strong>{number(preview.projectWork)}</strong>
+                        </dd>
+                        {(preview.insights > 0 || preview.current.insights > 0) && (
+                          <>
+                            <dt>Інсайтів / хв</dt>
+                            <dd>
+                              {number(preview.current.insights * SECONDS_PER_MINUTE)} →{" "}
+                              <strong>
+                                {number(preview.insights * SECONDS_PER_MINUTE)}
+                              </strong>
+                            </dd>
+                          </>
+                        )}
+                      </dl>
+                      <button
+                        className="button secondary full"
+                        aria-label={`Застосувати схему: ${def.title}`}
+                        disabled={!preview.allowed || preview.selected}
+                        onClick={() => send({ type: "rackPreset", id: def.id })}
+                      >
+                        {preview.selected
+                          ? "Поточна схема ✓"
+                          : !preview.allowed
+                            ? `Потрібно ${String(preview.power)} живлення`
+                            : "Застосувати схему →"}
+                      </button>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          )}
           <SectionTitle eyebrow="РІШЕННЯ ВІДКРИВАЮТЬ НОВІ ІНСТРУМЕНТИ" title="Креслення">
             <span className="pill">{a.blueprints.length} відкрито</span>
           </SectionTitle>

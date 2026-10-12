@@ -7,6 +7,8 @@ import {
   generatorPrice,
   generatorUnlocked,
   networkBridge,
+  networkConnected,
+  networkConnectionUnlocked,
   networkDiscovery,
   networkMultiplier,
   networkUnlocked,
@@ -15,7 +17,12 @@ import {
 } from "../game/career/networkEffects";
 import { BLUEPRINTS } from "../game/career/architectureData";
 import { ConfirmDialog, Meter, SectionTitle } from "./CareerWidgets";
-import { number } from "./careerUtils";
+import { cash, number } from "./careerUtils";
+import {
+  networkConnectPreview,
+  networkImpact,
+  networkRebootPreview,
+} from "../game/career/networkImpact";
 
 const precise = (value: number) =>
   value.toLocaleString("uk-UA", { maximumFractionDigits: 3 });
@@ -41,6 +48,9 @@ export function CareerNetwork({
   const reward = rebootReward(s);
   const multiplier = networkMultiplier(s);
   const bridge = networkBridge(s);
+  const current = networkImpact(s);
+  const connection = networkConnectPreview(s);
+  const reboot = networkRebootPreview(s);
   return (
     <>
       <SectionTitle eyebrow="ВІД ОДНІЄЇ СХЕМИ ДО МЕРЕЖІ" title="Обчислювальна мережа">
@@ -87,6 +97,51 @@ export function CareerNetwork({
               <Meter value={next.value} max={next.target} label="Рубіж мережі" />
             </section>
           </div>
+          {networkConnectionUnlocked(s) && connection && (
+            <section
+              className="panel network-studio-link"
+              aria-label="Мережа й виробництво багів"
+            >
+              <div>
+                <span className="eyebrow">ГЕНЕРАТОРИ ПРАЦЮЮТЬ ДЛЯ СТУДІЇ</span>
+                <h2>
+                  {networkConnected(s)
+                    ? "Тестування, яке нарощує себе."
+                    : "Нехай агенти тестують твої релізи."}
+                </h2>
+                <p>
+                  Вищі генератори створюють агентів.{" "}
+                  {networkConnected(s)
+                    ? "Кожен агент одночасно приносить обчислення й знаходить баги."
+                    : "Після підключення кожен агент одночасно приноситиме обчислення й знаходитиме баги."}{" "}
+                  Більше флоту — більше доходу між покупками.
+                </p>
+              </div>
+              <div className="network-link-impact">
+                <span>Від агентів</span>
+                <strong>
+                  +{number(connection.agents)} <small>багів / с</small>
+                </strong>
+                {!networkConnected(s) && (
+                  <p>
+                    Студія: {number(current.bugs)} → {number(connection.bugs)} багів/с
+                    <br />
+                    Дохід: {cash(current.income)} → {cash(connection.income)} / с
+                  </p>
+                )}
+                {networkConnected(s) ? (
+                  <span className="mint">Підключено назавжди ✓</span>
+                ) : (
+                  <button
+                    className="button primary"
+                    onClick={() => send({ type: "networkConnect" })}
+                  >
+                    Підключити агентів до студії →
+                  </button>
+                )}
+              </div>
+            </section>
+          )}
           <section className="network-chain" aria-label="Ланцюжок генераторів">
             {GENERATORS.filter((g) => generatorUnlocked(s, g.tier))
               .reverse()
@@ -271,6 +326,21 @@ export function CareerNetwork({
             Найкращий запуск, відкриті ланки та постійні протоколи залишаться.
           </p>
           <p>Кар’єра, конвеєр, архітектура й решта студії продовжать працювати.</p>
+          {networkConnected(s) && reboot && (
+            <div className="network-reset-impact">
+              <strong>Поточний флот почне з одного агента.</strong>
+              <p>
+                Виробництво студії: {number(current.bugs)} → {number(reboot.bugs)}{" "}
+                багів/с.
+                <br />
+                Дохід: {cash(current.income)} → {cash(reboot.income)} / с.
+              </p>
+              <p>
+                Накопичені автотести продовжать працювати. Підключення агентів
+                залишається; новий флот відновить його потужність.
+              </p>
+            </div>
+          )}
         </ConfirmDialog>
       )}
     </>

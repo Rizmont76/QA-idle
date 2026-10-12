@@ -1,7 +1,6 @@
 import { architectureAction } from "./architectureActions";
 import { balanceArchitecture } from "./architectureEffects";
 import { networkAction, networkAutomationIntent } from "./networkActions";
-import { advanceNetwork } from "./networkFlow";
 import type { CareerAction, CareerState } from "../../types";
 import { PRODUCT_MODEL_VERSION } from "../../types";
 import { BADGES, CAREER_RULES as R, CAREER_STAGES, CAREER_UPGRADES } from "./content";
@@ -116,6 +115,7 @@ export interface TimeResult {
   pipelineCredits?: number;
   automatedActions?: number;
   networkComputations?: number;
+  networkBugs?: number;
 }
 export function advanceCareer(s: CareerState, now: number, offline = false): TimeResult {
   const elapsed = (now - s.lastTick) / R.milliseconds;
@@ -128,6 +128,7 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
   let processed = 0;
   let totalBugs = 0;
   let automatedActions = 0;
+  let networkBugs = 0;
   while (remaining > 0) {
     const automatic = automationActive(next);
     next = awardBadges(hasAutoReport(next) && next.bugs > 0 ? report(next) : next);
@@ -156,6 +157,7 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
     next = result.state;
     processed += step;
     totalBugs += result.bugs;
+    networkBugs += result.networkBugs ?? 0;
     if (badge && badge.seconds <= step && !next.badges.includes(badge.id)) {
       // The analytic threshold was crossed; don't delay a bonus due to rounding.
       next = { ...next, badges: [...next.badges, badge.id] };
@@ -204,6 +206,7 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
     pipelineCredits: next.pipeline.total - s.pipeline.total,
     automatedActions,
     networkComputations: next.pipeline.network.runTotal - s.pipeline.network.runTotal,
+    networkBugs,
   };
 }
 function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeResult {
@@ -224,7 +227,7 @@ function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeRe
     lifetimeInsights: bounded(next.lifetimeInsights + insights),
     pipeline: {
       ...flow.pipeline,
-      network: advanceNetwork(s, seconds * efficiency),
+      network: flow.network,
     },
     products: {
       ...next.products,
@@ -259,6 +262,7 @@ function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeRe
     bugs,
     money: next.money - s.money,
     capped: false,
+    networkBugs: flow.agentBugs,
   };
 }
 export interface ActionResult {
@@ -409,9 +413,11 @@ export function act(
     case "networkReboot":
     case "networkProtocol":
     case "networkAuto":
+    case "networkConnect":
       return networkAction(state, action);
     case "rackModule":
     case "rackPower":
+    case "rackPreset":
     case "claimBlueprint":
     case "architecturePolicy":
       return architectureAction(state, action);

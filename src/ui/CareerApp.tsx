@@ -318,6 +318,11 @@ export function CareerApp() {
               {(summary.networkComputations ?? 0) > 0 && (
                 <p>Мережа: +{number(summary.networkComputations ?? 0)} обчислень</p>
               )}
+              {(summary.networkBugs ?? 0) > 0 && (
+                <p>
+                  Із них від агентів мережі: +{number(summary.networkBugs ?? 0)} багів
+                </p>
+              )}
               {(summary.automatedActions ?? 0) > 0 && (
                 <p>
                   Політики кар’єри виконали {number(summary.automatedActions ?? 0)} дій.

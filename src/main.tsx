@@ -8,6 +8,7 @@ import "./pipeline.css";
 import "./architecture.css";
 import "./network.css";
 import "./discovery.css";
+import "./frontier.css";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

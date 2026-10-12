@@ -1,6 +1,7 @@
 import type { BlueprintId, CareerAction, CareerState } from "../../types";
 import type { ActionResult } from "./engine";
 import { BLUEPRINTS, RACK } from "./architectureData";
+import { rackPresetPreview } from "./rackPresets";
 import {
   architectureEffects,
   architecturePolicyUnlocked,
@@ -48,6 +49,15 @@ export function architectureAction(s: CareerState, action: CareerAction): Action
   let credits = s.pipeline.credits;
   let message = "";
   switch (action.type) {
+    case "rackPreset": {
+      const preview = rackPresetPreview(s, action.id);
+      if (!preview?.allowed) {
+        return fail("Потрібні всі креслення та достатнє живлення для цієї схеми.");
+      }
+      next = preview.state.pipeline.architecture;
+      message = "Схему застосовано. Її ефекти вже працюють.";
+      break;
+    }
     case "rackModule": {
       if (
         !Number.isInteger(action.slot) ||

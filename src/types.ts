@@ -127,6 +127,7 @@ export type PipelineTrialId = "budget" | "verification" | "deployment";
 export type RackModuleId = "build" | "verify" | "deploy" | "bus" | "archive" | "manager";
 export type BlueprintId = "cycle" | "bus" | "flow" | "studio";
 export type ArchitecturePolicy = "autoBalance" | "autoCores";
+export type RackPresetId = "flow" | "production" | "projects";
 export interface ArchitectureState {
   layout: (RackModuleId | null)[];
   powerLevel: number;
@@ -169,6 +170,7 @@ export interface NetworkState {
   totalProtocols: number;
   upgrades: Record<NetworkProtocol, number>;
   autoBuy: boolean;
+  linked: boolean;
 }
 export interface CareerState {
   schemaVersion: typeof CAREER_SAVE_VERSION;
@@ -237,10 +239,12 @@ export type CareerAction =
   | { type: "pipelineCore" }
   | { type: "rackModule"; slot: number; id: RackModuleId | null }
   | { type: "rackPower" }
+  | { type: "rackPreset"; id: RackPresetId }
   | { type: "networkBuy"; tier: NetworkTier }
   | { type: "networkReboot" }
   | { type: "networkProtocol"; id: NetworkProtocol }
   | { type: "networkAuto"; enabled: boolean }
+  | { type: "networkConnect" }
   | { type: "claimBlueprint"; id: BlueprintId }
   | { type: "architecturePolicy"; id: ArchitecturePolicy; enabled: boolean }
   | { type: "startTrial"; id: PipelineTrialId }
