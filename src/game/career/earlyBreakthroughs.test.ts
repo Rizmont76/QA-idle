@@ -12,6 +12,8 @@ import { productIncome, productInsightRate } from "./productEffects";
 import { PRODUCTS } from "./productData";
 
 const NOW = 1_000_000;
+// Replays 120 growing offline intervals as well as 2,400 fine steps on CI CPUs.
+const REPEATED_CATCHUP_TIMEOUT_MS = 30_000;
 const senior = () => ({
   ...newCareer(NOW),
   stage: 2,
@@ -204,39 +206,43 @@ describe("connected early production", () => {
   });
 });
 
-it("keeps dispatcher payments and purchases aligned with growing badge boundaries", () => {
-  const s = newCareer(NOW);
-  s.careers = 1;
-  s.pipeline.total = 100;
-  s.pipeline.credits = 100;
-  s.money = 10000;
-  s.earned = 10000;
-  s.stage = 3;
-  s.bestStage = 3;
-  s.crew.assistant = 15;
-  s.upgrades = ["auto", "handover"];
-  s.office = { ...s.office, licensed: true, contractId: "smoke" };
-  s.pipeline.completed = ["budget", "verification", "deployment"];
-  s.pipeline.automation = {
-    chapters: true,
-    hire: true,
-    projects: true,
-    promote: true,
-    upgrades: true,
-  };
-  let fine = s;
-  for (let i = 1; i <= 2400; i++) {
-    fine = advanceCareer(fine, NOW + i * 250).state;
-    if (i % 20 === 0) {
-      const long = advanceCareer(s, NOW + i * 250, true).state;
-      expect(long.money / fine.money).toBeCloseTo(1, 12);
-      expect(long.crew).toEqual(fine.crew);
-      expect(long.badges).toEqual(fine.badges);
-      expect(long.stage).toBe(fine.stage);
-      expect(long.office).toEqual(fine.office);
+it(
+  "keeps dispatcher payments and purchases aligned with growing badge boundaries",
+  () => {
+    const s = newCareer(NOW);
+    s.careers = 1;
+    s.pipeline.total = 100;
+    s.pipeline.credits = 100;
+    s.money = 10000;
+    s.earned = 10000;
+    s.stage = 3;
+    s.bestStage = 3;
+    s.crew.assistant = 15;
+    s.upgrades = ["auto", "handover"];
+    s.office = { ...s.office, licensed: true, contractId: "smoke" };
+    s.pipeline.completed = ["budget", "verification", "deployment"];
+    s.pipeline.automation = {
+      chapters: true,
+      hire: true,
+      projects: true,
+      promote: true,
+      upgrades: true,
+    };
+    let fine = s;
+    for (let i = 1; i <= 2400; i++) {
+      fine = advanceCareer(fine, NOW + i * 250).state;
+      if (i % 20 === 0) {
+        const long = advanceCareer(s, NOW + i * 250, true).state;
+        expect(long.money / fine.money).toBeCloseTo(1, 12);
+        expect(long.crew).toEqual(fine.crew);
+        expect(long.badges).toEqual(fine.badges);
+        expect(long.stage).toBe(fine.stage);
+        expect(long.office).toEqual(fine.office);
+      }
     }
-  }
-});
+  },
+  REPEATED_CATCHUP_TIMEOUT_MS,
+);
 
 it("starts newly eligible pipelines after migration rather than rewarding the old absence", () => {
   const s = senior();
