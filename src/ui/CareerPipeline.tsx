@@ -1,6 +1,6 @@
 import { CareerNetwork } from "./CareerNetwork";
 import { networkUnlocked } from "../game/career/networkEffects";
-import { useState } from "react";
+import type { PipelineView } from "../game/career/discovery";
 import { CareerArchitecture } from "./CareerArchitecture";
 import { architectureUnlocked, pipelineRates } from "../game/career/architectureEffects";
 import type { CareerAction, CareerState } from "../types";
@@ -49,38 +49,6 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
   const trial = p.trial;
   const trialDef = PIPELINE_TRIALS.find((t) => t.id === trial?.id);
   const trialReady = !!trial && !!trialDef && trial.progress >= trialDef.target;
-  const discoveries = [
-    {
-      name: "Конвеєр",
-      condition: "Перший престиж",
-      detail: "Розподіляй спільну потужність між вузлами.",
-      done: unlocked,
-    },
-    {
-      name: "Автонайм",
-      condition: `${String(PIPELINE.hireAt)} релізів`,
-      detail: "Перші покупки команда робить сама.",
-      done: unlocked && policyUnlocked(p, "hire"),
-    },
-    {
-      name: "Випробування",
-      condition: `${String(PIPELINE.trialsAt)} релізів`,
-      detail: "Змінені правила, три постійні нагороди.",
-      done: unlocked && p.total >= PIPELINE.trialsAt,
-    },
-    {
-      name: "Автопроєкти",
-      condition: "Важка регресія",
-      detail: "Кар’єрна кампанія рухається без ручної здачі.",
-      done: unlocked && policyUnlocked(p, "projects"),
-    },
-    {
-      name: "Автокар’єра",
-      condition: "Повільний деплой",
-      detail: "Покупки та підвищення — за твоєю політикою.",
-      done: unlocked && policyUnlocked(p, "promote"),
-    },
-  ];
   return (
     <>
       <SectionTitle eyebrow="ПЕРШИЙ НОВИЙ ШАР" title="Майстерня CI/CD">
@@ -88,16 +56,6 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
           {unlocked ? "Залишається після престижу" : "Відкриття попереду"}
         </span>
       </SectionTitle>
-      <ol className="discovery-trail" aria-label="Шлях відкриттів">
-        {discoveries.map((d, i) => (
-          <li className={d.done ? "complete" : ""} key={d.name}>
-            <span>{d.done ? "✓" : String(i + 1)}</span>
-            <h3>{d.name}</h3>
-            <strong>{d.condition}</strong>
-            <p>{d.detail}</p>
-          </li>
-        ))}
-      </ol>
       {!unlocked ? (
         <section className="panel pipeline-locked">
           <span className="eyebrow">ТВОЯ ПЕРША ЗМІНА МАСШТАБУ</span>
@@ -162,173 +120,196 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
               </button>
             </div>
           </section>
-          <SectionTitle eyebrow="ОБЕРИ ВЛАСНИЙ МАРШРУТ" title="Випробування">
-            <span className="pill">
-              {p.completed.length} / {PIPELINE_TRIALS.length}
-            </span>
-          </SectionTitle>
-          <p className="pipeline-intro">
-            Окремий конвеєр з іншими правилами. Без скидання кар’єри й без витрат.
-            Головний потік працює весь час.
-          </p>
-          {trial && trialDef && (
-            <section
-              className={`panel pipeline-trial ${trialReady ? "ready" : ""}`}
-              aria-label="Активне випробування"
-            >
-              <div className="pipeline-heading">
-                <div>
-                  <span className="eyebrow">
-                    {trialReady ? "ПРОРИВ ГОТОВИЙ" : "АКТИВНЕ ВИПРОБУВАННЯ"}
-                  </span>
-                  <h2>{trialDef.title}</h2>
-                  <p className="muted">{trialDef.description}</p>
-                </div>
-                <strong>
-                  {number(trial.progress)} / {number(trialDef.target)}
-                </strong>
+          {p.total >= PIPELINE.trialsAt && (
+            <>
+              {" "}
+              <SectionTitle eyebrow="ОБЕРИ ВЛАСНИЙ МАРШРУТ" title="Випробування">
+                <span className="pill">
+                  {p.completed.length} / {PIPELINE_TRIALS.length}
+                </span>
+              </SectionTitle>
+              <p className="pipeline-intro">
+                Окремий конвеєр з іншими правилами. Без скидання кар’єри й без витрат.
+                Головний потік працює весь час.
+              </p>
+              {trial && trialDef && (
+                <section
+                  className={`panel pipeline-trial ${trialReady ? "ready" : ""}`}
+                  aria-label="Активне випробування"
+                >
+                  <div className="pipeline-heading">
+                    <div>
+                      <span className="eyebrow">
+                        {trialReady ? "ПРОРИВ ГОТОВИЙ" : "АКТИВНЕ ВИПРОБУВАННЯ"}
+                      </span>
+                      <h2>{trialDef.title}</h2>
+                      <p className="muted">{trialDef.description}</p>
+                    </div>
+                    <strong>
+                      {number(trial.progress)} / {number(trialDef.target)}
+                    </strong>
+                  </div>
+                  <Meter
+                    value={trial.progress}
+                    max={trialDef.target}
+                    label="Релізи випробування"
+                  />
+                  <FlowBoard
+                    allocation={trial.allocation}
+                    queues={trial.queues}
+                    rates={trialDef.rates}
+                    budget={trialDef.cores}
+                    send={send}
+                    trial
+                    stopped={trialReady}
+                  />
+                  <div className="trial-finish">
+                    <div>
+                      <strong>{trialDef.reward}</strong>
+                      <p>Час роботи: {clockTime(trial.elapsed)} · Нагорода назавжди</p>
+                    </div>
+                    {trialReady ? (
+                      <button
+                        className="button primary"
+                        onClick={() => send({ type: "claimTrial" })}
+                      >
+                        Забрати прорив →
+                      </button>
+                    ) : (
+                      <button
+                        className="button ghost"
+                        onClick={() => send({ type: "cancelTrial" })}
+                      >
+                        Скасувати спробу
+                      </button>
+                    )}
+                  </div>
+                </section>
+              )}
+              <div className="trial-options">
+                {PIPELINE_TRIALS.map((def) => (
+                  <article
+                    key={def.id}
+                    className={`panel trial-option ${p.completed.includes(def.id) ? "complete" : ""}`}
+                  >
+                    <span className="eyebrow">
+                      {p.completed.includes(def.id)
+                        ? "✓ ПРОЙДЕНО"
+                        : `${String(def.cores)} ЯДЕР · ${String(def.target)} РЕЛІЗІВ`}
+                    </span>
+                    <h3>{def.title}</h3>
+                    <p>{def.description}</p>
+                    <strong>{def.reward}</strong>
+                    <button
+                      className="button secondary"
+                      disabled={
+                        p.total < PIPELINE.trialsAt ||
+                        !!trial ||
+                        p.completed.includes(def.id)
+                      }
+                      onClick={() => send({ type: "startTrial", id: def.id })}
+                    >
+                      {p.completed.includes(def.id)
+                        ? "Нагорода отримана"
+                        : p.total < PIPELINE.trialsAt
+                          ? `Після ${String(PIPELINE.trialsAt)} релізів`
+                          : trial?.id === def.id
+                            ? "У процесі"
+                            : `Почати: ${def.title}`}
+                    </button>
+                  </article>
+                ))}
               </div>
-              <Meter
-                value={trial.progress}
-                max={trialDef.target}
-                label="Релізи випробування"
+            </>
+          )}
+          {PIPELINE_POLICIES.some((policy) => policyUnlocked(p, policy.id)) && (
+            <>
+              {" "}
+              <SectionTitle
+                eyebrow="ПОПЕРЕДНІЙ ЦИКЛ ПРАЦЮЄ НА ТЕБЕ"
+                title="Автоматизація кар’єри"
               />
-              <FlowBoard
-                allocation={trial.allocation}
-                queues={trial.queues}
-                rates={trialDef.rates}
-                budget={trialDef.cores}
-                send={send}
-                trial
-                stopped={trialReady}
-              />
-              <div className="trial-finish">
-                <div>
-                  <strong>{trialDef.reward}</strong>
-                  <p>Час роботи: {clockTime(trial.elapsed)} · Нагорода назавжди</p>
-                </div>
-                {trialReady ? (
-                  <button
-                    className="button primary"
-                    onClick={() => send({ type: "claimTrial" })}
-                  >
-                    Забрати прорив →
-                  </button>
-                ) : (
-                  <button
-                    className="button ghost"
-                    onClick={() => send({ type: "cancelTrial" })}
-                  >
-                    Скасувати спробу
-                  </button>
+              <p className="pipeline-intro">
+                Кожні {PIPELINE.automationMs / CAREER_RULES.milliseconds} секунд:
+                підвищення → покращення → найм → проєкт. По одній дії кожного виду, також
+                офлайн. Увімкни потрібне.
+              </p>
+              <div className="pipeline-policies">
+                {PIPELINE_POLICIES.filter((policy) => policyUnlocked(p, policy.id)).map(
+                  (policy) => {
+                    const available = policyUnlocked(p, policy.id);
+                    return (
+                      <article className="panel pipeline-policy" key={policy.id}>
+                        <div>
+                          <h3>{policy.title}</h3>
+                          <p>{policy.description}</p>
+                          <small>
+                            {available
+                              ? "Відкрито назавжди"
+                              : `Відкриває: ${policy.unlock}`}
+                          </small>
+                        </div>
+                        <button
+                          role="switch"
+                          aria-checked={p.automation[policy.id]}
+                          aria-label={policy.title}
+                          className={`policy-switch ${p.automation[policy.id] ? "on" : ""}`}
+                          disabled={!available}
+                          onClick={() =>
+                            send({
+                              type: "pipelinePolicy",
+                              id: policy.id,
+                              enabled: !p.automation[policy.id],
+                            })
+                          }
+                        >
+                          {p.automation[policy.id]
+                            ? "Увімкнено"
+                            : available
+                              ? "Вимкнено"
+                              : "Закрито"}
+                        </button>
+                      </article>
+                    );
+                  },
                 )}
               </div>
-            </section>
+            </>
           )}
-          <div className="trial-options">
-            {PIPELINE_TRIALS.map((def) => (
-              <article
-                key={def.id}
-                className={`panel trial-option ${p.completed.includes(def.id) ? "complete" : ""}`}
-              >
-                <span className="eyebrow">
-                  {p.completed.includes(def.id)
-                    ? "✓ ПРОЙДЕНО"
-                    : `${String(def.cores)} ЯДЕР · ${String(def.target)} РЕЛІЗІВ`}
-                </span>
-                <h3>{def.title}</h3>
-                <p>{def.description}</p>
-                <strong>{def.reward}</strong>
-                <button
-                  className="button secondary"
-                  disabled={
-                    p.total < PIPELINE.trialsAt || !!trial || p.completed.includes(def.id)
-                  }
-                  onClick={() => send({ type: "startTrial", id: def.id })}
-                >
-                  {p.completed.includes(def.id)
-                    ? "Нагорода отримана"
-                    : p.total < PIPELINE.trialsAt
-                      ? `Після ${String(PIPELINE.trialsAt)} релізів`
-                      : trial?.id === def.id
-                        ? "У процесі"
-                        : `Почати: ${def.title}`}
-                </button>
-              </article>
-            ))}
-          </div>
-          <SectionTitle
-            eyebrow="ПОПЕРЕДНІЙ ЦИКЛ ПРАЦЮЄ НА ТЕБЕ"
-            title="Автоматизація кар’єри"
-          />
-          <p className="pipeline-intro">
-            Кожні {PIPELINE.automationMs / CAREER_RULES.milliseconds} секунд: підвищення →
-            покращення → найм → проєкт. По одній дії кожного виду, також офлайн. Увімкни
-            потрібне.
-          </p>
-          <div className="pipeline-policies">
-            {PIPELINE_POLICIES.map((policy) => {
-              const available = policyUnlocked(p, policy.id);
-              return (
-                <article className="panel pipeline-policy" key={policy.id}>
-                  <div>
-                    <h3>{policy.title}</h3>
-                    <p>{policy.description}</p>
-                    <small>
-                      {available ? "Відкрито назавжди" : `Відкриває: ${policy.unlock}`}
-                    </small>
-                  </div>
-                  <button
-                    role="switch"
-                    aria-checked={p.automation[policy.id]}
-                    aria-label={policy.title}
-                    className={`policy-switch ${p.automation[policy.id] ? "on" : ""}`}
-                    disabled={!available}
-                    onClick={() =>
-                      send({
-                        type: "pipelinePolicy",
-                        id: policy.id,
-                        enabled: !p.automation[policy.id],
-                      })
-                    }
-                  >
-                    {p.automation[policy.id]
-                      ? "Увімкнено"
-                      : available
-                        ? "Вимкнено"
-                        : "Закрито"}
-                  </button>
-                </article>
-              );
-            })}
-          </div>
         </>
       )}
     </>
   );
 }
 
-export function CareerPipeline(props: Props) {
+export function CareerPipeline(
+  props: Props & { view: PipelineView; setView: (view: PipelineView) => void },
+) {
   const available = architectureUnlocked(props.game);
   const network = networkUnlocked(props.game);
-  const [view, setView] = useState<"pipeline" | "architecture" | "network">(
-    network ? "network" : available ? "architecture" : "pipeline",
-  );
+  const { view, setView } = props;
+  if (props.game.careers < 1) {
+    return null;
+  }
   return (
     <>
       <nav className="pipeline-subnav" aria-label="Майстерня">
         <button aria-pressed={view === "pipeline"} onClick={() => setView("pipeline")}>
           Конвеєр
         </button>
-        <button
-          aria-pressed={view === "architecture"}
-          onClick={() => setView("architecture")}
-        >
-          Архітектура <span>{available ? "НОВИЙ ШАР" : "◇"}</span>
-        </button>
-        <button aria-pressed={view === "network"} onClick={() => setView("network")}>
-          Мережа <span>{network ? "НОВИЙ ШАР" : "◇"}</span>
-        </button>
+        {available && (
+          <button
+            aria-pressed={view === "architecture"}
+            onClick={() => setView("architecture")}
+          >
+            Архітектура
+          </button>
+        )}
+        {network && (
+          <button aria-pressed={view === "network"} onClick={() => setView("network")}>
+            Мережа
+          </button>
+        )}
       </nav>
       {view === "network" ? (
         <CareerNetwork

@@ -173,7 +173,7 @@ export function CareerArchitecture({
                 <span className="muted">Без витрат</span>
               </div>
               <div className="rack-module-list">
-                {RACK_MODULES.map((def) => {
+                {RACK_MODULES.filter((def) => moduleUnlocked(s, def.id)).map((def) => {
                   const available = moduleUnlocked(s, def.id);
                   const fits =
                     used -
@@ -247,12 +247,12 @@ export function CareerArchitecture({
             </div>
           </section>
           <SectionTitle eyebrow="РІШЕННЯ ВІДКРИВАЮТЬ НОВІ ІНСТРУМЕНТИ" title="Креслення">
-            <span className="pill">
-              {a.blueprints.length} / {BLUEPRINTS.length}
-            </span>
+            <span className="pill">{a.blueprints.length} відкрито</span>
           </SectionTitle>
           <div className="blueprint-grid">
-            {BLUEPRINTS.map((def, i) => {
+            {BLUEPRINTS.filter(
+              (def) => a.blueprints.includes(def.id) || def.id === next?.id,
+            ).map((def, i) => {
               const done = a.blueprints.includes(def.id);
               const ready = blueprintReady(s, def.id);
               const available = !def.requires || a.blueprints.includes(def.requires);
@@ -297,44 +297,52 @@ export function CareerArchitecture({
               );
             })}
           </div>
-          <SectionTitle
-            eyebrow="КОНВЕЄР ПЕРЕХОДИТЬ НА АВТОМАТИКУ"
-            title="Делегуй попередній шар"
-          />
-          <div className="pipeline-policies">
-            {ARCHITECTURE_POLICIES.map((policy) => {
-              const available = architecturePolicyUnlocked(s, policy.id);
-              return (
-                <article className="panel pipeline-policy" key={policy.id}>
-                  <div>
-                    <h3>{policy.title}</h3>
-                    <p>{policy.description}</p>
-                    <small>
-                      {available
-                        ? "Відкрито назавжди"
-                        : `Креслення «${BLUEPRINTS.find((b) => b.id === policy.requires)?.title ?? ""}»`}
-                    </small>
-                  </div>
-                  <button
-                    role="switch"
-                    aria-checked={a[policy.id]}
-                    aria-label={policy.title}
-                    className={`policy-switch ${a[policy.id] ? "on" : ""}`}
-                    disabled={!available}
-                    onClick={() =>
-                      send({
-                        type: "architecturePolicy",
-                        id: policy.id,
-                        enabled: !a[policy.id],
-                      })
-                    }
-                  >
-                    {a[policy.id] ? "Увімкнено" : available ? "Вимкнено" : "Закрито"}
-                  </button>
-                </article>
-              );
-            })}
-          </div>
+          {ARCHITECTURE_POLICIES.some((policy) =>
+            architecturePolicyUnlocked(s, policy.id),
+          ) && (
+            <>
+              <SectionTitle
+                eyebrow="КОНВЕЄР ПЕРЕХОДИТЬ НА АВТОМАТИКУ"
+                title="Делегуй попередній шар"
+              />
+              <div className="pipeline-policies">
+                {ARCHITECTURE_POLICIES.filter((policy) =>
+                  architecturePolicyUnlocked(s, policy.id),
+                ).map((policy) => {
+                  const available = architecturePolicyUnlocked(s, policy.id);
+                  return (
+                    <article className="panel pipeline-policy" key={policy.id}>
+                      <div>
+                        <h3>{policy.title}</h3>
+                        <p>{policy.description}</p>
+                        <small>
+                          {available
+                            ? "Відкрито назавжди"
+                            : `Креслення «${BLUEPRINTS.find((b) => b.id === policy.requires)?.title ?? ""}»`}
+                        </small>
+                      </div>
+                      <button
+                        role="switch"
+                        aria-checked={a[policy.id]}
+                        aria-label={policy.title}
+                        className={`policy-switch ${a[policy.id] ? "on" : ""}`}
+                        disabled={!available}
+                        onClick={() =>
+                          send({
+                            type: "architecturePolicy",
+                            id: policy.id,
+                            enabled: !a[policy.id],
+                          })
+                        }
+                      >
+                        {a[policy.id] ? "Увімкнено" : available ? "Вимкнено" : "Закрито"}
+                      </button>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </>
       )}
     </>

@@ -138,8 +138,8 @@ describe("studio UI", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Студія" }));
     expect(
-      screen.getByRole("button", { name: "Дослідити Розумні закупівлі" }),
-    ).toBeDisabled();
+      screen.queryByRole("button", { name: "Дослідити Розумні закупівлі" }),
+    ).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Фахівці 2\/2/ }));
     expect(screen.getByRole("button", { name: "Призначити Софія" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "У резерв Марта" }));

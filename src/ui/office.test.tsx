@@ -24,12 +24,14 @@ function boot(patch: Partial<CareerState> = {}) {
   fireEvent.click(screen.getByRole("button", { name: "Офіс" }));
 }
 it("shows a starter office and prevents buying dispatch before its milestones", () => {
-  boot();
+  boot({ stage: 1, bestStage: 1 });
   expect(
     screen.getByRole("heading", { name: "Перший робочий стіл" }),
   ).toBeInTheDocument();
   expect(screen.getByRole("img", { name: /Офіс: 0 одиниць/ })).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: /Відкрити диспетчера/ })).toBeDisabled();
+  expect(
+    screen.queryByRole("button", { name: /Відкрити диспетчера/ }),
+  ).not.toBeInTheDocument();
 });
 it("buys dispatch, repeats a contract automatically and retains the job on pause", () => {
   boot({

@@ -30,18 +30,14 @@ function boot(s = newCareer(NOW)) {
 function saved(): CareerState {
   return JSON.parse(localStorage.getItem(R.saveKey) ?? "{}") as CareerState;
 }
-it("shows the coming discovery from a new game without activating locked generators", () => {
+it("keeps the first prestige and CI/CD hidden in a fresh game", () => {
   boot();
-  expect(screen.getByRole("region", { name: "Наступне відкриття" })).toHaveTextContent(
-    "Перший престиж",
-  );
-  fireEvent.click(screen.getByRole("button", { name: /До першого прориву/ }));
-  expect(screen.getByRole("heading", { name: "Майстерня CI/CD" })).toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: /забрати ядро/ })).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: "Досягнути Director →" }));
   expect(
-    screen.getByRole("heading", { name: "Твій кар’єрний шлях" }),
-  ).toBeInTheDocument();
+    screen.queryByRole("region", { name: "Наступне відкриття" }),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "CI/CD" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: /забрати ядро/ })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Кар’єра" })).not.toBeInTheDocument();
 });
 it("enforces the shared pool and opt-in, persists allocation and runs purchases", () => {
   const s = newCareer(NOW);
@@ -60,7 +56,7 @@ it("enforces the shared pool and opt-in, persists allocation and runs purchases"
     "aria-checked",
     "false",
   );
-  expect(screen.getByRole("switch", { name: "Автопроєкти" })).toBeDisabled();
+  expect(screen.queryByRole("switch", { name: "Автопроєкти" })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("switch", { name: "Автонайм" }));
   act(() => {
     vi.advanceTimersByTime(5000);

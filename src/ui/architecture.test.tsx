@@ -26,14 +26,13 @@ function boot(s = newCareer(NOW)) {
   render(<CareerApp />);
   fireEvent.click(screen.getByRole("button", { name: "CI/CD" }));
 }
-it("previews the coming spatial layer without enabling locked controls", () => {
-  boot();
-  fireEvent.click(screen.getByRole("button", { name: /Архітектура/ }));
-  expect(
-    screen.getByRole("heading", { name: "Важливо, що стоїть поруч." }),
-  ).toBeInTheDocument();
+it("hides spatial layers until the trial rewards are claimed", () => {
+  const s = newCareer(NOW);
+  s.careers = 1;
+  boot(s);
+  expect(screen.queryByRole("button", { name: "Архітектура" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Мережа" })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /Встановити:/ })).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: "До конвеєра та випробувань →" }));
   expect(screen.getByRole("heading", { name: "Майстерня CI/CD" })).toBeInTheDocument();
 });
 it("places modules, claims a blueprint, saves it and opens the next instrument", () => {
@@ -43,7 +42,9 @@ it("places modules, claims a blueprint, saves it and opens the next instrument",
   s.pipeline.completed = ["budget", "verification", "deployment"];
   boot(s);
   expect(screen.getByRole("heading", { name: "Архітектура студії" })).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Встановити: Шина" })).toBeDisabled();
+  expect(
+    screen.queryByRole("button", { name: "Встановити: Шина" }),
+  ).not.toBeInTheDocument();
   for (const [slot, title] of [
     [1, "Збирач"],
     [2, "Сканер"],
@@ -68,8 +69,12 @@ it("places modules, claims a blueprint, saves it and opens the next instrument",
   expect(screen.getByRole("region", { name: "Наступне креслення" })).toHaveTextContent(
     "Спільна шина",
   );
-  expect(screen.getByRole("switch", { name: "Авторозподіл ядер" })).toBeDisabled();
-  expect(screen.getByRole("switch", { name: "Автопокупка ядер" })).toBeDisabled();
+  expect(
+    screen.queryByRole("switch", { name: "Авторозподіл ядер" }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("switch", { name: "Автопокупка ядер" }),
+  ).not.toBeInTheDocument();
 });
 it("delegates core allocation and preserves live production on the pipeline board", () => {
   const s = newCareer(NOW);

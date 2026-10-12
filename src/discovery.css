@@ -1,0 +1,187 @@
+.app-shell {
+  --layer-accent: #8be2bb;
+  --layer-surface: #141f22;
+  --mint: var(--layer-accent);
+  --panel: var(--layer-surface);
+  background:
+    radial-gradient(
+      ellipse at 100% 0,
+      color-mix(in srgb, var(--layer-accent) 9%, transparent),
+      transparent 65%
+    ),
+    #0b1017;
+}
+.app-shell[data-layer="office"] {
+  --layer-accent: #efc38c;
+  --layer-surface: #221e1b;
+}
+.app-shell[data-layer="projects"] {
+  --layer-accent: #91bdff;
+  --layer-surface: #172231;
+}
+.app-shell[data-layer="products"] {
+  --layer-accent: #f2a9ca;
+  --layer-surface: #261d29;
+}
+.app-shell[data-layer="studio"] {
+  --layer-accent: #c6a5fa;
+  --layer-surface: #211d30;
+}
+.app-shell[data-layer="career"] {
+  --layer-accent: #efd18b;
+  --layer-surface: #252218;
+}
+.app-shell[data-layer="pipeline"] {
+  --layer-accent: #83dce4;
+  --layer-surface: #14262b;
+}
+.app-shell[data-layer="architecture"] {
+  --layer-accent: #ffb58e;
+  --layer-surface: #29201d;
+}
+.app-shell[data-layer="network"] {
+  --layer-accent: #b1b7ff;
+  --layer-surface: #202239;
+}
+.app-shell[data-layer="achievements"] {
+  --layer-accent: #e5cd88;
+  --layer-surface: #23221c;
+}
+.app-shell[data-layer="settings"] {
+  --layer-accent: #aec0d4;
+  --layer-surface: #1b222c;
+}
+.app-shell .sidebar {
+  background: color-mix(in srgb, var(--layer-accent) 5%, #101620);
+  border-color: color-mix(in srgb, var(--layer-accent) 20%, #202936);
+}
+.app-shell .nav-link.selected,
+.app-shell .pipeline-subnav button[aria-pressed="true"] {
+  color: var(--layer-accent);
+  background: color-mix(in srgb, var(--layer-accent) 14%, #121921);
+  border-color: color-mix(in srgb, var(--layer-accent) 40%, #26303e);
+}
+.app-shell .page-header {
+  border-left: 3px solid var(--layer-accent);
+  border-radius: 0 14px 14px 0;
+  padding: 17px 20px;
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--layer-accent) 12%, #121922),
+    transparent
+  );
+}
+.app-shell .breadcrumbs {
+  margin-bottom: 10px;
+}
+.app-shell .panel {
+  background-color: var(--layer-surface);
+}
+.app-shell
+  :is(
+    .expansion-hero,
+    .product-hero,
+    .pipeline-main,
+    .rack-objective,
+    .network-balance,
+    .network-next,
+    .discovery-card
+  ) {
+  background: linear-gradient(
+    125deg,
+    color-mix(in srgb, var(--layer-accent) 14%, var(--layer-surface)),
+    var(--layer-surface)
+  );
+  border-color: color-mix(in srgb, var(--layer-accent) 30%, #26303e);
+}
+.app-shell .button.primary {
+  background: var(--layer-accent);
+  border-color: var(--layer-accent);
+  color: #121820;
+}
+.app-shell .button.secondary,
+.app-shell .rack-gateway {
+  background: color-mix(in srgb, var(--layer-accent) 12%, #141c27);
+  border-color: color-mix(in srgb, var(--layer-accent) 35%, #26303e);
+  color: var(--layer-accent);
+}
+.app-shell :is(.policy-switch.on, .buy-toggle button[aria-pressed="true"]) {
+  color: var(--layer-accent);
+  background: color-mix(in srgb, var(--layer-accent) 16%, #101721);
+  border-color: color-mix(in srgb, var(--layer-accent) 45%, #26303e);
+}
+.app-shell .resource-strip {
+  --mint: #8be2bb;
+}
+.career-layout:has(> .career-timeline:only-child) {
+  grid-template-columns: 1fr;
+}
+.unlock-notice {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, var(--layer-accent) 50%, #26303e);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--layer-accent) 10%, #131c27);
+  animation: reveal-layer 0.3s ease-out;
+}
+.unlock-notice h2 {
+  font-size: 19px;
+  margin-top: 6px;
+}
+.unlock-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+@keyframes reveal-layer {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 700px) {
+  .workspace-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workspace-top > .panel {
+    min-width: 0;
+  }
+  .test-actions {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+  .testing-panel .panel-topline {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .app-shell .page-header {
+    padding: 14px;
+    gap: 12px;
+  }
+  .unlock-notice {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px;
+    gap: 14px;
+  }
+  .unlock-actions {
+    width: 100%;
+  }
+  .unlock-actions .button {
+    flex: 1;
+    white-space: normal;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .unlock-notice {
+    animation: none;
+  }
+}
