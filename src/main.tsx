@@ -6,6 +6,7 @@ import "./office.css";
 import "./products.css";
 import "./pipeline.css";
 import "./architecture.css";
+import "./network.css";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

@@ -1,7 +1,9 @@
+import { crewCount } from "./selectors";
 import { BLUEPRINTS } from "./architectureData";
 import { blueprintProgress } from "./architectureActions";
+import { networkDiscovery, networkUnlocked } from "./networkEffects";
 import type { CareerState } from "../../types";
-import { CAREER_RULES } from "./content";
+import { CAREER_RULES, CAREER_STAGES } from "./content";
 import { PIPELINE, PIPELINE_TRIALS } from "./pipelineData";
 
 export function nextDiscovery(s: CareerState): {
@@ -12,13 +14,26 @@ export function nextDiscovery(s: CareerState): {
   action: string;
 } {
   const p = s.pipeline;
+  if (networkUnlocked(s)) {
+    return networkDiscovery(s);
+  }
   if (s.careers < 1) {
+    const rank = CAREER_STAGES[Math.min(s.stage + 1, CAREER_RULES.prestigeStage)];
+    const missingCrew = Math.max(0, (rank?.crew ?? 0) - crewCount(s));
+    const missingMoney = Math.max(0, (rank?.earned ?? 0) - s.earned);
+    const step =
+      missingCrew > 0
+        ? `До ${rank?.title ?? "Director"} бракує ${String(missingCrew)} одиниць команди. Наймай команду на робочому місці.`
+        : missingMoney > 0
+          ? `До ${rank?.title ?? "Director"} залишилось заробити $${Math.ceil(missingMoney).toLocaleString("uk-UA")}.`
+          : `Умови ${rank?.title ?? "Director"} виконані — прийми підвищення.`;
     return {
       title: "Перший престиж → CI/CD-конвеєр",
       detail:
         s.stage >= CAREER_RULES.prestigeStage
           ? "Рубіж досягнуто. Почни нову кар’єру й відкрий ядра, потоки та випробування."
-          : "Досягни Director і зроби престиж. Відкриється окремий конвеєр: розподіл ядер, випробування й автоматизація кар’єри.",
+          : step +
+            " Перший престиж відкриє конвеєр, випробування й автоматизацію кар’єри.",
       value: Math.min(s.stage, CAREER_RULES.prestigeStage),
       target: CAREER_RULES.prestigeStage,
       action: "До першого прориву",

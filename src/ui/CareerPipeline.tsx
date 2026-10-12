@@ -1,19 +1,19 @@
+import { CareerNetwork } from "./CareerNetwork";
+import { networkUnlocked } from "../game/career/networkEffects";
 import { useState } from "react";
 import { CareerArchitecture } from "./CareerArchitecture";
 import { architectureUnlocked, pipelineRates } from "../game/career/architectureEffects";
-import type { CareerAction, CareerState, PipelineAllocation } from "../types";
+import type { CareerAction, CareerState } from "../types";
 import { CAREER_RULES } from "../game/career/content";
 import {
-  allocatedCores,
   coreBudget,
   corePrice,
   PIPELINE,
   PIPELINE_POLICIES,
   PIPELINE_TRIALS,
   policyUnlocked,
-  STATIONS,
 } from "../game/career/pipelineData";
-import { flowRates, stationCapacity } from "../game/career/pipelineFlow";
+import { FlowBoard } from "./CareerFlowBoard";
 import { nextDiscovery } from "../game/career/pipelineSelectors";
 import { Meter, SectionTitle } from "./CareerWidgets";
 import { clockTime, number } from "./careerUtils";
@@ -42,130 +42,7 @@ export function DiscoveryCard({ game, open }: { game: CareerState; open: () => v
     </section>
   );
 }
-function FlowBoard({
-  allocation,
-  queues,
-  rates,
-  budget,
-  send,
-  trial = false,
-  stopped = false,
-  automatic = false,
-}: {
-  allocation: PipelineAllocation;
-  queues: [number, number];
-  rates: PipelineAllocation;
-  budget: number;
-  send: Props["send"];
-  trial?: boolean;
-  stopped?: boolean;
-  automatic?: boolean;
-}) {
-  const capacity = stationCapacity(allocation, rates);
-  const actual = stopped ? [0, 0, 0] : flowRates(capacity, queues);
-  const minimum = Math.min(...capacity);
-  const balanced = minimum > 0 && capacity.every((rate) => rate === minimum);
-  const free = budget - allocatedCores(allocation);
-  return (
-    <div className="flow-board">
-      <div className="flow-pool">
-        <span>
-          Спільний пул <strong>{number(budget)} ядер</strong>
-        </span>
-        <span className={free > 0 ? "mint" : "muted"}>
-          Вільно: <strong>{number(free)}</strong>
-        </span>
-      </div>
-      <p className="flow-throughput">
-        Сталий потік: <strong>{number(minimum)} релізів / с</strong>
-        {balanced ? " · Усі вузли збалансовані" : ""}
-      </p>
-      <div className="flow-stations">
-        {STATIONS.map((title, index) => (
-          <article
-            className={`flow-station ${balanced ? "balanced" : capacity[index] === minimum ? "bottleneck" : ""}`}
-            key={title}
-            aria-label={`${trial ? "Випробування" : "Конвеєр"}: ${title}`}
-          >
-            <div className="flow-station-top">
-              <span className="eyebrow">
-                0{index + 1} / {title}
-              </span>
-              <span aria-hidden="true">
-                {index === 0 ? "◧" : index === 1 ? "⌕" : "↥"}
-              </span>
-            </div>
-            <h3>
-              {number(actual[index] ?? 0)} <small>релізів / с</small>
-            </h3>
-            <p>
-              Місткість: {number(capacity[index] ?? 0)} / с<br />
-              {number(rates[index] ?? 0)} / с на ядро
-            </p>
-            <div className="core-controls">
-              <button
-                disabled={stopped || automatic || allocation[index] === 0}
-                aria-label={`${trial ? "Випробування" : "Конвеєр"}: ${title} — забрати ядро`}
-                onClick={() =>
-                  send({ type: "pipelineAllocate", station: index, delta: -1, trial })
-                }
-              >
-                −
-              </button>
-              <strong>
-                {allocation[index]} <small>ядер</small>
-              </strong>
-              <button
-                disabled={stopped || automatic || free === 0}
-                aria-label={`${trial ? "Випробування" : "Конвеєр"}: ${title} — додати ядро`}
-                onClick={() =>
-                  send({ type: "pipelineAllocate", station: index, delta: 1, trial })
-                }
-              >
-                +
-              </button>
-            </div>
-            <span className="flow-status">
-              {stopped
-                ? "Завершено"
-                : balanced
-                  ? "Збалансовано ✓"
-                  : capacity[index] === minimum
-                    ? "● Вузьке місце"
-                    : (actual[index] ?? 0) < (capacity[index] ?? 0)
-                      ? "Очікує сусідній вузол"
-                      : "Працює на повну"}
-            </span>
-          </article>
-        ))}
-      </div>
-      <div className="flow-queues">
-        {queues.map((value, index) => (
-          <div key={index}>
-            <div>
-              <span>
-                {STATIONS[index]} → {STATIONS[index + 1]}
-              </span>
-              <strong>
-                {number(value)} / {PIPELINE.buffer}
-              </strong>
-            </div>
-            <Meter
-              value={value}
-              max={PIPELINE.buffer}
-              label={`${trial ? "Випробування" : "Конвеєр"}: черга ${String(index + 1)}`}
-            />
-          </div>
-        ))}
-      </div>
-      <p className="flow-tip">
-        {automatic
-          ? "Авторозподіл увімкнено. Для ручного керування вимкни його в «Архітектурі»."
-          : "Забери ядро кнопкою − й додай його до іншого вузла. Повна черга стримує попередній вузол; порожня — залишає наступний без роботи."}
-      </p>
-    </div>
-  );
-}
+
 function PipelineWorkshop({ game: s, send, career }: Props) {
   const p = s.pipeline;
   const unlocked = s.careers > 0;
@@ -433,8 +310,9 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
 
 export function CareerPipeline(props: Props) {
   const available = architectureUnlocked(props.game);
-  const [view, setView] = useState<"pipeline" | "architecture">(
-    available ? "architecture" : "pipeline",
+  const network = networkUnlocked(props.game);
+  const [view, setView] = useState<"pipeline" | "architecture" | "network">(
+    network ? "network" : available ? "architecture" : "pipeline",
   );
   return (
     <>
@@ -448,13 +326,29 @@ export function CareerPipeline(props: Props) {
         >
           Архітектура <span>{available ? "НОВИЙ ШАР" : "◇"}</span>
         </button>
+        <button aria-pressed={view === "network"} onClick={() => setView("network")}>
+          Мережа <span>{network ? "НОВИЙ ШАР" : "◇"}</span>
+        </button>
       </nav>
-      {view === "architecture" ? (
-        <CareerArchitecture
+      {view === "network" ? (
+        <CareerNetwork
           game={props.game}
           send={props.send}
-          pipeline={() => setView("pipeline")}
+          architecture={() => setView("architecture")}
         />
+      ) : view === "architecture" ? (
+        <>
+          {network && (
+            <button className="rack-gateway" onClick={() => setView("network")}>
+              ◎ Мережа відкрита · Генератори, що створюють генератори →
+            </button>
+          )}
+          <CareerArchitecture
+            game={props.game}
+            send={props.send}
+            pipeline={() => setView("pipeline")}
+          />
+        </>
       ) : (
         <>
           {available && (

@@ -1,4 +1,6 @@
 import { architectureAction } from "./architectureActions";
+import { networkAction, networkAutomationIntent } from "./networkActions";
+import { advanceNetwork } from "./networkFlow";
 import type { CareerAction, CareerState } from "../../types";
 import { PRODUCT_MODEL_VERSION } from "../../types";
 import { BADGES, CAREER_RULES as R, CAREER_STAGES, CAREER_UPGRADES } from "./content";
@@ -110,6 +112,7 @@ export interface TimeResult {
   productMoney?: number;
   pipelineCredits?: number;
   automatedActions?: number;
+  networkComputations?: number;
 }
 export function advanceCareer(s: CareerState, now: number, offline = false): TimeResult {
   const elapsed = (now - s.lastTick) / R.milliseconds;
@@ -176,6 +179,12 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
         next = automatic.state;
         automatedActions += automatic.ok ? 1 : 0;
       }
+      const networkIntent = networkAutomationIntent(next);
+      if (networkIntent) {
+        const automatic = act(next, networkIntent, next.lastTick);
+        next = automatic.state;
+        automatedActions += automatic.ok ? 1 : 0;
+      }
     }
   }
   return {
@@ -189,6 +198,7 @@ export function advanceCareer(s: CareerState, now: number, offline = false): Tim
     productMoney: next.products.earned - s.products.earned,
     pipelineCredits: next.pipeline.total - s.pipeline.total,
     automatedActions,
+    networkComputations: next.pipeline.network.runTotal - s.pipeline.network.runTotal,
   };
 }
 function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeResult {
@@ -199,7 +209,10 @@ function advanceSlice(s: CareerState, seconds: number, offline: boolean): TimeRe
   const royalties = bounded(royaltyRate(s) * seconds * efficiency);
   next = {
     ...earn(next, royalties),
-    pipeline: advancePipeline(s, seconds * efficiency),
+    pipeline: {
+      ...advancePipeline(s, seconds * efficiency),
+      network: advanceNetwork(s, seconds * efficiency),
+    },
     products: {
       ...next.products,
       earned: bounded(next.products.earned + royalties),
@@ -370,6 +383,11 @@ export function act(
       const result = officeAction(state, action);
       return { ...result, state: awardBadges(result.state) };
     }
+    case "networkBuy":
+    case "networkReboot":
+    case "networkProtocol":
+    case "networkAuto":
+      return networkAction(state, action);
     case "rackModule":
     case "rackPower":
     case "claimBlueprint":

@@ -150,6 +150,23 @@ export interface PipelineState {
   trial: PipelineTrial | null;
   automation: Record<PipelinePolicy, boolean>;
   architecture: ArchitectureState;
+  network: NetworkState;
+}
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers -- Four stable generator identifiers.
+export type NetworkTier = 0 | 1 | 2 | 3;
+export type NetworkUnits = [number, number, number, number];
+export type NetworkProtocol = "cascade" | "bridge" | "autobuy";
+export interface NetworkState {
+  computations: number;
+  runTotal: number;
+  best: number;
+  units: NetworkUnits;
+  purchased: NetworkUnits;
+  reboots: number;
+  protocols: number;
+  totalProtocols: number;
+  upgrades: Record<NetworkProtocol, number>;
+  autoBuy: boolean;
 }
 export interface CareerState {
   schemaVersion: typeof CAREER_SAVE_VERSION;
@@ -217,6 +234,10 @@ export type CareerAction =
   | { type: "pipelineCore" }
   | { type: "rackModule"; slot: number; id: RackModuleId | null }
   | { type: "rackPower" }
+  | { type: "networkBuy"; tier: NetworkTier }
+  | { type: "networkReboot" }
+  | { type: "networkProtocol"; id: NetworkProtocol }
+  | { type: "networkAuto"; enabled: boolean }
   | { type: "claimBlueprint"; id: BlueprintId }
   | { type: "architecturePolicy"; id: ArchitecturePolicy; enabled: boolean }
   | { type: "startTrial"; id: PipelineTrialId }

@@ -1,5 +1,7 @@
 # 22 — Architecture Rack
 
+Follow-up: [23 — Network Generators](23-Network_Generators.md) continues discovery after all four blueprint rewards.
+
 Status: authorized continuation, 2026-10-04. Extends [21](21-Pipeline_Breakthrough.md).
 Owns the discovery after the three pipeline trials. Dependencies: 07, 16, 20, 21.
 The objective is a new spatial decision, immediate feedback and automation of the

@@ -1,5 +1,7 @@
 # QA Idle Documentation Index
 
+Current continuation: [23 — Network Generators](23-Network_Generators.md) owns the generator chain, local reboots, protocol choices and guidance after architecture.
+
 Next discovery: [22 — Architecture Rack](22-Architecture_Rack.md) owns spatial modules, blueprint rewards and pipeline automation after the three trials.
 
 Next progression layer: [21 — Pipeline Breakthrough](21-Pipeline_Breakthrough.md) owns the first-prestige workshop, trials, automation policies and discovery UI.

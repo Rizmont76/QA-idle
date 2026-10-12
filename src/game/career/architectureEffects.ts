@@ -6,6 +6,7 @@ import type {
 } from "../../types";
 import { ARCHITECTURE_POLICIES, RACK, RACK_MODULES } from "./architectureData";
 import { coreBudget, PIPELINE, PIPELINE_TRIALS } from "./pipelineData";
+import { networkBridge } from "./networkEffects";
 
 export const architectureUnlocked = (s: CareerState) =>
   s.careers > 0 && PIPELINE_TRIALS.every((t) => s.pipeline.completed.includes(t.id));
@@ -82,6 +83,10 @@ export function architectureEffects(s: CareerState) {
     }
   }
   result.workerTypes = workerTypes.size;
+  const bridge = networkBridge(s);
+  result.rates = result.rates.map((rate) => rate * bridge) as PipelineAllocation;
+  result.crew *= bridge;
+  result.projects *= bridge;
   return result;
 }
 export const pipelineRates = (s: CareerState) => architectureEffects(s).rates;
@@ -95,9 +100,24 @@ export function balanceArchitecture(s: CareerState): CareerState {
   ) {
     return s;
   }
-  const budget = coreBudget(s.pipeline);
-  const rates = pipelineRates(s);
-  let best: PipelineAllocation = s.pipeline.allocation;
+  return {
+    ...s,
+    pipeline: {
+      ...s.pipeline,
+      allocation: optimalAllocation(
+        coreBudget(s.pipeline),
+        pipelineRates(s),
+        s.pipeline.allocation,
+      ),
+    },
+  };
+}
+export function optimalAllocation(
+  budget: number,
+  rates: PipelineAllocation,
+  current: PipelineAllocation,
+): PipelineAllocation {
+  let best: PipelineAllocation = current;
   let bestRate = -1;
   let bestDistance = Infinity;
   for (let build = 0; build <= budget; build += 1) {
@@ -105,7 +125,7 @@ export function balanceArchitecture(s: CareerState): CareerState {
       const allocation: PipelineAllocation = [build, verify, budget - build - verify];
       const rate = Math.min(...allocation.map((count, i) => count * (rates[i] ?? 0)));
       const distance = allocation.reduce(
-        (sum, count, i) => sum + Math.abs(count - (s.pipeline.allocation[i] ?? 0)),
+        (sum, count, i) => sum + Math.abs(count - (current[i] ?? 0)),
         0,
       );
       if (rate > bestRate || (rate === bestRate && distance < bestDistance)) {
@@ -115,5 +135,14 @@ export function balanceArchitecture(s: CareerState): CareerState {
       }
     }
   }
-  return { ...s, pipeline: { ...s.pipeline, allocation: best } };
+  return best;
+}
+export function maximumPipelineRate(s: CareerState): number {
+  const rates = pipelineRates(s);
+  const allocation = optimalAllocation(
+    coreBudget(s.pipeline),
+    rates,
+    s.pipeline.allocation,
+  );
+  return Math.min(...allocation.map((count, i) => count * (rates[i] ?? 0)));
 }

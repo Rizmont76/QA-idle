@@ -1,4 +1,5 @@
 import { architecturePolicyUnlocked } from "./architectureEffects";
+import { networkAutomationActive } from "./networkEffects";
 import { corePrice, PIPELINE } from "./pipelineData";
 import type { CareerAction, CareerState, PipelinePolicy } from "../../types";
 import { CAREER_UPGRADES, CREW } from "./content";
@@ -9,7 +10,8 @@ import { PIPELINE_POLICIES, policyUnlocked } from "./pipelineData";
 
 export const automationActive = (s: CareerState) =>
   s.careers > 0 &&
-  (autoCoresActive(s) ||
+  (networkAutomationActive(s) ||
+    autoCoresActive(s) ||
     PIPELINE_POLICIES.some(
       ({ id }) => s.pipeline.automation[id] && policyUnlocked(s.pipeline, id),
     ));
