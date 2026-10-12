@@ -99,7 +99,7 @@ export const CAREER_STAGES: readonly [CareerRank, ...CareerRank[]] = [
     earned: 2_500_000,
     crew: 40,
     value: 3,
-    unlock: "Хмарні ферми та добровільний престиж",
+    unlock: "Хмарні ферми; перший престиж відкриває CI/CD-конвеєр",
     short: "Спадщина",
     color: "mint",
   },
@@ -525,9 +525,11 @@ export const BADGES: readonly {
   description: string;
   icon: string;
   earned: (s: CareerState) => boolean;
+  passive?: { resource: "lifetimeBugs" | "lifetimeEarned"; target: number };
 }[] = [
   {
     id: "firstBug",
+    passive: { resource: "lifetimeBugs", target: 1 },
     title: "Це не фіча",
     description: "Знайти перший баг",
     icon: "⌁",
@@ -535,6 +537,7 @@ export const BADGES: readonly {
   },
   {
     id: "firstPay",
+    passive: { resource: "lifetimeEarned", target: BADGE_TARGETS.firstPay },
     title: "Перша зарплата",
     description: "Заробити $100 за весь час",
     icon: "$",
@@ -577,6 +580,7 @@ export const BADGES: readonly {
   },
   {
     id: "million",
+    passive: { resource: "lifetimeEarned", target: BADGE_TARGETS.million },
     title: "Сім цифр",
     description: "Заробити $1M за весь час",
     icon: "M",
@@ -709,6 +713,7 @@ export const BADGES: readonly {
   },
   {
     id: "billion",
+    passive: { resource: "lifetimeEarned", target: BADGE_TARGETS.billion },
     title: "Дев’ять нулів",
     description: "Заробити $1B за весь час",
     icon: "B",
@@ -716,6 +721,7 @@ export const BADGES: readonly {
   },
   {
     id: "trillion",
+    passive: { resource: "lifetimeEarned", target: BADGE_TARGETS.trillion },
     title: "Індустрія якості",
     description: "Заробити $1T за весь час",
     icon: "T",
