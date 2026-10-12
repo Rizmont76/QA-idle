@@ -8,6 +8,7 @@ import {
 } from "../game/career/architectureData";
 import {
   architectureEffects,
+  maximumPipelineRate,
   architecturePolicyUnlocked,
   architectureUnlocked,
   moduleDefinition,
@@ -80,6 +81,15 @@ export function CareerArchitecture({
                 {next?.description ??
                   "Спрямуй потужність на релізи, проєкти або команду. Модулі можна переставляти вільно."}
               </p>
+              {next?.id === "flow" && (
+                <p className="rack-capacity-hint">
+                  З цією схемою та поточними ядрами можливий потік{" "}
+                  {number(maximumPipelineRate(s))} / с.
+                  {maximumPipelineRate(s) < next.target
+                    ? " Докупи ядра або посиль модулі."
+                    : " Потужності вистачає — налаштуй розподіл у конвеєрі."}
+                </p>
+              )}
             </div>
             <span className="rack-reward">
               {next?.reward ?? "4 / 4 постійні відкриття ✓"}

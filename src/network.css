@@ -1,0 +1,256 @@
+.network-locked {
+  padding: 32px;
+}
+.network-preview {
+  color: var(--blue);
+  font-size: 32px;
+  margin-bottom: 24px;
+}
+.network-locked h2 {
+  margin-bottom: 14px;
+}
+.network-locked p {
+  max-width: 650px;
+  line-height: 1.7;
+  color: #aebdcb;
+  margin: 10px 0;
+}
+.network-locked strong {
+  display: block;
+  color: var(--mint);
+  margin: 22px 0;
+}
+.network-summary {
+  display: grid;
+  grid-template-columns: 1fr 1.7fr;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+.network-balance {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.network-balance > strong {
+  font-size: 30px;
+  color: var(--blue);
+}
+.network-balance small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.network-next {
+  padding: 24px;
+  background: linear-gradient(120deg, #1d293f, #1a2e30);
+  border: 1px solid #3c5366;
+  border-radius: 14px;
+}
+.network-next h3 {
+  margin: 9px 0;
+  font-size: 19px;
+}
+.network-next p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #aebecd;
+  margin-bottom: 15px;
+}
+.network-chain {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  align-items: center;
+  padding: 15px;
+  margin: 0 0 18px;
+  color: #afc5df;
+  background: #111d2b;
+  border-radius: 10px;
+  font-size: 11px;
+}
+.network-chain b {
+  color: #5c7c9f;
+}
+.network-chain strong {
+  color: var(--mint);
+}
+.generator-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.generator {
+  min-width: 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.generator.locked {
+  background: #101923;
+  border-style: dashed;
+}
+.generator-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.generator-icon {
+  font-size: 25px;
+  color: var(--blue);
+}
+.generator h3 {
+  font-size: 17px;
+}
+.generator-quantity {
+  font-size: 29px;
+  color: var(--blue);
+}
+.generator p {
+  font-size: 12px;
+  color: #b6c7d8;
+  line-height: 1.6;
+  flex: 1;
+}
+.generator small {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.generator .button {
+  font-size: 11px;
+  padding: 11px 8px;
+}
+.network-note {
+  font-size: 11px;
+  color: #91a4b8;
+  line-height: 1.6;
+  margin: 15px 0 27px;
+}
+.network-reboot {
+  padding: 25px;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+.network-reboot.ready {
+  border-color: #6b8e6f;
+  background: #1b2b29;
+}
+.network-reboot h2 {
+  margin: 8px 0 12px;
+  font-size: 21px;
+}
+.network-reboot p {
+  color: #adc0c2;
+  font-size: 12px;
+  line-height: 1.7;
+  max-width: 610px;
+}
+.network-reboot small {
+  display: block;
+  color: #87a7a1;
+  font-size: 10px;
+  line-height: 1.7;
+  margin-top: 12px;
+}
+.reboot-action {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.reboot-action strong {
+  color: var(--mint);
+  font-size: 27px;
+}
+.reboot-action span {
+  font-size: 10px;
+  color: #9eafa9;
+}
+.reboot-action .button {
+  font-size: 12px;
+}
+.protocol-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.network-protocol {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.protocol-icon {
+  color: var(--mint);
+  font-size: 25px;
+}
+.network-protocol h3 {
+  font-size: 17px;
+}
+.network-protocol p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #a7b9c9;
+  flex: 1;
+}
+.network-protocol small {
+  color: var(--mint);
+  font-size: 11px;
+}
+.network-protocol .button {
+  font-size: 11px;
+}
+.network-policy {
+  margin-bottom: 24px;
+}
+@media (max-width: 1050px) {
+  .generator-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 700px) {
+  .network-summary,
+  .protocol-grid {
+    grid-template-columns: 1fr;
+  }
+  .network-chain {
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 10px;
+  }
+  .network-reboot {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px;
+  }
+  .network-reboot .reboot-action {
+    align-items: flex-start;
+  }
+  .generator {
+    padding: 15px;
+  }
+  .generator h3 {
+    font-size: 14px;
+  }
+  .generator-top .eyebrow {
+    font-size: 8px;
+  }
+}
+@media (max-width: 400px) {
+  .generator-grid {
+    grid-template-columns: 1fr;
+  }
+  .network-locked {
+    padding: 20px;
+  }
+  .network-preview {
+    font-size: 25px;
+  }
+}

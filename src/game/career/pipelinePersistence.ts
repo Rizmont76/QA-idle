@@ -1,6 +1,7 @@
 import type { CareerState, PipelineAllocation, PipelineTrialId } from "../../types";
 import { amount, ids, record } from "./saveValues";
 import { normalizeArchitecture } from "./architecturePersistence";
+import { normalizeNetwork } from "./networkPersistence";
 import {
   allocatedCores,
   coreBudget,
@@ -82,4 +83,5 @@ export function normalizePipeline(s: CareerState, value: unknown): void {
       policyUnlocked(p, policy.id) && policies[policy.id] === true;
   }
   normalizeArchitecture(s, data["architecture"]);
+  normalizeNetwork(s, data["network"]);
 }

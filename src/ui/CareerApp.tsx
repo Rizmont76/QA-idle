@@ -243,7 +243,7 @@ export function CareerApp() {
                   ? "Прогрес збережено"
                   : "Перевір збереження"}
             </span>
-            <span className="version-chip">ARCHITECTURE EDITION</span>
+            <span className="version-chip">NETWORK EDITION</span>
           </div>
         </header>
         {warning && (
@@ -290,6 +290,9 @@ export function CareerApp() {
               )}
               {(summary.pipelineCredits ?? 0) > 0 && (
                 <p>Конвеєр: +{number(summary.pipelineCredits ?? 0)} ▧ кредитів збірки</p>
+              )}
+              {(summary.networkComputations ?? 0) > 0 && (
+                <p>Мережа: +{number(summary.networkComputations ?? 0)} обчислень</p>
               )}
               {(summary.automatedActions ?? 0) > 0 && (
                 <p>
