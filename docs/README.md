@@ -1,5 +1,7 @@
 # QA Idle Documentation Index
 
+Current opening experiment: [29 — Release Lab](29-Release_Lab_Experiment.md) defines an isolated reset-and-generator prototype following rejection of the focused loop. It leaves the existing career and save untouched; it is not an accepted replacement.
+
 Current focused progression: [28 — Focused Journey](28-Focused_Journey.md) separates early principal systems, keeps overviews quiet and brings main-pipeline management automation forward after mastery. It preserves existing journeys and supersedes the named introduction/balancing rules in 22/24/26.
 
 Current late-frontier connection: [27 — Connected Late Frontiers](27-Connected_Late_Frontiers.md) connects the network fleet to bug production and offers rack layouts with actual economic previews. It preserves document 26's early discovery and permanent capital.

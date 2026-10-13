@@ -99,6 +99,31 @@ export const CAREER_SAVE_VERSION = 4;
 export const PRODUCT_MODEL_VERSION = 2;
 export const PIPELINE_MODEL_VERSION = 2;
 export const JOURNEY_MODEL_VERSION = 2;
+
+export type LabProducer = "testers" | "scripts" | "ci";
+export interface ReleaseLabState {
+  version: 1;
+  reports: number;
+  buildWork: number;
+  totalWork: number;
+  patterns: number;
+  builds: number;
+  testers: number;
+  cases: number;
+  scripts: number;
+  ci: number;
+  bought: Record<LabProducer, number>;
+  efficiency: number;
+  autoBuy: boolean;
+  lastTick: number;
+}
+export type ReleaseLabAction =
+  | { type: "test" }
+  | { type: "buy"; id: LabProducer }
+  | { type: "buyMax"; id: LabProducer }
+  | { type: "efficiency" }
+  | { type: "ship" }
+  | { type: "auto"; enabled: boolean };
 export type PurchaseMode = 1 | typeof BULK_PURCHASE_SIZE | "max";
 export interface CareerContract {
   id: string;
