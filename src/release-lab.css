@@ -399,6 +399,8 @@
 }
 .lab-investment {
   padding: 23px;
+  padding-bottom: 62px;
+  position: relative;
   border: 1px solid #343e3a;
   border-radius: 12px;
   background: #161f21;
@@ -435,8 +437,11 @@
   white-space: normal;
 }
 .lab-buy-max {
-  width: 100%;
-  margin-top: 8px;
+  position: absolute;
+  inset-inline: 23px;
+  bottom: 12px;
+  width: auto;
+  margin: 0;
   padding: 6px;
   min-height: 30px;
   font-size: 10px;
