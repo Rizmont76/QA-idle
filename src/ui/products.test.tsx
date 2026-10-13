@@ -24,7 +24,11 @@ afterEach(() => {
   vi.useRealTimers();
 });
 function boot(patch: Record<string, unknown> = {}) {
-  localStorage.setItem(R.saveKey, JSON.stringify({ ...newCareer(NOW), ...patch }));
+  // Previously reached Senior saves retain their owned tools and introductions.
+  localStorage.setItem(
+    R.saveKey,
+    JSON.stringify({ ...newCareer(NOW), journeyModel: 1, ...patch }),
+  );
   render(<CareerApp />);
   fireEvent.click(screen.getByRole("button", { name: "Продукти" }));
 }

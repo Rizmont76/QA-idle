@@ -1,5 +1,9 @@
 import type { CareerContract, CareerState } from "../../types";
-import { PIPELINE_MODEL_VERSION, SAVE_SCHEMA_VERSION } from "../../types";
+import {
+  JOURNEY_MODEL_VERSION,
+  PIPELINE_MODEL_VERSION,
+  SAVE_SCHEMA_VERSION,
+} from "../../types";
 import {
   BADGES,
   CAREER_RULES as R,
@@ -100,6 +104,12 @@ export function normalizeCareer(
     state.stage,
     Math.floor(amount(data["bestStage"], CAREER_STAGES.length - 1)),
   );
+  state.journeyModel =
+    data["journeyModel"] === 1 || data["journeyModel"] === JOURNEY_MODEL_VERSION
+      ? data["journeyModel"]
+      : state.bestStage >= S.unlockStage || state.careers > 0
+        ? 1
+        : JOURNEY_MODEL_VERSION;
   const crew = record(data["crew"]);
   for (const def of CREW) {
     state.crew[def.id] =
@@ -172,6 +182,7 @@ export function migrateLegacy(value: unknown, now = Date.now()): CareerState {
   state.lifetimeBugs = state.found;
   state.stage = ["middle_qa", "middle"].includes(String(data["careerStage"])) ? 1 : 0;
   state.bestStage = state.stage;
+  state.journeyModel = state.stage >= S.unlockStage ? 1 : JOURNEY_MODEL_VERSION;
   const owned = record(data["upgrades"]);
   state.upgrades = [
     ...new Set(

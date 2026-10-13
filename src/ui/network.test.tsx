@@ -96,7 +96,7 @@ it("requires an explicit connection and reveals working fleet resources afterwar
   expect(
     screen.queryByRole("button", { name: "Підключити агентів до студії →" }),
   ).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: "Ресурси" }));
+  fireEvent.click(screen.getByRole("button", { name: "Усі ресурси →" }));
   expect(screen.getByRole("table", { name: "Відкриті ресурси" })).toHaveTextContent(
     "Агенти мережі",
   );

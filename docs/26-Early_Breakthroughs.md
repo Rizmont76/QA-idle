@@ -102,6 +102,12 @@ autotest count, current output and growth. The pipeline shows releases creating
 autotests and the economic connection. Promotions name their newly opened action;
 claiming an automation trial shows what previous work can now be delegated.
 Do not imply a flat production rate for a system whose output is growing.
+The discovery's action opens its actual destination: a trial opens the main
+pipeline, a blueprint opens Architecture, a network goal opens Network, and a
+promotion/prestige opens Career. This explicit action overrides a previously
+visited workshop subtab; ordinary navigation may retain the chosen subtab.
+Keep the destination with the discovery content in authoritative selectors,
+and still validate hidden-layer eligibility before rendering.
 
 The existing v4 state already stores total releases. Add pipeline model 2 as a
 migration checkpoint; missing/unknown model denotes the old detached pipeline.

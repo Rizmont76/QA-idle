@@ -99,7 +99,9 @@ export function studioAction(
           certificates: { ...state.certificates, [def.id]: project.tier + 1 },
         };
         const specialist =
-          project.tier === 0 ? SPECIALISTS.find((p) => p.project === def.id) : undefined;
+          project.tier === 0
+            ? SPECIALISTS.find((p) => p.project === def.id && recruited(state, p.id))
+            : undefined;
         state = gainClients(state, MARKET.projectClients);
         message = `Проєкт завершено! +${String(project.insights)} інсайтів.${specialist ? ` ${specialist.name} чекає в студії.` : " Сертифікат у портфоліо."}`;
       }

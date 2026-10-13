@@ -196,6 +196,7 @@ describe("contracts and prestige", () => {
         earned: 200_000_000,
         rankEarned: 200_000_000,
         contractsCompleted: 3,
+        journeyModel: 1,
         research: { automation: 3, fieldnotes: 2, intuition: 1 },
         certificates: { button: 1, cart: 1, mobile: 1 },
         crew: { cloud: 0, ai: 0, orbital: 0, assistant: 25, squad: 0, runner: 0, lab: 0 },

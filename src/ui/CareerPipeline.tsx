@@ -1,6 +1,6 @@
 import { CareerNetwork } from "./CareerNetwork";
 import { networkUnlocked } from "../game/career/networkEffects";
-import type { PipelineView } from "../game/career/discovery";
+import type { CareerView, PipelineView } from "../game/career/discovery";
 import { CareerArchitecture } from "./CareerArchitecture";
 import { architectureUnlocked, pipelineRates } from "../game/career/architectureEffects";
 import type { CareerAction, CareerState } from "../types";
@@ -20,13 +20,20 @@ import { FlowBoard } from "./CareerFlowBoard";
 import { nextDiscovery } from "../game/career/pipelineSelectors";
 import { Meter, SectionTitle } from "./CareerWidgets";
 import { clockTime, number } from "./careerUtils";
+import { MainBalance, BulkDelegation } from "./CareerDelegation";
 
 interface Props {
   game: CareerState;
   send: (action: CareerAction) => void;
   career: () => void;
 }
-export function DiscoveryCard({ game, open }: { game: CareerState; open: () => void }) {
+export function DiscoveryCard({
+  game,
+  open,
+}: {
+  game: CareerState;
+  open: (view: CareerView, layer?: PipelineView) => void;
+}) {
   const next = nextDiscovery(game);
   return (
     <section className="discovery-card" aria-label="Наступне відкриття">
@@ -39,7 +46,7 @@ export function DiscoveryCard({ game, open }: { game: CareerState; open: () => v
         <p>{next.detail}</p>
         <Meter value={next.value} max={next.target} label="Прогрес відкриття" />
       </div>
-      <button className="button secondary" onClick={open}>
+      <button className="button secondary" onClick={() => open(next.view, next.layer)}>
         {next.action} →
       </button>
     </section>
@@ -54,7 +61,7 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
   const trialReady = !!trial && !!trialDef && trial.progress >= trialDef.target;
   return (
     <>
-      <SectionTitle eyebrow="ПЕРШИЙ НОВИЙ ШАР" title="Майстерня CI/CD">
+      <SectionTitle eyebrow="КОД ПРАЦЮЄ ЗА ТЕБЕ" title="Майстерня CI/CD">
         <span className="pill">
           {unlocked ? "Залишається після престижу" : "Відкриття попереду"}
         </span>
@@ -123,6 +130,7 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
                   : `+1 ядро · ${number(corePrice(p))} ▧`}
               </button>
             </div>
+            <MainBalance game={s} send={send} />
           </section>
           {p.total >= PIPELINE.trialsAt && (
             <>
@@ -234,10 +242,11 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
                 title="Автоматизація кар’єри"
               />
               <p className="pipeline-intro">
-                Кожні {PIPELINE.automationMs / CAREER_RULES.milliseconds} секунд:
-                підвищення → покращення → найм → проєкт. По одній дії кожного виду, також
-                офлайн. Увімкни потрібне.
+                Увімкнені політики працюють кожні{" "}
+                {PIPELINE.automationMs / CAREER_RULES.milliseconds} секунд, також офлайн.
+                По одній дії кожного виду.
               </p>
+              <BulkDelegation game={s} send={send} />
               <div className="pipeline-policies">
                 {PIPELINE_POLICIES.filter((policy) => policyUnlocked(p, policy.id)).map(
                   (policy) => {

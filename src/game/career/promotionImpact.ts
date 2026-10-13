@@ -1,5 +1,6 @@
 import type { CareerState } from "../../types";
 import { CAREER_STAGES } from "./content";
+import { rankDiscovery } from "./journey";
 import { manualPower, production, reportValue } from "./selectors";
 import { royaltyRate } from "./products";
 
@@ -12,7 +13,7 @@ export function promotionImpact(before: CareerState, after: CareerState) {
   return after.careers === before.careers && after.stage > before.stage
     ? {
         title: CAREER_STAGES[after.stage]?.title ?? "Новий ранг",
-        capability: CAREER_STAGES[after.stage]?.unlock ?? "Нова можливість",
+        capability: rankDiscovery(after, after.stage),
         before: snapshot(before),
         after: snapshot(after),
       }

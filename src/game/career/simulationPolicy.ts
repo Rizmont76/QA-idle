@@ -6,8 +6,13 @@ import { PROJECTS, RESEARCH } from "./expansionData";
 import { chapterInsightReserve, chapterIntent } from "./chapterActions";
 import { chapterComplete } from "./chapters";
 import { optimalAllocation, pipelineRates } from "./architectureEffects";
-import { coreBudget, corePrice, PIPELINE_TRIALS } from "./pipelineData";
-import { pipelineUnlocked, trialUnlocked } from "./pipelineUnlocks";
+import {
+  coreBudget,
+  corePrice,
+  delegatedPolicies,
+  PIPELINE_TRIALS,
+} from "./pipelineData";
+import { mainBalanceUnlocked, pipelineUnlocked, trialUnlocked } from "./pipelineUnlocks";
 import type { PipelineAllocation } from "../../types";
 import {
   contractReady,
@@ -32,6 +37,7 @@ export function campaign(
   mastery = false,
   stopAtPrestige = false,
   fastBuys = false,
+  delegate = false,
 ) {
   let state = initial;
   const start = initial.lastTick;
@@ -44,6 +50,7 @@ export function campaign(
   let firstHire = 0;
   let automation = hasAutoReport(initial) ? 1 : 0;
   const discoveries: { title: string; seconds: number }[] = [];
+  const actions: Partial<Record<CareerAction["type"], number>> = {};
   const result = (seconds: number) => ({
     state,
     seconds,
@@ -56,9 +63,17 @@ export function campaign(
     firstHire,
     automation,
     discoveries,
+    actions,
+    managementActions: Object.entries(actions)
+      .filter(([type]) => type !== "test" && type !== "report")
+      .reduce((sum, [, count]) => sum + count, 0),
   });
   const doAction = (action: CareerAction) => {
-    state = act(state, action, state.lastTick).state;
+    const outcome = act(state, action, state.lastTick);
+    state = outcome.state;
+    if (outcome.ok) {
+      actions[action.type] = (actions[action.type] ?? 0) + 1;
+    }
     const second = (state.lastTick - start) / 1_000;
     if (!firstHire && production(state) > 0) {
       firstHire = second;
@@ -119,13 +134,16 @@ export function campaign(
     if (contractReady(state)) {
       doAction({ type: "claim" });
     }
-    if (projectReady(state)) {
+    if (
+      projectReady(state) &&
+      (!delegate || mastery || !state.pipeline.automation.projects)
+    ) {
       doAction({ type: "submitProject" });
     }
     if (PROJECTS.every((p) => (state.certificates[p.id] ?? 0) >= (mastery ? 3 : 1))) {
       return result(second);
     }
-    if (!state.project) {
+    if (!state.project && (!delegate || mastery || !state.pipeline.automation.projects)) {
       const next = PROJECTS.find(
         (p) =>
           (state.certificates[p.id] ?? 0) < (mastery ? 3 : 1) &&
@@ -145,6 +163,19 @@ export function campaign(
       continue;
     }
     if (pipelineUnlocked(state)) {
+      if (
+        delegate &&
+        mainBalanceUnlocked(state) &&
+        !state.pipeline.architecture.autoBalance
+      ) {
+        doAction({ type: "pipelineBalance", enabled: true });
+      }
+      if (
+        delegate &&
+        delegatedPolicies(state.pipeline).some((p) => !state.pipeline.automation[p.id])
+      ) {
+        doAction({ type: "pipelineDelegate", enabled: true });
+      }
       if (
         state.pipeline.coreLevel < 3 &&
         state.pipeline.credits >= corePrice(state.pipeline)
@@ -238,6 +269,13 @@ export function campaign(
         })),
       ];
       for (const action of options) {
+        if (
+          delegate &&
+          ((action.type === "hire" && state.pipeline.automation.hire) ||
+            (action.type === "upgrade" && state.pipeline.automation.upgrades))
+        ) {
+          continue;
+        }
         const result = act(state, action, state.lastTick);
         if (!result.ok) {
           continue;

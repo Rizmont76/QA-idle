@@ -25,6 +25,7 @@ const senior = () => ({
 describe("products connected to production capital", () => {
   const owned = () => {
     const s = senior();
+    s.journeyModel = 1; // Existing Senior tools survive the focused-journey rollout.
     s.pipeline.total = 100;
     s.certificates["button"] = 1;
     s.products.releases["checklist"] = 1;

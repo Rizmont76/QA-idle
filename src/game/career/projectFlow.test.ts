@@ -21,6 +21,7 @@ function fixture(patch: Partial<CareerState> = {}): CareerState {
   pipeline.allocation = [0, 0, 0];
   const s = {
     ...newCareer(NOW),
+    journeyModel: 1 as const, // Project-flow compatibility before Head research introduction.
     stage: 3,
     bestStage: 3,
     insights: 100,

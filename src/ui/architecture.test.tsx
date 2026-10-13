@@ -102,9 +102,7 @@ it("places modules, claims a blueprint, saves it and opens the next instrument",
   expect(screen.getByRole("region", { name: "Наступне креслення" })).toHaveTextContent(
     "Спільна шина",
   );
-  expect(
-    screen.queryByRole("switch", { name: "Авторозподіл ядер" }),
-  ).not.toBeInTheDocument();
+  expect(screen.getByRole("switch", { name: "Авторозподіл ядер" })).toBeEnabled();
   expect(
     screen.queryByRole("switch", { name: "Автопокупка ядер" }),
   ).not.toBeInTheDocument();

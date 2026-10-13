@@ -8,7 +8,7 @@ import { ARCHITECTURE_POLICIES, RACK, RACK_MODULES } from "./architectureData";
 import { coreBudget, PIPELINE, PIPELINE_TRIALS } from "./pipelineData";
 import { networkBridge } from "./networkEffects";
 import { productBoost } from "./productEffects";
-import { pipelineUnlocked } from "./pipelineUnlocks";
+import { mainBalanceUnlocked, pipelineUnlocked } from "./pipelineUnlocks";
 import type { CrewId } from "../../types";
 import { CREW } from "./content";
 import { PIPELINE_MODEL_VERSION } from "../../types";
@@ -43,10 +43,12 @@ export const moduleUnlocked = (s: CareerState, id: RackModuleId) => {
   );
 };
 export const architecturePolicyUnlocked = (s: CareerState, id: ArchitecturePolicy) =>
-  architectureUnlocked(s) &&
-  ARCHITECTURE_POLICIES.some(
-    (p) => p.id === id && s.pipeline.architecture.blueprints.includes(p.requires),
-  );
+  id === "autoBalance"
+    ? mainBalanceUnlocked(s)
+    : architectureUnlocked(s) &&
+      ARCHITECTURE_POLICIES.some(
+        (p) => p.id === id && s.pipeline.architecture.blueprints.includes(p.requires),
+      );
 export const powerBudget = (s: CareerState) =>
   RACK.basePower +
   s.pipeline.architecture.powerLevel +

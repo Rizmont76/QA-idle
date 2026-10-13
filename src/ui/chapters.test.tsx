@@ -61,7 +61,7 @@ it("shows the promotion boost immediately, resets income and exposes the new cha
   expect(saved().rankEarned).toBe(0);
   expect(screen.getByRole("button", { name: "Виконай умови підвищення" })).toBeDisabled();
   expect(screen.getByRole("region", { name: "Цілі поточного рангу" })).toHaveTextContent(
-    "Команда, якій можна довірити реліз",
+    "Перший клієнт довіряє тобі реліз",
   );
   fireEvent.click(
     screen.getByRole("button", { name: "Закрити повідомлення про підвищення" }),
@@ -78,11 +78,11 @@ it("opens a resource ledger without future balances and navigates to the source 
     lifetimeInsights: 3,
     certificates: { button: 1 },
   });
-  fireEvent.click(screen.getByRole("button", { name: "Ресурси" }));
+  fireEvent.click(screen.getByRole("button", { name: "Усі ресурси →" }));
   const table = screen.getByRole("table", { name: "Відкриті ресурси" });
   expect(within(table).getAllByRole("row")).toHaveLength(5);
   expect(within(table).queryByText("Кредити збірки")).not.toBeInTheDocument();
   const insights = within(table).getByRole("row", { name: /Інсайти/ });
   fireEvent.click(within(insights).getByRole("button", { name: "Відкрити →" }));
-  expect(screen.getByRole("heading", { name: "Студія.", level: 1 })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Проєкти.", level: 1 })).toBeInTheDocument();
 });

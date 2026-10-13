@@ -2,6 +2,7 @@ import { architectureEffects } from "./architectureEffects";
 import type { CareerProject, CareerState, CrewId } from "../../types";
 import { PROJECTS, RESEARCH, SPECIALISTS, STUDIO_RULES as S } from "./expansionData";
 import { productBoost } from "./productEffects";
+import { studioIntroduced } from "./journey";
 import type {
   ProjectDefinition,
   ResearchDefinition,
@@ -22,7 +23,7 @@ export function researchCost(s: CareerState, r: ResearchDefinition): number {
 }
 export function researchUnlocked(s: CareerState, r: ResearchDefinition): boolean {
   return (
-    s.bestStage >= S.unlockStage &&
+    studioIntroduced(s) &&
     (!r.requires || (s.research[r.requires.id] ?? 0) >= r.requires.level)
   );
 }
@@ -31,7 +32,7 @@ export function specialistSlots(s: CareerState): number {
 }
 export function recruited(s: CareerState, id: string): boolean {
   const def = SPECIALISTS.find((p) => p.id === id);
-  return !!def && (s.certificates[def.project] ?? 0) > 0;
+  return studioIntroduced(s) && !!def && (s.certificates[def.project] ?? 0) > 0;
 }
 export function activeSpecialists(s: CareerState) {
   return SPECIALISTS.filter(

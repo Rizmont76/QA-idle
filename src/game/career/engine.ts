@@ -2,7 +2,7 @@ import { architectureAction } from "./architectureActions";
 import { balanceArchitecture } from "./architectureEffects";
 import { networkAction, networkAutomationIntent } from "./networkActions";
 import type { CareerAction, CareerState } from "../../types";
-import { PRODUCT_MODEL_VERSION } from "../../types";
+import { JOURNEY_MODEL_VERSION, PRODUCT_MODEL_VERSION } from "../../types";
 import { BADGES, CAREER_RULES as R, CAREER_STAGES, CAREER_UPGRADES } from "./content";
 import {
   bounded,
@@ -40,6 +40,7 @@ const TIME_EPSILON_SECONDS = 1e-7;
 export function newCareer(now = Date.now()): CareerState {
   return {
     schemaVersion: R.version,
+    journeyModel: JOURNEY_MODEL_VERSION,
     money: 0,
     bugs: 0,
     earned: 0,
@@ -381,6 +382,7 @@ export function act(
       }
       state = {
         ...newCareer(now),
+        journeyModel: state.journeyModel,
         money: R.repeatCapital,
         upgrades: ["auto"],
         experience: bounded(state.experience + reward, R.experienceLimit),
@@ -427,6 +429,8 @@ export function act(
     case "cancelTrial":
     case "claimTrial":
     case "pipelinePolicy":
+    case "pipelineBalance":
+    case "pipelineDelegate":
       return pipelineAction(state, action);
     case "launchProduct":
     case "productMode":

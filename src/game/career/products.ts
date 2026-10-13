@@ -6,10 +6,11 @@ import { amount, record } from "./saveValues";
 import { bounded } from "./selectors";
 import { CAREER_RULES as R } from "./content";
 import { MARKET, PRODUCT_MODES } from "./productEffects";
+import { productIntroduction } from "./journey";
 export { productIncome, royaltyRate } from "./productEffects";
 
 export function productUnlocked(s: CareerState, def: ProductDefinition) {
-  return s.stage >= def.stage && (s.certificates[def.project] ?? 0) > 0;
+  return s.stage >= productIntroduction(s, def) && (s.certificates[def.project] ?? 0) > 0;
 }
 export function productAction(state: CareerState, action: CareerAction) {
   const fail = (message: string) => ({ state, ok: false, message });
@@ -85,7 +86,12 @@ export function normalizeProducts(state: CareerState, value: unknown): void {
   for (const def of PRODUCTS) {
     const version = Math.floor(amount(releases[def.id], legacy ? P.versions : 1));
     const requiredCertificates = legacy ? version : 1;
-    const rank = legacy ? Math.min(P.lastStage, def.stage + version - 1) : def.stage;
+    const rank = legacy
+      ? Math.max(
+          productIntroduction(state, def),
+          Math.min(P.lastStage, def.stage + version - 1),
+        )
+      : productIntroduction(state, def);
     if (
       version <= 0 ||
       (state.certificates[def.project] ?? 0) < requiredCertificates ||

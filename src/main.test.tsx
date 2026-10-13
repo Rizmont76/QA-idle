@@ -102,6 +102,7 @@ describe("playable career UI", () => {
       money: 500,
       badges: ["director"],
     });
+    fireEvent.click(screen.getByRole("button", { name: "Огляди" }));
     fireEvent.click(screen.getByRole("button", { name: "Кар’єра" }));
     fireEvent.click(screen.getByRole("button", { name: /Почати нову кар’єру/ }));
     expect(screen.getByRole("dialog")).toHaveTextContent("незавершений проєкт");

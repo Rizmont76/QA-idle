@@ -21,6 +21,7 @@ afterEach(() => {
 function boot(patch: Partial<CareerState> = {}) {
   localStorage.setItem(R.saveKey, exportCareer({ ...newCareer(NOW), ...patch }));
   render(<CareerApp />);
+  fireEvent.click(screen.getByRole("button", { name: "Огляди" }));
   fireEvent.click(screen.getByRole("button", { name: "Офіс" }));
 }
 it("shows a starter office and prevents buying dispatch before its milestones", () => {

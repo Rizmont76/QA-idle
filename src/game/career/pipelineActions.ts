@@ -1,7 +1,7 @@
 import { architecturePolicyUnlocked, balanceArchitecture } from "./architectureEffects";
 import type { CareerAction, CareerState } from "../../types";
 import type { ActionResult } from "./engine";
-import { pipelineUnlocked, trialUnlocked } from "./pipelineUnlocks";
+import { mainBalanceUnlocked, pipelineUnlocked, trialUnlocked } from "./pipelineUnlocks";
 import { affordable } from "./afford";
 import {
   allocatedCores,
@@ -10,6 +10,7 @@ import {
   PIPELINE,
   PIPELINE_TRIALS,
   policyUnlocked,
+  delegatedPolicies,
 } from "./pipelineData";
 
 export function pipelineAction(state: CareerState, action: CareerAction): ActionResult {
@@ -27,7 +28,7 @@ export function pipelineAction(state: CareerState, action: CareerAction): Action
         p.architecture.autoBalance &&
         architecturePolicyUnlocked(state, "autoBalance")
       ) {
-        return fail("Вимкни авторозподіл у вкладці «Архітектура».");
+        return fail("Вимкни авторозподіл під основним конвеєром CI/CD.");
       }
       const def = PIPELINE_TRIALS.find((t) => t.id === p.trial?.id);
       const source = action.trial ? p.trial : p;
@@ -104,6 +105,27 @@ export function pipelineAction(state: CareerState, action: CareerAction): Action
       }
       next = { ...p, automation: { ...p.automation, [action.id]: action.enabled } };
       break;
+    case "pipelineBalance":
+      if (!mainBalanceUnlocked(state)) {
+        return fail("Авторозподіл відкриває випробування «Малий бюджет».");
+      }
+      next = { ...p, architecture: { ...p.architecture, autoBalance: action.enabled } };
+      break;
+    case "pipelineDelegate": {
+      const policies = delegatedPolicies(p);
+      if (!policies.length) {
+        return fail("Спочатку відкрий автоматизацію освоєної роботи.");
+      }
+      const automation = { ...p.automation };
+      for (const policy of policies) {
+        automation[policy.id] = action.enabled;
+      }
+      next = { ...p, automation };
+      message = action.enabled
+        ? "Освоєну роботу делеговано. Покупки оплачуються з рахунку."
+        : "Спільні політики вимкнено.";
+      break;
+    }
     default:
       return fail("Невідома дія конвеєра.");
   }

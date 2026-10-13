@@ -7,7 +7,8 @@ import { CAREER_RULES, CAREER_STAGES } from "./content";
 import { PIPELINE, PIPELINE_TRIALS } from "./pipelineData";
 import { chapterRows } from "./chapters";
 import { pipelineUnlocked, trialUnlocked } from "./pipelineUnlocks";
-import type { CareerView } from "./discovery";
+import type { CareerView, PipelineView } from "./discovery";
+import { rankDiscovery } from "./journey";
 
 export function nextDiscovery(s: CareerState): {
   title: string;
@@ -15,10 +16,12 @@ export function nextDiscovery(s: CareerState): {
   value: number;
   target: number;
   action: string;
+  view: CareerView;
+  layer?: PipelineView;
 } {
   const p = s.pipeline;
   if (networkUnlocked(s)) {
-    return networkDiscovery(s);
+    return { ...networkDiscovery(s), view: "pipeline", layer: "network" };
   }
   if (!pipelineUnlocked(s)) {
     const rank = CAREER_STAGES[s.stage + 1];
@@ -34,11 +37,12 @@ export function nextDiscovery(s: CareerState): {
             ? `Ціль рангу: ${missingGoal.title} — ${String(missingGoal.value)} / ${String(missingGoal.target)}.`
             : `Умови ${rank?.title ?? "Director"} виконані — прийми підвищення.`;
     return {
-      title: (rank?.title ?? "Senior QA") + " → " + (rank?.unlock ?? "CI/CD-конвеєр"),
+      title: (rank?.title ?? "Senior QA") + " → " + rankDiscovery(s, s.stage + 1),
       detail: step,
       value: s.rankEarned,
       target: rank?.earned ?? 1,
       action: "До першого прориву",
+      view: "career",
     };
   }
   if (p.total < PIPELINE.hireAt) {
@@ -48,6 +52,8 @@ export function nextDiscovery(s: CareerState): {
       value: p.total,
       target: PIPELINE.hireAt,
       action: "Налаштувати конвеєр",
+      view: "pipeline",
+      layer: "pipeline",
     };
   }
   if (p.total < PIPELINE.trialsAt) {
@@ -58,6 +64,8 @@ export function nextDiscovery(s: CareerState): {
       value: p.total,
       target: PIPELINE.trialsAt,
       action: "Відкрити CI/CD",
+      view: "pipeline",
+      layer: "pipeline",
     };
   }
   const trial = PIPELINE_TRIALS.find((t) => t.id === p.trial?.id);
@@ -71,6 +79,8 @@ export function nextDiscovery(s: CareerState): {
       value: p.trial.progress,
       target: trial.target,
       action: "До випробування",
+      view: "pipeline",
+      layer: "pipeline",
     };
   }
   if (p.completed.length < PIPELINE_TRIALS.length) {
@@ -81,10 +91,11 @@ export function nextDiscovery(s: CareerState): {
       const rank = CAREER_STAGES[s.stage + 1];
       return {
         title: (rank?.title ?? "Новий ранг") + " → наступне випробування",
-        detail: rank?.unlock ?? "Продовжуй кар’єру, щоб відкрити наступний прорив.",
+        detail: rankDiscovery(s, s.stage + 1),
         value: s.rankEarned,
         target: rank?.earned ?? 1,
         action: "До підвищення",
+        view: "career",
       };
     }
     return {
@@ -93,6 +104,8 @@ export function nextDiscovery(s: CareerState): {
       value: p.completed.length,
       target: PIPELINE_TRIALS.length,
       action: "Обрати випробування",
+      view: "pipeline",
+      layer: "pipeline",
     };
   }
   if (s.careers < 1) {
@@ -103,6 +116,7 @@ export function nextDiscovery(s: CareerState): {
       value: Math.min(s.stage, CAREER_RULES.prestigeStage),
       target: CAREER_RULES.prestigeStage,
       action: "До першого престижу",
+      view: "career",
     };
   }
   const next = BLUEPRINTS.find((b) => !p.architecture.blueprints.includes(b.id));
@@ -116,6 +130,8 @@ export function nextDiscovery(s: CareerState): {
       value: blueprintProgress(s, next.id),
       target: next.target,
       action: "До архітектури",
+      view: "pipeline",
+      layer: "architecture",
     };
   }
   return {
@@ -125,17 +141,9 @@ export function nextDiscovery(s: CareerState): {
     value: p.architecture.blueprints.length,
     target: BLUEPRINTS.length,
     action: "Налаштувати архітектуру",
+    view: "pipeline",
+    layer: "architecture",
   };
 }
 
-export const discoveryTarget = (s: CareerState): CareerView =>
-  !pipelineUnlocked(s) ||
-  (s.careers < 1 && s.pipeline.completed.length === PIPELINE_TRIALS.length) ||
-  (s.pipeline.total >= PIPELINE.trialsAt &&
-    !s.pipeline.trial &&
-    s.pipeline.completed.length < PIPELINE_TRIALS.length &&
-    !PIPELINE_TRIALS.some(
-      (t) => !s.pipeline.completed.includes(t.id) && trialUnlocked(s, t),
-    ))
-    ? "career"
-    : "pipeline";
+export const discoveryTarget = (s: CareerState): CareerView => nextDiscovery(s).view;

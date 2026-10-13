@@ -18,7 +18,8 @@ import { CareerApp } from "./CareerApp";
 
 const NOW = 20_000_000;
 function boot(patch: Partial<CareerState> = {}) {
-  const state = { ...newCareer(NOW), ...patch };
+  // Compatibility coverage for careers that already had Middle research.
+  const state = { ...newCareer(NOW), journeyModel: 1 as const, ...patch };
   localStorage.setItem(R.saveKey, exportCareer(state));
   return render(<CareerApp />);
 }

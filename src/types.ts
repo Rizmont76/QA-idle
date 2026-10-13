@@ -98,6 +98,7 @@ export const BULK_PURCHASE_SIZE = 10;
 export const CAREER_SAVE_VERSION = 4;
 export const PRODUCT_MODEL_VERSION = 2;
 export const PIPELINE_MODEL_VERSION = 2;
+export const JOURNEY_MODEL_VERSION = 2;
 export type PurchaseMode = 1 | typeof BULK_PURCHASE_SIZE | "max";
 export interface CareerContract {
   id: string;
@@ -174,6 +175,7 @@ export interface NetworkState {
 }
 export interface CareerState {
   schemaVersion: typeof CAREER_SAVE_VERSION;
+  journeyModel: 1 | typeof JOURNEY_MODEL_VERSION;
   money: number;
   bugs: number;
   earned: number;
@@ -251,6 +253,8 @@ export type CareerAction =
   | { type: "cancelTrial" }
   | { type: "claimTrial" }
   | { type: "pipelinePolicy"; id: PipelinePolicy; enabled: boolean }
+  | { type: "pipelineBalance"; enabled: boolean }
+  | { type: "pipelineDelegate"; enabled: boolean }
   | { type: "prestige" };
 
 export type ResourceLifetimeCategory = "disposable" | "investment";

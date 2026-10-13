@@ -33,8 +33,9 @@ import type { CareerView as View, PipelineView } from "../game/career/discovery"
 import { architectureUnlocked } from "../game/career/architectureEffects";
 import { networkUnlocked } from "../game/career/networkEffects";
 import { UnlockNotice } from "./UnlockNotice";
-import { discoveryTarget } from "../game/career/pipelineSelectors";
+import { focusedJourney, rankDiscovery } from "../game/career/journey";
 const PERCENT = 100;
+const OVERVIEWS: readonly View[] = ["office", "career", "resources", "achievements"];
 const NAV: readonly { id: View; title: string; symbol: string; subtitle: string }[] = [
   {
     id: "workspace",
@@ -134,6 +135,11 @@ export function CareerApp() {
   );
   const layer = pipelineView(s, requestedLayer);
   const visibleNav = NAV.filter((n) => viewUnlocked(s, n.id));
+  const [overviewsOpen, setOverviewsOpen] = useState(false);
+  const overviewNav = focusedJourney(s)
+    ? visibleNav.filter((n) => OVERVIEWS.includes(n.id))
+    : [];
+  const primaryNav = visibleNav.filter((n) => !overviewNav.includes(n));
   const [confirmation, setConfirmation] = useState<
     "prestige" | "reset" | "import" | "contract" | "project" | null
   >(null);
@@ -160,7 +166,10 @@ export function CareerApp() {
       researchUnlocked(s, node) &&
       s.insights >= researchCost(s, node),
   );
-  function navigate(next: View) {
+  function navigate(next: View, nextLayer?: PipelineView) {
+    if (next === "pipeline" && nextLayer) {
+      setLayer(pipelineView(s, nextLayer));
+    }
     setView(viewUnlocked(s, next) ? next : "workspace");
     window.scrollTo({ top: 0, behavior: "instant" });
   }
@@ -200,7 +209,7 @@ export function CareerApp() {
         </a>
         <div className="sidebar-label">ТВІЙ ПРОСТІР</div>
         <nav aria-label="Головна навігація">
-          {visibleNav.map((n) => (
+          {primaryNav.map((n) => (
             <button
               key={n.id}
               className={`nav-link ${view === n.id ? "selected" : ""}`}
@@ -219,6 +228,34 @@ export function CareerApp() {
               {n.id === "achievements" && <small>{s.badges.length}</small>}
             </button>
           ))}
+          {overviewNav.length > 0 && (
+            <>
+              <button
+                className="nav-link overview-toggle"
+                aria-expanded={overviewsOpen}
+                aria-controls="career-overviews"
+                onClick={() => setOverviewsOpen(!overviewsOpen)}
+              >
+                <span aria-hidden="true">{overviewsOpen ? "⌄" : "›"}</span>
+                Огляди
+              </button>
+              {overviewsOpen && (
+                <div id="career-overviews" className="overview-links">
+                  {overviewNav.map((n) => (
+                    <button
+                      key={n.id}
+                      className={`nav-link ${view === n.id ? "selected" : ""}`}
+                      aria-current={view === n.id ? "page" : undefined}
+                      onClick={() => navigate(n.id)}
+                    >
+                      <span aria-hidden="true">{n.symbol}</span>
+                      {n.title}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </nav>
         <div className="sidebar-bottom">
           {prestigeDiscovered(s) && (
@@ -339,11 +376,10 @@ export function CareerApp() {
           <UnlockNotice
             key={saveRevision}
             game={s}
-            entries={visibleNav}
+            entries={focusedJourney(s) ? primaryNav : visibleNav}
             open={navigate}
             openLayer={(next) => {
-              setLayer(next);
-              navigate("pipeline");
+              navigate("pipeline", next);
             }}
           />
           <CareerResourceStrip game={s} />
@@ -355,19 +391,9 @@ export function CareerApp() {
               </button>
             </div>
           )}
-          {view === "resources" && (
-            <CareerResources
-              game={s}
-              open={(next, nextLayer) => {
-                if (nextLayer) {
-                  setLayer(nextLayer);
-                }
-                navigate(next);
-              }}
-            />
-          )}
+          {view === "resources" && <CareerResources game={s} open={navigate} />}
           {view === "workspace" && viewUnlocked(s, "pipeline") && (
-            <DiscoveryCard game={s} open={() => navigate(discoveryTarget(s))} />
+            <DiscoveryCard game={s} open={navigate} />
           )}
           {view === "pipeline" && (
             <CareerPipeline
@@ -488,7 +514,7 @@ export function CareerApp() {
                           {i === s.stage ? " · ТИ ТУТ" : ""}
                         </span>
                         <h3>{rank.title}</h3>
-                        <p>{rank.unlock}</p>
+                        <p>{rankDiscovery(s, i)}</p>
                         <small>
                           {i === 0
                             ? "Кожна кар’єра починається тут"

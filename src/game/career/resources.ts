@@ -72,7 +72,7 @@ export function resourceOverview(s: CareerState): ResourceRow[] {
       view: "workspace",
     },
   ];
-  if (viewUnlocked(s, "studio")) {
+  if (s.insights > 0 || s.lifetimeInsights > 0 || viewUnlocked(s, "studio")) {
     rows.push({
       id: "insights",
       title: "Інсайти",
@@ -82,9 +82,13 @@ export function resourceOverview(s: CareerState): ResourceRow[] {
       balance: s.insights,
       source:
         "Етапи проєктів і контракти. Відкритий код також дає інсайти за нові автотести.",
-      use: "Дослідження студії та запуск продуктів.",
+      use: viewUnlocked(s, "studio")
+        ? "Дослідження студії та запуск продуктів."
+        : viewUnlocked(s, "products")
+          ? "Запуск інструментів або збереження для майбутніх інвестицій."
+          : "Збережені знання для майбутніх інвестицій.",
       persistence: "Залишаються після престижу.",
-      view: "studio",
+      view: viewUnlocked(s, "studio") ? "studio" : "projects",
     });
   }
   if (certificates(s) > 0) {
@@ -94,7 +98,11 @@ export function resourceOverview(s: CareerState): ResourceRow[] {
       symbol: "▣",
       balance: certificates(s),
       source: "Перший завершений реліз кожного проєкту.",
-      use: "Відкривають проєкти, інструменти й спеціалістів. Не витрачаються.",
+      use: viewUnlocked(s, "studio")
+        ? "Відкривають проєкти, інструменти й спеціалістів. Не витрачаються."
+        : viewUnlocked(s, "products")
+          ? "Відкривають наступних клієнтів і інструменти. Не витрачаються."
+          : "Підтверджують релізи й відкривають наступних клієнтів. Не витрачаються.",
       persistence: "Сертифікати й їхні рівні залишаються.",
       view: "projects",
     });

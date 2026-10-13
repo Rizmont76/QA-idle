@@ -6,6 +6,7 @@ import { RESEARCH } from "./expansionData";
 import { activeSpecialists, certificates } from "./studioSelectors";
 import type { CareerView } from "./discovery";
 import { legacyGoals } from "./legacyChapters";
+import { focusedJourney } from "./journey";
 
 export type ChapterGoal =
   | { kind: "crew"; id: CrewId; target: number }
@@ -85,7 +86,39 @@ export const CHAPTERS: readonly [ChapterDefinition, ...ChapterDefinition[]] = [
 export const rankMultiplier = (s: CareerState) => 2 ** s.stage;
 export const currentChapter = (s: CareerState) => {
   const chapter = CHAPTERS[s.stage] ?? CHAPTERS[0];
+  if (focusedJourney(s)) {
+    return FOCUSED_CHAPTERS[s.stage] ?? chapter;
+  }
   return s.pipeline.model === 1 ? { ...chapter, goals: legacyGoals(s.stage) } : chapter;
+};
+const FOCUSED_CHAPTERS: Record<number, ChapterDefinition> = {
+  1: {
+    title: "Перший клієнт довіряє тобі реліз",
+    brief:
+      "Звіти здаються самі. Сплануй перший проєкт: кожен баг команди наближає сертифікат, а Senior відкриє власний конвеєр.",
+    goals: [{ kind: "certificates", target: 1 }],
+  },
+  2: {
+    title: "Код починає тестувати код",
+    brief:
+      "Збалансуй вузли CI/CD. Релізи залишають постійні автотести; перше випробування навчить конвеєр розподіляти ядра за тебе.",
+    goals: [{ kind: "pipeline", target: 100 }],
+  },
+  3: {
+    title: "Твої автотести отримують нову роль",
+    brief:
+      "Запусти перший продукт. Ліцензія заробляє на встановлених автотестах, внутрішній інструмент прискорює їх зростання, відкритий код збирає інсайти.",
+    goals: [
+      { kind: "products", target: 1 },
+      { kind: "trials", target: 1 },
+    ],
+  },
+  4: {
+    title: "Знання стають силою студії",
+    brief:
+      "Вклади збережені інсайти в дослідження й обери фахівців. Ці покращення залишаться з тобою; нове випробування делегує освоєні покупки.",
+    goals: [{ kind: "trials", target: 2 }],
+  },
 };
 export const researchLevels = (s: CareerState) =>
   RESEARCH.reduce((sum, r) => sum + (s.research[r.id] ?? 0), 0);

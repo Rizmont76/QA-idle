@@ -46,7 +46,7 @@ export const PIPELINE_TRIALS: readonly TrialDefinition[] = [
     rates: [3, 2, 1],
     allocation: [2, 1, 1],
     target: 60,
-    reward: "+2 постійні ядра конвеєра",
+    reward: "+2 постійні ядра й авторозподіл основного конвеєра",
   },
   {
     id: "verification",
@@ -160,3 +160,9 @@ export function policyUnlocked(p: PipelineState, id: PipelinePolicy): boolean {
       return p.completed.includes("deployment");
   }
 }
+export const delegatedPolicies = (p: PipelineState) =>
+  PIPELINE_POLICIES.filter(
+    (policy) =>
+      ["hire", "upgrades", "projects"].includes(policy.id) &&
+      policyUnlocked(p, policy.id),
+  );
