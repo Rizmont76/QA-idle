@@ -29,6 +29,87 @@ function boot(s = newCareer(NOW)) {
 }
 const navigation = () =>
   within(screen.getByRole("navigation", { name: "Головна навігація" }));
+it.each([
+  { stage: 1, next: "CI/CD" },
+  { stage: 2, next: "Продукти" },
+  { stage: 3, next: "Студія" },
+])("announces just $next on promotion from rank $stage", ({ stage, next }) => {
+  const s = newCareer(NOW);
+  s.stage = s.bestStage = stage;
+  s.money = s.earned = s.rankEarned = s.lifetimeEarned = 1e12;
+  s.crew.assistant = 100;
+  s.certificates = { button: 1 };
+  s.insights = s.lifetimeInsights = 10;
+  s.pipeline.total = 1000;
+  s.pipeline.completed = ["budget"];
+  if (stage === 3) {
+    s.products.releases = { checklist: 1 };
+  }
+  boot(s);
+  expect(navigation().queryByRole("button", { name: next })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Отримати підвищення ↗" }));
+  const notice = screen.getByRole("status", { name: "Нове відкриття" });
+  expect(within(notice).getAllByRole("button")).toHaveLength(2); // Destination + dismiss.
+  expect(notice).toHaveTextContent(next);
+  expect(notice).not.toHaveTextContent("Офіс");
+  expect(notice).not.toHaveTextContent("Ресурси");
+  expect(navigation().getByRole("button", { name: next })).toBeEnabled();
+});
+it("keeps overview actions outside the tree until opened and retains old navigation", () => {
+  const s = newCareer(NOW);
+  s.stage = s.bestStage = 1;
+  boot(s);
+  expect(navigation().queryByRole("button", { name: "Офіс" })).not.toBeInTheDocument();
+  const toggle = navigation().getByRole("button", { name: "Огляди" });
+  fireEvent.click(toggle);
+  expect(toggle).toHaveAttribute("aria-expanded", "true");
+  fireEvent.click(navigation().getByRole("button", { name: "Офіс" }));
+  expect(
+    screen.getByRole("heading", { name: "Перший робочий стіл" }),
+  ).toBeInTheDocument();
+  fireEvent.click(toggle);
+  expect(navigation().queryByRole("button", { name: "Офіс" })).not.toBeInTheDocument();
+  cleanup();
+  s.journeyModel = 1;
+  boot(s);
+  expect(navigation().getByRole("button", { name: "Офіс" })).toBeEnabled();
+  expect(navigation().queryByRole("button", { name: "Огляди" })).not.toBeInTheDocument();
+});
+it("delegates the main flow and cash work while preserving trial control and separate purchases", () => {
+  const s = newCareer(NOW);
+  s.stage = s.bestStage = 4;
+  s.pipeline.total = 1000;
+  s.pipeline.completed = ["budget", "verification", "deployment"];
+  boot(s);
+  fireEvent.click(navigation().getByRole("button", { name: "CI/CD" }));
+  fireEvent.click(
+    screen.getByRole("switch", { name: "Авторозподіл основного конвеєра" }),
+  );
+  expect(
+    screen.getByRole("button", { name: "Конвеєр: Збірка — забрати ядро" }),
+  ).toBeDisabled();
+  fireEvent.click(screen.getByRole("button", { name: "Делегувати освоєну роботу" }));
+  expect(screen.getByRole("switch", { name: "Автонайм" })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  expect(screen.getByRole("switch", { name: "Автопроєкти" })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  expect(screen.getByRole("switch", { name: "Автопокращення" })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  expect(screen.getByRole("switch", { name: "Автопідвищення" })).toHaveAttribute(
+    "aria-checked",
+    "false",
+  );
+  expect(screen.getByRole("switch", { name: "Автостудія" })).toHaveAttribute(
+    "aria-checked",
+    "false",
+  );
+});
 function networkSave() {
   const s = newCareer(NOW);
   s.careers = 1;
@@ -38,6 +119,33 @@ function networkSave() {
   s.pipeline.architecture.blueprints = ["cycle", "bus", "flow", "studio"];
   return s;
 }
+it.each([
+  { previous: "Конвеєр", destination: "network" },
+  { previous: "Архітектура", destination: "network" },
+  { previous: "Конвеєр", destination: "architecture" },
+])(
+  "opens the promised $destination after visiting $previous",
+  ({ previous, destination }) => {
+    const s = networkSave();
+    if (destination === "architecture") {
+      s.pipeline.architecture.blueprints.pop();
+    }
+    boot(s);
+    fireEvent.click(navigation().getByRole("button", { name: "CI/CD" }));
+    fireEvent.click(screen.getByRole("button", { name: previous }));
+    fireEvent.click(navigation().getByRole("button", { name: "Робоче місце" }));
+    fireEvent.click(
+      within(screen.getByRole("region", { name: "Наступне відкриття" })).getByRole(
+        "button",
+      ),
+    );
+    expect(
+      screen.getByRole("heading", {
+        name: destination === "network" ? "Обчислювальна мережа" : "Архітектура студії",
+      }),
+    ).toBeInTheDocument();
+  },
+);
 it("starts with two tabs and no hidden systems in the accessibility tree", () => {
   boot();
   expect(
@@ -66,7 +174,13 @@ it("reveals rank tabs during play, announces them and keeps the first project fo
   fireEvent.click(screen.getByRole("button", { name: "Отримати підвищення ↗" }));
   expect(navigation().getByRole("button", { name: "Проєкти" })).toBeEnabled();
   expect(screen.getByRole("status", { name: "Нове відкриття" })).toHaveTextContent(
-    "Офіс · Проєкти · Кар’єра",
+    "Проєкти",
+  );
+  expect(screen.getByRole("status", { name: "Нове відкриття" })).not.toHaveTextContent(
+    "Офіс",
+  );
+  expect(screen.getByRole("status", { name: "Нове відкриття" })).not.toHaveTextContent(
+    "Кар’єра",
   );
   expect(navigation().queryByRole("button", { name: "Студія" })).not.toBeInTheDocument();
   fireEvent.click(navigation().getByRole("button", { name: "Проєкти" }));
@@ -81,7 +195,7 @@ it("reveals rank tabs during play, announces them and keeps the first project fo
 });
 it("reveals dependent research immediately when its prerequisite is purchased", () => {
   const s = newCareer(NOW);
-  s.stage = s.bestStage = 1;
+  s.stage = s.bestStage = 4;
   s.insights = s.lifetimeInsights = 100;
   boot(s);
   fireEvent.click(navigation().getByRole("button", { name: "Студія" }));
@@ -98,6 +212,7 @@ it("shows only the next career rank and keeps prestige hidden until Director", (
   const s = newCareer(NOW);
   s.stage = s.bestStage = 1;
   boot(s);
+  fireEvent.click(navigation().getByRole("button", { name: "Огляди" }));
   fireEvent.click(navigation().getByRole("button", { name: "Кар’єра" }));
   expect(screen.getByRole("heading", { name: "Senior QA" })).toBeInTheDocument();
   expect(screen.queryByRole("heading", { name: "Director" })).not.toBeInTheDocument();

@@ -28,9 +28,11 @@ function boot(patch: Partial<CareerState> = {}) {
 function saved(): CareerState {
   return JSON.parse(localStorage.getItem(CAREER_RULES.saveKey) ?? "{}") as CareerState;
 }
-it("keeps the automatic bug counter monotonic through purchase, manual tests and ticks", () => {
+it("keeps gifted automatic reporting monotonic through manual tests and ticks", () => {
   boot({ stage: 1, bestStage: 1, money: 80, bugs: 9, found: 9, lifetimeBugs: 9 });
-  fireEvent.click(screen.getByRole("button", { name: "Купити Автоматичні звіти" }));
+  expect(
+    screen.queryByRole("button", { name: "Купити Автоматичні звіти" }),
+  ).not.toBeInTheDocument();
   expect(screen.getByText("ОБРОБЛЕНО ЗА КАР’ЄРУ")).toBeInTheDocument();
   expect(saved().bugs).toBe(0);
   const before = saved().found;
@@ -59,7 +61,7 @@ it("shows the promotion boost immediately, resets income and exposes the new cha
   expect(saved().rankEarned).toBe(0);
   expect(screen.getByRole("button", { name: "Виконай умови підвищення" })).toBeDisabled();
   expect(screen.getByRole("region", { name: "Цілі поточного рангу" })).toHaveTextContent(
-    "Команда, якій можна довірити реліз",
+    "Перший клієнт довіряє тобі реліз",
   );
   fireEvent.click(
     screen.getByRole("button", { name: "Закрити повідомлення про підвищення" }),
@@ -76,11 +78,11 @@ it("opens a resource ledger without future balances and navigates to the source 
     lifetimeInsights: 3,
     certificates: { button: 1 },
   });
-  fireEvent.click(screen.getByRole("button", { name: "Ресурси" }));
+  fireEvent.click(screen.getByRole("button", { name: "Усі ресурси →" }));
   const table = screen.getByRole("table", { name: "Відкриті ресурси" });
   expect(within(table).getAllByRole("row")).toHaveLength(5);
   expect(within(table).queryByText("Кредити збірки")).not.toBeInTheDocument();
   const insights = within(table).getByRole("row", { name: /Інсайти/ });
   fireEvent.click(within(insights).getByRole("button", { name: "Відкрити →" }));
-  expect(screen.getByRole("heading", { name: "Студія.", level: 1 })).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Проєкти.", level: 1 })).toBeInTheDocument();
 });

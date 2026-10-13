@@ -317,7 +317,7 @@ describe("pipeline automation and persistence", () => {
     expect(offline.pipeline.credits).toBeCloseTo(fine.pipeline.credits, 5);
     expect(offline.pipeline.total).toBeCloseTo(fine.pipeline.total, 5);
     expect(offline.crew).toEqual(fine.crew);
-    expect(offline.money).toBeCloseTo(fine.money, 4);
+    expect(offline.money / fine.money).toBeCloseTo(1, 12);
     expect(offline.certificates).toEqual(fine.certificates);
     expect(offline.stage).toBe(fine.stage);
     expect(offline.project?.progress ?? 0).toBeCloseTo(fine.project?.progress ?? 0, 5);

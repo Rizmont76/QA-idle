@@ -31,6 +31,7 @@ it("reveals only playable workspace and settings for a fresh save", () => {
 });
 it("reveals rank, insights and tools at their actual milestones without using affordability", () => {
   const s = newCareer(NOW);
+  s.journeyModel = 1; // Previously reached journeys keep their original introductions.
   s.stage = s.bestStage = 1;
   expect(viewUnlocked(s, "office")).toBe(true);
   expect(viewUnlocked(s, "projects")).toBe(true);

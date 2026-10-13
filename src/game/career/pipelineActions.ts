@@ -1,6 +1,8 @@
 import { architecturePolicyUnlocked, balanceArchitecture } from "./architectureEffects";
 import type { CareerAction, CareerState } from "../../types";
 import type { ActionResult } from "./engine";
+import { mainBalanceUnlocked, pipelineUnlocked, trialUnlocked } from "./pipelineUnlocks";
+import { affordable } from "./afford";
 import {
   allocatedCores,
   coreBudget,
@@ -8,12 +10,13 @@ import {
   PIPELINE,
   PIPELINE_TRIALS,
   policyUnlocked,
+  delegatedPolicies,
 } from "./pipelineData";
 
 export function pipelineAction(state: CareerState, action: CareerAction): ActionResult {
   const fail = (message: string): ActionResult => ({ state, ok: false, message });
-  if (state.careers < 1) {
-    return fail("Конвеєр відкриється після першого престижу.");
+  if (!pipelineUnlocked(state)) {
+    return fail("Конвеєр відкриється на Senior QA.");
   }
   const p = state.pipeline;
   let next: typeof p;
@@ -25,7 +28,7 @@ export function pipelineAction(state: CareerState, action: CareerAction): Action
         p.architecture.autoBalance &&
         architecturePolicyUnlocked(state, "autoBalance")
       ) {
-        return fail("Вимкни авторозподіл у вкладці «Архітектура».");
+        return fail("Вимкни авторозподіл під основним конвеєром CI/CD.");
       }
       const def = PIPELINE_TRIALS.find((t) => t.id === p.trial?.id);
       const source = action.trial ? p.trial : p;
@@ -52,10 +55,10 @@ export function pipelineAction(state: CareerState, action: CareerAction): Action
     }
     case "pipelineCore": {
       const cost = corePrice(p);
-      if (p.coreLevel >= PIPELINE.maxCoreLevel || p.credits < cost) {
+      if (p.coreLevel >= PIPELINE.maxCoreLevel || !affordable(p.credits, cost)) {
         return fail("Потрібно більше кредитів збірки.");
       }
-      next = { ...p, credits: p.credits - cost, coreLevel: p.coreLevel + 1 };
+      next = { ...p, credits: Math.max(0, p.credits - cost), coreLevel: p.coreLevel + 1 };
       message = p.architecture.autoBalance
         ? "+1 ядро. Авторозподіл оновлено."
         : "+1 ядро. Розподіли його між вузлами.";
@@ -63,12 +66,7 @@ export function pipelineAction(state: CareerState, action: CareerAction): Action
     }
     case "startTrial": {
       const def = PIPELINE_TRIALS.find((t) => t.id === action.id);
-      if (
-        !def ||
-        p.total < PIPELINE.trialsAt ||
-        p.trial ||
-        p.completed.includes(def.id)
-      ) {
+      if (!def || !trialUnlocked(state, def) || p.trial || p.completed.includes(def.id)) {
         return fail("Випробування поки недоступне.");
       }
       next = {
@@ -107,6 +105,27 @@ export function pipelineAction(state: CareerState, action: CareerAction): Action
       }
       next = { ...p, automation: { ...p.automation, [action.id]: action.enabled } };
       break;
+    case "pipelineBalance":
+      if (!mainBalanceUnlocked(state)) {
+        return fail("Авторозподіл відкриває випробування «Малий бюджет».");
+      }
+      next = { ...p, architecture: { ...p.architecture, autoBalance: action.enabled } };
+      break;
+    case "pipelineDelegate": {
+      const policies = delegatedPolicies(p);
+      if (!policies.length) {
+        return fail("Спочатку відкрий автоматизацію освоєної роботи.");
+      }
+      const automation = { ...p.automation };
+      for (const policy of policies) {
+        automation[policy.id] = action.enabled;
+      }
+      next = { ...p, automation };
+      message = action.enabled
+        ? "Освоєну роботу делеговано. Покупки оплачуються з рахунку."
+        : "Спільні політики вимкнено.";
+      break;
+    }
     default:
       return fail("Невідома дія конвеєра.");
   }

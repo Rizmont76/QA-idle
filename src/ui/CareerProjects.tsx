@@ -15,6 +15,8 @@ import {
 import { production } from "../game/career/selectors";
 import { PRODUCTS } from "../game/career/productData";
 import { projectDiscovered, viewUnlocked } from "../game/career/discovery";
+import { productDiscovered } from "../game/career/discovery";
+import { studioIntroduced } from "../game/career/journey";
 import { cash, clockTime, number } from "./careerUtils";
 import { Meter, SectionTitle } from "./CareerWidgets";
 
@@ -57,7 +59,7 @@ export function CareerProjects({ game: s, send, cancelProject, studio }: Props) 
           <p>
             {count === PROJECTS.length
               ? "Усі клієнти отримали свої релізи. Підкорюй золоті сертифікації або почни наступну кар’єру зі знаннями, які вже ніхто не забере."
-              : "Від кнопки маленької крамниці до власної платформи. Виконуй проєкти, збирай портфоліо й запрошуй фахівців у студію."}
+              : "Доведи клієнтський реліз до готовності. Баги команди просувають роботу, а завершення додає сертифікат і збережені інсайти."}
           </p>
         </div>
         <div className="hero-score">
@@ -97,9 +99,11 @@ export function CareerProjects({ game: s, send, cancelProject, studio }: Props) 
                 <span>Сертифікат у портфоліо</span>
               </div>
               <div className="completion-actions">
-                <button className="button primary" onClick={studio}>
-                  До студії →
-                </button>
+                {viewUnlocked(s, "studio") && (
+                  <button className="button primary" onClick={studio}>
+                    До студії →
+                  </button>
+                )}
                 <button
                   className="text-button"
                   onClick={() => {
@@ -267,7 +271,7 @@ export function CareerProjects({ game: s, send, cancelProject, studio }: Props) 
                   <p>{def.ending}</p>
                 </details>
               )}
-              {specialist && (
+              {specialist && studioIntroduced(s) && (
                 <div className="recruit-teaser">
                   <span className={`staff-avatar small tone-${specialist.color}`}>
                     {specialist.initials}
@@ -284,7 +288,7 @@ export function CareerProjects({ game: s, send, cancelProject, studio }: Props) 
               )}
               {!complete && (
                 <>
-                  {tool && (
+                  {tool && productDiscovered(s, tool) && (
                     <p className="tiny insight-text">
                       ⬡ {tier > 0 ? "Відкрито" : "Перший сертифікат відкриє"}:{" "}
                       {tool.title} · три ролі для студії

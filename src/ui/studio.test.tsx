@@ -18,7 +18,8 @@ import { CareerApp } from "./CareerApp";
 
 const NOW = 20_000_000;
 function boot(patch: Partial<CareerState> = {}) {
-  const state = { ...newCareer(NOW), ...patch };
+  // Compatibility coverage for careers that already had Middle research.
+  const state = { ...newCareer(NOW), journeyModel: 1 as const, ...patch };
   localStorage.setItem(R.saveKey, exportCareer(state));
   return render(<CareerApp />);
 }
@@ -112,7 +113,7 @@ describe("studio UI", () => {
     expect(saved().project).toBeNull();
     expect(saved().certificates).toEqual({ button: 1 });
   });
-  it("shows certificate gates after Director and still offers the original prestige", () => {
+  it("keeps optional post-Director goals free of certificate-count gates and offers prestige", () => {
     boot({
       stage: 5,
       bestStage: 5,
@@ -120,8 +121,8 @@ describe("studio UI", () => {
       crew: { ...newCareer(NOW).crew, assistant: 70 },
     });
     expect(
-      screen.getByRole("progressbar", { name: "Проєкти для підвищення" }),
-    ).toHaveAttribute("aria-valuenow", "0");
+      screen.queryByRole("progressbar", { name: "Проєкти для підвищення" }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Виконай умови підвищення" }),
     ).toBeDisabled();

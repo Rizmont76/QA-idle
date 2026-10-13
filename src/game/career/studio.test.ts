@@ -37,6 +37,8 @@ function required<T>(value: T | null | undefined): T {
 }
 const NOW = 100_000;
 function fixture(overrides: Partial<CareerState> = {}): CareerState {
+  const pipeline = newCareer(NOW).pipeline;
+  pipeline.allocation = [0, 0, 0];
   return {
     ...newCareer(NOW),
     stage: 8,
@@ -45,6 +47,7 @@ function fixture(overrides: Partial<CareerState> = {}): CareerState {
     insights: 1_000,
     lifetimeInsights: 1_000,
     badges: BADGES.map((b) => b.id),
+    pipeline,
     ...overrides,
   };
 }
@@ -298,7 +301,7 @@ describe("expanded contracts and promotions", () => {
     expect(act(claimed.state, { type: "claim" }, NOW).ok).toBe(false);
     expect(claimed.state.contractsCompleted).toBe(1);
   });
-  it("requires certificates for the optional post-Director ranks", () => {
+  it("keeps later certificates optional rather than blocking earned promotions", () => {
     let s = fixture({
       stage: 5,
       earned: 500_000_000_000,
@@ -306,7 +309,7 @@ describe("expanded contracts and promotions", () => {
       products: { ...newCareer(NOW).products, releases: { checklist: 1, devices: 1 } },
       crew: { ...newCareer(NOW).crew, assistant: 70, cloud: 10 },
     });
-    expect(promotionReady(s)).toBe(false);
+    expect(promotionReady(s)).toBe(true);
     s = { ...s, certificates: firstCertificates(5) };
     expect(act(s, { type: "promote" }, NOW).state.stage).toBe(6);
     expect(certificates(s)).toBe(5);

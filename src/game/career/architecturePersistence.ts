@@ -18,10 +18,13 @@ import { amount, ids, record } from "./saveValues";
 export function normalizeArchitecture(s: CareerState, value: unknown): void {
   const a = newArchitecture();
   s.pipeline.architecture = a;
+  const data = record(value);
+  a.autoBalance =
+    data["autoBalance"] === true && architecturePolicyUnlocked(s, "autoBalance");
   if (!architectureUnlocked(s)) {
+    s.pipeline = balanceArchitecture(s).pipeline;
     return;
   }
-  const data = record(value);
   const claims = ids(
     data["blueprints"],
     BLUEPRINTS.map((b) => b.id),

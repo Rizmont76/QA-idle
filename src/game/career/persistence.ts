@@ -1,5 +1,9 @@
 import type { CareerContract, CareerState } from "../../types";
-import { SAVE_SCHEMA_VERSION } from "../../types";
+import {
+  JOURNEY_MODEL_VERSION,
+  PIPELINE_MODEL_VERSION,
+  SAVE_SCHEMA_VERSION,
+} from "../../types";
 import {
   BADGES,
   CAREER_RULES as R,
@@ -8,7 +12,7 @@ import {
   CONTRACTS,
   CREW,
 } from "./content";
-import { advanceCareer, awardBadges, newCareer } from "./engine";
+import { advanceCareer, awardBadges, newCareer, settleAutoReports } from "./engine";
 import type { TimeResult } from "./engine";
 import { amount, ids, record } from "./saveValues";
 import { normalizeStudio } from "./studioPersistence";
@@ -62,7 +66,11 @@ function normalizeContract(value: unknown, stage: number): CareerContract | null
     elapsed: amount(data["elapsed"], duration),
   };
 }
-export function normalizeCareer(value: unknown, now = Date.now()): CareerState {
+export function normalizeCareer(
+  value: unknown,
+  now = Date.now(),
+  legacyPipeline = false,
+): CareerState {
   const data = record(value);
   const state = newCareer(now);
   const numericKeys = [
@@ -96,6 +104,12 @@ export function normalizeCareer(value: unknown, now = Date.now()): CareerState {
     state.stage,
     Math.floor(amount(data["bestStage"], CAREER_STAGES.length - 1)),
   );
+  state.journeyModel =
+    data["journeyModel"] === 1 || data["journeyModel"] === JOURNEY_MODEL_VERSION
+      ? data["journeyModel"]
+      : state.bestStage >= S.unlockStage || state.careers > 0
+        ? 1
+        : JOURNEY_MODEL_VERSION;
   const crew = record(data["crew"]);
   for (const def of CREW) {
     state.crew[def.id] =
@@ -107,6 +121,13 @@ export function normalizeCareer(value: unknown, now = Date.now()): CareerState {
       (u) => u.stage <= state.stage || (u.id === "auto" && state.careers > 0),
     ).map((u) => u.id),
   );
+  if (
+    !legacyPipeline &&
+    (state.stage >= 1 || state.careers > 0) &&
+    !state.upgrades.includes("auto")
+  ) {
+    state.upgrades.push("auto");
+  }
   state.badges = ids(
     data["badges"],
     BADGES.map((b) => b.id),
@@ -122,8 +143,8 @@ export function normalizeCareer(value: unknown, now = Date.now()): CareerState {
   normalizeStudio(state, data);
   normalizeOffice(state, data["office"]);
   normalizeProducts(state, data["products"]);
-  normalizePipeline(state, data["pipeline"]);
-  return awardBadges(state);
+  normalizePipeline(state, data["pipeline"], legacyPipeline);
+  return awardBadges(settleAutoReports(state));
 }
 
 const LEGACY_UPGRADES: Record<string, string> = {
@@ -161,6 +182,7 @@ export function migrateLegacy(value: unknown, now = Date.now()): CareerState {
   state.lifetimeBugs = state.found;
   state.stage = ["middle_qa", "middle"].includes(String(data["careerStage"])) ? 1 : 0;
   state.bestStage = state.stage;
+  state.journeyModel = state.stage >= S.unlockStage ? 1 : JOURNEY_MODEL_VERSION;
   const owned = record(data["upgrades"]);
   state.upgrades = [
     ...new Set(
@@ -204,7 +226,21 @@ export function migrateLegacy(value: unknown, now = Date.now()): CareerState {
   return state;
 }
 
-export function importCareer(text: string, now = Date.now()): CareerState {
+function activateProductionModel(s: CareerState): CareerState {
+  const next: CareerState = {
+    ...s,
+    pipeline: { ...s.pipeline, model: PIPELINE_MODEL_VERSION },
+  };
+  if ((next.stage >= 1 || next.careers > 0) && !next.upgrades.includes("auto")) {
+    next.upgrades = [...next.upgrades, "auto"];
+  }
+  return awardBadges(settleAutoReports(next));
+}
+export function importCareer(
+  text: string,
+  now = Date.now(),
+  settleLegacy = true,
+): CareerState {
   if (text.length > IMPORT_CHARACTER_LIMIT) {
     throw new Error("Файл збереження завеликий.");
   }
@@ -215,6 +251,11 @@ export function importCareer(text: string, now = Date.now()): CareerState {
     throw new Error("Це не коректний JSON-файл збереження.");
   }
   const data = record(parsed);
+  const legacyPipeline = record(data["pipeline"])["model"] !== PIPELINE_MODEL_VERSION;
+  const imported = (s: CareerState) =>
+    legacyPipeline && settleLegacy
+      ? activateProductionModel(advanceCareer(s, now, true).state)
+      : s;
   if (
     (data["schemaVersion"] === R.version ||
       data["schemaVersion"] === R.previousVersion) &&
@@ -225,30 +266,33 @@ export function importCareer(text: string, now = Date.now()): CareerState {
   ) {
     if (data["schemaVersion"] === R.previousVersion) {
       const crew = record(data["crew"]);
-      return normalizeCareer(
-        {
-          ...data,
-          stage: Math.min(R.prestigeStage, amount(data["stage"])),
-          bestStage: Math.min(R.prestigeStage, amount(data["bestStage"])),
-          crew: {
-            assistant: crew["assistant"],
-            squad: crew["squad"],
-            runner: crew["runner"],
-            lab: crew["lab"],
+      return imported(
+        normalizeCareer(
+          {
+            ...data,
+            stage: Math.min(R.prestigeStage, amount(data["stage"])),
+            bestStage: Math.min(R.prestigeStage, amount(data["bestStage"])),
+            crew: {
+              assistant: crew["assistant"],
+              squad: crew["squad"],
+              runner: crew["runner"],
+              lab: crew["lab"],
+            },
+            insights: 0,
+            lifetimeInsights: 0,
+            research: {},
+            certificates: {},
+            specialists: [],
+            project: null,
+            office: undefined,
+            products: undefined,
           },
-          insights: 0,
-          lifetimeInsights: 0,
-          research: {},
-          certificates: {},
-          specialists: [],
-          project: null,
-          office: undefined,
-          products: undefined,
-        },
-        now,
+          now,
+          true,
+        ),
       );
     }
-    return normalizeCareer(data, now);
+    return imported(normalizeCareer(data, now, legacyPipeline));
   }
   if (data["schemaVersion"] !== undefined) {
     throw new Error("Ця версія збереження не підтримується.");
@@ -288,15 +332,17 @@ export function loadCareer(
   try {
     state =
       current !== null
-        ? importCareer(current, now)
+        ? importCareer(current, now, false)
         : previous !== null
-          ? importCareer(previous, now)
+          ? importCareer(previous, now, false)
           : legacy !== null
             ? importCareer(legacy, now)
             : newCareer(now);
     if (current !== null || previous !== null) {
+      const beforeMoney = state.money;
       summary = advanceCareer(state, now, true);
-      state = summary.state;
+      state = activateProductionModel(summary.state);
+      summary = { ...summary, state, money: state.money - beforeMoney };
     }
   } catch {
     return {

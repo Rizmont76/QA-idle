@@ -7,6 +7,8 @@ import type { ProductDefinition } from "./productData";
 import { architectureUnlocked } from "./architectureEffects";
 import { networkUnlocked } from "./networkEffects";
 import { recruited } from "./studioSelectors";
+import { pipelineUnlocked } from "./pipelineUnlocks";
+import { productIntroduction, studioIntroduced } from "./journey";
 
 export type CareerView =
   | "workspace"
@@ -24,7 +26,7 @@ export type PipelineView = "pipeline" | "architecture" | "network";
 export function productDiscovered(s: CareerState, def: ProductDefinition): boolean {
   return (
     (s.products.releases[def.id] ?? 0) > 0 ||
-    (s.bestStage >= def.stage && (s.certificates[def.project] ?? 0) > 0)
+    (s.bestStage >= productIntroduction(s, def) && (s.certificates[def.project] ?? 0) > 0)
   );
 }
 export function projectDiscovered(s: CareerState, def: ProjectDefinition): boolean {
@@ -48,7 +50,7 @@ export function viewUnlocked(s: CareerState, view: CareerView): boolean {
       return s.bestStage >= STUDIO_RULES.unlockStage;
     case "studio":
       return (
-        s.bestStage >= STUDIO_RULES.unlockStage &&
+        studioIntroduced(s) &&
         (s.lifetimeInsights > 0 ||
           s.insights > 0 ||
           RESEARCH.some((r) => (s.research[r.id] ?? 0) > 0) ||
@@ -57,9 +59,14 @@ export function viewUnlocked(s: CareerState, view: CareerView): boolean {
     case "products":
       return PRODUCTS.some((p) => productDiscovered(s, p));
     case "pipeline":
-      return s.careers > 0;
+      return pipelineUnlocked(s);
     case "resources":
-      return viewUnlocked(s, "studio") || s.careers > 0;
+      return (
+        s.insights > 0 ||
+        s.lifetimeInsights > 0 ||
+        viewUnlocked(s, "studio") ||
+        s.careers > 0
+      );
     case "achievements":
       return s.badges.length > 0;
   }

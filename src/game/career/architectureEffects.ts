@@ -7,6 +7,28 @@ import type {
 import { ARCHITECTURE_POLICIES, RACK, RACK_MODULES } from "./architectureData";
 import { coreBudget, PIPELINE, PIPELINE_TRIALS } from "./pipelineData";
 import { networkBridge } from "./networkEffects";
+import { productBoost } from "./productEffects";
+import { mainBalanceUnlocked, pipelineUnlocked } from "./pipelineUnlocks";
+import type { CrewId } from "../../types";
+import { CREW } from "./content";
+import { PIPELINE_MODEL_VERSION } from "../../types";
+
+// Authored capacity bonuses in 26-Early_Breakthroughs.
+const CREW_CAPACITY_DIVISOR = 2;
+const AI_CAPACITY_DIVISOR = 10;
+const ORBITAL_CAPACITY_DIVISOR = 5;
+const availableCrew = (s: CareerState, id: CrewId) =>
+  CREW.some((c) => c.id === id && c.stage <= s.stage) ? s.crew[id] : 0;
+export function careerCapacity(s: CareerState): PipelineAllocation {
+  const shared =
+    (1 + productBoost(s, "internal")) *
+    (1 +
+      Math.sqrt(availableCrew(s, "ai")) / AI_CAPACITY_DIVISOR +
+      Math.sqrt(availableCrew(s, "orbital")) / ORBITAL_CAPACITY_DIVISOR);
+  return (["cloud", "runner", "lab"] as const).map(
+    (id) => shared * (1 + Math.sqrt(availableCrew(s, id)) / CREW_CAPACITY_DIVISOR),
+  ) as PipelineAllocation;
+}
 
 export const architectureUnlocked = (s: CareerState) =>
   s.careers > 0 && PIPELINE_TRIALS.every((t) => s.pipeline.completed.includes(t.id));
@@ -21,10 +43,12 @@ export const moduleUnlocked = (s: CareerState, id: RackModuleId) => {
   );
 };
 export const architecturePolicyUnlocked = (s: CareerState, id: ArchitecturePolicy) =>
-  architectureUnlocked(s) &&
-  ARCHITECTURE_POLICIES.some(
-    (p) => p.id === id && s.pipeline.architecture.blueprints.includes(p.requires),
-  );
+  id === "autoBalance"
+    ? mainBalanceUnlocked(s)
+    : architectureUnlocked(s) &&
+      ARCHITECTURE_POLICIES.some(
+        (p) => p.id === id && s.pipeline.architecture.blueprints.includes(p.requires),
+      );
 export const powerBudget = (s: CareerState) =>
   RACK.basePower +
   s.pipeline.architecture.powerLevel +
@@ -89,7 +113,14 @@ export function architectureEffects(s: CareerState) {
   result.projects *= bridge;
   return result;
 }
-export const pipelineRates = (s: CareerState) => architectureEffects(s).rates;
+export const pipelineRates = (s: CareerState) => {
+  const rates = architectureEffects(s).rates;
+  const capacity =
+    s.pipeline.model === PIPELINE_MODEL_VERSION && pipelineUnlocked(s)
+      ? careerCapacity(s)
+      : [1, 1, 1];
+  return rates.map((rate, i) => rate * (capacity[i] ?? 1)) as PipelineAllocation;
+};
 export const sustainableRate = (s: CareerState) =>
   Math.min(...pipelineRates(s).map((rate, i) => rate * (s.pipeline.allocation[i] ?? 0)));
 

@@ -27,7 +27,7 @@ describe("continuous pipeline", () => {
     ).toBe(180);
   });
   it("conserves buffered work, drains it with build off and blocks at a full buffer", () => {
-    expect(simulatePipeline([9, 3, 1], [0, 0], 100)).toEqual({
+    expect(simulatePipeline([9, 3, 1], [0, 0], 100)).toMatchObject({
       queues: [200, 200],
       released: 100,
       elapsed: 100,
@@ -36,7 +36,7 @@ describe("continuous pipeline", () => {
       queues: [0, 0],
       released: 100,
     });
-    expect(simulatePipeline([9, 3, 0], [0, 0], 1000)).toEqual({
+    expect(simulatePipeline([9, 3, 0], [0, 0], 1000)).toMatchObject({
       queues: [200, 200],
       released: 0,
       elapsed: 1000,
@@ -205,7 +205,7 @@ describe("old-layer automation", () => {
         fine = advanceCareer(fine, NOW + i * 250).state;
       }
       const long = advanceCareer(s, NOW + 600250, true).state;
-      expect(long.money).toBeCloseTo(fine.money, 4);
+      expect(long.money / fine.money).toBeCloseTo(1, 12);
       expect(long.crew).toEqual(fine.crew);
       expect(long.stage).toBe(fine.stage);
       expect(long.upgrades).toEqual(fine.upgrades);
@@ -220,9 +220,19 @@ describe("old-layer automation", () => {
       } else {
         expect(long.project).toBeNull();
       }
-      expect(long.rankEarned).toBeCloseTo(fine.rankEarned, 4);
+      expect(long.rankEarned / fine.rankEarned).toBeCloseTo(1, 12);
       expect(long.office).toEqual(fine.office);
-      expect(long.pipeline).toEqual(fine.pipeline);
+      expect({ ...long.pipeline, credits: 0, total: 0, queues: [] }).toEqual({
+        ...fine.pipeline,
+        credits: 0,
+        total: 0,
+        queues: [],
+      });
+      expect(long.pipeline.credits).toBeCloseTo(fine.pipeline.credits, 6);
+      expect(long.pipeline.total).toBeCloseTo(fine.pipeline.total, 6);
+      for (let i = 0; i < 2; i++) {
+        expect(long.pipeline.queues[i]).toBeCloseTo(fine.pipeline.queues[i] ?? 0, 6);
+      }
       expect(long.crew.assistant).toBeGreaterThan(15);
       expect(long.certificates["button"]).toBe(1);
     },
@@ -240,9 +250,9 @@ describe("persistence and offline", () => {
       certificates: { button: 1 },
       pipeline: newCareer(NOW).pipeline,
     });
-    expect(normalizeCareer({ ...s, careers: 0 }, NOW).pipeline).toEqual(
-      newCareer(NOW).pipeline,
-    );
+    expect(
+      normalizeCareer({ ...s, stage: 1, bestStage: 1, careers: 0 }, NOW).pipeline,
+    ).toEqual(newCareer(NOW).pipeline);
     expect(advanceCareer(newCareer(NOW), NOW + 60_000).state.pipeline.total).toBe(0);
   });
   it("sanitizes queues, allocation, policies and unknown/repeated trial ids", () => {
@@ -327,8 +337,8 @@ describe("persistence and offline", () => {
     };
     const now = NOW + 100 * 3600000;
     const first = loadCareer(storage, now);
-    expect(first.state.pipeline.total).toBe(100 + offlineCap(s) * 0.75 * 3);
-    expect(first.summary?.pipelineCredits).toBe(offlineCap(s) * 0.75 * 3);
+    expect(first.state.pipeline.total).toBeCloseTo(100 + offlineCap(s) * 0.75 * 3, 6);
+    expect(first.summary?.pipelineCredits).toBeCloseTo(offlineCap(s) * 0.75 * 3, 6);
     expect(loadCareer(storage, now).state.pipeline).toEqual(first.state.pipeline);
   });
 });

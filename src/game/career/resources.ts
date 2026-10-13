@@ -1,6 +1,9 @@
 import type { CareerState } from "../../types";
 import type { CareerView, PipelineView } from "./discovery";
 import { prestigeDiscovered, viewUnlocked } from "./discovery";
+import { pipelineUnlocked } from "./pipelineUnlocks";
+import { compiledTestRate, distributedTestRate } from "./selectors";
+import { openInsightRate } from "./productEffects";
 import { crewCount, hasAutoReport, production, reportValue } from "./selectors";
 import { royaltyRate } from "./products";
 import { certificates } from "./studioSelectors";
@@ -11,8 +14,15 @@ import {
   powerUsed,
   sustainableRate,
 } from "./architectureEffects";
-import { computationRate, networkUnlocked } from "./networkEffects";
+import {
+  agentGenerationRate,
+  computationRate,
+  networkConnected,
+  networkUnlocked,
+} from "./networkEffects";
 import { NETWORK } from "./networkData";
+
+const SECONDS_PER_MINUTE = 60;
 
 export interface ResourceRow {
   id: string;
@@ -20,6 +30,7 @@ export interface ResourceRow {
   symbol: string;
   balance: number;
   rate?: number;
+  rateUnit?: "с" | "хв";
   money?: boolean;
   source: string;
   use: string;
@@ -29,6 +40,11 @@ export interface ResourceRow {
 }
 export function resourceOverview(s: CareerState): ResourceRow[] {
   const auto = hasAutoReport(s);
+  const bugSources = [
+    "Ручні тести й команда",
+    ...(pipelineUnlocked(s) ? ["постійні автотести"] : []),
+    ...(networkConnected(s) ? ["підключені агенти мережі"] : []),
+  ].join(", ");
   const rows: ResourceRow[] = [
     {
       id: "money",
@@ -49,24 +65,30 @@ export function resourceOverview(s: CareerState): ResourceRow[] {
       balance: s.bugs,
       rate: auto ? 0 : production(s),
       source: auto
-        ? "Ручні тести й команда. Автозвіти одразу перетворюють баги на гроші."
-        : "Ручні тести й команда. Здай звіт на робочому місці.",
+        ? `${bugSources}. Автозвіти одразу перетворюють баги на гроші.`
+        : `${bugSources}. Здай звіт на робочому місці.`,
       use: "Звіти дають гроші; знайдені баги паралельно просувають проєкт і контракт.",
       persistence: "Запас скидається у новій кар’єрі.",
       view: "workspace",
     },
   ];
-  if (viewUnlocked(s, "studio")) {
+  if (s.insights > 0 || s.lifetimeInsights > 0 || viewUnlocked(s, "studio")) {
     rows.push({
       id: "insights",
       title: "Інсайти",
+      rate: openInsightRate(s) * SECONDS_PER_MINUTE,
+      rateUnit: "хв",
       symbol: "◈",
       balance: s.insights,
       source:
-        "Завершені етапи проєктів і контракти. Це нагороди за події, не дохід за секунду.",
-      use: "Дослідження студії та запуск продуктів.",
+        "Етапи проєктів і контракти. Відкритий код також дає інсайти за нові автотести.",
+      use: viewUnlocked(s, "studio")
+        ? "Дослідження студії та запуск продуктів."
+        : viewUnlocked(s, "products")
+          ? "Запуск інструментів або збереження для майбутніх інвестицій."
+          : "Збережені знання для майбутніх інвестицій.",
       persistence: "Залишаються після престижу.",
-      view: "studio",
+      view: viewUnlocked(s, "studio") ? "studio" : "projects",
     });
   }
   if (certificates(s) > 0) {
@@ -76,7 +98,11 @@ export function resourceOverview(s: CareerState): ResourceRow[] {
       symbol: "▣",
       balance: certificates(s),
       source: "Перший завершений реліз кожного проєкту.",
-      use: "Відкривають проєкти, інструменти й спеціалістів. Не витрачаються.",
+      use: viewUnlocked(s, "studio")
+        ? "Відкривають проєкти, інструменти й спеціалістів. Не витрачаються."
+        : viewUnlocked(s, "products")
+          ? "Відкривають наступних клієнтів і інструменти. Не витрачаються."
+          : "Підтверджують релізи й відкривають наступних клієнтів. Не витрачаються.",
       persistence: "Сертифікати й їхні рівні залишаються.",
       view: "projects",
     });
@@ -105,7 +131,19 @@ export function resourceOverview(s: CareerState): ResourceRow[] {
       view: "career",
     });
   }
-  if (s.careers > 0) {
+  if (pipelineUnlocked(s)) {
+    rows.push({
+      id: "autotests",
+      title: "Постійні автотести",
+      symbol: "↯",
+      balance: s.pipeline.total,
+      rate: sustainableRate(s),
+      source: "Кожен реліз основного CI/CD створює один автотест.",
+      use: `Виробляють ${compiledTestRate(s).toLocaleString("uk-UA", { maximumFractionDigits: 0 })} багів/с. Не витрачаються.`,
+      persistence: "Залишаються й працюють після престижу.",
+      view: "pipeline",
+      layer: "pipeline",
+    });
     rows.push({
       id: "credits",
       title: "Кредити збірки",
@@ -120,6 +158,21 @@ export function resourceOverview(s: CareerState): ResourceRow[] {
     });
   }
   if (networkUnlocked(s)) {
+    if (networkConnected(s)) {
+      rows.push({
+        id: "networkAgents",
+        title: "Агенти мережі",
+        symbol: "◉",
+        balance: s.pipeline.network.units[0],
+        rate: agentGenerationRate(s),
+        source: "Планувальники створюють нових агентів. Кожен одразу працює.",
+        use: `Тестують студію: ${distributedTestRate(s).toLocaleString("uk-UA", { maximumFractionDigits: 0 })} багів/с. Також генерують обчислення.`,
+        persistence:
+          "Престиж зберігає флот. Перезапуск мережі повертає до одного агента.",
+        view: "pipeline",
+        layer: "network",
+      });
+    }
     rows.push({
       id: "computations",
       title: "Обчислення",
@@ -159,7 +212,7 @@ export function resourceCapacity(s: CareerState) {
       detail: "Одиниці виробництва у поточній кар’єрі",
     },
   ];
-  if (s.careers > 0) {
+  if (pipelineUnlocked(s)) {
     rows.push({
       title: "Ядра конвеєра",
       value: allocatedCores(s.pipeline.allocation),

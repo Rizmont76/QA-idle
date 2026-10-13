@@ -18,11 +18,15 @@ const insightContract = (s: CareerState): CareerAction | null => {
 };
 
 export function chapterTool(s: CareerState) {
-  return chapterRows(s).some((r) => r.goal.kind === "products" && !r.done)
-    ? PRODUCTS.filter(
-        (p) => !(s.products.releases[p.id] ?? 0) && productUnlocked(s, p),
-      ).sort((a, b) => a.insights - b.insights || a.cost - b.cost)[0]
-    : undefined;
+  if (
+    s.pipeline.model === 1 &&
+    !chapterRows(s).some((r) => r.goal.kind === "products" && !r.done)
+  ) {
+    return undefined;
+  }
+  return PRODUCTS.filter(
+    (p) => !(s.products.releases[p.id] ?? 0) && productUnlocked(s, p),
+  ).sort((a, b) => a.insights - b.insights || a.cost - b.cost)[0];
 }
 export const chapterInsightReserve = (s: CareerState) => chapterTool(s)?.insights ?? 0;
 
@@ -88,6 +92,24 @@ export function chapterIntent(s: CareerState): CareerAction | null {
         }
         break;
     }
+  }
+  if (s.pipeline.model === 1) {
+    return null;
+  }
+  const tool = chapterTool(s);
+  if (tool && s.money >= tool.cost) {
+    return s.insights >= tool.insights
+      ? { type: "launchProduct", id: tool.id }
+      : insightContract(s);
+  }
+  const research = RESEARCH.filter(
+    (r) =>
+      researchUnlocked(s, r) &&
+      (s.research[r.id] ?? 0) < r.max &&
+      s.insights - chapterInsightReserve(s) >= researchCost(s, r),
+  ).sort((a, b) => researchCost(s, a) - researchCost(s, b))[0];
+  if (research) {
+    return { type: "research", id: research.id };
   }
   return null;
 }

@@ -33,7 +33,9 @@ import type { CareerView as View, PipelineView } from "../game/career/discovery"
 import { architectureUnlocked } from "../game/career/architectureEffects";
 import { networkUnlocked } from "../game/career/networkEffects";
 import { UnlockNotice } from "./UnlockNotice";
+import { focusedJourney, rankDiscovery } from "../game/career/journey";
 const PERCENT = 100;
+const OVERVIEWS: readonly View[] = ["office", "career", "resources", "achievements"];
 const NAV: readonly { id: View; title: string; symbol: string; subtitle: string }[] = [
   {
     id: "workspace",
@@ -133,6 +135,11 @@ export function CareerApp() {
   );
   const layer = pipelineView(s, requestedLayer);
   const visibleNav = NAV.filter((n) => viewUnlocked(s, n.id));
+  const [overviewsOpen, setOverviewsOpen] = useState(false);
+  const overviewNav = focusedJourney(s)
+    ? visibleNav.filter((n) => OVERVIEWS.includes(n.id))
+    : [];
+  const primaryNav = visibleNav.filter((n) => !overviewNav.includes(n));
   const [confirmation, setConfirmation] = useState<
     "prestige" | "reset" | "import" | "contract" | "project" | null
   >(null);
@@ -159,7 +166,10 @@ export function CareerApp() {
       researchUnlocked(s, node) &&
       s.insights >= researchCost(s, node),
   );
-  function navigate(next: View) {
+  function navigate(next: View, nextLayer?: PipelineView) {
+    if (next === "pipeline" && nextLayer) {
+      setLayer(pipelineView(s, nextLayer));
+    }
     setView(viewUnlocked(s, next) ? next : "workspace");
     window.scrollTo({ top: 0, behavior: "instant" });
   }
@@ -199,7 +209,7 @@ export function CareerApp() {
         </a>
         <div className="sidebar-label">ТВІЙ ПРОСТІР</div>
         <nav aria-label="Головна навігація">
-          {visibleNav.map((n) => (
+          {primaryNav.map((n) => (
             <button
               key={n.id}
               className={`nav-link ${view === n.id ? "selected" : ""}`}
@@ -218,6 +228,34 @@ export function CareerApp() {
               {n.id === "achievements" && <small>{s.badges.length}</small>}
             </button>
           ))}
+          {overviewNav.length > 0 && (
+            <>
+              <button
+                className="nav-link overview-toggle"
+                aria-expanded={overviewsOpen}
+                aria-controls="career-overviews"
+                onClick={() => setOverviewsOpen(!overviewsOpen)}
+              >
+                <span aria-hidden="true">{overviewsOpen ? "⌄" : "›"}</span>
+                Огляди
+              </button>
+              {overviewsOpen && (
+                <div id="career-overviews" className="overview-links">
+                  {overviewNav.map((n) => (
+                    <button
+                      key={n.id}
+                      className={`nav-link ${view === n.id ? "selected" : ""}`}
+                      aria-current={view === n.id ? "page" : undefined}
+                      onClick={() => navigate(n.id)}
+                    >
+                      <span aria-hidden="true">{n.symbol}</span>
+                      {n.title}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </nav>
         <div className="sidebar-bottom">
           {prestigeDiscovered(s) && (
@@ -266,7 +304,7 @@ export function CareerApp() {
                   ? "Прогрес збережено"
                   : "Перевір збереження"}
             </span>
-            <span className="version-chip">CHAPTERS EDITION</span>
+            <span className="version-chip">BREAKTHROUGHS EDITION</span>
           </div>
         </header>
         {warning && (
@@ -317,6 +355,11 @@ export function CareerApp() {
               {(summary.networkComputations ?? 0) > 0 && (
                 <p>Мережа: +{number(summary.networkComputations ?? 0)} обчислень</p>
               )}
+              {(summary.networkBugs ?? 0) > 0 && (
+                <p>
+                  Із них від агентів мережі: +{number(summary.networkBugs ?? 0)} багів
+                </p>
+              )}
               {(summary.automatedActions ?? 0) > 0 && (
                 <p>
                   Політики кар’єри виконали {number(summary.automatedActions ?? 0)} дій.
@@ -333,11 +376,10 @@ export function CareerApp() {
           <UnlockNotice
             key={saveRevision}
             game={s}
-            entries={visibleNav}
+            entries={focusedJourney(s) ? primaryNav : visibleNav}
             open={navigate}
             openLayer={(next) => {
-              setLayer(next);
-              navigate("pipeline");
+              navigate("pipeline", next);
             }}
           />
           <CareerResourceStrip game={s} />
@@ -349,22 +391,9 @@ export function CareerApp() {
               </button>
             </div>
           )}
-          {view === "resources" && (
-            <CareerResources
-              game={s}
-              open={(next, nextLayer) => {
-                if (nextLayer) {
-                  setLayer(nextLayer);
-                }
-                navigate(next);
-              }}
-            />
-          )}
-          {view === "workspace" && prestigeDiscovered(s) && (
-            <DiscoveryCard
-              game={s}
-              open={() => navigate(s.careers > 0 ? "pipeline" : "career")}
-            />
+          {view === "resources" && <CareerResources game={s} open={navigate} />}
+          {view === "workspace" && viewUnlocked(s, "pipeline") && (
+            <DiscoveryCard game={s} open={navigate} />
           )}
           {view === "pipeline" && (
             <CareerPipeline
@@ -485,11 +514,11 @@ export function CareerApp() {
                           {i === s.stage ? " · ТИ ТУТ" : ""}
                         </span>
                         <h3>{rank.title}</h3>
-                        <p>{rank.unlock}</p>
+                        <p>{rankDiscovery(s, i)}</p>
                         <small>
                           {i === 0
                             ? "Кожна кар’єра починається тут"
-                            : `${cash(rank.earned)} на попередньому ранзі · ${String(rank.crew)} од. команди${rank.projects ? ` · ${String(rank.projects)} різних проєктів` : ""}`}
+                            : `${cash(rank.earned)} на попередньому ранзі${rank.crew ? ` · ${String(rank.crew)} од. команди` : ""}${rank.projects ? ` · ${String(rank.projects)} різних проєктів` : ""}`}
                         </small>
                       </div>
                     </article>
@@ -502,7 +531,7 @@ export function CareerApp() {
                     <h2>Залиш свій слід.</h2>
                     <p className="muted">
                       {s.careers < 1
-                        ? "Перший престиж відкриє CI/CD-конвеєр: розподіл ядер, випробування та автоматизацію кар’єри."
+                        ? "Автотести й автоматизація залишаться. Три нагороди випробувань і перший престиж відкриють серверну шафу."
                         : "Усі відкриті системи й автоматизація залишаться з тобою. Нова кар’єра працюватиме швидше."}
                     </p>
                     <div className="prestige-stats">
@@ -725,7 +754,7 @@ export function CareerApp() {
         >
           <p className="mint">
             {s.careers < 1
-              ? "Нове відкриття: майстерня CI/CD. Шість ядер, власний потік релізів і випробування з нагородами назавжди."
+              ? "Автотести залишаться й підхоплять нову кар’єру. Після трьох нагород випробувань відкриється серверна шафа з модулями."
               : "Конвеєр, кредити збірки, ядра, випробування й увімкнені політики автоматизації зберігаються."}
           </p>
           <p>

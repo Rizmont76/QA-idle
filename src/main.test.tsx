@@ -58,7 +58,7 @@ describe("playable career UI", () => {
       Number(screen.getByTestId("bugs").textContent.replace(",", ".")),
     ).toBeGreaterThan(0);
   });
-  it("promotes to Middle, buys automation and earns while idle", () => {
+  it("promotes to Middle, receives automation and earns while idle", () => {
     boot({
       money: 100,
       earned: 150,
@@ -68,7 +68,9 @@ describe("playable career UI", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /Отримати підвищення/ }));
     expect(screen.getByRole("heading", { name: "Senior QA" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Купити Автоматичні звіти" }));
+    expect(
+      screen.queryByRole("button", { name: "Купити Автоматичні звіти" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Автозвіти працюють")).toBeInTheDocument();
     const oldMoney = screen.getByTestId("money").textContent;
     reactAct(() => {
@@ -100,6 +102,7 @@ describe("playable career UI", () => {
       money: 500,
       badges: ["director"],
     });
+    fireEvent.click(screen.getByRole("button", { name: "Огляди" }));
     fireEvent.click(screen.getByRole("button", { name: "Кар’єра" }));
     fireEvent.click(screen.getByRole("button", { name: /Почати нову кар’єру/ }));
     expect(screen.getByRole("dialog")).toHaveTextContent("незавершений проєкт");

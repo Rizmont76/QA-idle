@@ -1,7 +1,9 @@
 import type { CareerState, PipelineAllocation, PipelineTrialId } from "../../types";
+import { PIPELINE_MODEL_VERSION } from "../../types";
 import { amount, ids, record } from "./saveValues";
 import { normalizeArchitecture } from "./architecturePersistence";
 import { normalizeNetwork } from "./networkPersistence";
+import { pipelineUnlocked, trialUnlocked } from "./pipelineUnlocks";
 import {
   allocatedCores,
   coreBudget,
@@ -39,10 +41,11 @@ function queues(value: unknown): [number, number] {
     ? [amount(value[0], PIPELINE.buffer), amount(value[1], PIPELINE.buffer)]
     : [0, 0];
 }
-export function normalizePipeline(s: CareerState, value: unknown): void {
+export function normalizePipeline(s: CareerState, value: unknown, legacy = false): void {
   const p = newPipeline();
+  p.model = legacy ? 1 : PIPELINE_MODEL_VERSION;
   s.pipeline = p;
-  if (s.careers < 1) {
+  if (!pipelineUnlocked(s)) {
     return;
   }
   const data = record(value);
@@ -59,16 +62,18 @@ export function normalizePipeline(s: CareerState, value: unknown): void {
   }
   p.completed =
     p.total >= PIPELINE.trialsAt
-      ? (ids(
-          data["completed"],
-          PIPELINE_TRIALS.map((t) => t.id),
-        ) as PipelineTrialId[])
+      ? (
+          ids(
+            data["completed"],
+            PIPELINE_TRIALS.map((t) => t.id),
+          ) as PipelineTrialId[]
+        ).filter((id) => PIPELINE_TRIALS.some((t) => t.id === id && trialUnlocked(s, t)))
       : [];
   p.allocation = allocation(data["allocation"], coreBudget(p), p.allocation);
   p.queues = queues(data["queues"]);
   const trial = record(data["trial"]);
   const def = PIPELINE_TRIALS.find((t) => t.id === trial["id"]);
-  if (p.total >= PIPELINE.trialsAt && def && !p.completed.includes(def.id)) {
+  if (def && trialUnlocked(s, def) && !p.completed.includes(def.id)) {
     p.trial = {
       id: def.id,
       allocation: allocation(trial["allocation"], def.cores, def.allocation),

@@ -97,6 +97,33 @@ export type CrewId =
 export const BULK_PURCHASE_SIZE = 10;
 export const CAREER_SAVE_VERSION = 4;
 export const PRODUCT_MODEL_VERSION = 2;
+export const PIPELINE_MODEL_VERSION = 2;
+export const JOURNEY_MODEL_VERSION = 2;
+
+export type LabProducer = "testers" | "scripts" | "ci";
+export interface ReleaseLabState {
+  version: 1;
+  reports: number;
+  buildWork: number;
+  totalWork: number;
+  patterns: number;
+  builds: number;
+  testers: number;
+  cases: number;
+  scripts: number;
+  ci: number;
+  bought: Record<LabProducer, number>;
+  efficiency: number;
+  autoBuy: boolean;
+  lastTick: number;
+}
+export type ReleaseLabAction =
+  | { type: "test" }
+  | { type: "buy"; id: LabProducer }
+  | { type: "buyMax"; id: LabProducer }
+  | { type: "efficiency" }
+  | { type: "ship" }
+  | { type: "auto"; enabled: boolean };
 export type PurchaseMode = 1 | typeof BULK_PURCHASE_SIZE | "max";
 export interface CareerContract {
   id: string;
@@ -126,6 +153,7 @@ export type PipelineTrialId = "budget" | "verification" | "deployment";
 export type RackModuleId = "build" | "verify" | "deploy" | "bus" | "archive" | "manager";
 export type BlueprintId = "cycle" | "bus" | "flow" | "studio";
 export type ArchitecturePolicy = "autoBalance" | "autoCores";
+export type RackPresetId = "flow" | "production" | "projects";
 export interface ArchitectureState {
   layout: (RackModuleId | null)[];
   powerLevel: number;
@@ -141,6 +169,7 @@ export interface PipelineTrial {
   elapsed: number;
 }
 export interface PipelineState {
+  model: 1 | typeof PIPELINE_MODEL_VERSION;
   credits: number;
   total: number;
   coreLevel: number;
@@ -167,9 +196,11 @@ export interface NetworkState {
   totalProtocols: number;
   upgrades: Record<NetworkProtocol, number>;
   autoBuy: boolean;
+  linked: boolean;
 }
 export interface CareerState {
   schemaVersion: typeof CAREER_SAVE_VERSION;
+  journeyModel: 1 | typeof JOURNEY_MODEL_VERSION;
   money: number;
   bugs: number;
   earned: number;
@@ -235,16 +266,20 @@ export type CareerAction =
   | { type: "pipelineCore" }
   | { type: "rackModule"; slot: number; id: RackModuleId | null }
   | { type: "rackPower" }
+  | { type: "rackPreset"; id: RackPresetId }
   | { type: "networkBuy"; tier: NetworkTier }
   | { type: "networkReboot" }
   | { type: "networkProtocol"; id: NetworkProtocol }
   | { type: "networkAuto"; enabled: boolean }
+  | { type: "networkConnect" }
   | { type: "claimBlueprint"; id: BlueprintId }
   | { type: "architecturePolicy"; id: ArchitecturePolicy; enabled: boolean }
   | { type: "startTrial"; id: PipelineTrialId }
   | { type: "cancelTrial" }
   | { type: "claimTrial" }
   | { type: "pipelinePolicy"; id: PipelinePolicy; enabled: boolean }
+  | { type: "pipelineBalance"; enabled: boolean }
+  | { type: "pipelineDelegate"; enabled: boolean }
   | { type: "prestige" };
 
 export type ResourceLifetimeCategory = "disposable" | "investment";

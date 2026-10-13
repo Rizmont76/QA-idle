@@ -1,6 +1,14 @@
 # QA Idle Documentation Index
 
-Current pacing: [25 — Career Chapters](25-Career_Chapters.md) owns rank income, chapter evidence, promotion boosts, stable reporting and the resource overview. Track delivery in [TODO](../TODO.md).
+Current opening experiment: [29 — Release Lab](29-Release_Lab_Experiment.md) defines an isolated reset-and-generator prototype following rejection of the focused loop. It leaves the existing career and save untouched; it is not an accepted replacement.
+
+Current focused progression: [28 — Focused Journey](28-Focused_Journey.md) separates early principal systems, keeps overviews quiet and brings main-pipeline management automation forward after mastery. It preserves existing journeys and supersedes the named introduction/balancing rules in 22/24/26.
+
+Current late-frontier connection: [27 — Connected Late Frontiers](27-Connected_Late_Frontiers.md) connects the network fleet to bug production and offers rack layouts with actual economic previews. It preserves document 26's early discovery and permanent capital.
+
+Current core-loop redesign: [26 — Early Breakthroughs](26-Early_Breakthroughs.md) owns early pipeline discovery, compiled autotest production, crew/tool interactions and capability-based promotion objectives. It supersedes the named rules in 20–25. Track iterations in [TODO](../TODO.md).
+
+Current pacing foundation: [25 — Career Chapters](25-Career_Chapters.md) owns independent rank income, promotion boosts, stable reporting and the resource overview. Document 26 replaces its mandatory chapter counts and early pacing.
 
 Current presentation: [24 — Progressive Discovery](24-Progressive_Discovery.md) owns hidden future tabs/features and distinct layer themes. Track delivery in [TODO](../TODO.md).
 
@@ -8,7 +16,7 @@ Current continuation: [23 — Network Generators](23-Network_Generators.md) owns
 
 Next discovery: [22 — Architecture Rack](22-Architecture_Rack.md) owns spatial modules, blueprint rewards and pipeline automation after the three trials.
 
-Next progression layer: [21 — Pipeline Breakthrough](21-Pipeline_Breakthrough.md) owns the first-prestige workshop, trials, automation policies and discovery UI.
+Pipeline foundation: [21 — Pipeline Breakthrough](21-Pipeline_Breakthrough.md) owns flow, trials, automation policies and discovery UI. Document 26 moves its discovery to Senior and connects releases to production.
 
 Active gameplay redesign: [20 — Meaningful Progression](20-Meaningful_Progression.md) supersedes project waiting, product versions and studio effects in 17/19 based on player feedback.
 

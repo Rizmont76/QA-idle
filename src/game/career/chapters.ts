@@ -1,15 +1,25 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers -- Authored rank chapters, documented in 25-Career_Chapters. */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Authored capability chapters, documented in 26-Early_Breakthroughs. */
 import type { CareerState, CrewId } from "../../types";
 import { CAREER_STAGES, CAREER_UPGRADES, CREW } from "./content";
 import { PRODUCTS } from "./productData";
 import { RESEARCH } from "./expansionData";
 import { activeSpecialists, certificates } from "./studioSelectors";
 import type { CareerView } from "./discovery";
+import { legacyGoals } from "./legacyChapters";
+import { focusedJourney } from "./journey";
 
 export type ChapterGoal =
   | { kind: "crew"; id: CrewId; target: number }
   | {
-      kind: "upgrade" | "certificates" | "products" | "research" | "contracts" | "staff";
+      kind:
+        | "upgrade"
+        | "certificates"
+        | "products"
+        | "research"
+        | "contracts"
+        | "staff"
+        | "pipeline"
+        | "trials";
       target: number;
     };
 export interface ChapterDefinition {
@@ -27,71 +37,44 @@ export const CHAPTERS: readonly [ChapterDefinition, ...ChapterDefinition[]] = [
   {
     title: "Команда, якій можна довірити реліз",
     brief:
-      "Збери QA-команду, увімкни автозвіти й доведи першого клієнта до релізу. Інсайти відкриють студію.",
-    goals: [
-      { kind: "crew", id: "squad", target: 10 },
-      { kind: "certificates", target: 1 },
-    ],
+      "Звіти вже здаються самі. Доведи першого клієнта до релізу: він відкриє інструмент, а Senior — конвеєр автотестів.",
+    goals: [{ kind: "certificates", target: 1 }],
   },
   {
     title: "Код починає тестувати код",
     brief:
-      "Освой раннери та запусти перший інструмент. Його роль — ліцензії, робота для команди чи відкритий код — обираєш ти.",
-    goals: [
-      { kind: "crew", id: "runner", target: 10 },
-      { kind: "certificates", target: 2 },
-      { kind: "products", target: 1 },
-    ],
+      "Кожен реліз CI/CD створює автотест, який знаходить баги без тебе. Раннери прискорюють перевірку; інструменти для команди — весь потік.",
+    goals: [{ kind: "pipeline", target: 100 }],
   },
   {
     title: "Власний процес, власні клієнти",
     brief:
-      "Візьми контракт і розвивай дослідження студії. Команда працює над проєктом і контрактом паралельно.",
-    goals: [
-      { kind: "contracts", target: 3 },
-      { kind: "research", target: 6 },
-      { kind: "certificates", target: 3 },
-    ],
+      "Важка регресія відкриває автопроєкти. Обери випробування, перебудуй потік і делегуй роботу, яку вже освоїв.",
+    goals: [{ kind: "trials", target: 1 }],
   },
   {
     title: "Якість у промислових масштабах",
     brief:
-      "Нові лабораторії стануть основою виробництва. Розширюй портфоліо й запроси фахівця, який посилить твій стиль гри.",
-    goals: [
-      { kind: "crew", id: "lab", target: 10 },
-      { kind: "certificates", target: 4 },
-      { kind: "staff", target: 1 },
-    ],
+      "Лабораторії прискорюють деплой. Нове випробування відкриває автопокупки й підвищення; Director — престиж і наступний шар.",
+    goals: [{ kind: "trials", target: 2 }],
   },
   {
     title: "Вибір: спадщина чи світовий масштаб",
     brief:
-      "Перший престиж уже відкриває новий шар. Або залишайся: хмарні ферми й другий продукт підготують студію до глобальних клієнтів.",
-    goals: [
-      { kind: "crew", id: "cloud", target: 10 },
-      { kind: "products", target: 2 },
-      { kind: "certificates", target: 5 },
-    ],
+      "Автотести залишаться після престижу й підхоплять нову кар’єру. Три нагороди випробувань і перший престиж відкриють серверну шафу.",
+    goals: [],
   },
   {
     title: "Навчи систему знаходити більше",
     brief:
-      "AI-кластери підхоплюють виробництво. Поєднай три інструменти та розшир портфоліо, щоб перейти до нової інфраструктури.",
-    goals: [
-      { kind: "crew", id: "ai", target: 10 },
-      { kind: "products", target: 3 },
-      { kind: "certificates", target: 6 },
-    ],
+      "AI-кластери прискорюють усі вузли конвеєра. Обери між заробітком на автотестах, створенням нових та інсайтами для досліджень.",
+    goals: [],
   },
   {
     title: "Релізи за межами звичного",
     brief:
-      "Орбітальні лабораторії — твій новий двигун. Підготуй вісім клієнтів і чотири інструменти до власної платформи.",
-    goals: [
-      { kind: "crew", id: "orbital", target: 10 },
-      { kind: "products", target: 4 },
-      { kind: "certificates", target: 8 },
-    ],
+      "Орбітальні лабораторії прискорюють весь потік. Поєднуй інструменти та дослідження, щоб вийти на масштаб власної платформи.",
+    goals: [],
   },
   {
     title: "Твоя студія — твій стандарт",
@@ -101,13 +84,52 @@ export const CHAPTERS: readonly [ChapterDefinition, ...ChapterDefinition[]] = [
   },
 ];
 export const rankMultiplier = (s: CareerState) => 2 ** s.stage;
-export const currentChapter = (s: CareerState) => CHAPTERS[s.stage] ?? CHAPTERS[0];
+export const currentChapter = (s: CareerState) => {
+  const chapter = CHAPTERS[s.stage] ?? CHAPTERS[0];
+  if (focusedJourney(s)) {
+    return FOCUSED_CHAPTERS[s.stage] ?? chapter;
+  }
+  return s.pipeline.model === 1 ? { ...chapter, goals: legacyGoals(s.stage) } : chapter;
+};
+const FOCUSED_CHAPTERS: Record<number, ChapterDefinition> = {
+  1: {
+    title: "Перший клієнт довіряє тобі реліз",
+    brief:
+      "Звіти здаються самі. Сплануй перший проєкт: кожен баг команди наближає сертифікат, а Senior відкриє власний конвеєр.",
+    goals: [{ kind: "certificates", target: 1 }],
+  },
+  2: {
+    title: "Код починає тестувати код",
+    brief:
+      "Збалансуй вузли CI/CD. Релізи залишають постійні автотести; перше випробування навчить конвеєр розподіляти ядра за тебе.",
+    goals: [{ kind: "pipeline", target: 100 }],
+  },
+  3: {
+    title: "Твої автотести отримують нову роль",
+    brief:
+      "Запусти перший продукт. Ліцензія заробляє на встановлених автотестах, внутрішній інструмент прискорює їх зростання, відкритий код збирає інсайти.",
+    goals: [
+      { kind: "products", target: 1 },
+      { kind: "trials", target: 1 },
+    ],
+  },
+  4: {
+    title: "Знання стають силою студії",
+    brief:
+      "Вклади збережені інсайти в дослідження й обери фахівців. Ці покращення залишаться з тобою; нове випробування делегує освоєні покупки.",
+    goals: [{ kind: "trials", target: 2 }],
+  },
+};
 export const researchLevels = (s: CareerState) =>
   RESEARCH.reduce((sum, r) => sum + (s.research[r.id] ?? 0), 0);
 export const ownedProducts = (s: CareerState) =>
   PRODUCTS.filter((p) => (s.products.releases[p.id] ?? 0) > 0).length;
 export function chapterValue(s: CareerState, goal: ChapterGoal): number {
   switch (goal.kind) {
+    case "pipeline":
+      return s.pipeline.total;
+    case "trials":
+      return s.pipeline.completed.length;
     case "crew":
       return s.crew[goal.id];
     case "upgrade":
@@ -136,6 +158,14 @@ export function chapterRows(s: CareerState) {
     let title: string;
     let view: CareerView = "workspace";
     switch (goal.kind) {
+      case "pipeline":
+        title = "Автотести з релізів CI/CD";
+        view = "pipeline";
+        break;
+      case "trials":
+        title = "Прориви з випробувань";
+        view = "pipeline";
+        break;
       case "crew":
         title = CREW.find((c) => c.id === goal.id)?.name ?? goal.id;
         break;
@@ -173,5 +203,12 @@ export function chapterRows(s: CareerState) {
   });
 }
 export function promotionPreview(s: CareerState) {
-  return CAREER_STAGES[s.stage + 1] ? { ...s, stage: s.stage + 1 } : null;
+  return CAREER_STAGES[s.stage + 1]
+    ? {
+        ...s,
+        stage: s.stage + 1,
+        bestStage: Math.max(s.bestStage, s.stage + 1),
+        upgrades: s.upgrades.includes("auto") ? s.upgrades : [...s.upgrades, "auto"],
+      }
+    : null;
 }

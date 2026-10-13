@@ -15,8 +15,10 @@ it(`active career reaches Director in ${String(active.seconds)}s; milestones ${a
   expect(active.state.stage).toBe(5);
   expect(active.firstHire).toBeLessThanOrEqual(90);
   expect(active.automation).toBeLessThan(600);
-  expect(active.seconds).toBeGreaterThan(900);
-  expect(active.seconds).toBeLessThan(2_700);
+  expect(active.seconds).toBeGreaterThan(300);
+  expect(active.seconds).toBeLessThan(1_200);
+  expect(active.discoveries[0]?.seconds).toBeLessThan(300);
+  expect(active.discoveries.some((d) => d.title.includes("Автопроєкти"))).toBe(true);
 });
 it(`low-click career reaches Director in ${String(idle.seconds)}s; automation ${String(idle.automation)}s`, () => {
   expect(idle.state.stage).toBe(5);

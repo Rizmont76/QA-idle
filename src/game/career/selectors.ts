@@ -1,4 +1,3 @@
-import { architectureEffects } from "./architectureEffects";
 import type { CareerContract, CareerState, CrewId, PurchaseMode } from "../../types";
 import {
   CAREER_RULES as R,
@@ -19,15 +18,21 @@ import {
 } from "./studioSelectors";
 import { STUDIO_RULES as S } from "./expansionData";
 import { chapterComplete, rankMultiplier } from "./chapters";
+import {
+  agentPower,
+  permanentMultiplier,
+  productionFactor,
+  scriptPower,
+} from "./productionEffects";
+export { permanentMultiplier } from "./productionEffects";
+import { legacyRankRequirements } from "./legacyChapters";
+import { computationRate } from "./networkEffects";
 
 export function bounded(value: number, max: number = R.limit): number {
   return Number.isFinite(value) ? Math.max(0, Math.min(max, value)) : 0;
 }
 export function crewCount(s: CareerState): number {
   return Object.values(s.crew).reduce((a, b) => a + b, 0);
-}
-export function permanentMultiplier(s: CareerState): number {
-  return 1 + s.experience * R.experienceBonus + s.badges.length * R.badgeBonus;
 }
 function multiplier(s: CareerState, effect: CareerUpgrade["effect"]): number {
   return CAREER_UPGRADES.filter(
@@ -44,17 +49,21 @@ export function crewRate(s: CareerState, id: CrewId): number {
     def.rate *
       s.crew[id] *
       MILESTONE_MULTIPLIER ** milestones *
-      multiplier(s, "production") *
-      permanentMultiplier(s) *
-      rankMultiplier(s) *
-      (1 + researchBonus(s, "production")) *
-      staffProduction(s, id) *
-      architectureEffects(s).crew,
+      productionFactor(s) *
+      staffProduction(s, id),
   );
 }
 export function production(s: CareerState): number {
-  return bounded(CREW.reduce((n, c) => n + crewRate(s, c.id), 0));
+  return bounded(baseProduction(s) + distributedTestRate(s));
 }
+export const baseProduction = (s: CareerState) =>
+  bounded(crewProduction(s) + compiledTestRate(s));
+export const distributedTestRate = (s: CareerState) =>
+  Math.min(Math.max(0, R.limit - baseProduction(s)), computationRate(s) * agentPower(s));
+export const crewProduction = (s: CareerState) =>
+  bounded(CREW.reduce((n, c) => n + crewRate(s, c.id), 0));
+export const compiledTestRate = (s: CareerState) =>
+  Math.min(Math.max(0, R.limit - crewProduction(s)), s.pipeline.total * scriptPower(s));
 export function manualPower(s: CareerState): number {
   const flat = CAREER_UPGRADES.filter(
     (u) => u.effect === "clickFlat" && s.upgrades.includes(u.id),
@@ -122,7 +131,8 @@ export function hireQuote(
   return { count, cost };
 }
 export function promotionReady(s: CareerState): boolean {
-  const next = CAREER_STAGES[s.stage + 1];
+  const next =
+    s.pipeline.model === 1 ? legacyRankRequirements(s) : CAREER_STAGES[s.stage + 1];
   return (
     !!next &&
     s.rankEarned >= next.earned &&

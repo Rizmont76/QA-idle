@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { CareerAction, CareerState } from "../types";
+import type { CareerAction, CareerState, ProductMode } from "../types";
 import { CAREER_STAGES } from "../game/career/content";
 import { PROJECTS } from "../game/career/expansionData";
 import { PRODUCTS } from "../game/career/productData";
@@ -13,14 +13,22 @@ import {
   productActive,
   productBoost,
   productIncome,
+  productInsightRate,
   productMode,
   royaltyRate,
   toolStrength,
 } from "../game/career/productEffects";
 import { cash, number } from "./careerUtils";
 import { SectionTitle } from "./CareerWidgets";
+import { sustainableRate } from "../game/career/architectureEffects";
+import { pipelineUnlocked } from "../game/career/pipelineUnlocks";
 
 const PERCENT = 100;
+const SECONDS_PER_MINUTE = 60;
+const withMode = (s: CareerState, id: string, mode: ProductMode): CareerState => ({
+  ...s,
+  products: { ...s.products, modes: { ...s.products.modes, [id]: mode } },
+});
 interface Props {
   game: CareerState;
   send: (action: CareerAction) => void;
@@ -98,25 +106,54 @@ function ProductCard({
                   </span>
                   <strong>
                     {option.id === "license"
-                      ? `${cash(def.income * marketStrength(s))} / с`
+                      ? `${cash(productIncome(withMode(s, def.id, "license"), def))} / с`
                       : option.id === "internal"
-                        ? `+${number(strength * PERCENT)}% роботи проєктів`
-                        : `+${number(strength * MARKET.insightShare * PERCENT)}% інсайтів`}
+                        ? `+${number(strength * PERCENT)}% проєктів і CI/CD`
+                        : pipelineUnlocked(s)
+                          ? `+${number(productInsightRate(withMode(s, def.id, "open"), def) * SECONDS_PER_MINUTE)} ◈ / хв`
+                          : `+${number(strength * MARKET.insightShare * PERCENT)}% інсайтів`}
                   </strong>
                 </button>
               ))}
             </div>
             <p className="product-role-note">
               {mode === "license"
-                ? "Продаж ліцензій приносить гроші, також офлайн. Цей інструмент зараз не прискорює проєкти й не додає інсайтів."
+                ? "Ліцензії заробляють на вже створених автотестах. Їх більше — дохід вищий, також офлайн."
                 : mode === "internal"
-                  ? "Команда використовує інструмент у поточному проєкті. Робота рухається швидше; ліцензійний дохід цього продукту вимкнено."
-                  : "Спільнота допомагає дослідженням. Більше інсайтів із нових проєктів і контрактів; ліцензійний дохід вимкнено. Прийняті раніше завдання зберігають свою нагороду."}
+                  ? "Інструмент прискорює проєкти й усі вузли CI/CD. Більше релізів створює більше автотестів; ліцензійний дохід цього продукту вимкнено."
+                  : "Кожен новий автотест приносить інсайти для студії. Нові проєкти й контракти теж дають більше знань. Прийняті раніше завдання зберігають свою нагороду."}
             </p>
+            {pipelineUnlocked(s) && (
+              <p className="product-pipeline-effect">
+                Потік CI/CD: {number(sustainableRate(s))} →{" "}
+                {number(
+                  sustainableRate({
+                    ...s,
+                    products: {
+                      ...s.products,
+                      modes: {
+                        ...s.products.modes,
+                        [def.id]: mode === "internal" ? "license" : "internal",
+                      },
+                    },
+                  }),
+                )}{" "}
+                автотестів/с
+                {mode === "internal" ? " при продажу ліцензій" : " для команди"}
+              </p>
+            )}
             <div className="product-current-income">
               <span>Гроші від цього продукту зараз</span>
               <strong>{cash(productIncome(s, def))} / с</strong>
             </div>
+            {mode === "open" && pipelineUnlocked(s) && (
+              <div className="product-current-income">
+                <span>Інсайти від нових автотестів</span>
+                <strong>
+                  +{number(productInsightRate(s, def) * SECONDS_PER_MINUTE)} ◈ / хв
+                </strong>
+              </div>
+            )}
           </>
         ) : (
           <>

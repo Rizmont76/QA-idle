@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers -- Authored generator balance, documented in 23-Network_Generators. */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- Authored generator balance, documented in 23-Network_Generators and 27-Connected_Late_Frontiers. */
 import type { NetworkProtocol, NetworkState, NetworkTier } from "../../types";
 
 export const NETWORK = {
@@ -7,6 +7,7 @@ export const NETWORK = {
   rebootAt: 2000,
   rebootBonus: 0.25,
   limit: 1e15,
+  agentBugs: 100,
 };
 export const GENERATORS: readonly {
   tier: NetworkTier;
@@ -78,7 +79,7 @@ export const NETWORK_PROTOCOLS: readonly {
     costs: [1, 2, 4],
     bonus: 0.25,
     description:
-      "+25% до конвеєра, виробництва команди й роботи над проєктами за рівень.",
+      "+25% до конвеєра, виробництва й роботи проєктів за рівень. Перший рівень дозволяє підключити агентів до тестування студії.",
   },
   {
     id: "autobuy",
@@ -102,5 +103,16 @@ export function newNetwork(): NetworkState {
     totalProtocols: 0,
     upgrades: { cascade: 0, bridge: 0, autobuy: 0 },
     autoBuy: false,
+    linked: false,
   };
 }
+export const rebootNetworkState = (n: NetworkState, reward: number): NetworkState => ({
+  ...newNetwork(),
+  best: n.best,
+  reboots: Math.min(NETWORK.limit, n.reboots + 1),
+  protocols: Math.min(NETWORK.limit, n.protocols + reward),
+  totalProtocols: Math.min(NETWORK.limit, n.totalProtocols + reward),
+  upgrades: { ...n.upgrades },
+  autoBuy: n.autoBuy,
+  linked: n.linked,
+});

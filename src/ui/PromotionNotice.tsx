@@ -14,7 +14,7 @@ export function PromotionNotice({
         <div>
           <span className="eyebrow">НОВИЙ РАНГ · НОВА ПОТУЖНІСТЬ</span>
           <h2>{impact.title}</h2>
-          <p>Команда й ручні тести вже стали сильнішими. Освой можливості нової глави.</p>
+          <p>{impact.capability}</p>
         </div>
         <button
           className="button ghost"
@@ -26,7 +26,7 @@ export function PromotionNotice({
       </div>
       <div className="promotion-impact">
         <div>
-          <small>Команда · багів/с</small>
+          <small>Виробництво · багів/с</small>
           <strong>
             {number(impact.before.production)} → {number(impact.after.production)}
           </strong>

@@ -18,6 +18,8 @@ function required<T>(v: T | null | undefined): T {
   return v;
 }
 function fixture(patch: Partial<CareerState> = {}): CareerState {
+  const pipeline = newCareer(NOW).pipeline;
+  pipeline.allocation = [0, 0, 0];
   return {
     ...newCareer(NOW),
     stage: 8,
@@ -28,6 +30,7 @@ function fixture(patch: Partial<CareerState> = {}): CareerState {
     lifetimeInsights: 1_000,
     certificates: Object.fromEntries(PROJECTS.map((p) => [p.id, 3])),
     badges: BADGES.map((b) => b.id),
+    pipeline,
     ...patch,
   };
 }

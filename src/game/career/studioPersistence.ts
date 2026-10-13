@@ -68,11 +68,8 @@ function normalizeProject(value: unknown, s: CareerState): CareerProject | null 
 
 // Called only on a fresh normalized state; never mutates the live game.
 export function normalizeStudio(state: CareerState, data: RecordValue): void {
-  state.insights = Math.floor(amount(data["insights"]));
-  state.lifetimeInsights = Math.max(
-    state.insights,
-    Math.floor(amount(data["lifetimeInsights"])),
-  );
+  state.insights = amount(data["insights"]);
+  state.lifetimeInsights = Math.max(state.insights, amount(data["lifetimeInsights"]));
   const certs = record(data["certificates"]);
   let previousCompleted = true;
   for (const def of PROJECTS) {

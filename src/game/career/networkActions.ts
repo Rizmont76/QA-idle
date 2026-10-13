@@ -1,15 +1,17 @@
 import type { CareerAction, CareerState, NetworkUnits } from "../../types";
 import type { ActionResult } from "./engine";
-import { GENERATORS, NETWORK, newNetwork } from "./networkData";
+import { GENERATORS, NETWORK, rebootNetworkState } from "./networkData";
 import {
   generatorPrice,
   generatorUnlocked,
   networkAutomationActive,
+  networkConnectionUnlocked,
   networkUnlocked,
   protocolPrice,
   rebootReward,
 } from "./networkEffects";
 import { balanceArchitecture } from "./architectureEffects";
+import { affordable } from "./afford";
 
 export function networkAction(s: CareerState, action: CareerAction): ActionResult {
   const fail = (message: string): ActionResult => ({ state: s, ok: false, message });
@@ -25,7 +27,7 @@ export function networkAction(s: CareerState, action: CareerAction): ActionResul
       if (
         !generatorUnlocked(s, action.tier) ||
         n.purchased[action.tier] >= NETWORK.purchaseLimit ||
-        n.computations < price
+        !affordable(n.computations, price)
       ) {
         return fail("Потрібно більше обчислень або відкриття цієї ланки.");
       }
@@ -33,7 +35,12 @@ export function networkAction(s: CareerState, action: CareerAction): ActionResul
       const purchased = [...n.purchased] as NetworkUnits;
       units[action.tier] = Math.min(NETWORK.limit, units[action.tier] + 1);
       purchased[action.tier] += 1;
-      next = { ...n, units, purchased, computations: n.computations - price };
+      next = {
+        ...n,
+        units,
+        purchased,
+        computations: Math.max(0, n.computations - price),
+      };
       break;
     }
     case "networkReboot": {
@@ -41,15 +48,7 @@ export function networkAction(s: CareerState, action: CareerAction): ActionResul
       if (reward < 1) {
         return fail("Перезапуск відкриється після 2000 обчислень за запуск.");
       }
-      next = {
-        ...newNetwork(),
-        best: n.best,
-        reboots: Math.min(NETWORK.limit, n.reboots + 1),
-        protocols: Math.min(NETWORK.limit, n.protocols + reward),
-        totalProtocols: Math.min(NETWORK.limit, n.totalProtocols + reward),
-        upgrades: { ...n.upgrades },
-        autoBuy: n.autoBuy,
-      };
+      next = rebootNetworkState(n, reward);
       message = `+${String(reward)} ⌬. Обери постійний розвиток мережі.`;
       break;
     }
@@ -72,6 +71,15 @@ export function networkAction(s: CareerState, action: CareerAction): ActionResul
       }
       next = { ...n, autoBuy: action.enabled };
       break;
+    case "networkConnect":
+      if (!networkConnectionUnlocked(s) || n.linked) {
+        return fail(
+          "Потрібен протокол «Єдина платформа». Підключення виконується один раз.",
+        );
+      }
+      next = { ...n, linked: true };
+      message = "Агенти підключені. Вищі генератори тепер розганяють тестування студії.";
+      break;
     default:
       return fail("Невідома дія мережі.");
   }
@@ -91,7 +99,7 @@ export function networkAutomationIntent(s: CareerState): CareerAction | null {
       (g) =>
         generatorUnlocked(s, g.tier) &&
         s.pipeline.network.purchased[g.tier] < NETWORK.purchaseLimit &&
-        s.pipeline.network.computations >= generatorPrice(s, g.tier),
+        affordable(s.pipeline.network.computations, generatorPrice(s, g.tier)),
     );
   return generator ? { type: "networkBuy", tier: generator.tier } : null;
 }

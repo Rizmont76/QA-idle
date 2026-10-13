@@ -5,6 +5,15 @@ import { CAREER_STAGES, CAREER_UPGRADES, CREW } from "./content";
 import { PROJECTS, RESEARCH } from "./expansionData";
 import { chapterInsightReserve, chapterIntent } from "./chapterActions";
 import { chapterComplete } from "./chapters";
+import { optimalAllocation, pipelineRates } from "./architectureEffects";
+import {
+  coreBudget,
+  corePrice,
+  delegatedPolicies,
+  PIPELINE_TRIALS,
+} from "./pipelineData";
+import { mainBalanceUnlocked, pipelineUnlocked, trialUnlocked } from "./pipelineUnlocks";
+import type { PipelineAllocation } from "../../types";
 import {
   contractReady,
   hasAutoReport,
@@ -28,6 +37,7 @@ export function campaign(
   mastery = false,
   stopAtPrestige = false,
   fastBuys = false,
+  delegate = false,
 ) {
   let state = initial;
   const start = initial.lastTick;
@@ -39,6 +49,8 @@ export function campaign(
   let founder = 0;
   let firstHire = 0;
   let automation = hasAutoReport(initial) ? 1 : 0;
+  const discoveries: { title: string; seconds: number }[] = [];
+  const actions: Partial<Record<CareerAction["type"], number>> = {};
   const result = (seconds: number) => ({
     state,
     seconds,
@@ -50,15 +62,38 @@ export function campaign(
     founder,
     firstHire,
     automation,
+    discoveries,
+    actions,
+    managementActions: Object.entries(actions)
+      .filter(([type]) => type !== "test" && type !== "report")
+      .reduce((sum, [, count]) => sum + count, 0),
   });
   const doAction = (action: CareerAction) => {
-    state = act(state, action, state.lastTick).state;
+    const outcome = act(state, action, state.lastTick);
+    state = outcome.state;
+    if (outcome.ok) {
+      actions[action.type] = (actions[action.type] ?? 0) + 1;
+    }
     const second = (state.lastTick - start) / 1_000;
     if (!firstHire && production(state) > 0) {
       firstHire = second;
     }
     if (!automation && hasAutoReport(state)) {
       automation = second;
+    }
+  };
+  const allocate = (target: PipelineAllocation, trial = false) => {
+    const allocation = () =>
+      trial ? (state.pipeline.trial?.allocation ?? [0, 0, 0]) : state.pipeline.allocation;
+    for (let station = 0; station < target.length; station++) {
+      while ((allocation()[station] ?? 0) > (target[station] ?? 0)) {
+        doAction({ type: "pipelineAllocate", station, delta: -1, trial });
+      }
+    }
+    for (let station = 0; station < target.length; station++) {
+      while ((allocation()[station] ?? 0) < (target[station] ?? 0)) {
+        doAction({ type: "pipelineAllocate", station, delta: 1, trial });
+      }
     }
   };
   for (let second = 1; second <= 43_200; second++) {
@@ -80,6 +115,9 @@ export function campaign(
       doAction({ type: "promote" });
       milestones.push(`${CAREER_STAGES[state.stage]?.title ?? "?"}: ${String(second)}s`);
       rankSeconds.push(second);
+      if (state.stage === 2) {
+        discoveries.push({ title: "CI/CD → постійні автотести", seconds: second });
+      }
       if (state.stage === 5) {
         director = second;
       }
@@ -96,13 +134,16 @@ export function campaign(
     if (contractReady(state)) {
       doAction({ type: "claim" });
     }
-    if (projectReady(state)) {
+    if (
+      projectReady(state) &&
+      (!delegate || mastery || !state.pipeline.automation.projects)
+    ) {
       doAction({ type: "submitProject" });
     }
     if (PROJECTS.every((p) => (state.certificates[p.id] ?? 0) >= (mastery ? 3 : 1))) {
       return result(second);
     }
-    if (!state.project) {
+    if (!state.project && (!delegate || mastery || !state.pipeline.automation.projects)) {
       const next = PROJECTS.find(
         (p) =>
           (state.certificates[p.id] ?? 0) < (mastery ? 3 : 1) &&
@@ -121,9 +162,58 @@ export function campaign(
     if (second % 5 !== 0) {
       continue;
     }
+    if (pipelineUnlocked(state)) {
+      if (
+        delegate &&
+        mainBalanceUnlocked(state) &&
+        !state.pipeline.architecture.autoBalance
+      ) {
+        doAction({ type: "pipelineBalance", enabled: true });
+      }
+      if (
+        delegate &&
+        delegatedPolicies(state.pipeline).some((p) => !state.pipeline.automation[p.id])
+      ) {
+        doAction({ type: "pipelineDelegate", enabled: true });
+      }
+      if (
+        state.pipeline.coreLevel < 3 &&
+        state.pipeline.credits >= corePrice(state.pipeline)
+      ) {
+        doAction({ type: "pipelineCore" });
+      }
+      if (!state.pipeline.architecture.autoBalance) {
+        allocate(
+          optimalAllocation(
+            coreBudget(state.pipeline),
+            pipelineRates(state),
+            state.pipeline.allocation,
+          ),
+        );
+      }
+      if (state.pipeline.trial) {
+        const trial = PIPELINE_TRIALS.find((t) => t.id === state.pipeline.trial?.id);
+        if (trial && state.pipeline.trial.progress >= trial.target) {
+          doAction({ type: "claimTrial" });
+          discoveries.push({ title: trial.reward, seconds: second });
+        }
+      }
+      if (!state.pipeline.trial) {
+        const trial = PIPELINE_TRIALS.find(
+          (t) => !state.pipeline.completed.includes(t.id) && trialUnlocked(state, t),
+        );
+        if (trial) {
+          doAction({ type: "startTrial", id: trial.id });
+          allocate(optimalAllocation(trial.cores, trial.rates, trial.allocation), true);
+        }
+      }
+    }
     const chapterAction = chapterIntent(state);
     if (chapterAction) {
       doAction(chapterAction);
+      if (chapterAction.type === "launchProduct") {
+        doAction({ type: "productMode", id: chapterAction.id, mode: "internal" });
+      }
     }
     const researchOrder = [
       "automation",
@@ -179,6 +269,13 @@ export function campaign(
         })),
       ];
       for (const action of options) {
+        if (
+          delegate &&
+          ((action.type === "hire" && state.pipeline.automation.hire) ||
+            (action.type === "upgrade" && state.pipeline.automation.upgrades))
+        ) {
+          continue;
+        }
         const result = act(state, action, state.lastTick);
         if (!result.ok) {
           continue;

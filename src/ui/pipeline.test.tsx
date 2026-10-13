@@ -62,7 +62,8 @@ it("enforces the shared pool and opt-in, persists allocation and runs purchases"
     vi.advanceTimersByTime(5000);
   });
   expect(saved().crew.assistant).toBe(1);
-  expect(saved().money).toBe(975);
+  expect(saved().money).toBeGreaterThan(975);
+  expect(saved().earned).toBeCloseTo(saved().money - 975, 6);
 });
 it("finishes a trial and claims a permanent reward explicitly, leaving policies off", () => {
   const s = newCareer(NOW);

@@ -31,6 +31,10 @@ import { cash, clockTime, duration, number } from "./careerUtils";
 import { promotionPreview } from "../game/career/chapters";
 import { CareerChapter } from "./CareerChapter";
 import type { CareerView } from "../game/career/discovery";
+import { pipelineRates, sustainableRate } from "../game/career/architectureEffects";
+import { compiledTestRate } from "../game/career/selectors";
+import { pipelineUnlocked } from "../game/career/pipelineUnlocks";
+import { focusedJourney, rankDiscovery } from "../game/career/journey";
 
 interface Props {
   open: (view: CareerView) => void;
@@ -166,7 +170,9 @@ export function CareerWorkspace({
           <div className="rank-number">0{s.stage + 1}</div>
           <h2>{next?.title ?? "Нова кар’єра"}</h2>
           <p className="muted">
-            {next?.unlock ?? "Перетвори цю кар’єру на постійний бонус до наступної."}
+            {next
+              ? rankDiscovery(s, s.stage + 1)
+              : "Перетвори цю кар’єру на постійний бонус до наступної."}
           </p>
           {promoted && (
             <p className="rank-boost-preview">
@@ -193,19 +199,21 @@ export function CareerWorkspace({
                   label="Дохід для підвищення"
                 />
               </div>
-              <div>
-                <div className="row-label">
-                  <span>Одиниці команди</span>
-                  <strong>
-                    {crewCount(s)} <em>/ {next.crew}</em>
-                  </strong>
+              {next.crew > 0 && (
+                <div>
+                  <div className="row-label">
+                    <span>Одиниці команди</span>
+                    <strong>
+                      {crewCount(s)} <em>/ {next.crew}</em>
+                    </strong>
+                  </div>
+                  <Meter
+                    value={crewCount(s)}
+                    max={next.crew}
+                    label="Команда для підвищення"
+                  />
                 </div>
-                <Meter
-                  value={crewCount(s)}
-                  max={next.crew}
-                  label="Команда для підвищення"
-                />
-              </div>
+              )}
               {!!next.projects && (
                 <div>
                   <div className="row-label">
@@ -258,6 +266,35 @@ export function CareerWorkspace({
         </section>
       </div>
       <CareerChapter game={s} open={open} />
+      {pipelineUnlocked(s) && (
+        <section
+          className="panel pipeline-growth"
+          aria-label="Автотести й зростання виробництва"
+        >
+          <div>
+            <span className="eyebrow">КОД ТЕСТУЄ КОД</span>
+            <h3>Виробництво росте між покупками.</h3>
+            <p className="muted">
+              Релізи створюють автотести. Вони працюють і залишаються після престижу.
+            </p>
+          </div>
+          <div>
+            <strong>{number(s.pipeline.total)}</strong>
+            <small>постійних автотестів</small>
+          </div>
+          <div>
+            <strong>+{number(compiledTestRate(s))}</strong>
+            <small>багів/с від автотестів</small>
+          </div>
+          <div>
+            <strong>+{number(sustainableRate(s))} / с</strong>
+            <small>нових автотестів у сталому потоці</small>
+          </div>
+          <button className="button secondary" onClick={() => open("pipeline")}>
+            Розігнати конвеєр →
+          </button>
+        </section>
+      )}
       {s.bestStage >= STUDIO_RULES.unlockStage && (
         <div className="workspace-project">
           <div>
@@ -311,6 +348,16 @@ export function CareerWorkspace({
             const quote = hireQuote(s, c.id, mode);
             const milestone = CREW_MILESTONES.find((n) => n > s.crew[c.id]);
             const maxed = s.crew[c.id] >= R.crewLimit;
+            const station = ({ runner: 1, lab: 2, cloud: 0 } as Record<string, number>)[
+              c.id
+            ];
+            const nextRates = pipelineRates({
+              ...s,
+              crew: {
+                ...s.crew,
+                [c.id]: Math.min(R.crewLimit, s.crew[c.id] + (quote.count || 1)),
+              },
+            });
             return (
               <article className="panel crew-card" key={c.id}>
                 <div className="crew-top">
@@ -339,6 +386,13 @@ export function CareerWorkspace({
                   </div>
                 </div>
                 <p className="crew-description">{c.description}</p>
+                {pipelineUnlocked(s) && station !== undefined && !maxed && (
+                  <p className="crew-pipeline-effect">
+                    {["Збірка", "Перевірка", "Деплой"][station]}:{" "}
+                    {number(pipelineRates(s)[station] ?? 0)} →{" "}
+                    {number(nextRates[station] ?? 0)} / ядро
+                  </p>
+                )}
                 <div className="crew-production">
                   <strong>+{number(crewRate(s, c.id))}</strong>
                   <span> багів/с</span>
@@ -449,104 +503,111 @@ export function CareerWorkspace({
         )}
       </section>
       {s.stage >= R.contractStage && (
-        <section id="contracts">
-          <SectionTitle eyebrow="ДОДАТКОВИЙ ВИКЛИК" title="Контракти">
-            <span className="muted tiny">Виконано: {s.contractsCompleted}</span>
-          </SectionTitle>
-          {(dispatcherUnlocked(s) || s.office.licensed) && (
-            <>
-              {" "}
-              <div className="workspace-dispatch">
-                <span>
-                  {dispatch
-                    ? `⇄ Автоповтор: ${dispatch.title}`
-                    : "Нехай диспетчер повторює контракти за тебе."}
-                </span>
-                <button
-                  className="text-button"
-                  aria-label="Керувати автоматизацією контрактів"
-                  onClick={office}
-                >
-                  Диспетчер в офісі →
-                </button>
+        <details
+          className="optional-contracts"
+          open={focusedJourney(s) ? undefined : true}
+        >
+          {focusedJourney(s) && <summary>Додаткові контракти</summary>}
+          <section id="contracts">
+            <SectionTitle eyebrow="ДОДАТКОВИЙ ВИКЛИК" title="Контракти">
+              <span className="muted tiny">Виконано: {s.contractsCompleted}</span>
+            </SectionTitle>
+            {(dispatcherUnlocked(s) || s.office.licensed) && (
+              <>
+                {" "}
+                <div className="workspace-dispatch">
+                  <span>
+                    {dispatch
+                      ? `⇄ Автоповтор: ${dispatch.title}`
+                      : "Нехай диспетчер повторює контракти за тебе."}
+                  </span>
+                  <button
+                    className="text-button"
+                    aria-label="Керувати автоматизацією контрактів"
+                    onClick={office}
+                  >
+                    Диспетчер в офісі →
+                  </button>
+                </div>
+              </>
+            )}
+            {s.contract ? (
+              <article className="panel active-contract">
+                <div>
+                  <span className="live-badge">
+                    {dispatch?.id === s.contract.id
+                      ? "⇄ Автоматична здача"
+                      : contractReady(s)
+                        ? "✓ Завершено"
+                        : "● У роботі"}
+                  </span>
+                  <h3>{s.contract.title}</h3>
+                  <p className="muted">
+                    Нові баги: {number(s.contract.progress)} / {number(s.contract.target)}{" "}
+                    · Час: {clockTime(s.contract.elapsed)} /{" "}
+                    {clockTime(s.contract.duration)}
+                  </p>
+                  <Meter
+                    value={Math.min(
+                      s.contract.progress / s.contract.target,
+                      s.contract.elapsed / s.contract.duration,
+                    )}
+                    max={1}
+                    label="Виконання контракту"
+                  />
+                </div>
+                <div>
+                  <strong className="contract-reward">{cash(s.contract.reward)}</strong>
+                  <span className="contract-insights insight-text">
+                    +{number(s.contract.insights)} ◈ інсайтів
+                  </span>
+                  <button
+                    className="button primary full"
+                    disabled={!contractReady(s)}
+                    onClick={() => {
+                      send({ type: "claim" });
+                    }}
+                  >
+                    Забрати винагороду
+                  </button>
+                  <button className="text-button" onClick={cancelContract}>
+                    Скасувати контракт
+                  </button>
+                </div>
+              </article>
+            ) : (
+              <div className="contract-grid">
+                {CONTRACTS.filter((c) => c.stage <= s.stage).map((c) => {
+                  const quote = contractQuote(s, c.id);
+                  if (!quote) {
+                    return null;
+                  }
+                  return (
+                    <article className="panel" key={c.id}>
+                      <span className="eyebrow">
+                        {duration(quote.duration)} · {number(quote.target)} багів
+                      </span>
+                      <h3>{c.title}</h3>
+                      <p className="muted">{c.description}</p>
+                      <p className="insight-text tiny">
+                        +{number(quote.insights)} ◈ інсайтів
+                      </p>
+                      <button
+                        className="button ghost full"
+                        onClick={() => {
+                          send({ type: "contract", id: c.id });
+                        }}
+                      >
+                        <span>Взяти контракт</span>
+                        <strong>{cash(quote.reward)}</strong>
+                      </button>
+                    </article>
+                  );
+                })}
               </div>
-            </>
-          )}
-          {s.contract ? (
-            <article className="panel active-contract">
-              <div>
-                <span className="live-badge">
-                  {dispatch?.id === s.contract.id
-                    ? "⇄ Автоматична здача"
-                    : contractReady(s)
-                      ? "✓ Завершено"
-                      : "● У роботі"}
-                </span>
-                <h3>{s.contract.title}</h3>
-                <p className="muted">
-                  Нові баги: {number(s.contract.progress)} / {number(s.contract.target)} ·
-                  Час: {clockTime(s.contract.elapsed)} / {clockTime(s.contract.duration)}
-                </p>
-                <Meter
-                  value={Math.min(
-                    s.contract.progress / s.contract.target,
-                    s.contract.elapsed / s.contract.duration,
-                  )}
-                  max={1}
-                  label="Виконання контракту"
-                />
-              </div>
-              <div>
-                <strong className="contract-reward">{cash(s.contract.reward)}</strong>
-                <span className="contract-insights insight-text">
-                  +{number(s.contract.insights)} ◈ інсайтів
-                </span>
-                <button
-                  className="button primary full"
-                  disabled={!contractReady(s)}
-                  onClick={() => {
-                    send({ type: "claim" });
-                  }}
-                >
-                  Забрати винагороду
-                </button>
-                <button className="text-button" onClick={cancelContract}>
-                  Скасувати контракт
-                </button>
-              </div>
-            </article>
-          ) : (
-            <div className="contract-grid">
-              {CONTRACTS.filter((c) => c.stage <= s.stage).map((c) => {
-                const quote = contractQuote(s, c.id);
-                if (!quote) {
-                  return null;
-                }
-                return (
-                  <article className="panel" key={c.id}>
-                    <span className="eyebrow">
-                      {duration(quote.duration)} · {number(quote.target)} багів
-                    </span>
-                    <h3>{c.title}</h3>
-                    <p className="muted">{c.description}</p>
-                    <p className="insight-text tiny">
-                      +{number(quote.insights)} ◈ інсайтів
-                    </p>
-                    <button
-                      className="button ghost full"
-                      onClick={() => {
-                        send({ type: "contract", id: c.id });
-                      }}
-                    >
-                      <span>Взяти контракт</span>
-                      <strong>{cash(quote.reward)}</strong>
-                    </button>
-                  </article>
-                );
-              })}
-            </div>
-          )}
-        </section>
+            )}
+          </section>
+        </details>
       )}
     </>
   );

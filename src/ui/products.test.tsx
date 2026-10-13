@@ -24,7 +24,11 @@ afterEach(() => {
   vi.useRealTimers();
 });
 function boot(patch: Record<string, unknown> = {}) {
-  localStorage.setItem(R.saveKey, JSON.stringify({ ...newCareer(NOW), ...patch }));
+  // Previously reached Senior saves retain their owned tools and introductions.
+  localStorage.setItem(
+    R.saveKey,
+    JSON.stringify({ ...newCareer(NOW), journeyModel: 1, ...patch }),
+  );
   render(<CareerApp />);
   fireEvent.click(screen.getByRole("button", { name: "Продукти" }));
 }
@@ -55,6 +59,7 @@ it("launches instantly and switches between cash, project work and knowledge", (
     money: 100_000,
     insights: 20,
     certificates: { button: 1 },
+    pipeline: { ...newCareer(NOW).pipeline, allocation: [0, 0, 0] },
   });
   fireEvent.click(screen.getByRole("button", { name: "Запустити Checklist Studio" }));
   expect(saved().money).toBe(96_000);
@@ -98,4 +103,31 @@ it("explains legacy refunds once and dormant retained tools", () => {
   expect(saved().products.earned).toBe(0);
   fireEvent.click(screen.getByRole("button", { name: "Зрозуміло" }));
   expect(saved().products.refund).toBeNull();
+});
+
+it("shows current capital income, growth choice and passive knowledge on a connected tool", () => {
+  const s = newCareer(NOW);
+  s.pipeline.total = 100;
+  boot({
+    stage: 2,
+    bestStage: 2,
+    certificates: { button: 1 },
+    pipeline: s.pipeline,
+    products: { ...s.products, releases: { checklist: 1 } },
+  });
+  const license = screen.getByRole("button", { name: "Checklist Studio: Ліцензії" });
+  expect(license).toHaveTextContent("$90 / с");
+  expect(screen.getByText(/Потік CI\/CD:/)).toHaveTextContent("1 → 1,3");
+  const open = screen.getByRole("button", { name: "Checklist Studio: Відкритий код" });
+  expect(open).toHaveTextContent("0,8 ◈ / хв");
+  fireEvent.click(open);
+  act(() => {
+    vi.advanceTimersByTime(5_000);
+  });
+  expect(saved().insights).toBeGreaterThan(0);
+  expect(screen.getByText("Інсайти від нових автотестів")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Ресурси" }));
+  expect(screen.getByRole("table", { name: "Відкриті ресурси" })).toHaveTextContent(
+    "/ хв",
+  );
 });

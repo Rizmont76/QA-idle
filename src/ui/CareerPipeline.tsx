@@ -1,10 +1,13 @@
 import { CareerNetwork } from "./CareerNetwork";
 import { networkUnlocked } from "../game/career/networkEffects";
-import type { PipelineView } from "../game/career/discovery";
+import type { CareerView, PipelineView } from "../game/career/discovery";
 import { CareerArchitecture } from "./CareerArchitecture";
 import { architectureUnlocked, pipelineRates } from "../game/career/architectureEffects";
 import type { CareerAction, CareerState } from "../types";
+import { pipelineUnlocked, trialUnlocked } from "../game/career/pipelineUnlocks";
 import { CAREER_RULES } from "../game/career/content";
+import { compiledTestRate } from "../game/career/selectors";
+import { affordable } from "../game/career/afford";
 import {
   coreBudget,
   corePrice,
@@ -17,13 +20,20 @@ import { FlowBoard } from "./CareerFlowBoard";
 import { nextDiscovery } from "../game/career/pipelineSelectors";
 import { Meter, SectionTitle } from "./CareerWidgets";
 import { clockTime, number } from "./careerUtils";
+import { MainBalance, BulkDelegation } from "./CareerDelegation";
 
 interface Props {
   game: CareerState;
   send: (action: CareerAction) => void;
   career: () => void;
 }
-export function DiscoveryCard({ game, open }: { game: CareerState; open: () => void }) {
+export function DiscoveryCard({
+  game,
+  open,
+}: {
+  game: CareerState;
+  open: (view: CareerView, layer?: PipelineView) => void;
+}) {
   const next = nextDiscovery(game);
   return (
     <section className="discovery-card" aria-label="Наступне відкриття">
@@ -36,7 +46,7 @@ export function DiscoveryCard({ game, open }: { game: CareerState; open: () => v
         <p>{next.detail}</p>
         <Meter value={next.value} max={next.target} label="Прогрес відкриття" />
       </div>
-      <button className="button secondary" onClick={open}>
+      <button className="button secondary" onClick={() => open(next.view, next.layer)}>
         {next.action} →
       </button>
     </section>
@@ -45,13 +55,13 @@ export function DiscoveryCard({ game, open }: { game: CareerState; open: () => v
 
 function PipelineWorkshop({ game: s, send, career }: Props) {
   const p = s.pipeline;
-  const unlocked = s.careers > 0;
+  const unlocked = pipelineUnlocked(s);
   const trial = p.trial;
   const trialDef = PIPELINE_TRIALS.find((t) => t.id === trial?.id);
   const trialReady = !!trial && !!trialDef && trial.progress >= trialDef.target;
   return (
     <>
-      <SectionTitle eyebrow="ПЕРШИЙ НОВИЙ ШАР" title="Майстерня CI/CD">
+      <SectionTitle eyebrow="КОД ПРАЦЮЄ ЗА ТЕБЕ" title="Майстерня CI/CD">
         <span className="pill">
           {unlocked ? "Залишається після престижу" : "Відкриття попереду"}
         </span>
@@ -61,17 +71,15 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
           <span className="eyebrow">ТВОЯ ПЕРША ЗМІНА МАСШТАБУ</span>
           <h2>Від команди — до системи.</h2>
           <p>
-            Досягни Director і почни нову кар’єру. Тут з’являться шість ядер і
-            безперервний потік релізів. Його швидкість визначатимеш ти.
+            Досягни Senior QA. Тут з’являться шість ядер і потік релізів, які створюють
+            постійні автотести. Його швидкість визначатимеш ти.
           </p>
           <p>
             Випробування відкриють автоматизацію проєктів, найму й підвищень. Після
             наступного престижу вона залишиться з тобою.
           </p>
           <button className="button primary" onClick={career}>
-            {s.stage >= CAREER_RULES.prestigeStage
-              ? "Зробити перший престиж →"
-              : "Досягнути Director →"}
+            Досягнути Senior QA →
           </button>
         </section>
       ) : (
@@ -82,13 +90,15 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
                 <span className="eyebrow">БЕЗПЕРЕРВНИЙ ПОТІК</span>
                 <h2>Збалансуй вузли.</h2>
                 <p className="muted">
-                  Один реліз = один кредит збірки. Кар’єра продовжується паралельно.
+                  Один реліз = один постійний автотест + один кредит збірки. Автотести
+                  знаходять баги й прискорюють дохід.
                 </p>
               </div>
               <div className="pipeline-currency">
                 <span>КРЕДИТИ ЗБІРКИ</span>
                 <strong>▧ {number(p.credits)}</strong>
                 <small>Всього релізів: {number(p.total)}</small>
+                <small>Автотести: +{number(compiledTestRate(s))} багів/с</small>
               </div>
             </div>
             <FlowBoard
@@ -110,7 +120,8 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
               <button
                 className="button secondary"
                 disabled={
-                  p.coreLevel >= PIPELINE.maxCoreLevel || p.credits < corePrice(p)
+                  p.coreLevel >= PIPELINE.maxCoreLevel ||
+                  !affordable(p.credits, corePrice(p))
                 }
                 onClick={() => send({ type: "pipelineCore" })}
               >
@@ -119,6 +130,7 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
                   : `+1 ядро · ${number(corePrice(p))} ▧`}
               </button>
             </div>
+            <MainBalance game={s} send={send} />
           </section>
           {p.total >= PIPELINE.trialsAt && (
             <>
@@ -187,7 +199,7 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
                 </section>
               )}
               <div className="trial-options">
-                {PIPELINE_TRIALS.map((def) => (
+                {PIPELINE_TRIALS.filter((def) => trialUnlocked(s, def)).map((def) => (
                   <article
                     key={def.id}
                     className={`panel trial-option ${p.completed.includes(def.id) ? "complete" : ""}`}
@@ -230,10 +242,11 @@ function PipelineWorkshop({ game: s, send, career }: Props) {
                 title="Автоматизація кар’єри"
               />
               <p className="pipeline-intro">
-                Кожні {PIPELINE.automationMs / CAREER_RULES.milliseconds} секунд:
-                підвищення → покращення → найм → проєкт. По одній дії кожного виду, також
-                офлайн. Увімкни потрібне.
+                Увімкнені політики працюють кожні{" "}
+                {PIPELINE.automationMs / CAREER_RULES.milliseconds} секунд, також офлайн.
+                По одній дії кожного виду.
               </p>
+              <BulkDelegation game={s} send={send} />
               <div className="pipeline-policies">
                 {PIPELINE_POLICIES.filter((policy) => policyUnlocked(p, policy.id)).map(
                   (policy) => {
@@ -288,7 +301,7 @@ export function CareerPipeline(
   const available = architectureUnlocked(props.game);
   const network = networkUnlocked(props.game);
   const { view, setView } = props;
-  if (props.game.careers < 1) {
+  if (!pipelineUnlocked(props.game)) {
     return null;
   }
   return (

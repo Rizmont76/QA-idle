@@ -10,6 +10,10 @@ export const networkUnlocked = (s: CareerState) =>
 export const generatorUnlocked = (s: CareerState, tier: NetworkTier) =>
   networkUnlocked(s) &&
   GENERATORS.some((g) => g.tier === tier && s.pipeline.network.best >= g.unlock);
+export const networkConnectionUnlocked = (s: CareerState) =>
+  networkUnlocked(s) && s.pipeline.network.upgrades.bridge > 0;
+export const networkConnected = (s: CareerState) =>
+  networkConnectionUnlocked(s) && s.pipeline.network.linked;
 export const generatorPrice = (s: CareerState, tier: NetworkTier) =>
   Math.ceil(
     (GENERATORS.find((g) => g.tier === tier)?.price ?? Infinity) *
@@ -42,8 +46,22 @@ export const computationRate = (s: CareerState) =>
   networkUnlocked(s)
     ? s.pipeline.network.units[0] * (GENERATORS[0]?.rate ?? 0) * networkMultiplier(s)
     : 0;
+export const agentGenerationRate = (s: CareerState) =>
+  networkUnlocked(s) && s.pipeline.network.units[0] < NETWORK.limit
+    ? s.pipeline.network.units[1] * (GENERATORS[1]?.rate ?? 0) * networkMultiplier(s)
+    : 0;
 export function networkDiscovery(s: CareerState) {
   const n = s.pipeline.network;
+  if (networkConnectionUnlocked(s) && !networkConnected(s)) {
+    return {
+      title: "Агенти → реальне тестування студії",
+      detail:
+        "Підключи мережу: генератори нарощуватимуть виробництво багів, а не лише обчислень.",
+      value: 1,
+      target: 1,
+      action: "Підключити агентів",
+    };
+  }
   const next = GENERATORS.find((g) => n.best < g.unlock);
   if (next) {
     return {

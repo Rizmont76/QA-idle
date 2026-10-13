@@ -1,6 +1,11 @@
 import type { CareerState, ProductMode } from "../../types";
 import { PRODUCTS } from "./productData";
 import type { ProductDefinition } from "./productData";
+import { PIPELINE_MODEL_VERSION } from "../../types";
+import { compiledTestRate, reportValue } from "./selectors";
+import { sustainableRate } from "./architectureEffects";
+import { pipelineUnlocked } from "./pipelineUnlocks";
+import { CAREER_RULES } from "./content";
 
 export const MARKET = {
   clients: 400,
@@ -8,6 +13,7 @@ export const MARKET = {
   projectClients: 10,
   scale: 10,
   insightShare: 0.5,
+  insightReleases: 10,
 } as const;
 const STRENGTH: Record<string, number> = {
   checklist: 0.25,
@@ -48,12 +54,34 @@ export function productBoost(s: CareerState, mode: ProductMode): number {
 }
 export function productIncome(s: CareerState, def: ProductDefinition): number {
   return productActive(s, def) && productMode(s, def.id) === "license"
-    ? def.income * marketStrength(s)
+    ? def.income * marketStrength(s) +
+        compiledTestRate(s) * reportValue(s) * toolStrength(s, def)
     : 0;
 }
 export function royaltyRate(s: CareerState): number {
   return PRODUCTS.reduce((sum, p) => sum + productIncome(s, p), 0);
 }
+export const baseRoyaltyRate = (s: CareerState) =>
+  PRODUCTS.filter(
+    (p) => productActive(s, p) && productMode(s, p.id) === "license",
+  ).reduce((sum, p) => sum + p.income * marketStrength(s), 0);
+export const royaltyWork = (s: CareerState, seconds: number, scriptBugs: number) =>
+  baseRoyaltyRate(s) * seconds + scriptBugs * reportValue(s) * productBoost(s, "license");
+export const openInsightsPerRelease = (s: CareerState) =>
+  s.pipeline.model === PIPELINE_MODEL_VERSION &&
+  pipelineUnlocked(s) &&
+  s.pipeline.total < CAREER_RULES.limit
+    ? productBoost(s, "open") / MARKET.insightReleases
+    : 0;
+export const openInsightRate = (s: CareerState) =>
+  openInsightsPerRelease(s) * sustainableRate(s);
+export const productInsightRate = (s: CareerState, def: ProductDefinition) =>
+  productActive(s, def) &&
+  productMode(s, def.id) === "open" &&
+  openInsightsPerRelease(s) > 0
+    ? ((toolStrength(s, def) * MARKET.insightShare) / MARKET.insightReleases) *
+      sustainableRate(s)
+    : 0;
 export function gainClients(s: CareerState, amount: number): CareerState {
   if (!Object.values(s.products.releases).some((owned) => owned > 0)) {
     return s;

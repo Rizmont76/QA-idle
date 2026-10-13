@@ -56,6 +56,9 @@ it("opens the next layer, makes agents productive and keeps automatic purchases 
     screen.getByRole("heading", { name: "Обчислювальна мережа" }),
   ).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Купити: Агенти" })).toBeDisabled();
+  expect(
+    screen.queryByRole("button", { name: "Підключити агентів до студії →" }),
+  ).not.toBeInTheDocument();
   act(() => {
     vi.advanceTimersByTime(10000);
   });
@@ -68,6 +71,52 @@ it("opens the next layer, makes agents productive and keeps automatic purchases 
   expect(
     screen.queryByRole("button", { name: "Купити: Планувальники" }),
   ).not.toBeInTheDocument();
+});
+
+function bridged() {
+  const s = fixture();
+  s.bestStage = 5;
+  s.pipeline.network.best = 50_000;
+  s.pipeline.network.reboots = 1;
+  s.pipeline.network.totalProtocols = 1;
+  s.pipeline.network.upgrades.bridge = 1;
+  s.pipeline.network.units = [100, 3, 1, 0];
+  return s;
+}
+it("requires an explicit connection and reveals working fleet resources afterwards", () => {
+  boot(bridged());
+  expect(saved().pipeline.network.linked).toBe(false);
+  const connection = screen.getByRole("button", {
+    name: "Підключити агентів до студії →",
+  });
+  expect(connection).toBeEnabled();
+  fireEvent.click(connection);
+  expect(saved().pipeline.network.linked).toBe(true);
+  expect(screen.getByText("Підключено назавжди ✓")).toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "Підключити агентів до студії →" }),
+  ).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Усі ресурси →" }));
+  expect(screen.getByRole("table", { name: "Відкриті ресурси" })).toHaveTextContent(
+    "Агенти мережі",
+  );
+});
+it("shows the fleet income tradeoff before a confirmed network reboot", () => {
+  const s = bridged();
+  s.pipeline.network.linked = true;
+  s.pipeline.network.runTotal = 8_000;
+  boot(s);
+  fireEvent.click(screen.getByRole("button", { name: "Перезапустити мережу →" }));
+  const dialog = screen.getByRole("dialog", {
+    name: "Перезапустити обчислювальну мережу?",
+  });
+  expect(dialog).toHaveTextContent("Поточний флот почне з одного агента.");
+  expect(dialog).toHaveTextContent("Дохід:");
+  expect(dialog).toHaveTextContent("Накопичені автотести продовжать працювати.");
+  fireEvent.click(screen.getByRole("button", { name: "Перезапустити" }));
+  expect(saved().pipeline.network.linked).toBe(true);
+  expect(saved().pipeline.network.units).toEqual([1, 0, 0, 0]);
+  expect(saved().pipeline.total).toBe(10_000);
 });
 it("confirms a local reboot, retains career progress and spends earned protocols", () => {
   const s = fixture();
